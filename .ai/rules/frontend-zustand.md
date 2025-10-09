@@ -1,0 +1,11 @@
+### Frontend — Zustand
+- Create separate stores per state domain.
+- Use `immer` middleware for complex immutable updates.
+- Implement selectors to derive state and avoid re‑renders.
+- Persist with `persist` middleware when appropriate.
+- Use strict TypeScript typing for store definitions.
+- Prefer shallow equality checks with `useShallow` for perf.
+- Compose stores to share logic.
+- Use subscriptions for state changes outside React.
+- Enable devtools middleware in development.
+- Wrap access in custom hooks.

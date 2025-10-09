@@ -127,4 +127,7 @@ def downgrade() -> None:
     op.drop_table('groups')
     op.drop_index('idx_users_email_lower', table_name='users')
     op.drop_table('users')
+    # Drop enum types after tables are gone
+    op.execute("DROP TYPE IF EXISTS exclusion_type_enum")
+    op.execute("DROP TYPE IF EXISTS draw_status_enum")
     # ### end Alembic commands ###

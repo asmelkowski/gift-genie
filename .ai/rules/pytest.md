@@ -1,0 +1,4 @@
+### Testing — PyTest
+- Use fixtures for setup and dependency injection.
+- Prefer parameterized tests for multiple input cases.
+- Use `monkeypatch` for mocking dependencies.

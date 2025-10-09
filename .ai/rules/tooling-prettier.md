@@ -1,0 +1,7 @@
+### Tooling — Prettier
+- Define a consistent `.prettierrc` across repos.
+- Enable editor format‑on‑save.
+- Use `.prettierignore` for generated/build artifacts and excluded patterns.
+- Set `printWidth` (80–120) per team; this repo uses 100.
+- Configure quotes/semicolons to match team conventions; this repo uses single quotes + semicolons (frontend).
+- Add CI checks to enforce formatting.
