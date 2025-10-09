@@ -2,17 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Protocol
 from uuid import uuid4
 
 from gift_genie.application.dto.register_user_command import RegisterUserCommand
 from gift_genie.application.errors import EmailConflictError
 from gift_genie.domain.entities.user import User
 from gift_genie.domain.interfaces.repositories import UserRepository
-
-
-class PasswordHasher(Protocol):
-    async def hash(self, password: str) -> str: ...
+from gift_genie.domain.interfaces.security import PasswordHasher
 
 
 @dataclass(slots=True)

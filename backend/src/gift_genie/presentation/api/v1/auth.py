@@ -1,20 +1,27 @@
 from __future__ import annotations
 
+import secrets
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi_limiter.depends import RateLimiter
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, ValidationError, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from gift_genie.application.dto.login_command import LoginCommand
 from gift_genie.application.dto.register_user_command import RegisterUserCommand
-from gift_genie.application.errors import EmailConflictError
-from gift_genie.application.use_cases.register_user import PasswordHasher, RegisterUserUseCase
+from gift_genie.application.errors import EmailConflictError, InvalidCredentialsError
+from gift_genie.application.use_cases.login_user import LoginUserUseCase
+from gift_genie.application.use_cases.register_user import RegisterUserUseCase
+from gift_genie.domain.interfaces.security import PasswordHasher
 from gift_genie.domain.interfaces.repositories import UserRepository
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.database.repositories.users import UserRepositorySqlAlchemy
+from gift_genie.infrastructure.security.jwt import JWTService as JWTServiceImpl
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
+from gift_genie.domain.interfaces.security import JWTService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -51,6 +58,24 @@ class UserCreatedResponse(BaseModel):
     created_at: datetime
 
 
+class LoginRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailStr = Field(..., max_length=254)
+    password: PasswordStr
+
+
+class UserProfile(BaseModel):
+    id: str
+    email: str
+    name: str
+
+
+class LoginResponse(BaseModel):
+    user: UserProfile
+    token_type: str = "Bearer"
+
+
 # Dependencies
 async def get_user_repository(
     session: Annotated[AsyncSession, Depends(get_async_session)],
@@ -60,6 +85,10 @@ async def get_user_repository(
 
 async def get_password_hasher() -> PasswordHasher:
     return BcryptPasswordHasher()
+
+
+async def get_jwt_service() -> JWTService:
+    return JWTServiceImpl()
 
 
 @router.post("/register", response_model=UserCreatedResponse, status_code=201)
@@ -91,6 +120,48 @@ async def register_user(
     _ = response.headers.setdefault("Location", f"/api/v1/users/{user.id}")
 
     return UserCreatedResponse(id=user.id, email=user.email, name=user.name, created_at=user.created_at)
+
+
+@router.post("/login", response_model=LoginResponse)
+async def login_user(
+    payload: LoginRequest,
+    response: Response,
+    user_repo: Annotated[UserRepository, Depends(get_user_repository)],
+    password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
+    jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
+) -> LoginResponse:
+    try:
+        cmd = LoginCommand(email=str(payload.email).strip(), password=payload.password)
+        use_case = LoginUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
+        user = await use_case.execute(cmd)
+    except InvalidCredentialsError:
+        raise HTTPException(status_code=401, detail={"code": "invalid_credentials"})
+    except HTTPException:
+        raise
+    except ValidationError as ve:
+        raise HTTPException(status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()})
+    except Exception:
+        raise HTTPException(status_code=500, detail={"code": "server_error"})
+
+    # Generate JWT
+    access_token = jwt_service.create_access_token(data={"sub": user.id})
+
+    # Set httpOnly cookie
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,  # Set to True in production with HTTPS
+        samesite="lax",
+    )
+
+    # Generate CSRF token
+    csrf_token = secrets.token_urlsafe(32)
+
+    # Set CSRF header
+    response.headers["X-CSRF-Token"] = csrf_token
+
+    return LoginResponse(user=UserProfile(id=user.id, email=user.email, name=user.name))
 
 
 def _is_strong_password(pwd: str, email_local: str, name_norm: str) -> bool:
