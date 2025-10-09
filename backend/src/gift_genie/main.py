@@ -1,11 +1,19 @@
+from contextlib import asynccontextmanager
+import redis.asyncio as redis
 from typing import Literal
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_limiter import FastAPILimiter
 from pydantic import BaseModel
 from gift_genie.presentation.api.v1 import auth
 from gift_genie.infrastructure.config.settings import get_settings
 
 settings = get_settings()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await FastAPILimiter.init(redis_client)
+    yield
 
 app = FastAPI(
     title="Gift Genie API",
@@ -13,6 +21,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # CORS middleware
@@ -23,6 +32,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize rate limiter
+redis_client = redis.from_url("redis://localhost:6379", encoding="utf-8", decode_responses=True)
+
 
 # Include routers
 app.include_router(auth.router, prefix="/api/v1")
