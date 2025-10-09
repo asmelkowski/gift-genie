@@ -1,0 +1,4 @@
+### DevOps — Docker
+- Use multi‑stage builds to minimize production image size.
+- Optimize layer caching for dependency installs.
+- Run containers as non‑root users.

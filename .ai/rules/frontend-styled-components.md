@@ -1,0 +1,11 @@
+### Frontend — Styled Components
+- Use `ThemeProvider` for consistent theming.
+- Share styles with the `css` helper.
+- Use props for conditional styling within template literals.
+- Define globals with `createGlobalStyle`.
+- Use `attrs` to pass HTML attributes to DOM elements.
+- Use the `as` prop for dynamic rendering.
+- Extend styles with `styled(ExistingComponent)`.
+- Use the `css` prop for one‑off styles.
+- Use `&` for nesting selectors.
+- Use `keyframes` for animations.

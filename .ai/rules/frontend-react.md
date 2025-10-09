@@ -1,0 +1,8 @@
+### Frontend — React Coding Standards
+- Use functional components with hooks (no classes).
+- Use `React.memo` for expensive components with stable props.
+- Code‑split via `React.lazy` and `<Suspense>`.
+- Use `useCallback` for handlers passed to children to avoid re‑renders.
+- Use `useMemo` for expensive computations.
+- Use `useId` for accessible unique IDs.
+- Use `useTransition` for non‑urgent state updates.
