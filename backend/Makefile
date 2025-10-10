@@ -97,4 +97,3 @@ help:
 	@echo "  db-reset       Reset database (downgrade all + upgrade all, starts DB if needed)"
 	@echo ""
 	@echo "  help           Display this help message"
-
