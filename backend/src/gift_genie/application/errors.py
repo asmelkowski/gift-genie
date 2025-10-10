@@ -16,3 +16,13 @@ class InvalidGroupNameError(Exception):
 
     def __init__(self, message: str = "Group name must be 1-100 characters"):
         super().__init__(message)
+
+
+class GroupNotFoundError(Exception):
+    """Raised when a group is not found."""
+    pass
+
+
+class ForbiddenError(Exception):
+    """Raised when user lacks permission for an operation."""
+    pass

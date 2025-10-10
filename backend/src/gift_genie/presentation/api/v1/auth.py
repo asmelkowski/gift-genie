@@ -6,7 +6,6 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
-from fastapi_limiter.depends import RateLimiter
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, ValidationError, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,9 +18,9 @@ from gift_genie.domain.interfaces.security import PasswordHasher
 from gift_genie.domain.interfaces.repositories import UserRepository
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.database.repositories.users import UserRepositorySqlAlchemy
-from gift_genie.infrastructure.security.jwt import JWTService as JWTServiceImpl
+from gift_genie.infrastructure.security.jwt import JWTService
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
-from gift_genie.domain.interfaces.security import JWTService
+from gift_genie.infrastructure.config.settings import get_settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -88,7 +87,8 @@ async def get_password_hasher() -> PasswordHasher:
 
 
 async def get_jwt_service() -> JWTService:
-    return JWTServiceImpl()
+    settings = get_settings()
+    return JWTService(settings.SECRET_KEY, settings.ALGORITHM)
 
 
 @router.post("/register", response_model=UserCreatedResponse, status_code=201)

@@ -13,6 +13,15 @@ from gift_genie.application.dto.list_groups_query import ListGroupsQuery
 from gift_genie.application.errors import InvalidGroupNameError
 from gift_genie.application.use_cases.create_group import CreateGroupUseCase
 from gift_genie.application.use_cases.list_user_groups import ListUserGroupsUseCase
+from pydantic import model_validator
+
+from gift_genie.application.dto.delete_group_command import DeleteGroupCommand
+from gift_genie.application.dto.get_group_details_query import GetGroupDetailsQuery
+from gift_genie.application.dto.update_group_command import UpdateGroupCommand
+from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.use_cases.delete_group import DeleteGroupUseCase
+from gift_genie.application.use_cases.get_group_details import GetGroupDetailsUseCase
+from gift_genie.application.use_cases.update_group import UpdateGroupUseCase
 from gift_genie.domain.interfaces.repositories import GroupRepository
 from gift_genie.infrastructure.config.settings import get_settings
 from gift_genie.infrastructure.database.repositories.groups import GroupRepositorySqlAlchemy
@@ -57,6 +66,43 @@ class GroupDetailResponse(BaseModel):
     historical_exclusions_enabled: bool
     historical_exclusions_lookback: int
     created_at: datetime
+    updated_at: datetime
+
+
+class UpdateGroupRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: Annotated[str, StringConstraints(min_length=1, max_length=100, strip_whitespace=True)] | None = None
+    historical_exclusions_enabled: bool | None = None
+    historical_exclusions_lookback: int | None = Field(default=None, ge=1)
+
+    @model_validator(mode='after')
+    def check_at_least_one_field(self) -> 'UpdateGroupRequest':
+        if all(v is None for v in [self.name, self.historical_exclusions_enabled, self.historical_exclusions_lookback]):
+            raise ValueError("At least one field must be provided")
+        return self
+
+
+class GroupStats(BaseModel):
+    member_count: int
+    active_member_count: int
+
+
+class GroupDetailWithStatsResponse(BaseModel):
+    id: str
+    name: str
+    admin_user_id: str
+    historical_exclusions_enabled: bool
+    historical_exclusions_lookback: int
+    created_at: datetime
+    updated_at: datetime
+    stats: GroupStats
+
+
+class GroupUpdateResponse(BaseModel):
+    id: str
+    name: str
+    historical_exclusions_enabled: bool
+    historical_exclusions_lookback: int
     updated_at: datetime
 
 
@@ -184,5 +230,106 @@ async def create_group(
             status_code=400,
             detail={"code": "invalid_payload", "field": "name", "message": str(e)},
         )
+    except Exception:
+        raise HTTPException(status_code=500, detail={"code": "server_error"})
+
+
+@router.get("/{group_id}", response_model=GroupDetailWithStatsResponse)
+async def get_group_details(
+    group_id: str,
+    *,
+    current_user_id: Annotated[str, Depends(get_current_user)],
+    group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
+):
+    try:
+        query = GetGroupDetailsQuery(group_id=group_id, requesting_user_id=current_user_id)
+        use_case = GetGroupDetailsUseCase(group_repository=group_repo)
+        group, (member_count, active_count) = await use_case.execute(query)
+
+        return GroupDetailWithStatsResponse(
+            id=group.id,
+            name=group.name,
+            admin_user_id=group.admin_user_id,
+            historical_exclusions_enabled=group.historical_exclusions_enabled,
+            historical_exclusions_lookback=group.historical_exclusions_lookback,
+            created_at=group.created_at,
+            updated_at=group.updated_at,
+            stats=GroupStats(member_count=member_count, active_member_count=active_count),
+        )
+    except GroupNotFoundError:
+        raise HTTPException(status_code=404, detail={"code": "group_not_found"})
+    except ForbiddenError:
+        raise HTTPException(status_code=403, detail={"code": "forbidden"})
+    except Exception:
+        raise HTTPException(status_code=500, detail={"code": "server_error"})
+
+
+@router.patch("/{group_id}", response_model=GroupUpdateResponse)
+async def update_group(
+    group_id: str,
+    payload: UpdateGroupRequest,
+    *,
+    current_user_id: Annotated[str, Depends(get_current_user)],
+    group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
+):
+    try:
+        command = UpdateGroupCommand(
+            group_id=group_id,
+            requesting_user_id=current_user_id,
+            name=payload.name,
+            historical_exclusions_enabled=payload.historical_exclusions_enabled,
+            historical_exclusions_lookback=payload.historical_exclusions_lookback,
+        )
+        use_case = UpdateGroupUseCase(group_repository=group_repo)
+        group = await use_case.execute(command)
+
+        return GroupUpdateResponse(
+            id=group.id,
+            name=group.name,
+            historical_exclusions_enabled=group.historical_exclusions_enabled,
+            historical_exclusions_lookback=group.historical_exclusions_lookback,
+            updated_at=group.updated_at,
+        )
+    except GroupNotFoundError:
+        raise HTTPException(status_code=404, detail={"code": "group_not_found"})
+    except ForbiddenError:
+        raise HTTPException(status_code=403, detail={"code": "forbidden"})
+    except InvalidGroupNameError:
+        raise HTTPException(
+            status_code=400,
+            detail={"code": "invalid_payload", "field": "name", "message": "Group name must be 1-100 characters"},
+        )
+    except ValueError as e:
+        if "historical_exclusions_lookback" in str(e):
+            raise HTTPException(
+                status_code=400,
+                detail={"code": "invalid_payload", "field": "historical_exclusions_lookback", "message": str(e)},
+            )
+        elif "At least one field" in str(e):
+            raise HTTPException(
+                status_code=400,
+                detail={"code": "invalid_payload", "message": str(e)},
+            )
+        raise HTTPException(status_code=400, detail={"code": "invalid_payload", "message": str(e)})
+    except Exception:
+        raise HTTPException(status_code=500, detail={"code": "server_error"})
+
+
+@router.delete("/{group_id}", status_code=204)
+async def delete_group(
+    group_id: str,
+    *,
+    current_user_id: Annotated[str, Depends(get_current_user)],
+    group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
+):
+    try:
+        command = DeleteGroupCommand(group_id=group_id, requesting_user_id=current_user_id)
+        use_case = DeleteGroupUseCase(group_repository=group_repo)
+        await use_case.execute(command)
+        return Response(status_code=204)
+    except GroupNotFoundError:
+        raise HTTPException(status_code=404, detail={"code": "group_not_found"})
+    except ForbiddenError:
+        raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except Exception:
         raise HTTPException(status_code=500, detail={"code": "server_error"})
