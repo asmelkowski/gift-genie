@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_limiter import FastAPILimiter
 from pydantic import BaseModel
-from gift_genie.presentation.api.v1 import auth
+from gift_genie.presentation.api.v1 import auth, groups
 from gift_genie.infrastructure.config.settings import get_settings
 
 settings = get_settings()
@@ -39,6 +39,7 @@ redis_client = redis.from_url("redis://localhost:6379", encoding="utf-8", decode
 
 # Include routers
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(groups.router, prefix="/api/v1")
 
 
 class HealthResponse(BaseModel):

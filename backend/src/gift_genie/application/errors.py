@@ -10,3 +10,9 @@ class InvalidCredentialsError(Exception):
 
     def __init__(self, message: str = "Invalid credentials"):
         super().__init__(message)
+
+class InvalidGroupNameError(Exception):
+    """Raised when group name validation fails."""
+
+    def __init__(self, message: str = "Group name must be 1-100 characters"):
+        super().__init__(message)

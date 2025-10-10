@@ -1,4 +1,5 @@
 from typing import Protocol, runtime_checkable
+from gift_genie.domain.entities.group import Group
 from gift_genie.domain.entities.user import User
 
 
@@ -11,3 +12,19 @@ class UserRepository(Protocol):
     async def get_by_email_ci(self, email: str) -> User | None: ...
 
     async def email_exists_ci(self, email: str) -> bool: ...
+
+
+@runtime_checkable
+class GroupRepository(Protocol):
+    async def create(self, group: Group) -> Group: ...
+
+    async def list_by_admin_user(
+        self,
+        user_id: str,
+        search: str | None,
+        page: int,
+        page_size: int,
+        sort: str
+    ) -> tuple[list[Group], int]: ...
+
+    async def get_by_id(self, group_id: str) -> Group | None: ...
