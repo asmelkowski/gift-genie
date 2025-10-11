@@ -3,10 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import uuid4
 
-from gift_genie.application.dto.create_exclusions_bulk_command import (
-    CreateExclusionsBulkCommand,
-    ExclusionItem,
-)
+from gift_genie.application.dto.create_exclusions_bulk_command import CreateExclusionsBulkCommand
 from gift_genie.application.errors import (
     ExclusionConflictsError,
     ForbiddenError,

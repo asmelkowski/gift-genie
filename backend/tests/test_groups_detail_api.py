@@ -128,7 +128,8 @@ async def test_get_group_details_not_found(client: AsyncClient):
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
     app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
 
-    resp = await client.get("/api/v1/groups/nonexistent")
+    nonexistent_uuid = str(uuid4())  # Valid UUID that doesn't exist
+    resp = await client.get(f"/api/v1/groups/{nonexistent_uuid}")
 
     assert resp.status_code == 404
     assert resp.json() == {"detail": {"code": "group_not_found"}}
@@ -242,7 +243,8 @@ async def test_delete_group_not_found(client: AsyncClient):
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
     app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
 
-    resp = await client.delete("/api/v1/groups/nonexistent")
+    nonexistent_uuid = str(uuid4())  # Valid UUID that doesn't exist
+    resp = await client.delete(f"/api/v1/groups/{nonexistent_uuid}")
 
     assert resp.status_code == 404
     assert resp.json() == {"detail": {"code": "group_not_found"}}

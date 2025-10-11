@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from loguru import logger
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, ValidationError, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -102,18 +103,19 @@ async def register_user(
         cmd = RegisterUserCommand(email=str(payload.email).strip(), password=payload.password, name=payload.name)
         use_case = RegisterUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
         user = await use_case.execute(cmd)
-    except EmailConflictError:
+    except EmailConflictError as e:
+        logger.warning("Email conflict during registration", email=payload.email, error=str(e))
         raise HTTPException(status_code=409, detail={"code": "email_conflict"})
     except HTTPException:
         # Re-raise validation HTTPExceptions (e.g., weak password)
         raise
     except ValidationError as ve:
         # Pydantic validation errors (should be auto-handled by FastAPI, but keep for safety)
+        logger.warning("Validation error during registration", email=payload.email, errors=ve.errors())
         raise HTTPException(status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()})
     except Exception as e:
-        print(e)
-        breakpoint()
         # Avoid leaking details
+        logger.exception("Unexpected error during user registration", email=payload.email, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     # Optionally set Location header
@@ -134,13 +136,17 @@ async def login_user(
         cmd = LoginCommand(email=str(payload.email).strip(), password=payload.password)
         use_case = LoginUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
         user = await use_case.execute(cmd)
-    except InvalidCredentialsError:
+    except InvalidCredentialsError as e:
+        logger.warning("Invalid credentials during login", email=payload.email, error=str(e))
         raise HTTPException(status_code=401, detail={"code": "invalid_credentials"})
     except HTTPException:
         raise
     except ValidationError as ve:
+        logger.warning("Validation error during login", email=payload.email, errors=ve.errors())
         raise HTTPException(status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()})
-    except Exception:
+    except Exception as e:
+        # Avoid leaking details
+        logger.exception("Unexpected error during user login", email=payload.email, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     # Generate JWT

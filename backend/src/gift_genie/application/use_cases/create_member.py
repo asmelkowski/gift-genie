@@ -7,7 +7,6 @@ from gift_genie.application.dto.create_member_command import CreateMemberCommand
 from gift_genie.application.errors import (
     ForbiddenError,
     GroupNotFoundError,
-    InvalidMemberNameError,
     MemberEmailConflictError,
     MemberNameConflictError,
 )
@@ -31,13 +30,8 @@ class CreateMemberUseCase:
         if group.admin_user_id != command.requesting_user_id:
             raise ForbiddenError()
 
-        # Validate name
-        name = command.name.strip()
-        if not (1 <= len(name) <= 100):
-            raise InvalidMemberNameError()
-
-        # Check name uniqueness
-        if await self.member_repository.name_exists_in_group(command.group_id, name):
+        # Check name uniqueness (name already validated at presentation layer)
+        if await self.member_repository.name_exists_in_group(command.group_id, command.name):
             raise MemberNameConflictError()
 
         # Check email uniqueness if provided
@@ -52,7 +46,7 @@ class CreateMemberUseCase:
         member = Member(
             id=member_id,
             group_id=command.group_id,
-            name=name,
+            name=command.name,  # Already validated and stripped at presentation layer
             email=command.email,
             is_active=command.is_active,
             created_at=now,

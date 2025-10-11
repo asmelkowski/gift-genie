@@ -3,8 +3,10 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Response
+from loguru import logger
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -161,10 +163,12 @@ async def list_groups(
         )
         return PaginatedGroupsResponse(data=data, meta=meta)
     except ValueError as e:
+        logger.warning("Invalid query parameters in list groups", user_id=current_user_id, error=str(e))
         raise HTTPException(
             status_code=400, detail={"code": "invalid_query_params", "errors": [str(e)]}
         )
-    except Exception:
+    except Exception as e:
+        logger.exception("Unexpected error during list groups", user_id=current_user_id, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -209,12 +213,14 @@ async def create_group(
         )
         response.headers["Location"] = f"/api/v1/groups/{group.id}"
         return resp
-    except InvalidGroupNameError:
+    except InvalidGroupNameError as e:
+        logger.warning("Invalid group name during creation", user_id=current_user_id, name=payload.name, error=str(e))
         raise HTTPException(
             status_code=400,
             detail={"code": "invalid_payload", "field": "name", "message": "Group name must be 1-100 characters"},
         )
     except ValueError as e:
+        logger.warning("Validation error during group creation", user_id=current_user_id, name=payload.name, error=str(e))
         if "historical_exclusions_lookback" in str(e):
             raise HTTPException(
                 status_code=400,
@@ -224,19 +230,20 @@ async def create_group(
             status_code=400,
             detail={"code": "invalid_payload", "field": "name", "message": str(e)},
         )
-    except Exception:
+    except Exception as e:
+        logger.exception("Unexpected error during group creation", user_id=current_user_id, name=payload.name, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
 @router.get("/{group_id}", response_model=GroupDetailWithStatsResponse)
 async def get_group_details(
-    group_id: str,
+    group_id: UUID = Path(..., description="Group UUID"),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ):
     try:
-        query = GetGroupDetailsQuery(group_id=group_id, requesting_user_id=current_user_id)
+        query = GetGroupDetailsQuery(group_id=str(group_id), requesting_user_id=current_user_id)
         use_case = GetGroupDetailsUseCase(group_repository=group_repo)
         group, (member_count, active_count) = await use_case.execute(query)
 
@@ -250,25 +257,28 @@ async def get_group_details(
             updated_at=group.updated_at,
             stats=GroupStats(member_count=member_count, active_member_count=active_count),
         )
-    except GroupNotFoundError:
+    except GroupNotFoundError as e:
+        logger.warning("Group not found during details retrieval", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
-    except ForbiddenError:
+    except ForbiddenError as e:
+        logger.warning("Forbidden access to group details", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
-    except Exception:
+    except Exception as e:
+        logger.exception("Unexpected error during group details retrieval", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
 @router.patch("/{group_id}", response_model=GroupUpdateResponse)
 async def update_group(
-    group_id: str,
-    payload: UpdateGroupRequest,
     *,
+    group_id: UUID = Path(..., description="Group UUID"),
+    payload: UpdateGroupRequest,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ):
     try:
         command = UpdateGroupCommand(
-            group_id=group_id,
+            group_id=str(group_id),
             requesting_user_id=current_user_id,
             name=payload.name,
             historical_exclusions_enabled=payload.historical_exclusions_enabled,
@@ -284,16 +294,20 @@ async def update_group(
             historical_exclusions_lookback=group.historical_exclusions_lookback,
             updated_at=group.updated_at,
         )
-    except GroupNotFoundError:
+    except GroupNotFoundError as e:
+        logger.warning("Group not found during update", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
-    except ForbiddenError:
+    except ForbiddenError as e:
+        logger.warning("Forbidden access to update group", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
-    except InvalidGroupNameError:
+    except InvalidGroupNameError as e:
+        logger.warning("Invalid group name during update", user_id=current_user_id, group_id=group_id, name=payload.name, error=str(e))
         raise HTTPException(
             status_code=400,
             detail={"code": "invalid_payload", "field": "name", "message": "Group name must be 1-100 characters"},
         )
     except ValueError as e:
+        logger.warning("Validation error during group update", user_id=current_user_id, group_id=group_id, error=str(e))
         if "historical_exclusions_lookback" in str(e):
             raise HTTPException(
                 status_code=400,
@@ -305,25 +319,29 @@ async def update_group(
                 detail={"code": "invalid_payload", "message": str(e)},
             )
         raise HTTPException(status_code=400, detail={"code": "invalid_payload", "message": str(e)})
-    except Exception:
+    except Exception as e:
+        logger.exception("Unexpected error during group update", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
 @router.delete("/{group_id}", status_code=204)
 async def delete_group(
-    group_id: str,
+    group_id: UUID = Path(..., description="Group UUID"),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ):
     try:
-        command = DeleteGroupCommand(group_id=group_id, requesting_user_id=current_user_id)
+        command = DeleteGroupCommand(group_id=str(group_id), requesting_user_id=current_user_id)
         use_case = DeleteGroupUseCase(group_repository=group_repo)
         await use_case.execute(command)
         return Response(status_code=204)
-    except GroupNotFoundError:
+    except GroupNotFoundError as e:
+        logger.warning("Group not found during deletion", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
-    except ForbiddenError:
+    except ForbiddenError as e:
+        logger.warning("Forbidden access to delete group", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
-    except Exception:
+    except Exception as e:
+        logger.exception("Unexpected error during group deletion", user_id=current_user_id, group_id=group_id, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})

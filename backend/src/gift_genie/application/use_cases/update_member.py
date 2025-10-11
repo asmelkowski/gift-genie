@@ -7,7 +7,6 @@ from gift_genie.application.errors import (
     CannotDeactivateMemberError,
     ForbiddenError,
     GroupNotFoundError,
-    InvalidMemberNameError,
     MemberEmailConflictError,
     MemberNameConflictError,
     MemberNotFoundError,
@@ -40,14 +39,12 @@ class UpdateMemberUseCase:
         updated = False
 
         if command.name is not None:
-            name = command.name.strip()
-            if not (1 <= len(name) <= 100):
-                raise InvalidMemberNameError()
-            if name != member.name and await self.member_repository.name_exists_in_group(
-                command.group_id, name, exclude_member_id=command.member_id
+            # Name already validated at presentation layer
+            if command.name != member.name and await self.member_repository.name_exists_in_group(
+                command.group_id, command.name, exclude_member_id=command.member_id
             ):
                 raise MemberNameConflictError()
-            member.name = name
+            member.name = command.name
             updated = True
 
         if command.email is not None:
