@@ -50,3 +50,23 @@ class CannotDeactivateMemberError(Exception):
 class InvalidMemberNameError(Exception):
     def __init__(self, message: str = "Member name must be 1-100 characters"):
         super().__init__(message)
+
+
+class ExclusionNotFoundError(Exception):
+    pass
+
+
+class DuplicateExclusionError(Exception):
+    def __init__(self, message: str = "Exclusion already exists for this pairing"):
+        super().__init__(message)
+
+
+class SelfExclusionNotAllowedError(Exception):
+    def __init__(self, message: str = "Cannot create exclusion where giver and receiver are the same"):
+        super().__init__(message)
+
+
+class ExclusionConflictsError(Exception):
+    def __init__(self, conflicts: list[dict[str, str]]):
+        self.conflicts = conflicts
+        super().__init__("Multiple conflicts detected in bulk exclusion creation")
