@@ -1,2 +1,3 @@
 ### Python
 - Use modern type anotations. E.g. instead of `Optional[Tuple[str, ...]]`, use `tuple[str, ...] | None`.
+- Don't use relative imports. BAD: `from .module import x`, GOOD: `from package.module import x`
