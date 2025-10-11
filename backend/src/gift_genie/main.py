@@ -14,13 +14,14 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     await FastAPILimiter.init(redis_client)
     yield
-
+print(settings.DEBUG)
 app = FastAPI(
     title="Gift Genie API",
     description="API for organizing gift exchanges within groups",
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    debug=settings.DEBUG,
     lifespan=lifespan
 )
 

@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Gift Genie"
-    DEBUG: bool = False
+    DEBUG: bool = True
 
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]

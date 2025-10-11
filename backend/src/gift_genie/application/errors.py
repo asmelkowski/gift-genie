@@ -70,3 +70,18 @@ class ExclusionConflictsError(Exception):
     def __init__(self, conflicts: list[dict[str, str]]):
         self.conflicts = conflicts
         super().__init__("Multiple conflicts detected in bulk exclusion creation")
+
+
+class ValidationError(Exception):
+    """Business rule validation failed"""
+    pass
+
+
+class AuthorizationError(Exception):
+    """User not authorized for operation"""
+    pass
+
+
+class ConflictError(Exception):
+    """Operation conflicts with current state"""
+    pass

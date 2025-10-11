@@ -27,9 +27,9 @@ class UpdateGroupUseCase:
         updated = False
 
         if command.name is not None:
-            group.name = command.name.strip()
-            if not group.validate_name():
+            if command.name == "":
                 raise InvalidGroupNameError()
+            group.name = command.name.strip()
             updated = True
 
         if command.historical_exclusions_enabled is not None:

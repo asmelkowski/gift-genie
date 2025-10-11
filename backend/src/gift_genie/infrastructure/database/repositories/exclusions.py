@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import and_, func, or_, select, delete
+from sqlalchemy import func, select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from gift_genie.domain.entities.enums import ExclusionType
 from gift_genie.domain.entities.exclusion import Exclusion
@@ -45,13 +46,18 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
         # Build query with joins for sorting by member names
         query = select(ExclusionModel).where(base_where)
         if "name" in sort:
+            giver_member = aliased(MemberModel, name="giver_member")
+            receiver_member = aliased(MemberModel, name="receiver_member")
             query = query.join(
-                MemberModel, ExclusionModel.giver_member_id == MemberModel.id
+                giver_member, ExclusionModel.giver_member_id == giver_member.id
             ).join(
-                MemberModel, ExclusionModel.receiver_member_id == MemberModel.id
+                receiver_member, ExclusionModel.receiver_member_id == receiver_member.id
             )
 
-        query = self._apply_sort(query, sort)
+        if "name" in sort:
+            query = self._apply_sort(query, sort, giver_member)
+        else:
+            query = self._apply_sort(query, sort)
         query = query.limit(page_size).offset((page - 1) * page_size)
 
         # Execute and map
@@ -145,7 +151,7 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             ExclusionModel.group_id == UUID(group_id),
             ExclusionModel.giver_member_id == UUID(receiver_member_id),
             ExclusionModel.receiver_member_id == UUID(giver_member_id),
-            ExclusionModel.is_mutual == True
+            ExclusionModel.is_mutual
         )
         res = await self._session.execute(stmt)
         mutual_count = res.scalar_one() or 0
@@ -188,7 +194,7 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             await self._session.rollback()
             raise ValueError("Failed to delete exclusion") from e
 
-    def _apply_sort(self, query, sort: str):
+    def _apply_sort(self, query, sort: str, member_alias=None):
         # Parse sort string like "exclusion_type,name" or "-created_at"
         sort_fields = sort.split(",")
         order_by_clauses = []
@@ -209,7 +215,10 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             elif field_name == "name":
                 # For name sorting, we need to decide on giver or receiver name
                 # Let's use giver name for simplicity
-                col = MemberModel.name
+                if member_alias:
+                    col = member_alias.name
+                else:
+                    col = MemberModel.name
             else:
                 raise ValueError(f"Invalid sort field: {field_name}")
 
