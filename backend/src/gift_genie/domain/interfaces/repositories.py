@@ -1,5 +1,6 @@
 from typing import Protocol, runtime_checkable
 from gift_genie.domain.entities.group import Group
+from gift_genie.domain.entities.member import Member
 from gift_genie.domain.entities.user import User
 
 
@@ -34,3 +35,32 @@ class GroupRepository(Protocol):
     async def update(self, group: Group) -> Group: ...
 
     async def delete(self, group_id: str) -> None: ...
+
+
+@runtime_checkable
+class MemberRepository(Protocol):
+    async def create(self, member: Member) -> Member: ...
+
+    async def list_by_group(
+        self,
+        group_id: str,
+        is_active: bool | None,
+        search: str | None,
+        page: int,
+        page_size: int,
+        sort: str
+    ) -> tuple[list[Member], int]: ...
+
+    async def get_by_id(self, member_id: str) -> Member | None: ...
+
+    async def get_by_group_and_id(self, group_id: str, member_id: str) -> Member | None: ...
+
+    async def name_exists_in_group(self, group_id: str, name: str, exclude_member_id: str | None = None) -> bool: ...
+
+    async def email_exists_in_group(self, group_id: str, email: str, exclude_member_id: str | None = None) -> bool: ...
+
+    async def has_pending_draw(self, member_id: str) -> bool: ...
+
+    async def update(self, member: Member) -> Member: ...
+
+    async def delete(self, member_id: str) -> None: ...
