@@ -13,6 +13,7 @@ from gift_genie.application.dto.list_groups_query import ListGroupsQuery
 from gift_genie.application.errors import InvalidGroupNameError
 from gift_genie.application.use_cases.create_group import CreateGroupUseCase
 from gift_genie.application.use_cases.list_user_groups import ListUserGroupsUseCase
+from gift_genie.presentation.api.v1.shared import PaginationMeta
 from pydantic import model_validator
 
 from gift_genie.application.dto.delete_group_command import DeleteGroupCommand
@@ -45,13 +46,6 @@ class GroupSummary(BaseModel):
     created_at: datetime
     historical_exclusions_enabled: bool
     historical_exclusions_lookback: int
-
-
-class PaginationMeta(BaseModel):
-    total: int
-    page: int
-    page_size: int
-    total_pages: int
 
 
 class PaginatedGroupsResponse(BaseModel):

@@ -26,3 +26,27 @@ class GroupNotFoundError(Exception):
 class ForbiddenError(Exception):
     """Raised when user lacks permission for an operation."""
     pass
+
+
+class MemberNotFoundError(Exception):
+    pass
+
+
+class MemberNameConflictError(Exception):
+    def __init__(self, message: str = "Member name already exists in this group"):
+        super().__init__(message)
+
+
+class MemberEmailConflictError(Exception):
+    def __init__(self, message: str = "Member email already exists in this group"):
+        super().__init__(message)
+
+
+class CannotDeactivateMemberError(Exception):
+    def __init__(self, message: str = "Cannot deactivate member with pending draw assignments"):
+        super().__init__(message)
+
+
+class InvalidMemberNameError(Exception):
+    def __init__(self, message: str = "Member name must be 1-100 characters"):
+        super().__init__(message)
