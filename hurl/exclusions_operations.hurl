@@ -82,7 +82,7 @@ GET http://localhost:8000/api/v1/groups/{{groupId}}/exclusions
 access_token: {{access_token}}
 HTTP 200
 [Asserts]
-jsonpath "$.data" == []
+jsonpath "$.data" isEmpty
 jsonpath "$.meta.total" == 0
 jsonpath "$.meta.page" == 1
 jsonpath "$.meta.page_size" == 10
@@ -324,7 +324,7 @@ HTTP 403
 jsonpath "$.detail.code" == "forbidden"
 
 # GET exclusions with invalid group ID - should fail
-GET http://localhost:8000/api/v1/groups/invalid-uuid/exclusions
+GET http://localhost:8000/api/v1/groups/{{newUuid}}/exclusions
 [Cookies]
 access_token: {{access_token}}
 HTTP 404
@@ -337,7 +337,7 @@ POST http://localhost:8000/api/v1/groups/{{groupId}}/exclusions
 access_token: {{access_token}}
 X-CSRF-Token: {{csrf_token}}
 {
-  "giver_member_id": "invalid-uuid",
+  "giver_member_id": "{{newUuid}}",
   "receiver_member_id": "{{memberId2}}",
   "is_mutual": false
 }
@@ -350,9 +350,10 @@ DELETE http://localhost:8000/api/v1/groups/{{groupId}}/exclusions/invalid-uuid
 [Cookies]
 access_token: {{access_token}}
 X-CSRF-Token: {{csrf_token}}
-HTTP 404
+HTTP 422
 [Asserts]
-jsonpath "$.detail.code" == "exclusion_not_found"
+jsonpath "$.detail[0].type" == "uuid_parsing"
+jsonpath "$.detail[0].msg" == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `i` at 1"
 
 # GET exclusions with pagination
 GET http://localhost:8000/api/v1/groups/{{groupId}}/exclusions?page=1&page_size=2
@@ -370,6 +371,7 @@ jsonpath "$.meta.total_pages" == 2
 GET http://localhost:8000/api/v1/groups/{{groupId}}/exclusions?page=0
 [Cookies]
 access_token: {{access_token}}
-HTTP 400
+HTTP 422
 [Asserts]
-jsonpath "$.detail.code" == "invalid_query_params"
+jsonpath "$.detail[0].type" == "greater_than_equal"
+jsonpath "$.detail[0].msg" == "Input should be greater than or equal to 1"
