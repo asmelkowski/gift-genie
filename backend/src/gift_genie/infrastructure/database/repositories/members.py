@@ -85,6 +85,13 @@ class MemberRepositorySqlAlchemy(MemberRepository):
         row = res.scalar_one_or_none()
         return self._to_domain(row) if row else None
 
+    async def get_many_by_ids(self, member_ids: list[str]) -> dict[str, Member]:
+        uuids = [UUID(mid) for mid in member_ids]
+        stmt = select(MemberModel).where(MemberModel.id.in_(uuids))
+        res = await self._session.execute(stmt)
+        models = res.scalars().all()
+        return {str(model.id): self._to_domain(model) for model in models}
+
     async def get_by_group_and_id(self, group_id: str, member_id: str) -> Optional[Member]:
         stmt = select(MemberModel).where(
             MemberModel.id == UUID(member_id),

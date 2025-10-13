@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_limiter import FastAPILimiter
 from pydantic import BaseModel
-from gift_genie.presentation.api.v1 import auth, exclusions, groups, members
+from gift_genie.presentation.api.v1 import auth, draws, exclusions, groups, members
 from gift_genie.infrastructure.config.settings import get_settings
 
 settings = get_settings()
@@ -43,6 +43,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(groups.router, prefix="/api/v1")
 app.include_router(members.router, prefix="/api/v1")
 app.include_router(exclusions.router, prefix="/api/v1")
+app.include_router(draws.router, prefix="/api/v1")
 
 
 class HealthResponse(BaseModel):

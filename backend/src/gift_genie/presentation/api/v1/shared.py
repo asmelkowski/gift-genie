@@ -30,6 +30,14 @@ EXCEPTION_STATUS_MAP = {
     "ValidationError": 422,  # Business rule validation failed
     "AuthorizationError": 403,  # User not authorized
     "ConflictError": 409,  # Operation conflicts with current state
+    "DrawNotFoundError": 404,
+    "CannotDeleteFinalizedDrawError": 409,
+    "AssignmentsAlreadyExistError": 409,
+    "DrawAlreadyFinalizedError": 409,
+    "NoValidDrawConfigurationError": 400,
+    "NoAssignmentsToFinalizeError": 400,
+    "DrawNotFinalizedError": 400,
+    "DrawImpossibleError": 400,
 }
 
 
