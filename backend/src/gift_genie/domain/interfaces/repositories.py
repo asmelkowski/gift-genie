@@ -1,6 +1,8 @@
 from typing import Protocol, runtime_checkable
+from gift_genie.domain.entities.assignment import Assignment
+from gift_genie.domain.entities.draw import Draw
+from gift_genie.domain.entities.enums import DrawStatus, ExclusionType
 from gift_genie.domain.entities.exclusion import Exclusion
-from gift_genie.domain.entities.enums import ExclusionType
 from gift_genie.domain.entities.group import Group
 from gift_genie.domain.entities.member import Member
 from gift_genie.domain.entities.user import User
@@ -55,6 +57,8 @@ class MemberRepository(Protocol):
 
     async def get_by_id(self, member_id: str) -> Member | None: ...
 
+    async def get_many_by_ids(self, member_ids: list[str]) -> dict[str, Member]: ...
+
     async def get_by_group_and_id(self, group_id: str, member_id: str) -> Member | None: ...
 
     async def name_exists_in_group(self, group_id: str, name: str, exclude_member_id: str | None = None) -> bool: ...
@@ -94,3 +98,38 @@ class ExclusionRepository(Protocol):
     async def check_conflicts_bulk(self, group_id: str, pairs: list[tuple[str, str]]) -> list[dict]: ...
 
     async def delete(self, exclusion_id: str) -> None: ...
+
+
+@runtime_checkable
+class AssignmentRepository(Protocol):
+    async def create_many(self, assignments: list[Assignment]) -> list[Assignment]: ...
+
+    async def list_by_draw(self, draw_id: str) -> list[Assignment]: ...
+
+    async def count_by_draw(self, draw_id: str) -> int: ...
+
+    async def get_historical_exclusions(
+        self,
+        group_id: str,
+        lookback_count: int
+    ) -> list[tuple[str, str]]: ...
+
+
+@runtime_checkable
+class DrawRepository(Protocol):
+    async def create(self, draw: Draw) -> Draw: ...
+
+    async def list_by_group(
+        self,
+        group_id: str,
+        status: DrawStatus | None,
+        page: int,
+        page_size: int,
+        sort: str
+    ) -> tuple[list[Draw], int]: ...
+
+    async def get_by_id(self, draw_id: str) -> Draw | None: ...
+
+    async def update(self, draw: Draw) -> Draw: ...
+
+    async def delete(self, draw_id: str) -> None: ...

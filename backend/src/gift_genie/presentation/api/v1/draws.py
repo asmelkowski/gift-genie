@@ -13,6 +13,7 @@ from gift_genie.application.dto.delete_draw_command import DeleteDrawCommand
 from gift_genie.application.dto.execute_draw_command import ExecuteDrawCommand
 from gift_genie.application.dto.finalize_draw_command import FinalizeDrawCommand
 from gift_genie.application.dto.get_draw_query import GetDrawQuery
+from gift_genie.application.dto.list_assignments_query import ListAssignmentsQuery
 from gift_genie.application.dto.list_draws_query import ListDrawsQuery
 from gift_genie.application.dto.notify_draw_command import NotifyDrawCommand
 from gift_genie.application.use_cases.create_draw import CreateDrawUseCase
@@ -20,6 +21,10 @@ from gift_genie.application.use_cases.delete_draw import DeleteDrawUseCase
 from gift_genie.application.use_cases.execute_draw import ExecuteDrawUseCase
 from gift_genie.application.use_cases.finalize_draw import FinalizeDrawUseCase
 from gift_genie.application.use_cases.get_draw import GetDrawUseCase
+from gift_genie.application.use_cases.list_assignments import (
+    ListAssignmentsUseCase,
+    AssignmentWithNames,
+)
 from gift_genie.application.use_cases.list_draws import ListDrawsUseCase
 from gift_genie.application.use_cases.notify_draw import NotifyDrawUseCase
 from gift_genie.domain.entities.enums import DrawStatus
@@ -89,6 +94,21 @@ class PaginatedDrawsResponse(BaseModel):
 class NotifyDrawResponse(BaseModel):
     sent: int
     skipped: int
+
+
+class AssignmentResponse(BaseModel):
+    id: str
+    draw_id: str
+    giver_member_id: str
+    receiver_member_id: str
+    created_at: datetime
+    giver_name: str | None = None
+    receiver_name: str | None = None
+
+
+class ListAssignmentsResponse(BaseModel):
+    data: list[AssignmentResponse]
+    meta: dict
 
 
 # Dependency Injections
@@ -208,6 +228,20 @@ async def get_notify_draw_use_case(
         assignment_repository=assignment_repo,
         member_repository=member_repo,
         notification_service=notification_service,
+    )
+
+
+async def get_list_assignments_use_case(
+    draw_repo: Annotated[DrawRepository, Depends(get_draw_repository)],
+    group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
+    assignment_repo: Annotated[AssignmentRepository, Depends(get_assignment_repository)],
+    member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
+) -> AsyncGenerator[ListAssignmentsUseCase, None]:
+    yield ListAssignmentsUseCase(
+        draw_repository=draw_repo,
+        group_repository=group_repo,
+        assignment_repository=assignment_repo,
+        member_repository=member_repo,
     )
 
 
@@ -410,3 +444,52 @@ async def notify_draw(
     sent, skipped = await use_case.execute(command)
 
     return NotifyDrawResponse(sent=sent, skipped=skipped)
+
+
+@router.get("/draws/{draw_id}/assignments", response_model=ListAssignmentsResponse)
+@handle_application_exceptions
+async def list_assignments(
+    draw_id: UUID = Path(..., description="Draw UUID"),
+    include: Literal["names", "none"] = Query("none", description="Include member names"),
+    *,
+    current_user_id: Annotated[str, Depends(get_current_user)],
+    use_case: Annotated[ListAssignmentsUseCase, Depends(get_list_assignments_use_case)],
+):
+    query = ListAssignmentsQuery(
+        draw_id=str(draw_id),
+        requesting_user_id=current_user_id,
+        include_names=(include == "names"),
+    )
+
+    assignments = await use_case.execute(query)
+
+    # Transform to response models
+    data = []
+    for assignment in assignments:
+        if isinstance(assignment, AssignmentWithNames):
+            data.append(
+                AssignmentResponse(
+                    id=assignment.id,
+                    draw_id=assignment.draw_id,
+                    giver_member_id=assignment.giver_member_id,
+                    receiver_member_id=assignment.receiver_member_id,
+                    created_at=assignment.created_at,
+                    giver_name=assignment.giver_name,
+                    receiver_name=assignment.receiver_name,
+                )
+            )
+        else:
+            data.append(
+                AssignmentResponse(
+                    id=assignment.id,
+                    draw_id=assignment.draw_id,
+                    giver_member_id=assignment.giver_member_id,
+                    receiver_member_id=assignment.receiver_member_id,
+                    created_at=assignment.created_at,
+                )
+            )
+
+    return ListAssignmentsResponse(
+        data=data,
+        meta={"total": len(data)},
+    )

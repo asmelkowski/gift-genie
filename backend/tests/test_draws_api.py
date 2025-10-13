@@ -377,7 +377,7 @@ async def test_delete_finalized_draw(client: AsyncClient):
     # Try to delete finalized draw - should fail
     resp = await client.delete(f"/api/v1/draws/{draw_id}")
     assert resp.status_code == 409
-    assert resp.json()["detail"]["code"] == "cannot_delete_finalized_draw"
+    assert resp.json()["detail"]["code"] == "cannotdeletefinalizeddrawerror"
 
     app.dependency_overrides.clear()
 
@@ -457,7 +457,7 @@ async def test_execute_finalized_draw(client: AsyncClient):
     # Try to execute finalized draw - should fail
     resp = await client.post(f"/api/v1/draws/{draw_id}/execute", json={"seed": 42})
     assert resp.status_code == 409
-    assert resp.json()["detail"]["code"] == "draw_already_finalized"
+    assert resp.json()["detail"]["code"] == "drawalreadyfinalizederror"
 
     app.dependency_overrides.clear()
 
