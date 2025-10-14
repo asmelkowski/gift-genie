@@ -117,8 +117,8 @@ jsonpath "$.data" isCollection
 jsonpath "$.data[0].id" exists
 jsonpath "$.data[0].giver_member_id" exists
 jsonpath "$.data[0].receiver_member_id" exists
-jsonpath "$.data[0].giver_name" not exists
-jsonpath "$.data[0].receiver_name" not exists
+jsonpath "$.data[0].giver_name" == null
+jsonpath "$.data[0].receiver_name" == null
 jsonpath "$.meta.total" == 3
 
 # Test: List assignments with names
@@ -137,6 +137,8 @@ jsonpath "$.meta.total" == 3
 
 # Test: Unauthorized access (no auth token)
 GET http://localhost:8000/api/v1/draws/{{drawId}}/assignments
+[Cookies]
+access_token: 'unauth'
 HTTP 401
 
 # Test: Invalid draw ID
