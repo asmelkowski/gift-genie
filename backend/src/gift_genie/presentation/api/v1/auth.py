@@ -5,14 +5,16 @@ from collections.abc import AsyncGenerator
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from loguru import logger
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, ValidationError, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from gift_genie.application.dto.get_current_user_query import GetCurrentUserQuery
 from gift_genie.application.dto.login_command import LoginCommand
 from gift_genie.application.dto.register_user_command import RegisterUserCommand
 from gift_genie.application.errors import EmailConflictError, InvalidCredentialsError
+from gift_genie.application.use_cases.get_current_user import GetCurrentUserUseCase
 from gift_genie.application.use_cases.login_user import LoginUserUseCase
 from gift_genie.application.use_cases.register_user import RegisterUserUseCase
 from gift_genie.domain.interfaces.security import PasswordHasher
@@ -76,6 +78,14 @@ class LoginResponse(BaseModel):
     token_type: str = "Bearer"
 
 
+class UserProfileResponse(BaseModel):
+    id: str
+    email: str
+    name: str
+    created_at: datetime
+    updated_at: datetime
+
+
 # Dependencies
 async def get_user_repository(
     session: Annotated[AsyncSession, Depends(get_async_session)],
@@ -90,6 +100,23 @@ async def get_password_hasher() -> PasswordHasher:
 async def get_jwt_service() -> JWTService:
     settings = get_settings()
     return JWTService(settings.SECRET_KEY, settings.ALGORITHM)
+
+
+async def get_current_user(request: Request) -> str:
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
+
+    settings = get_settings()
+    jwt_service = JWTService(settings.SECRET_KEY, settings.ALGORITHM)
+    try:
+        payload = jwt_service.verify_token(token)
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail={"code": "unauthorized"})
+        return user_id
+    except ValueError:
+        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
 
 @router.post("/register", response_model=UserCreatedResponse, status_code=201)
@@ -170,6 +197,29 @@ async def login_user(
     return LoginResponse(user=UserProfile(id=user.id, email=user.email, name=user.name))
 
 
+@router.get("/me", response_model=UserProfileResponse)
+async def get_current_user_profile(
+    current_user_id: Annotated[str, Depends(get_current_user)],
+    user_repo: Annotated[UserRepository, Depends(get_user_repository)],
+) -> UserProfileResponse:
+    try:
+        query = GetCurrentUserQuery(user_id=current_user_id)
+        use_case = GetCurrentUserUseCase(user_repository=user_repo)
+        user = await use_case.execute(query)
+    except InvalidCredentialsError as e:
+        logger.warning("User not found during profile retrieval", user_id=current_user_id, error=str(e))
+        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
+    except Exception as e:
+        logger.exception("Unexpected error during get current user profile", user_id=current_user_id, error=str(e))
+        raise HTTPException(status_code=500, detail={"code": "server_error"})
+
+    return UserProfileResponse(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+    )
 def _is_strong_password(pwd: str, email_local: str, name_norm: str) -> bool:
     # At least 3 of 4 classes
     has_lower = any(c.islower() for c in pwd)
