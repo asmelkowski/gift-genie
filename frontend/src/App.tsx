@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { queryClient } from '@/lib/queryClient';
 import { LoginPage } from '@/components/LoginPage';
@@ -50,30 +50,31 @@ const router = createBrowserRouter([
 ]);
 
 function AppContent() {
-  const { login } = useAuthStore();
-  const hasCheckedSession = useRef(false);
+   const { login } = useAuthStore();
+   const hasCheckedSession = useRef(false);
 
-  // Session check on app load
-  useQuery({
-    queryKey: ['auth', 'me'],
-    queryFn: async () => {
-      const response = await api.get('/api/v1/auth/me');
-      return { data: response.data, csrfToken: response.headers['x-csrf-token'] as string };
-    },
-    onSuccess: ({ data, csrfToken }) => {
-      const { user } = data;
-      login(user, csrfToken);
-    },
-    enabled: !hasCheckedSession.current,
-    staleTime: Infinity, // Only run once on mount
-    retry: false, // Don't retry on 401
-    onSettled: () => {
-      hasCheckedSession.current = true;
-    },
-  });
+   const { data } = useQuery({
+     queryKey: ['auth', 'me'],
+     queryFn: async () => {
+       const response = await api.get('/api/v1/auth/me');
+       return { data: response.data, csrfToken: response.headers['x-csrf-token'] as string };
+     },
+     enabled: !hasCheckedSession.current,
+     staleTime: Infinity,
+     retry: false,
+   });
 
-  return <RouterProvider router={router} />;
-}
+   useEffect(() => {
+     if (data) {
+       const { data: userData, csrfToken } = data;
+       const { user } = userData;
+       login(user, csrfToken);
+       hasCheckedSession.current = true;
+     }
+   }, [data, login]);
+
+   return <RouterProvider router={router} />;
+ }
 
 function App() {
   return (
