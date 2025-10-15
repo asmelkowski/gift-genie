@@ -39,6 +39,11 @@ class UserRepositorySqlAlchemy(UserRepository):
         await self._session.refresh(model)
         return self._to_domain(model)
 
+    async def get_by_id(self, user_id: str) -> Optional[User]:
+        stmt = select(UserModel).where(UserModel.id == UUID(user_id))
+        res = await self._session.execute(stmt)
+        row = res.scalar_one_or_none()
+        return self._to_domain(row) if row else None
     async def get_by_email_ci(self, email: str) -> Optional[User]:
         stmt = select(UserModel).where(func.lower(UserModel.email) == func.lower(email))
         res = await self._session.execute(stmt)
