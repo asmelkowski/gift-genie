@@ -8,6 +8,7 @@ import { RegisterPage } from '@/pages/RegisterPage';
 import { HomePage } from '@/pages/HomePage';
 import { GroupsPage } from '@/components/GroupsPage';
 import { GroupDetails } from '@/components/GroupsPage/GroupDetails';
+import { MembersPage } from '@/pages/MembersPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/AppLayout/AppLayout';
 import { useAuthStore } from '@/hooks/useAuthStore';
@@ -58,7 +59,7 @@ const router = createBrowserRouter([
        },
        {
          path: 'groups/:groupId/members',
-         element: <GroupDetails />,
+         element: <MembersPage />,
        },
        {
          path: 'settings',
