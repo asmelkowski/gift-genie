@@ -29,10 +29,17 @@ export function GroupDetails() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold mb-4">Exclusions</h2>
-        <p className="text-gray-600">Exclusions view - Coming soon</p>
-      </div>
+       <div className="bg-white rounded-lg border border-gray-200 p-6">
+         <div className="flex items-center justify-between">
+           <div>
+             <h2 className="text-lg font-semibold mb-1">Exclusions</h2>
+             <p className="text-gray-600 text-sm">Manage member pairings to exclude from draws</p>
+           </div>
+           <Button onClick={() => navigate(`/app/groups/${groupId}/exclusions`)}>
+             View Exclusions
+           </Button>
+         </div>
+       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h2 className="text-lg font-semibold mb-4">Draws</h2>

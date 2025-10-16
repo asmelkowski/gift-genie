@@ -9,6 +9,7 @@ import { HomePage } from '@/pages/HomePage';
 import { GroupsPage } from '@/components/GroupsPage';
 import { GroupDetails } from '@/components/GroupsPage/GroupDetails';
 import { MembersPage } from '@/pages/MembersPage';
+import { ExclusionsPage } from '@/pages/ExclusionsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/AppLayout/AppLayout';
 import { useAuthStore } from '@/hooks/useAuthStore';
@@ -58,13 +59,17 @@ const router = createBrowserRouter([
          element: <GroupDetails />,
        },
        {
-         path: 'groups/:groupId/members',
-         element: <MembersPage />,
-       },
-       {
-         path: 'settings',
-         element: <div>Settings Page (To be implemented)</div>,
-       },
+          path: 'groups/:groupId/members',
+          element: <MembersPage />,
+        },
+        {
+          path: 'groups/:groupId/exclusions',
+          element: <ExclusionsPage />,
+        },
+        {
+          path: 'settings',
+          element: <div>Settings Page (To be implemented)</div>,
+        },
      ],
   },
 ]);
