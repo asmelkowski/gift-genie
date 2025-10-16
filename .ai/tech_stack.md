@@ -26,7 +26,7 @@
 - **Data Fetching/Cache**: `@tanstack/react-query`
 - **HTTP Client**: Axios with request/response interceptors; base URL from `VITE_API_BASE_URL` (defaults to `http://localhost:8000/api/v1`)
 - **State Management**: Zustand
-- **Styling**: styled-components v6
+- **Styling**: Tailwindcss, Shadcn
 - **Lint/Format**: ESLint (@typescript-eslint, react-refresh), Prettier (singleQuote, semi, printWidth 100)
 - **Types**: `openapi-typescript` generates `src/types/api.ts`
 - **Aliases**: TS/Vite path aliases (`@`, `@/components`, `@/pages`, etc.)

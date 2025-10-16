@@ -11,7 +11,7 @@ interface AuthState {
   user: UserViewModel | null;
   csrfToken: string | null;
   isAuthenticated: () => boolean;
-  login: (user: UserViewModel, token: string) => void;
+  login: (user: UserViewModel, csrfToken: string) => void;
   logout: () => void;
 }
 
@@ -21,8 +21,8 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       csrfToken: null,
       isAuthenticated: () => get().user !== null,
-      login: (user: UserViewModel, token: string) => {
-        set({ user, csrfToken: token });
+      login: (user: UserViewModel, csrfToken: string) => {
+        set({ user, csrfToken });
       },
       logout: () => {
         set({ user: null, csrfToken: null });
