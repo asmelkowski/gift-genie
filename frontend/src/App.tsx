@@ -7,6 +7,7 @@ import { LoginPage } from '@/components/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { HomePage } from '@/pages/HomePage';
 import { GroupsPage } from '@/components/GroupsPage';
+import { GroupDetails } from '@/components/GroupsPage/GroupDetails';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/AppLayout/AppLayout';
 import { useAuthStore } from '@/hooks/useAuthStore';
@@ -47,15 +48,23 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      {
-        path: 'groups',
-        element: <GroupsPage />,
-      },
-      {
-        path: 'settings',
-        element: <div>Settings Page (To be implemented)</div>,
-      },
-    ],
+       {
+         path: 'groups',
+         element: <GroupsPage />,
+       },
+       {
+         path: 'groups/:groupId',
+         element: <GroupDetails />,
+       },
+       {
+         path: 'groups/:groupId/members',
+         element: <GroupDetails />,
+       },
+       {
+         path: 'settings',
+         element: <div>Settings Page (To be implemented)</div>,
+       },
+     ],
   },
 ]);
 
