@@ -40,4 +40,8 @@ api.interceptors.response.use(
   }
 );
 
+export const logout = async (): Promise<void> => {
+  await api.post('/api/v1/auth/logout');
+};
+
 export default api;
