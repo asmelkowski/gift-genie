@@ -25,6 +25,7 @@ api.interceptors.response.use(
       const isBootstrapCall = error.config?.url === '/api/v1/auth/me';
       
       queryClient.clear();
+      useAuthStore.getState().logout();
       
       // Only show toast and redirect if not the bootstrap call
       if (!isBootstrapCall) {
