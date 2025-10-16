@@ -25,10 +25,10 @@ export const useLoginMutation = () => {
       return response;
     },
     onSuccess: (response) => {
-      const { user } = response.data;
-      const csrfToken = response.headers['x-csrf-token'] as string;
-      login(user, csrfToken);
-    },
+       const { user } = response.data;
+       const csrfToken = response.headers['x-csrf-token'] || '';
+       login(user, csrfToken);
+     },
     onError: (error: any) => {
       // Error handling will be done in the component
       console.error('Login error:', error);
