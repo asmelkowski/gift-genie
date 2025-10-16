@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import api from '@/lib/api';
 import { useAuthStore } from '@/hooks/useAuthStore';
 
@@ -29,9 +30,8 @@ export const useLoginMutation = () => {
        const csrfToken = response.headers['x-csrf-token'] || '';
        login(user, csrfToken);
      },
-    onError: (error: any) => {
-      // Error handling will be done in the component
-      console.error('Login error:', error);
-    },
+     onError: (error: AxiosError) => {
+       console.error('Login error:', error);
+     },
   });
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,21 +50,21 @@ export function LoginForm() {
       return;
     }
 
-    loginMutation.mutate(
-      { email, password },
-      {
-        onError: (error: any) => {
-          const status = error.response?.status;
-          if (status === 401) {
-            setError('Invalid email or password');
-          } else if (status === 429) {
-            setError('Too many login attempts. Please try again in a moment.');
-          } else {
-            setError('An unexpected error occurred. Please try again later.');
-          }
-        },
-      }
-    );
+     loginMutation.mutate(
+       { email, password },
+       {
+         onError: (error: AxiosError) => {
+           const status = error.response?.status;
+           if (status === 401) {
+             setError('Invalid email or password');
+           } else if (status === 429) {
+             setError('Too many login attempts. Please try again in a moment.');
+           } else {
+             setError('An unexpected error occurred. Please try again later.');
+           }
+         },
+       }
+     );
   };
 
   return (
