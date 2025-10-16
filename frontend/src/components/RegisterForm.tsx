@@ -133,12 +133,12 @@ export function RegisterForm() {
               const responseData = error.response?.data;
               if (responseData?.detail) {
                 const fieldErrors: Record<string, string> = {};
-                responseData.detail.forEach((detail: any) => {
-                  if (detail.loc && detail.loc.length > 1) {
-                    const field = detail.loc[1];
-                    fieldErrors[field] = detail.msg;
-                  }
-                });
+               responseData.detail.forEach((detail: { loc: string[]; msg: string }) => {
+                   if (detail.loc && detail.loc.length > 1) {
+                     const field = detail.loc[1];
+                     fieldErrors[field] = detail.msg;
+                   }
+                 });
                 updateFormState({ errors: fieldErrors });
               } else {
                 updateFormState({ errors: { general: 'Invalid registration data' } });
