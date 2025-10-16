@@ -7,7 +7,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from loguru import logger
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    StringConstraints,
+    ValidationError,
+    model_validator,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from gift_genie.application.dto.get_current_user_query import GetCurrentUserQuery
@@ -127,7 +135,9 @@ async def register_user(
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
 ) -> UserCreatedResponse:
     try:
-        cmd = RegisterUserCommand(email=str(payload.email).strip(), password=payload.password, name=payload.name)
+        cmd = RegisterUserCommand(
+            email=str(payload.email).strip(), password=payload.password, name=payload.name
+        )
         use_case = RegisterUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
         user = await use_case.execute(cmd)
     except EmailConflictError as e:
@@ -138,17 +148,25 @@ async def register_user(
         raise
     except ValidationError as ve:
         # Pydantic validation errors (should be auto-handled by FastAPI, but keep for safety)
-        logger.warning("Validation error during registration", email=payload.email, errors=ve.errors())
-        raise HTTPException(status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()})
+        logger.warning(
+            "Validation error during registration", email=payload.email, errors=ve.errors()
+        )
+        raise HTTPException(
+            status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()}
+        )
     except Exception as e:
         # Avoid leaking details
-        logger.exception("Unexpected error during user registration", email=payload.email, error=str(e))
+        logger.exception(
+            "Unexpected error during user registration", email=payload.email, error=str(e)
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     # Optionally set Location header
     _ = response.headers.setdefault("Location", f"/api/v1/users/{user.id}")
 
-    return UserCreatedResponse(id=user.id, email=user.email, name=user.name, created_at=user.created_at)
+    return UserCreatedResponse(
+        id=user.id, email=user.email, name=user.name, created_at=user.created_at
+    )
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -170,7 +188,9 @@ async def login_user(
         raise
     except ValidationError as ve:
         logger.warning("Validation error during login", email=payload.email, errors=ve.errors())
-        raise HTTPException(status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()})
+        raise HTTPException(
+            status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()}
+        )
     except Exception as e:
         # Avoid leaking details
         logger.exception("Unexpected error during user login", email=payload.email, error=str(e))
@@ -207,10 +227,16 @@ async def get_current_user_profile(
         use_case = GetCurrentUserUseCase(user_repository=user_repo)
         user = await use_case.execute(query)
     except InvalidCredentialsError as e:
-        logger.warning("User not found during profile retrieval", user_id=current_user_id, error=str(e))
+        logger.warning(
+            "User not found during profile retrieval", user_id=current_user_id, error=str(e)
+        )
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
     except Exception as e:
-        logger.exception("Unexpected error during get current user profile", user_id=current_user_id, error=str(e))
+        logger.exception(
+            "Unexpected error during get current user profile",
+            user_id=current_user_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     return UserProfileResponse(
@@ -220,6 +246,26 @@ async def get_current_user_profile(
         created_at=user.created_at,
         updated_at=user.updated_at,
     )
+
+
+@router.post("/logout", status_code=204)
+async def logout(response: Response) -> None:
+    try:
+        response.set_cookie(
+            key="access_token",
+            value="",
+            max_age=0,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            path="/",
+        )
+        logger.info("User logged out successfully")
+    except Exception:
+        logger.exception("Unexpected error during logout")
+        raise HTTPException(status_code=500, detail={"code": "server_error"})
+
+
 def _is_strong_password(pwd: str, email_local: str, name_norm: str) -> bool:
     # At least 3 of 4 classes
     has_lower = any(c.islower() for c in pwd)
