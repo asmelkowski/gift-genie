@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { queryClient } from '@/lib/queryClient';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { useAppLayout } from '@/hooks/useAppLayout';
+import { useLogoutMutation } from '@/hooks/useLogoutMutation';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import type { NavigationItem } from './Sidebar';
@@ -16,16 +16,12 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 export function AppLayout() {
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
   const { theme, sidebarOpen, toggleTheme, toggleSidebar, closeSidebar } = useAppLayout();
+  const { mutate: performLogout } = useLogoutMutation();
 
   const handleLogout = useCallback(() => {
-    logout();
-    queryClient.clear();
-    // Force a complete page reload to clear all session state
-    // This ensures the bootstrap query runs fresh without any cached auth
-    window.location.reload();
-  }, [logout]);
+    performLogout();
+  }, [performLogout]);
 
   const handleToggleSidebar = useCallback(() => {
     toggleSidebar();
