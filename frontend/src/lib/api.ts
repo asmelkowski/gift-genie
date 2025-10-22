@@ -21,14 +21,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Don't redirect if this is the initial auth check
+      // Don't redirect if this is the initial auth check or login attempt
       const isBootstrapCall = error.config?.url === '/api/v1/auth/me';
+      const isLoginCall = error.config?.url === '/api/v1/auth/login';
       
       queryClient.clear();
       useAuthStore.getState().logout();
       
-      // Only show toast and redirect if not the bootstrap call
-      if (!isBootstrapCall) {
+      // Only show toast and redirect if not the bootstrap or login call
+      if (!isBootstrapCall && !isLoginCall) {
         toast.error('Session expired. Please login again.');
         // Use setTimeout to allow current render to complete
         setTimeout(() => {

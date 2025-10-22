@@ -14,6 +14,7 @@ class Draw:
     created_at: datetime
     finalized_at: datetime | None
     notification_sent_at: datetime | None
+    assignments_count: int = 0
 
     def is_finalized(self) -> bool:
         return self.status == DrawStatus.FINALIZED

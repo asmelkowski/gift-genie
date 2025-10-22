@@ -380,6 +380,8 @@ export interface components {
             finalized_at: string | null;
             /** Notification Sent At */
             notification_sent_at: string | null;
+            /** Assignments Count */
+            assignments_count: number;
         };
         /** ExclusionItemRequest */
         ExclusionItemRequest: {
