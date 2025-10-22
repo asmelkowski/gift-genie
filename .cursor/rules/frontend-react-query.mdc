@@ -1,0 +1,14 @@
+---
+alwaysApply: false
+---
+### Frontend — React Query
+- Set `staleTime`/`gcTime` per data freshness needs.
+- Use `useInfiniteQuery` for pagination/infinite scroll.
+- Use optimistic updates for responsive mutations.
+- Set defaults via `queryClient.setQueryDefaults`.
+- Use Suspense mode with `<Suspense>` boundaries where appropriate.
+- Add retry logic with custom backoff for transient failures.
+- Use `select` to transform/extract data from results.
+- Handle mutations with `onMutate`, `onError`, `onSettled`.
+- Structure query keys as `[entity, params]`.
+- Invalidate queries after mutations to keep data fresh.

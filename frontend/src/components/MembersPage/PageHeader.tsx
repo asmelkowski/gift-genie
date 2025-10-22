@@ -11,7 +11,7 @@ export function PageHeader({ groupName, groupId, onAddClick }: PageHeaderProps) 
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div data-testid="members-page-header">
       <nav className="flex items-center gap-2 text-sm mb-4" aria-label="Breadcrumb">
         <button
           onClick={() => navigate('/app/groups')}

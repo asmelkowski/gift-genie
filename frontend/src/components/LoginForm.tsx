@@ -74,6 +74,7 @@ export function LoginForm() {
         <Input
           id="email"
           type="email"
+          data-testid="login-email-input"
           value={email}
           onChange={handleEmailChange}
           required
@@ -85,6 +86,7 @@ export function LoginForm() {
         <Input
           id="password"
           type="password"
+          data-testid="login-password-input"
           value={password}
           onChange={handlePasswordChange}
           required

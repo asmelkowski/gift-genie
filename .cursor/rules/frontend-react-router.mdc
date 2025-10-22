@@ -1,0 +1,14 @@
+---
+alwaysApply: false
+---
+### Frontend — React Router
+- Prefer `createBrowserRouter` over `BrowserRouter` for data loading and errors.
+- Lazy‑load route components with `React.lazy`.
+- Use `useNavigate` for programmatic navigation.
+- Use loader/action functions for route‑level data and mutations.
+- Add `errorElement` boundaries for routing/data errors.
+- Use relative paths (e.g., `../parent`) to preserve hierarchy.
+- Access parent data with `useRouteLoaderData`.
+- Use fetchers for non‑navigation mutations.
+- Use `route.lazy()` for route‑level code splitting.
+- Control revalidation with `shouldRevalidate`.
