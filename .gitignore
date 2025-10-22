@@ -1,57 +1,25 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-.pytest_cache/
-.coverage
+# Test coverage and reports
 htmlcov/
-.tox/
-.hypothesis/
+.coverage
+.coverage.*
+coverage/
+*.lcov
+.nyc_output/
 
-# Virtual environments
-.venv/
-venv/
-ENV/
-env/
+# Playwright
+/frontend/test-results/
+/frontend/playwright-report/
+/frontend/.auth/
 
-# uv
-.uv/
-uv.lock
+# Pytest
+.pytest_cache/
+__pycache__/
+*.pyc
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# vitest
+/frontend/.vitest/
 
-# Frontend build
-frontend/dist/
-frontend/build/
-frontend/.vite/
-
-# IDEs
+# IDE
 .vscode/
 .idea/
 *.swp
@@ -59,32 +27,27 @@ frontend/.vite/
 *~
 .DS_Store
 
-# Environment variables
+# Environment
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
+*.pem
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# Dependencies
+node_modules/
+venv/
+.venv/
+
+# Build
+dist/
+build/
+*.egg-info/
 
 # Logs
-logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# OS
-Thumbs.db
-.DS_Store
-
-# Alembic
-backend/alembic.ini
-
-# Testing
-.coverage
-coverage/
-*.cover
-.hypothesis/
-
+# Direnv
+.envrc

@@ -28,11 +28,32 @@ dev = [
     "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-asyncio>=1.2.0",
+    "pytest-cov>=6.0.0",
     "ruff>=0.13.2",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+precision = 2
 
 [tool.ruff]
 exclude = [

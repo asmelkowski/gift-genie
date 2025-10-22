@@ -14,6 +14,19 @@ test:
 	@echo "Running tests..."
 	uv run pytest
 
+test-coverage:
+	@echo "Running tests with coverage..."
+	uv run pytest --cov=src.gift_genie --cov-report=html --cov-report=term
+	@echo "Coverage report generated in htmlcov/index.html"
+
+test-watch:
+	@echo "Running tests in watch mode..."
+	uv run pytest --looponfail
+
+test-verbose:
+	@echo "Running tests with verbose output..."
+	uv run pytest -v
+
 lint:
 	@echo "Running linter (ruff check)..."
 	uv run ruff check src/
@@ -30,7 +43,7 @@ clean:
 	@echo "Cleaning up..."
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
-	rm -rf .pytest_cache .mypy_cache .ruff_cache
+	rm -rf .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage
 
 db-up:
 	@echo "Starting database and redis containers..."
@@ -81,6 +94,9 @@ help:
 	@echo "  install        Install dependencies"
 	@echo "  run            Start the application"
 	@echo "  test           Run tests"
+	@echo "  test-coverage  Run tests with coverage report"
+	@echo "  test-watch     Run tests in watch mode"
+	@echo "  test-verbose   Run tests with verbose output"
 	@echo "  lint           Run linter (ruff check)"
 	@echo "  format         Run code formatters (ruff format)"
 	@echo "  typecheck      Run type checker (mypy)"
