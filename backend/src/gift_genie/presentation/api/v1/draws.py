@@ -74,6 +74,7 @@ class DrawResponse(BaseModel):
     created_at: datetime
     finalized_at: datetime | None
     notification_sent_at: datetime | None
+    assignments_count: int
 
 
 class AssignmentSummary(BaseModel):
@@ -279,6 +280,7 @@ async def list_draws(
                 created_at=draw.created_at,
                 finalized_at=draw.finalized_at,
                 notification_sent_at=draw.notification_sent_at,
+                assignments_count=draw.assignments_count,
             )
             for draw in draws
         ],
@@ -319,6 +321,7 @@ async def create_draw(
         created_at=draw.created_at,
         finalized_at=draw.finalized_at,
         notification_sent_at=draw.notification_sent_at,
+        assignments_count=draw.assignments_count,
     )
 
 
@@ -344,6 +347,7 @@ async def get_draw(
         created_at=draw.created_at,
         finalized_at=draw.finalized_at,
         notification_sent_at=draw.notification_sent_at,
+        assignments_count=draw.assignments_count,
     )
 
 
@@ -388,6 +392,7 @@ async def execute_draw(
             created_at=draw.created_at,
             finalized_at=draw.finalized_at,
             notification_sent_at=draw.notification_sent_at,
+            assignments_count=len(assignments),
         ),
         assignments=[
             AssignmentSummary(
@@ -422,6 +427,7 @@ async def finalize_draw(
         created_at=draw.created_at,
         finalized_at=draw.finalized_at,
         notification_sent_at=draw.notification_sent_at,
+        assignments_count=draw.assignments_count,
     )
 
 
