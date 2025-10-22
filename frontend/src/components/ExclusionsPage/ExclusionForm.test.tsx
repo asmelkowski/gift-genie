@@ -66,7 +66,7 @@ describe('ExclusionForm', () => {
     );
 
     const receiverSelect = screen.getByLabelText(/receiver member/i);
-    await user.selectOption(receiverSelect, 'member-1');
+    await userEvent.selectOptions(receiverSelect, 'member-1');
 
     const submitButton = screen.getByRole('button', {
       name: /create exclusion/i,
@@ -87,7 +87,7 @@ describe('ExclusionForm', () => {
     );
 
     const giverSelect = screen.getByLabelText(/giver member/i);
-    await user.selectOption(giverSelect, 'member-1');
+    await userEvent.selectOptions(giverSelect, 'member-1');
 
     const submitButton = screen.getByRole('button', {
       name: /create exclusion/i,
@@ -110,8 +110,8 @@ describe('ExclusionForm', () => {
     const giverSelect = screen.getByLabelText(/giver member/i);
     const receiverSelect = screen.getByLabelText(/receiver member/i);
 
-    await user.selectOption(giverSelect, 'member-1');
-    await user.selectOption(receiverSelect, 'member-1');
+    await userEvent.selectOptions(giverSelect, 'member-1');
+    await userEvent.selectOptions(receiverSelect, 'member-1');
 
     const submitButton = screen.getByRole('button', {
       name: /create exclusion/i,
@@ -139,8 +139,8 @@ describe('ExclusionForm', () => {
     const receiverSelect = screen.getByLabelText(/receiver member/i);
     const mutualCheckbox = screen.getByLabelText(/mutual/i);
 
-    await user.selectOption(giverSelect, 'member-1');
-    await user.selectOption(receiverSelect, 'member-2');
+    await userEvent.selectOptions(giverSelect, 'member-1');
+    await userEvent.selectOptions(receiverSelect, 'member-2');
     await user.click(mutualCheckbox);
 
     const submitButton = screen.getByRole('button', {
@@ -166,8 +166,8 @@ describe('ExclusionForm', () => {
     const giverSelect = screen.getByLabelText(/giver member/i);
     const receiverSelect = screen.getByLabelText(/receiver member/i);
 
-    await user.selectOption(giverSelect, 'member-1');
-    await user.selectOption(receiverSelect, 'member-2');
+    await userEvent.selectOptions(giverSelect, 'member-1');
+    await userEvent.selectOptions(receiverSelect, 'member-2');
 
     const submitButton = screen.getByRole('button', {
       name: /create exclusion/i,
@@ -240,8 +240,8 @@ describe('ExclusionForm', () => {
     const giverSelect = screen.getByLabelText(/giver member/i);
     const receiverSelect = screen.getByLabelText(/receiver member/i);
 
-    await user.selectOption(giverSelect, 'member-1');
-    await user.selectOption(receiverSelect, 'member-2');
+    await userEvent.selectOptions(giverSelect, 'member-1');
+    await userEvent.selectOptions(receiverSelect, 'member-2');
     await user.click(submitButton);
 
     expect(screen.queryByText(/please select a giver member/i)).not.toBeInTheDocument();

@@ -47,8 +47,9 @@ describe('ExclusionCard', () => {
       />
     );
 
-    expect(screen.getByText(/member-giver.../)).toBeInTheDocument();
-    expect(screen.getByText(/member-receiver.../)).toBeInTheDocument();
+    // Text is split across multiple elements, so use flexible matchers
+    expect(screen.getByText(/member-g/)).toBeInTheDocument();
+    expect(screen.getByText(/member-r/)).toBeInTheDocument();
   });
 
   it('renders type badge', () => {
@@ -91,7 +92,9 @@ describe('ExclusionCard', () => {
       />
     );
 
-    const expandButton = screen.getByRole('button', { hidden: true });
+    // Use getAllByRole to target the expand button (first button that's not the delete button)
+    const buttons = screen.getAllByRole('button');
+    const expandButton = buttons.find(btn => btn.textContent?.includes('→') || btn.textContent?.includes('↔')) || buttons[0];
     await user.click(expandButton);
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -114,7 +117,9 @@ describe('ExclusionCard', () => {
       />
     );
 
-    const expandButton = screen.getByRole('button', { hidden: true });
+    // Use getAllByRole to target the expand button
+    const buttons = screen.getAllByRole('button');
+    const expandButton = buttons.find(btn => btn.textContent?.includes('→') || btn.textContent?.includes('↔')) || buttons[0];
     await user.click(expandButton);
 
     expect(screen.getByText('Inactive')).toBeInTheDocument();

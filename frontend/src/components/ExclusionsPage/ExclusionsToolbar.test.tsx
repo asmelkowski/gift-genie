@@ -155,7 +155,7 @@ describe('ExclusionsToolbar', () => {
     );
 
     const sortSelect = screen.getByLabelText(/sort by/i);
-    await user.selectOption(sortSelect, '-created_at');
+    await userEvent.selectOptions(sortSelect, '-created_at');
 
     expect(onSortChange).toHaveBeenCalledWith('-created_at');
   });

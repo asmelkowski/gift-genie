@@ -74,6 +74,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
         aria-haspopup="menu"
         aria-expanded={isOpen}
         className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-2 focus:outline-blue-600 focus:outline-offset-2 transition-colors"
+        data-testid="user-menu-button"
       >
         {getInitials(user.name)}
       </button>
