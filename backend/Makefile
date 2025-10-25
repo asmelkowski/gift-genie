@@ -16,7 +16,7 @@ test:
 
 test-coverage:
 	@echo "Running tests with coverage..."
-	uv run pytest --cov=src.gift_genie --cov-report=html --cov-report=term
+	uv run pytest --cov=gift_genie --cov-report=html --cov-report=term
 	@echo "Coverage report generated in htmlcov/index.html"
 
 test-watch:

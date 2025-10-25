@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { expect, afterEach, vi, beforeAll, afterAll } from 'vitest';
+import { cleanup } from '@testing-library/react';
 import { server } from './mocks/server';
 
 // Start server before all tests
@@ -7,9 +8,15 @@ beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
 });
 
-// Reset handlers after each test
+// Reset handlers and cleanup after each test
 afterEach(() => {
+  // Clean up React Testing Library DOM - this unmounts components
+  cleanup();
+  
+  // Reset all MSW handlers for next test
   server.resetHandlers();
+  
+  // Clear all mocks
   vi.clearAllMocks();
 });
 
