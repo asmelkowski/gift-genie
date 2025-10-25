@@ -32,7 +32,7 @@ interface MemberFormProps {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function MemberForm({ member, groupId, onSuccess, onCancel }: MemberFormProps) {
+export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDrawAlert }: MemberFormProps) {
   const [formData, setFormData] = useState<MemberFormData>({
     name: member?.name || '',
     email: member?.email || '',
@@ -80,7 +80,7 @@ export function MemberForm({ member, groupId, onSuccess, onCancel }: MemberFormP
     } else {
       setApiError(detail || 'Failed to update member');
     }
-  }, []);
+  }, [onPendingDrawAlert]);
 
   const createMutation = useCreateMemberMutation(groupId, handleCreateError);
   const updateMutation = useUpdateMemberMutation(groupId, handleUpdateError);
