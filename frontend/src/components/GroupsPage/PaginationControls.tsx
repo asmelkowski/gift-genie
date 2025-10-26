@@ -23,7 +23,7 @@ export function PaginationControls({ meta, onPageChange }: PaginationControlsPro
   }, [meta.page, meta.total_pages, onPageChange]);
 
   return (
-    <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+    <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200" data-testid="pagination-controls">
       <p className="text-sm text-gray-600">
         Page {meta.page} of {meta.total_pages} ({meta.total} total)
       </p>
@@ -32,6 +32,7 @@ export function PaginationControls({ meta, onPageChange }: PaginationControlsPro
           onClick={handlePrevious}
           disabled={meta.page === 1}
           variant="outline"
+          data-testid="pagination-previous"
         >
           Previous
         </Button>
@@ -39,6 +40,7 @@ export function PaginationControls({ meta, onPageChange }: PaginationControlsPro
           onClick={handleNext}
           disabled={meta.page >= meta.total_pages}
           variant="outline"
+          data-testid="pagination-next"
         >
           Next
         </Button>

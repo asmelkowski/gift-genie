@@ -11,7 +11,7 @@ export function PageHeader({ onCreateClick }: PageHeaderProps) {
         <h1 className="text-3xl font-bold text-gray-900">Groups</h1>
         <p className="text-gray-600 mt-1">Manage your gift exchange groups</p>
       </div>
-      <Button onClick={onCreateClick} className="mt-4 sm:mt-0">
+      <Button onClick={onCreateClick} className="mt-4 sm:mt-0" data-testid="create-group-button">
         Create Group
       </Button>
     </div>

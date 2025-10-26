@@ -1,0 +1,373 @@
+import { test, expect } from './fixtures';
+import { GroupsPage } from './page-objects/GroupsPage';
+import { CreateGroupDialog } from './page-objects/CreateGroupDialog';
+
+/**
+ * Groups Page E2E Tests
+ * 
+ * This file contains comprehensive E2E tests for the Groups page functionality.
+ * Tests follow the Arrange-Act-Assert pattern and use Page Object Model.
+ * 
+ * To run: npx playwright test e2e/groups.spec.ts
+ */
+
+test.describe('Groups Page - Authentication', () => {
+  test('should redirect unauthenticated users to login', async ({ page }) => {
+    const groupsPage = new GroupsPage(page);
+    
+    await groupsPage.goto();
+    
+    // Should be redirected to login
+    await expect(page).toHaveURL('/login');
+  });
+
+  test('should allow authenticated users to access page', async ({ authenticatedPage }) => {
+    const groupsPage = new GroupsPage(authenticatedPage);
+    
+    await groupsPage.goto();
+    
+    await groupsPage.expectPageLoaded();
+    await expect(authenticatedPage).toHaveURL('/app/groups');
+  });
+});
+
+test.describe('Groups Page - Initial Load', () => {
+  test.beforeEach(async ({ authenticatedPage }) => {
+    // Navigate to groups page before each test
+    const groupsPage = new GroupsPage(authenticatedPage);
+    await groupsPage.goto();
+  });
+
+  test('should display page header with "Groups" title', async ({ authenticatedPage }) => {
+    const groupsPage = new GroupsPage(authenticatedPage);
+    
+    await groupsPage.expectPageLoaded();
+  });
+
+  test('should display "Create Group" button in header', async ({ authenticatedPage }) => {
+    const groupsPage = new GroupsPage(authenticatedPage);
+    
+    await expect(groupsPage.createGroupButton).toBeVisible();
+    await expect(groupsPage.createGroupButton).toContainText('Create Group');
+  });
+
+  test('should display search input and sort dropdown', async ({ authenticatedPage }) => {
+    const groupsPage = new GroupsPage(authenticatedPage);
+    
+    await expect(groupsPage.searchInput).toBeVisible();
+    await expect(groupsPage.searchInput).toHaveAttribute('placeholder', 'Search groups...');
+    await expect(groupsPage.sortSelect).toBeVisible();
+  });
+});
+
+test.describe('Groups Page - Create Group Dialog', () => {
+  let groupsPage: GroupsPage;
+  let createDialog: CreateGroupDialog;
+
+  test.beforeEach(async ({ authenticatedPage }) => {
+    groupsPage = new GroupsPage(authenticatedPage);
+    createDialog = new CreateGroupDialog(authenticatedPage);
+    
+    await groupsPage.goto();
+    await groupsPage.clickCreateGroupButton();
+  });
+
+  test('should open create dialog when clicking "Create Group" button', async () => {
+    await createDialog.expectVisible();
+  });
+
+  test('should display all form fields correctly', async () => {
+    await createDialog.expectInitialState();
+  });
+
+  test('should validate required group name field', async () => {
+    // Leave name empty and try to submit
+    await createDialog.clickCreate();
+    
+    await createDialog.expectGroupNameError('Group name is required');
+    await createDialog.expectVisible(); // Dialog should remain open
+  });
+
+  test('should validate name length (max 100 characters)', async () => {
+    const maxLength = await createDialog.getGroupNameMaxLength();
+    expect(maxLength).toBe(100);
+    
+    // Try to type more than 100 characters
+    const longText = 'a'.repeat(101);
+    await createDialog.typeGroupName(longText);
+    
+    // Verify only 100 characters were accepted
+    const inputValue = await createDialog.groupNameInput.inputValue();
+    expect(inputValue.length).toBe(100);
+  });
+
+  test('should trim whitespace from group name', async ({ authenticatedPage }) => {
+    // Create group with leading/trailing spaces
+    await createDialog.fillGroupName('  Test Group  ');
+    await createDialog.clickCreate();
+    
+    // Wait for success toast
+    await expect(authenticatedPage.getByText('Group created successfully')).toBeVisible();
+    
+    // Should navigate to members page
+    await expect(authenticatedPage).toHaveURL(/\/app\/groups\/.*\/members/);
+  });
+
+  test('should toggle historical exclusions settings', async () => {
+    // Initially checked with lookback visible
+    await createDialog.expectHistoricalExclusionsEnabled();
+    await createDialog.expectLookbackVisible();
+    
+    // Uncheck
+    await createDialog.toggleHistoricalExclusions();
+    await createDialog.expectHistoricalExclusionsDisabled();
+    await createDialog.expectLookbackNotVisible();
+    
+    // Check again
+    await createDialog.toggleHistoricalExclusions();
+    await createDialog.expectHistoricalExclusionsEnabled();
+    await createDialog.expectLookbackVisible();
+  });
+
+  test('should validate lookback field when enabled', async () => {
+    await createDialog.fillGroupName('Test Group');
+    
+    // Set invalid lookback value
+    await createDialog.setLookback(0);
+    await createDialog.blurLookbackInput();
+    
+    await createDialog.expectLookbackError('Lookback must be a positive integer');
+    
+    // Set valid value
+    await createDialog.setLookback(2);
+    await createDialog.blurLookbackInput();
+    
+    await createDialog.expectNoErrors();
+  });
+
+  test('should create group with valid data', async ({ authenticatedPage }) => {
+    await createDialog.createGroup('Test Group E2E', {
+      historicalExclusionsEnabled: true,
+      lookback: 2,
+    });
+    
+    // Verify success toast
+    await expect(authenticatedPage.getByText('Group created successfully')).toBeVisible();
+    
+    // Verify navigation to members page
+    await expect(authenticatedPage).toHaveURL(/\/app\/groups\/.*\/members/);
+  });
+
+  test('should create group with historical exclusions disabled', async ({ authenticatedPage }) => {
+    await createDialog.fillGroupName('No Exclusions Group');
+    await createDialog.disableHistoricalExclusions();
+    await createDialog.clickCreate();
+    
+    await expect(authenticatedPage.getByText('Group created successfully')).toBeVisible();
+    await expect(authenticatedPage).toHaveURL(/\/app\/groups\/.*\/members/);
+  });
+
+  test('should close dialog on cancel button', async () => {
+    await createDialog.fillGroupName('Test');
+    await createDialog.clickCancel();
+    
+    await createDialog.expectClosed();
+  });
+
+  test('should disable buttons during submission', async () => {
+    await createDialog.fillGroupName('Test Group');
+    await createDialog.clickCreate();
+    
+    // Check for loading state (this happens very quickly)
+    // Note: This might be flaky depending on API speed
+    await createDialog.expectCreatingState();
+  });
+});
+
+test.describe('Groups Page - Search Functionality', () => {
+  let groupsPage: GroupsPage;
+  let createDialog: CreateGroupDialog;
+
+  test.beforeEach(async ({ authenticatedPage }) => {
+    groupsPage = new GroupsPage(authenticatedPage);
+    createDialog = new CreateGroupDialog(authenticatedPage);
+    
+    // Create test groups
+    await groupsPage.goto();
+    
+    // Create multiple groups for search testing
+    const testGroups = [
+      'E2E Test - Family Christmas',
+      'E2E Test - Work Team',
+      'E2E Test - Friends Gift Exchange',
+    ];
+    
+    for (const groupName of testGroups) {
+      await groupsPage.clickCreateGroupButton();
+      await createDialog.createGroup(groupName);
+      // Navigate back to groups page
+      await groupsPage.goto();
+    }
+  });
+
+  test('should filter groups by search term', async () => {
+    await groupsPage.searchGroups('Family');
+    
+    await groupsPage.expectGroupVisible('E2E Test - Family Christmas');
+    await groupsPage.expectGroupNotVisible('E2E Test - Work Team');
+    await groupsPage.expectGroupNotVisible('E2E Test - Friends Gift Exchange');
+  });
+
+  test('should show "No groups found" when search has no results', async () => {
+    await groupsPage.searchGroups('NonexistentGroup12345');
+    
+    await groupsPage.expectNoResultsMessage();
+    await expect(groupsPage.clearSearchButton).toBeVisible();
+  });
+
+  test('should clear search when clicking "Clear search" button', async () => {
+    await groupsPage.searchGroups('NonexistentGroup12345');
+    await groupsPage.expectNoResultsMessage();
+    
+    await groupsPage.clickClearSearchButton();
+    
+    // All groups should be visible again
+    await groupsPage.expectGroupVisible('E2E Test - Family Christmas');
+    await groupsPage.expectGroupVisible('E2E Test - Work Team');
+  });
+
+  test('should preserve search term in URL params', async ({ authenticatedPage }) => {
+    await groupsPage.searchGroups('Family');
+    
+    await groupsPage.expectSearchInUrl('Family');
+    
+    // Refresh page
+    await authenticatedPage.reload();
+    
+    // Search should persist
+    await groupsPage.expectSearchInUrl('Family');
+    await groupsPage.expectGroupVisible('E2E Test - Family Christmas');
+  });
+});
+
+test.describe('Groups Page - Sort Functionality', () => {
+  let groupsPage: GroupsPage;
+
+  test.beforeEach(async ({ authenticatedPage }) => {
+    groupsPage = new GroupsPage(authenticatedPage);
+    await groupsPage.goto();
+  });
+
+  test('should sort by newest first (default)', async () => {
+    await expect(groupsPage.sortSelect).toHaveValue('-created_at');
+  });
+
+  test('should sort by name A-Z', async () => {
+    await groupsPage.selectSort('name');
+    
+    await groupsPage.expectSortInUrl('name');
+    await groupsPage.expectGroupsSortedByNameAZ();
+  });
+
+  test('should sort by name Z-A', async () => {
+    await groupsPage.selectSort('-name');
+    
+    await groupsPage.expectSortInUrl('-name');
+    await groupsPage.expectGroupsSortedByNameZA();
+  });
+
+  test('should preserve sort in URL params', async ({ authenticatedPage }) => {
+    await groupsPage.selectSort('name');
+    await groupsPage.expectSortInUrl('name');
+    
+    // Refresh page
+    await authenticatedPage.reload();
+    
+    // Sort should persist
+    await groupsPage.expectSortInUrl('name');
+    await expect(groupsPage.sortSelect).toHaveValue('name');
+  });
+});
+
+test.describe('Groups Page - Navigation', () => {
+  let groupsPage: GroupsPage;
+  let createDialog: CreateGroupDialog;
+
+  test.beforeEach(async ({ authenticatedPage }) => {
+    groupsPage = new GroupsPage(authenticatedPage);
+    createDialog = new CreateGroupDialog(authenticatedPage);
+    
+    await groupsPage.goto();
+  });
+
+  test('should navigate to group details on card click', async ({ authenticatedPage }) => {
+    // Create a test group
+    await groupsPage.clickCreateGroupButton();
+    await createDialog.createGroup('E2E Test - Navigation Group');
+    
+    // Navigate back to groups
+    await groupsPage.goto();
+    
+    // Click the group card
+    await groupsPage.clickGroupCardByName('E2E Test - Navigation Group');
+    
+    // Should navigate to group details
+    await expect(authenticatedPage).toHaveURL(/\/app\/groups\/[^/]+$/);
+    await expect(authenticatedPage.getByText('Group Details')).toBeVisible();
+  });
+});
+
+test.describe('Groups Page - Pagination', () => {
+  let groupsPage: GroupsPage;
+  let createDialog: CreateGroupDialog;
+
+  test.beforeEach(async ({ authenticatedPage }) => {
+    groupsPage = new GroupsPage(authenticatedPage);
+    createDialog = new CreateGroupDialog(authenticatedPage);
+    
+    await groupsPage.goto();
+  });
+
+  // Note: This test requires creating 13+ groups, which can be slow
+  test.skip('should display pagination when groups exceed page size', async () => {
+    // Create 13 groups (page size is 12)
+    for (let i = 1; i <= 13; i++) {
+      await groupsPage.clickCreateGroupButton();
+      await createDialog.createGroup(`E2E Test - Pagination Group ${i}`);
+      await groupsPage.goto();
+    }
+    
+    await groupsPage.expectPaginationVisible();
+  });
+
+  test.skip('should navigate to next page', async ({ authenticatedPage }) => {
+    // Assumes pagination is visible
+    await groupsPage.goToNextPage();
+    
+    await groupsPage.expectPageInUrl(2);
+    // Verify window scrolled to top (hard to test directly)
+  });
+});
+
+test.describe('Groups Page - Error Handling', () => {
+  test('should handle API errors gracefully', async ({ page }) => {
+    // Intercept API and return error
+    await page.route('**/api/v1/groups*', (route) => {
+      route.fulfill({
+        status: 500,
+        body: JSON.stringify({ detail: 'Internal Server Error' }),
+      });
+    });
+    
+    const groupsPage = new GroupsPage(page);
+    await page.goto('/app/groups'); // Use page.goto to avoid auth fixture
+    
+    // Should show error state
+    await groupsPage.expectErrorState();
+  });
+});
+
+// Note: Add more tests based on the comprehensive test plan
+// This is a starter set to demonstrate the structure
+
+

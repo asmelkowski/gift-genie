@@ -5,9 +5,10 @@ interface DialogProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  'data-testid'?: string;
 }
 
-export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
+export function Dialog({ isOpen, onClose, title, children, 'data-testid': dataTestId }: DialogProps) {
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -33,6 +34,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         <div
           className="bg-white rounded-lg shadow-lg max-w-md w-full"
           onClick={(e) => e.stopPropagation()}
+          data-testid={dataTestId}
         >
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">{title}</h2>

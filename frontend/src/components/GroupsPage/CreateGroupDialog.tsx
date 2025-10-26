@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ interface FormErrors {
 }
 
 export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     historical_exclusions_enabled: true,
@@ -138,7 +140,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
           : null,
       };
 
-      await mutation.mutateAsync(payload);
+      const data = await mutation.mutateAsync(payload);
       setFormData({
         name: '',
         historical_exclusions_enabled: true,
@@ -146,8 +148,9 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
       });
       setErrors({});
       onClose();
+      navigate(`/app/groups/${data.id}/members`);
     },
-    [formData, validateField, mutation, onClose]
+    [formData, validateField, mutation, onClose, navigate]
   );
 
   const handleClose = useCallback(() => {
@@ -161,7 +164,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
   }, [onClose]);
 
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose} title="Create Group">
+    <Dialog isOpen={isOpen} onClose={handleClose} title="Create Group" data-testid="create-group-dialog">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="group-name">Group Name *</Label>
@@ -174,8 +177,9 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
             placeholder="Enter group name"
             maxLength={100}
             className={errors.name ? 'border-red-500' : ''}
+            data-testid="group-name-input"
           />
-          {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+           {errors.name && <p className="text-sm text-red-500 mt-1" data-testid="group-name-error">{errors.name}</p>}
         </div>
 
         <div className="flex items-center gap-2">
@@ -185,6 +189,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
             checked={formData.historical_exclusions_enabled}
             onChange={handleExclusionsChange}
             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            data-testid="historical-exclusions-checkbox"
           />
           <Label htmlFor="exclusions-enabled" className="mb-0">
             Enable historical exclusions
@@ -202,12 +207,13 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
               onChange={handleLookbackChange}
               onBlur={handleLookbackBlur}
               className={errors.historical_exclusions_lookback ? 'border-red-500' : ''}
+              data-testid="lookback-input"
             />
-            {errors.historical_exclusions_lookback && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.historical_exclusions_lookback}
-              </p>
-            )}
+             {errors.historical_exclusions_lookback && (
+               <p className="text-sm text-red-500 mt-1" data-testid="lookback-error">
+                 {errors.historical_exclusions_lookback}
+               </p>
+             )}
           </div>
         )}
 
@@ -217,10 +223,11 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
             variant="outline"
             onClick={handleClose}
             disabled={mutation.isPending}
+            data-testid="cancel-create-group"
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={mutation.isPending}>
+          <Button type="submit" disabled={mutation.isPending} data-testid="submit-create-group">
             {mutation.isPending ? 'Creating...' : 'Create'}
           </Button>
         </div>

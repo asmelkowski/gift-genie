@@ -6,6 +6,9 @@ import { CreateGroupDialog } from './CreateGroupDialog';
 import * as useCreateGroupMutationModule from '@/hooks/useCreateGroupMutation';
 
 vi.mock('@/hooks/useCreateGroupMutation');
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
+}));
 
 describe('CreateGroupDialog', () => {
   let queryClient: QueryClient;

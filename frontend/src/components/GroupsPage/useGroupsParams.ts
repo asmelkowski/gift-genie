@@ -53,6 +53,7 @@ export function useGroupsParams() {
         } else {
           newParams.delete('sort');
         }
+        newParams.set('page', '1');
       }
 
       setSearchParams(newParams);

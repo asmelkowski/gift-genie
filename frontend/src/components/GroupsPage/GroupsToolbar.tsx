@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -23,6 +23,11 @@ export function GroupsToolbar({
   onSortChange,
 }: GroupsToolbarProps) {
   const [inputValue, setInputValue] = useState(search);
+
+  // Sync inputValue with search prop changes (e.g., when "Clear search" is clicked)
+  useEffect(() => {
+    setInputValue(search);
+  }, [search]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +66,7 @@ export function GroupsToolbar({
           value={inputValue}
           onChange={handleSearchChange}
           maxLength={100}
+          data-testid="search-groups-input"
         />
       </div>
       <div className="sm:w-48">
@@ -72,6 +78,7 @@ export function GroupsToolbar({
           value={isValidSort ? sort : '-created_at'}
           onChange={handleSortChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          data-testid="sort-groups-select"
         >
           {SORT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>

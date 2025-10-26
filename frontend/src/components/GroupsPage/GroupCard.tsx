@@ -28,9 +28,10 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
     <Card
       onClick={handleClick}
       className="cursor-pointer hover:shadow-lg transition-shadow"
+      data-testid={`group-card-${group.id}`}
     >
       <CardHeader className="pb-3">
-        <h3 className="font-semibold text-lg truncate">{group.name}</h3>
+        <h3 className="font-semibold text-lg truncate" data-testid="group-card-name">{group.name}</h3>
       </CardHeader>
       <CardContent className="space-y-2">
         <p className="text-sm text-gray-500">Created {formattedDate}</p>

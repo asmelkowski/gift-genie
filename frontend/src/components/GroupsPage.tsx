@@ -17,9 +17,18 @@ export function GroupsPage() {
   const { params, updateParams } = useGroupsParams();
   const { data, isLoading, error, refetch } = useGroupsQuery(params);
 
+  const groups = data?.data || [];
+  const meta = data?.meta;
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [params.page]);
+
+  useEffect(() => {
+    if (meta && meta.total_pages > 0 && params.page > meta.total_pages) {
+      updateParams({ page: 1 });
+    }
+  }, [meta, params.page, updateParams]);
 
   const handleCreateClick = useCallback(() => {
     setIsDialogOpen(true);
@@ -61,12 +70,12 @@ export function GroupsPage() {
     return (
       <div className="space-y-6">
         <PageHeader onCreateClick={handleCreateClick} />
-        <GroupsToolbar
-          search={params.search || ''}
-          sort={params.sort || '-created_at'}
-          onSearchChange={handleSearchChange}
-          onSortChange={handleSortChange}
-        />
+       <GroupsToolbar
+         search={params.search || ''}
+         sort={params.sort || '-created_at'}
+         onSearchChange={handleSearchChange}
+         onSortChange={handleSortChange}
+       />
         <LoadingState />
       </div>
     );
@@ -81,13 +90,16 @@ export function GroupsPage() {
     );
   }
 
-  const groups = data?.data || [];
-  const meta = data?.meta;
-
   if (groups.length === 0 && !params.search) {
     return (
       <div className="space-y-6">
         <PageHeader onCreateClick={handleCreateClick} />
+        <GroupsToolbar
+          search={params.search || ''}
+          sort={params.sort || '-created_at'}
+          onSearchChange={handleSearchChange}
+          onSortChange={handleSortChange}
+        />
         <EmptyState onCreateClick={handleCreateClick} />
         <CreateGroupDialog isOpen={isDialogOpen} onClose={handleDialogClose} />
       </div>
@@ -112,12 +124,13 @@ export function GroupsPage() {
           <p className="text-gray-600 mb-4">
             No groups match "{params.search}". Try a different search term.
           </p>
-          <button
-            onClick={() => updateParams({ search: '' })}
-            className="text-blue-600 hover:text-blue-700 font-medium"
-          >
-            Clear search
-          </button>
+           <button
+             onClick={() => updateParams({ search: '' })}
+             className="text-blue-600 hover:text-blue-700 font-medium"
+             data-testid="clear-search-button"
+           >
+             Clear search
+           </button>
         </div>
       ) : (
         <>

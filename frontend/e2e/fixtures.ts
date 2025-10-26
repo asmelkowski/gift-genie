@@ -72,6 +72,14 @@ export class GroupsPage {
   }
 }
 
+/**
+ * Note: Enhanced GroupsPage and CreateGroupDialog page objects are available in:
+ * - ./page-objects/GroupsPage.ts
+ * - ./page-objects/CreateGroupDialog.ts
+ * 
+ * Use these for new tests. This basic version is kept for backward compatibility.
+ */
+
 export class DrawsPage {
   constructor(private page: Page) {}
 
