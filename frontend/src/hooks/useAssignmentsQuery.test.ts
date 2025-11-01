@@ -5,6 +5,7 @@ import { useAssignmentsQuery } from './useAssignmentsQuery';
 import { createTestQueryClient, createTestWrapper } from '@/test/test-utils';
 import api from '@/lib/api';
 import type { components } from '@/types/schema';
+import type { AssignmentWithNames } from '@/lib/drawUtils';
 
 vi.mock('@/lib/api');
 
@@ -52,7 +53,7 @@ describe('useAssignmentsQuery', () => {
       },
     ];
     const mockData: ListAssignmentsResponse = {
-      items: mockAssignments as any,
+      items: mockAssignments as AssignmentWithNames[],
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });

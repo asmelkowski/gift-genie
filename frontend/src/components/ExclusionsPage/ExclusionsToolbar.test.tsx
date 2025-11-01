@@ -141,7 +141,6 @@ describe('ExclusionsToolbar', () => {
   });
 
   it('calls onSortChange when sort option is changed', async () => {
-    const user = userEvent.setup();
     const onSortChange = vi.fn();
 
     render(

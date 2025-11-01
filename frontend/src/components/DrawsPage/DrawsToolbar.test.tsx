@@ -53,7 +53,6 @@ describe('DrawsToolbar', () => {
   });
 
   it('selects pending status', async () => {
-    const user = userEvent.setup();
     render(
       <DrawsToolbar
         status="pending"
@@ -67,7 +66,6 @@ describe('DrawsToolbar', () => {
   });
 
   it('selects finalized status', async () => {
-    const user = userEvent.setup();
     render(
       <DrawsToolbar
         status="finalized"
@@ -127,7 +125,6 @@ describe('DrawsToolbar', () => {
   });
 
   it('sorts by finalized date when option selected', async () => {
-    const user = userEvent.setup();
     render(
       <DrawsToolbar
         status="all"

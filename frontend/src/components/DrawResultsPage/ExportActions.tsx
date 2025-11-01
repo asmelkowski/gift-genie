@@ -19,7 +19,7 @@ export default function ExportActions({
     try {
       await copyToClipboard(assignments, groupName);
       console.log('Copied to clipboard');
-    } catch (error) {
+    } catch {
       console.error('Failed to copy to clipboard');
     }
   }, [assignments, groupName]);
@@ -27,7 +27,7 @@ export default function ExportActions({
   const handleExportCSV = useCallback(() => {
     try {
       exportToCSV(assignments, drawId);
-    } catch (error) {
+    } catch {
       console.error('Failed to export CSV');
     }
   }, [assignments, drawId]);

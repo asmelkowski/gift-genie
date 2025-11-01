@@ -41,24 +41,24 @@ export default function DrawsPage() {
   );
   const [executeError, setExecuteError] = useState<string | null>(null);
 
-  if (!groupId) {
-    return <ErrorState error="Group not found" />;
-  }
-
   const drawsQuery = useDrawsQuery({
-    groupId,
+    groupId: groupId!,
     status: params.status,
     page: params.page,
     page_size: params.page_size,
     sort: params.sort,
   });
 
-  const groupQuery = useGroupDetailsQuery(groupId);
-  const createDrawMutation = useCreateDrawMutation(groupId);
-  const executeDrawMutation = useExecuteDrawMutation(groupId);
-  const finalizeDrawMutation = useFinalizeDrawMutation(groupId);
-  const notifyDrawMutation = useNotifyDrawMutation(groupId);
-  const deleteDrawMutation = useDeleteDrawMutation(groupId);
+  const groupQuery = useGroupDetailsQuery(groupId!);
+  const createDrawMutation = useCreateDrawMutation(groupId!);
+  const executeDrawMutation = useExecuteDrawMutation(groupId!);
+  const finalizeDrawMutation = useFinalizeDrawMutation(groupId!);
+  const notifyDrawMutation = useNotifyDrawMutation(groupId!);
+  const deleteDrawMutation = useDeleteDrawMutation(groupId!);
+
+  if (!groupId) {
+    return <ErrorState error="Group not found" />;
+  }
 
   const handleCreateDraw = async () => {
     await createDrawMutation.mutateAsync();
@@ -69,10 +69,11 @@ export default function DrawsPage() {
     setExecuteError(null);
     try {
       await executeDrawMutation.mutateAsync(draw.id);
-    } catch (error: any) {
-      if (error.response?.status === 422) {
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { status?: number; data?: { detail?: string } } };
+      if (axiosError.response?.status === 422) {
         setExecuteError(
-          error.response?.data?.detail || 'No valid configuration found'
+          axiosError.response?.data?.detail || 'No valid configuration found'
         );
       }
     } finally {
@@ -107,9 +108,9 @@ export default function DrawsPage() {
         });
         setNotifyResult(result);
         setNotifyDialogOpen(false);
-      } catch (error) {
-        setNotifyDialogOpen(false);
-      }
+       } catch {
+         setNotifyDialogOpen(false);
+       }
     }
   };
 

@@ -30,7 +30,7 @@ test("should show error with invalid credentials", async ({ loginPage }) => {
   await loginPage.expectErrorMessage("Invalid email or password");
 });
 
-test("should logout successfully", async ({ authenticatedPage, page }) => {
+test("should logout successfully", async ({ authenticatedPage }) => {
   // We're already logged in via the fixture
   const homePage = authenticatedPage;
 
