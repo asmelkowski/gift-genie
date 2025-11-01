@@ -180,10 +180,10 @@ class InMemoryAssignmentRepo(AssignmentRepository):
 
 class StubNotificationService(NotificationService):
     def __init__(self):
-        self.calls: list[tuple[str, str, str, str]] = []
+        self.calls: list[tuple[str, str, str, str, str]] = []
 
-    async def send_assignment_notification(self, member_email: str, member_name: str, receiver_name: str, group_name: str) -> bool:
-        self.calls.append((member_email, member_name, receiver_name, group_name))
+    async def send_assignment_notification(self, member_email: str, member_name: str, receiver_name: str, group_name: str, template: str) -> bool:
+        self.calls.append((member_email, member_name, receiver_name, group_name, template))
         return True
 
 

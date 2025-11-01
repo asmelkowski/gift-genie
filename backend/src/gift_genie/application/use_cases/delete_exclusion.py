@@ -20,7 +20,7 @@ class DeleteExclusionUseCase:
 
         # Check user is admin of the group
         group = await self.group_repository.get_by_id(command.group_id)
-        if group.admin_user_id != command.requesting_user_id:
+        if not group or group.admin_user_id != command.requesting_user_id:
             raise ForbiddenError()
 
         # Delete exclusion

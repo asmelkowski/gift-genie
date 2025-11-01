@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import redis.asyncio as redis
+from collections.abc import AsyncGenerator
 from typing import Literal
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +12,7 @@ from gift_genie.infrastructure.config.settings import get_settings
 settings = get_settings()
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await FastAPILimiter.init(redis_client)
     yield
 print(settings.DEBUG)
@@ -51,5 +52,5 @@ class HealthResponse(BaseModel):
 
 
 @app.get("/health", response_model=HealthResponse)
-async def health():
-    return {"status": "healthy"}
+async def health() -> HealthResponse:
+    return HealthResponse(status="healthy")
