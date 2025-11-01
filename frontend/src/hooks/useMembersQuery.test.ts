@@ -8,6 +8,7 @@ import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 
+type MemberResponse = components['schemas']['MemberResponse'];
 type PaginatedMembersResponse = components['schemas']['PaginatedMembersResponse'];
 
 describe('useMembersQuery', () => {
@@ -79,10 +80,13 @@ describe('useMembersQuery', () => {
       { id: '2', name: 'Jane Smith', email: 'jane@example.com', is_active: true },
     ];
     const mockData: PaginatedMembersResponse = {
-      items: mockMembers as any,
-      total: 2,
-      page: 1,
-      page_size: 12,
+      data: mockMembers as MemberResponse[],
+      meta: {
+        total: 2,
+        page: 1,
+        page_size: 12,
+        total_pages: 1,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -98,7 +102,7 @@ describe('useMembersQuery', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.items).toHaveLength(2);
+    expect(result.current.data?.data).toHaveLength(2);
   });
 
   it('handles is_active filter correctly', async () => {

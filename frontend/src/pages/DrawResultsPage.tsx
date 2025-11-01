@@ -24,13 +24,8 @@ export default function DrawResultsPage() {
   const [sort, setSort] = useState<'giver_asc' | 'giver_desc' | 'receiver_asc' | 'receiver_desc'>('giver_asc');
   const [showConfetti, setShowConfetti] = useState(false);
 
-  if (!groupId || !drawId) {
-    navigate('/404');
-    return null;
-  }
-
-  const drawQuery = useDrawQuery(drawId);
-  const assignmentsQuery = useAssignmentsQuery(drawId);
+  const drawQuery = useDrawQuery(drawId || '');
+  const assignmentsQuery = useAssignmentsQuery(drawId || '');
   const groupQuery = useGroupDetailsQuery(drawQuery.data?.group_id || '');
 
   useEffect(() => {
@@ -40,14 +35,12 @@ export default function DrawResultsPage() {
         return;
       }
 
-      if (shouldShowConfetti(drawId)) {
+      if (shouldShowConfetti(drawId || '')) {
         setShowConfetti(true);
-        clearConfettiFlag(drawId);
+        clearConfettiFlag(drawId || '');
       }
     }
   }, [drawQuery.data, drawQuery.isLoading, drawId, navigate]);
-
-
 
   const filteredAndSortedAssignments = useMemo(() => {
     if (!assignmentsQuery.data?.data) return [];
@@ -75,6 +68,11 @@ export default function DrawResultsPage() {
       }
     });
   }, [assignmentsQuery.data, search, sort]);
+
+  if (!groupId || !drawId) {
+    navigate('/404');
+    return null;
+  }
 
   const handleConfettiDismiss = () => {
     setShowConfetti(false);

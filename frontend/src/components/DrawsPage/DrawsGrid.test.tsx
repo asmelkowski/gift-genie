@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import DrawsGrid from './DrawsGrid';
+import DrawsGrid, { type DrawsGridProps } from './DrawsGrid';
 import type { DrawViewModel } from '@/lib/drawUtils';
 
 describe('DrawsGrid', () => {
@@ -27,7 +27,7 @@ describe('DrawsGrid', () => {
     ...overrides,
   });
 
-  const renderGrid = (props: any = {}) => {
+  const renderGrid = (props: Partial<DrawsGridProps> = {}) => {
     return render(
       <BrowserRouter>
         <DrawsGrid

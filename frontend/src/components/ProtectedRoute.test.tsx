@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
 import * as useAuthStoreModule from '@/hooks/useAuthStore';
+import type { AuthState } from '@/hooks/useAuthStore';
 
 vi.mock('@/hooks/useAuthStore');
 
@@ -28,7 +29,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => true,
       login: vi.fn(),
       logout: vi.fn(),
-    } as any);
+    } as AuthState);
 
     renderProtectedRoute('Protected Content');
 
@@ -42,7 +43,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => false,
       login: vi.fn(),
       logout: vi.fn(),
-    } as any);
+    } as AuthState);
 
     renderProtectedRoute('Protected Content');
 
@@ -58,7 +59,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => false,
       login: vi.fn(),
       logout: vi.fn(),
-    } as any);
+    } as AuthState);
 
     rerender(
       <BrowserRouter>

@@ -8,6 +8,7 @@ import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 
+type GroupResponse = components['schemas']['GroupResponse'];
 type PaginatedGroupsResponse = components['schemas']['PaginatedGroupsResponse'];
 
 describe('useGroupsQuery', () => {
@@ -113,10 +114,13 @@ describe('useGroupsQuery', () => {
       { id: '2', name: 'Group 2', description: 'Another group' },
     ];
     const mockData: PaginatedGroupsResponse = {
-      items: mockGroups as any,
-      total: 2,
-      page: 1,
-      page_size: 12,
+      data: mockGroups as GroupResponse[],
+      meta: {
+        total: 2,
+        page: 1,
+        page_size: 12,
+        total_pages: 1,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -130,7 +134,7 @@ describe('useGroupsQuery', () => {
     });
 
     expect(result.current.data).toEqual(mockData);
-    expect(result.current.data?.items).toHaveLength(2);
+    expect(result.current.data?.data).toHaveLength(2);
   });
 
   it('handles API errors correctly', async () => {

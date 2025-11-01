@@ -141,7 +141,6 @@ describe('MembersToolbar', () => {
   }, 10000);
 
   it('shows clear button when search has value', async () => {
-    const user = userEvent.setup();
     render(
       <MembersToolbar
         isActive={null}
