@@ -113,9 +113,9 @@ async def get_current_user(request: Request) -> str:
     try:
         payload = jwt_service.verify_token(token)
         user_id = payload.get("sub")
-        if not user_id:
+        if not user_id or not isinstance(user_id, str):
             raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-        return user_id
+        return str(user_id)
     except ValueError:
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
@@ -135,7 +135,7 @@ async def list_groups(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
-):
+) -> PaginatedGroupsResponse:
     try:
         query = ListGroupsQuery(
             user_id=current_user_id,
@@ -179,7 +179,7 @@ async def create_group(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
-):
+) -> GroupDetailResponse:
     try:
         # Apply defaults
         enabled = (
@@ -241,7 +241,7 @@ async def get_group_details(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
-):
+) -> GroupDetailWithStatsResponse:
     try:
         query = GetGroupDetailsQuery(group_id=str(group_id), requesting_user_id=current_user_id)
         use_case = GetGroupDetailsUseCase(group_repository=group_repo)
@@ -275,7 +275,7 @@ async def update_group(
     payload: UpdateGroupRequest,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
-):
+) -> GroupUpdateResponse:
     try:
         command = UpdateGroupCommand(
             group_id=str(group_id),
@@ -330,7 +330,7 @@ async def delete_group(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
-):
+) -> Response:
     try:
         command = DeleteGroupCommand(group_id=str(group_id), requesting_user_id=current_user_id)
         use_case = DeleteGroupUseCase(group_repository=group_repo)

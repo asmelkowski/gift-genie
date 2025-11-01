@@ -50,7 +50,7 @@ def handle_application_exceptions(func: Callable[..., Awaitable[Any]]) -> Callab
     """Decorator to handle application exceptions and convert them to HTTP exceptions."""
 
     @wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return await func(*args, **kwargs)
         except Exception as e:

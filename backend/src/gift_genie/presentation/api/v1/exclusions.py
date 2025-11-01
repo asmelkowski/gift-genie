@@ -104,9 +104,9 @@ async def get_current_user(request: Request) -> str:
     try:
         payload = jwt_service.verify_token(token)
         user_id = payload.get("sub")
-        if not user_id:
+        if not user_id or not isinstance(user_id, str):
             raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-        return user_id
+        return str(user_id)
     except ValueError:
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
@@ -142,7 +142,7 @@ async def list_exclusions(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> PaginatedExclusionsResponse:
     try:
         query = ListExclusionsQuery(
             group_id=str(group_id),
@@ -202,7 +202,7 @@ async def create_exclusion(
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> CreateExclusionResponse:
     try:
         command = CreateExclusionCommand(
             group_id=str(group_id),
@@ -263,7 +263,7 @@ async def create_exclusions_bulk(
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> CreateExclusionsBulkResponse:
     try:
         items = [
             ExclusionItem(
@@ -326,7 +326,7 @@ async def delete_exclusion(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> Response:
     try:
         command = DeleteExclusionCommand(
             group_id=str(group_id),

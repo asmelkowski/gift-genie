@@ -120,8 +120,6 @@ describe('ExclusionDialog', () => {
   });
 
   it('handles local loading state during form submission', async () => {
-    const { default: userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
     const mockOnSubmitAsync = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
 
     render(

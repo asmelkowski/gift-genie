@@ -8,6 +8,7 @@ import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 
+type DrawResponse = components['schemas']['DrawResponse'];
 type PaginatedDrawsResponse = components['schemas']['PaginatedDrawsResponse'];
 
 describe('useDrawsQuery', () => {
@@ -64,10 +65,13 @@ describe('useDrawsQuery', () => {
       { id: '2', name: 'Draw 2', status: 'finalized' },
     ];
     const mockData: PaginatedDrawsResponse = {
-      items: mockDraws as any,
-      total: 2,
-      page: 1,
-      page_size: 10,
+      data: mockDraws as DrawResponse[],
+      meta: {
+        total: 2,
+        page: 1,
+        page_size: 10,
+        total_pages: 1,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -80,7 +84,7 @@ describe('useDrawsQuery', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.items).toHaveLength(2);
+    expect(result.current.data?.data).toHaveLength(2);
   });
 
   it('returns error state when API fails', async () => {

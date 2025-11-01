@@ -82,7 +82,7 @@ async def get_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> MemberResponse:
     use_case = GetMemberUseCase(group_repo, member_repo)
     query = GetMemberQuery(
         group_id=str(group_id),
@@ -124,7 +124,7 @@ async def update_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> MemberResponse:
     use_case = UpdateMemberUseCase(group_repo, member_repo)
     command = UpdateMemberCommand(
         group_id=str(group_id),
@@ -177,7 +177,7 @@ async def delete_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> Response:
     from gift_genie.application.dto.delete_member_command import DeleteMemberCommand
 
     use_case = DeleteMemberUseCase(group_repo, member_repo)
@@ -202,7 +202,7 @@ async def delete_member(
         logger.exception("Unexpected error during member deletion", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
-    return None
+    return Response(status_code=204)
 
 
 @router.get("", response_model=PaginatedMembersResponse)
@@ -217,7 +217,7 @@ async def list_members(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> PaginatedMembersResponse:
     use_case = ListMembersUseCase(group_repo, member_repo)
     query = ListMembersQuery(
         group_id=str(group_id),
@@ -277,7 +277,7 @@ async def create_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> MemberResponse:
     use_case = CreateMemberUseCase(group_repo, member_repo)
     command = CreateMemberCommand(
         group_id=str(group_id),

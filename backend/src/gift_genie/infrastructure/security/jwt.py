@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jwt
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from gift_genie.infrastructure.config.settings import get_settings
 
@@ -14,9 +15,9 @@ class JWTService:
         self.secret_key = secret_key
         self.algorithm = algorithm
 
-    def verify_token(self, token: str) -> dict:
+    def verify_token(self, token: str) -> dict[str, Any]:
         try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            payload: dict[str, Any] = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return payload
         except jwt.ExpiredSignatureError:
             raise ValueError("Token has expired")

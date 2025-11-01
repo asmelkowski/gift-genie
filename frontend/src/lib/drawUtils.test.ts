@@ -6,6 +6,7 @@ import {
   copyToClipboard,
   shouldShowConfetti,
   clearConfettiFlag,
+  type AssignmentWithNames,
 } from './drawUtils';
 import type { components } from '@/types/schema';
 
@@ -206,10 +207,9 @@ describe('drawUtils', () => {
   });
 
   describe('exportToCSV', () => {
-    let mockCreateElement: any;
-    let mockAppendChild: any;
-    let mockRemoveChild: any;
-    let mockLink: any;
+    let mockAppendChild: jest.SpyInstance;
+    let mockRemoveChild: jest.SpyInstance;
+    let mockLink: HTMLElement;
 
     beforeEach(() => {
       mockLink = {
@@ -218,7 +218,7 @@ describe('drawUtils', () => {
         style: {},
       };
 
-      mockCreateElement = vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
       mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => {});
       mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
       vi.stubGlobal('URL', {
@@ -269,7 +269,7 @@ describe('drawUtils', () => {
     });
 
     it('handles empty assignments list', () => {
-      const assignments: any[] = [];
+      const assignments: AssignmentWithNames[] = [];
 
       exportToCSV(assignments, 'draw-1');
 
@@ -292,7 +292,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as any);
+      } as Navigator);
 
       const assignments = [
         {
@@ -317,7 +317,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as any);
+      } as Navigator);
 
       const assignments = [
         {
@@ -342,7 +342,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as any);
+      } as Navigator);
 
       const assignments = [
         {
@@ -391,7 +391,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as MediaQueryList,
       });
 
       const result = shouldShowConfetti('draw-1');
@@ -411,7 +411,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as MediaQueryList,
       });
 
       sessionStorage.setItem('draw-draw-1-just-finalized', 'true');
@@ -433,7 +433,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as MediaQueryList,
       });
 
       const result = shouldShowConfetti('draw-1');
@@ -453,7 +453,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as MediaQueryList,
       });
 
       sessionStorage.setItem('draw-draw-1-just-finalized', 'false');

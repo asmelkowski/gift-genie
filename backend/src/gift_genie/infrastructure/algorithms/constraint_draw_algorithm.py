@@ -60,8 +60,8 @@ class ConstraintDrawAlgorithm(DrawAlgorithm):
         ordered_givers = sorted(constraints.keys(), key=lambda g: len(constraints[g]))
 
         # Initialize tracking
-        assignment = {}  # giver -> receiver
-        used_receivers = set()  # receivers already assigned
+        assignment: Dict[str, str] = {}  # giver -> receiver
+        used_receivers: Set[str] = set()  # receivers already assigned
 
         # Start backtracking
         if self._backtrack(ordered_givers, constraints, assignment, used_receivers, 0):
@@ -114,11 +114,11 @@ class ConstraintDrawAlgorithm(DrawAlgorithm):
         valid_receivers = constraints[giver] - used_receivers
 
         # Shuffle for randomness (or deterministic with seed)
-        valid_receivers = list(valid_receivers)
-        self.random.shuffle(valid_receivers)
+        valid_receivers_list = list(valid_receivers)
+        self.random.shuffle(valid_receivers_list)
 
         # Try each possible receiver
-        for receiver in valid_receivers:
+        for receiver in valid_receivers_list:
             # Assign
             assignment[giver] = receiver
             used_receivers.add(receiver)

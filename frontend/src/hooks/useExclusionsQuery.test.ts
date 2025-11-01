@@ -8,6 +8,7 @@ import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 
+type ExclusionResponse = components['schemas']['ExclusionResponse'];
 type PaginatedExclusionsResponse = components['schemas']['PaginatedExclusionsResponse'];
 
 describe('useExclusionsQuery', () => {
@@ -91,10 +92,13 @@ describe('useExclusionsQuery', () => {
       { id: '1', giver_member_id: 'member-1', receiver_member_id: 'member-2' },
     ];
     const mockData: PaginatedExclusionsResponse = {
-      items: mockExclusions as any,
-      total: 1,
-      page: 1,
-      page_size: 10,
+      data: mockExclusions as ExclusionResponse[],
+      meta: {
+        total: 1,
+        page: 1,
+        page_size: 10,
+        total_pages: 1,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -107,7 +111,7 @@ describe('useExclusionsQuery', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.items).toHaveLength(1);
+    expect(result.current.data?.data).toHaveLength(1);
   });
 
   it('passes filter parameters correctly', async () => {

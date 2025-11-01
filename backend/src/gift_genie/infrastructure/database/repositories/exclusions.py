@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 
-from sqlalchemy import func, select, delete
+from sqlalchemy import Select, func, select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
@@ -194,7 +194,7 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             await self._session.rollback()
             raise ValueError("Failed to delete exclusion") from e
 
-    def _apply_sort(self, query, sort: str, member_alias=None):
+    def _apply_sort(self, query: Select, sort: str, member_alias: Optional[Any] = None) -> Select:
         # Parse sort string like "exclusion_type,name" or "-created_at"
         sort_fields = sort.split(",")
         order_by_clauses = []

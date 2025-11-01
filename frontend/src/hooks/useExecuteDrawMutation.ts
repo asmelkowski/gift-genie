@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import type { components } from '@/types/schema';
+import type { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
 type ExecuteDrawResponse = components['schemas']['ExecuteDrawResponse'];
@@ -23,7 +24,7 @@ export const useExecuteDrawMutation = (groupId: string) => {
         `Draw executed! ${data.assignments.length} assignments generated.`
       );
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ detail: string }>) => {
       const detail = error.response?.data?.detail;
       if (error.response?.status === 422) {
         throw error;
