@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Optional
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import Select, func, select
 from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -128,7 +128,7 @@ class GroupRepositorySqlAlchemy(GroupRepository):
             await self._session.rollback()
             raise ValueError("Failed to delete group") from e
 
-    def _apply_sort(self, query, sort: str):
+    def _apply_sort(self, query: Select, sort: str) -> Select:
         if sort.startswith("-"):
             field = sort[1:]
             desc = True

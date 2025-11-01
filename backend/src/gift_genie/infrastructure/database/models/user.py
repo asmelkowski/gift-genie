@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, Index, Text, func
@@ -6,6 +9,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from gift_genie.infrastructure.database.models.base import Base
 from gift_genie.libs.utils import utc_datetime_now
+
+if TYPE_CHECKING:
+    from gift_genie.infrastructure.database.models.group import GroupModel
+    from gift_genie.infrastructure.database.models.exclusion import ExclusionModel
 
 
 class UserModel(Base):

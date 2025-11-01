@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, ForeignKey, Index
@@ -8,6 +11,10 @@ from sqlalchemy.dialects.postgresql import ENUM, UUID as PostgresUUID
 from gift_genie.domain.entities import DrawStatus
 from gift_genie.infrastructure.database.models.base import Base
 from gift_genie.libs.utils import utc_datetime_now
+
+if TYPE_CHECKING:
+    from gift_genie.infrastructure.database.models.group import GroupModel
+    from gift_genie.infrastructure.database.models.assignment import AssignmentModel
 
 
 class DrawModel(Base):

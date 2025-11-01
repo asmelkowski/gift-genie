@@ -258,7 +258,7 @@ async def list_draws(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[ListDrawsUseCase, Depends(get_list_draws_use_case)],
-):
+) -> PaginatedDrawsResponse:
     query = ListDrawsQuery(
         group_id=str(group_id),
         requesting_user_id=current_user_id,
@@ -301,7 +301,7 @@ async def create_draw(
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[CreateDrawUseCase, Depends(get_create_draw_use_case)],
     response: Response,
-):
+) -> DrawResponse:
     command = CreateDrawCommand(
         group_id=str(group_id),
         requesting_user_id=current_user_id,
@@ -331,7 +331,7 @@ async def get_draw(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[GetDrawUseCase, Depends(get_get_draw_use_case)],
-):
+) -> DrawResponse:
     query = GetDrawQuery(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
@@ -357,13 +357,14 @@ async def delete_draw(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[DeleteDrawUseCase, Depends(get_delete_draw_use_case)],
-):
+) -> Response:
     command = DeleteDrawCommand(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
     )
 
     await use_case.execute(command)
+    return Response(status_code=204)
 
 
 @router.post("/draws/{draw_id}/execute", response_model=ExecuteDrawResponse)
@@ -374,7 +375,7 @@ async def execute_draw(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[ExecuteDrawUseCase, Depends(get_execute_draw_use_case)],
-):
+) -> ExecuteDrawResponse:
     command = ExecuteDrawCommand(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
@@ -411,7 +412,7 @@ async def finalize_draw(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[FinalizeDrawUseCase, Depends(get_finalize_draw_use_case)],
-):
+) -> DrawResponse:
     command = FinalizeDrawCommand(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
@@ -438,7 +439,7 @@ async def notify_draw(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[NotifyDrawUseCase, Depends(get_notify_draw_use_case)],
-):
+) -> NotifyDrawResponse:
     print(payload)
     command = NotifyDrawCommand(
         draw_id=str(draw_id),
@@ -459,7 +460,7 @@ async def list_assignments(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[ListAssignmentsUseCase, Depends(get_list_assignments_use_case)],
-):
+) -> ListAssignmentsResponse:
     query = ListAssignmentsQuery(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
