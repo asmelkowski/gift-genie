@@ -16,13 +16,11 @@ type DrawResponse = components['schemas']['DrawResponse'];
 const createMockDraw = (overrides: Partial<DrawResponse> = {}): DrawResponse => ({
   id: 'draw-1',
   group_id: 'group-1',
-  name: 'Test Draw',
   status: 'pending',
   assignments_count: 0,
   created_at: '2024-10-22T10:00:00Z',
   finalized_at: null,
   notification_sent_at: null,
-  updated_at: '2024-10-22T10:00:00Z',
   ...overrides,
 });
 
@@ -207,20 +205,20 @@ describe('drawUtils', () => {
   });
 
   describe('exportToCSV', () => {
-    let mockAppendChild: jest.SpyInstance;
-    let mockRemoveChild: jest.SpyInstance;
+    let mockAppendChild: any;
+    let mockRemoveChild: any;
     let mockLink: HTMLElement;
 
     beforeEach(() => {
       mockLink = {
         setAttribute: vi.fn(),
         click: vi.fn(),
-        style: {},
-      };
+        style: {} as CSSStyleDeclaration,
+      } as unknown as HTMLElement;
 
       vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
-      mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => {});
-      mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
+      mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
+      mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
       vi.stubGlobal('URL', {
         createObjectURL: vi.fn(() => 'blob:mock-url'),
       });
@@ -292,7 +290,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as Navigator);
+      } as unknown as Navigator);
 
       const assignments = [
         {
@@ -317,7 +315,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as Navigator);
+      } as unknown as Navigator);
 
       const assignments = [
         {
@@ -342,7 +340,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as Navigator);
+      } as unknown as Navigator);
 
       const assignments = [
         {
@@ -391,7 +389,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as MediaQueryList,
+        })) as unknown as () => MediaQueryList,
       });
 
       const result = shouldShowConfetti('draw-1');
@@ -411,7 +409,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as MediaQueryList,
+        })) as unknown as () => MediaQueryList,
       });
 
       sessionStorage.setItem('draw-draw-1-just-finalized', 'true');
@@ -433,7 +431,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as MediaQueryList,
+        })) as unknown as () => MediaQueryList,
       });
 
       const result = shouldShowConfetti('draw-1');
@@ -453,7 +451,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as MediaQueryList,
+        })) as unknown as () => MediaQueryList,
       });
 
       sessionStorage.setItem('draw-draw-1-just-finalized', 'false');

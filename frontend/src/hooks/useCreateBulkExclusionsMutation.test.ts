@@ -23,7 +23,16 @@ describe('useCreateBulkExclusionsMutation', () => {
 
   it('calls API with correct endpoint', async () => {
     const mockData: CreateExclusionsBulkResponse = {
-      created: [{ id: '1', exclusion_type: 'unidirectional' }],
+      created: [{
+        id: '1',
+        group_id: 'group-1',
+        giver_member_id: 'm1',
+        receiver_member_id: 'm2',
+        exclusion_type: 'unidirectional',
+        is_mutual: false,
+        created_at: '2024-01-01T00:00:00Z',
+        created_by_user_id: 'user-1',
+      }],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -34,7 +43,7 @@ describe('useCreateBulkExclusionsMutation', () => {
     );
 
     const requestData = {
-      exclusions: [{ giver_member_id: 'm1', receiver_member_id: 'm2' }],
+      items: [{ giver_member_id: 'm1', receiver_member_id: 'm2', is_mutual: false }],
     };
 
     result.current.mutate(requestData);
@@ -49,8 +58,26 @@ describe('useCreateBulkExclusionsMutation', () => {
   it('shows success toast with count', async () => {
     const mockData: CreateExclusionsBulkResponse = {
       created: [
-        { id: '1', exclusion_type: 'unidirectional' },
-        { id: '2', exclusion_type: 'unidirectional' },
+        {
+          id: '1',
+          group_id: 'group-1',
+          giver_member_id: 'm1',
+          receiver_member_id: 'm2',
+          exclusion_type: 'unidirectional',
+          is_mutual: false,
+          created_at: '2024-01-01T00:00:00Z',
+          created_by_user_id: 'user-1',
+        },
+        {
+          id: '2',
+          group_id: 'group-1',
+          giver_member_id: 'm1',
+          receiver_member_id: 'm3',
+          exclusion_type: 'unidirectional',
+          is_mutual: false,
+          created_at: '2024-01-01T00:00:00Z',
+          created_by_user_id: 'user-1',
+        },
       ],
     };
 
@@ -62,7 +89,7 @@ describe('useCreateBulkExclusionsMutation', () => {
     );
 
     result.current.mutate({
-      exclusions: [{ giver_member_id: 'm1', receiver_member_id: 'm2' }],
+      items: [{ giver_member_id: 'm1', receiver_member_id: 'm2', is_mutual: false }],
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -79,7 +106,7 @@ describe('useCreateBulkExclusionsMutation', () => {
       { wrapper: createTestWrapper(queryClient) }
     );
 
-    result.current.mutate({ exclusions: [] });
+    result.current.mutate({ items: [] });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(invalidateSpy).toHaveBeenCalledWith({
@@ -104,7 +131,7 @@ describe('useCreateBulkExclusionsMutation', () => {
       { wrapper: createTestWrapper(queryClient) }
     );
 
-    result.current.mutate({ exclusions: [] });
+    result.current.mutate({ items: [] });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('m1 → m2'));

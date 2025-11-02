@@ -28,13 +28,11 @@ describe('useFinalizeDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Draw',
       status: 'finalized',
       assignments_count: 5,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: '2024-10-22T15:00:00Z',
       notification_sent_at: null,
-      updated_at: '2024-10-22T15:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -57,13 +55,11 @@ describe('useFinalizeDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Draw',
       status: 'finalized',
       assignments_count: 5,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: '2024-10-22T15:00:00Z',
       notification_sent_at: null,
-      updated_at: '2024-10-22T15:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -86,13 +82,11 @@ describe('useFinalizeDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Draw',
       status: 'finalized',
       assignments_count: 5,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: '2024-10-22T15:00:00Z',
       notification_sent_at: null,
-      updated_at: '2024-10-22T15:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -112,13 +106,11 @@ describe('useFinalizeDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Draw',
       status: 'finalized',
       assignments_count: 5,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: '2024-10-22T15:00:00Z',
       notification_sent_at: null,
-      updated_at: '2024-10-22T15:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });

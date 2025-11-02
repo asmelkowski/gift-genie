@@ -22,7 +22,7 @@ interface MemberFormErrors {
   email?: string;
 }
 
-interface MemberFormProps {
+export interface MemberFormProps {
   member: MemberResponse | null;
   groupId: string;
   onSuccess: () => void;

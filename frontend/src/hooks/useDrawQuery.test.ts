@@ -22,13 +22,11 @@ describe('useDrawQuery', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Test Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -46,13 +44,11 @@ describe('useDrawQuery', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Test Draw',
       status: 'pending',
       assignments_count: 5,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -86,13 +82,11 @@ describe('useDrawQuery', () => {
     const mockData: DrawResponse = {
       id: 'draw-123',
       group_id: 'group-1',
-      name: 'Test Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -110,13 +104,11 @@ describe('useDrawQuery', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Test Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -133,13 +125,11 @@ describe('useDrawQuery', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'Test Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });

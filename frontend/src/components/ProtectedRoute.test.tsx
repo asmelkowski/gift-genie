@@ -29,7 +29,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => true,
       login: vi.fn(),
       logout: vi.fn(),
-    } as AuthState);
+    } as unknown as AuthState);
 
     renderProtectedRoute('Protected Content');
 
@@ -43,7 +43,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => false,
       login: vi.fn(),
       logout: vi.fn(),
-    } as AuthState);
+    } as unknown as AuthState);
 
     renderProtectedRoute('Protected Content');
 
@@ -59,7 +59,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => false,
       login: vi.fn(),
       logout: vi.fn(),
-    } as AuthState);
+    } as unknown as AuthState);
 
     rerender(
       <BrowserRouter>

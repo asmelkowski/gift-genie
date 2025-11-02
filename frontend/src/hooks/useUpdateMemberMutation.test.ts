@@ -24,6 +24,7 @@ describe('useUpdateMemberMutation', () => {
   it('calls API with PATCH and correct endpoint', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: true,
@@ -55,6 +56,7 @@ describe('useUpdateMemberMutation', () => {
   it('invalidates members query on success', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: true,
@@ -85,6 +87,7 @@ describe('useUpdateMemberMutation', () => {
   it('shows success toast', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: true,
@@ -138,6 +141,7 @@ describe('useUpdateMemberMutation', () => {
   it('returns updated member data', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: false,

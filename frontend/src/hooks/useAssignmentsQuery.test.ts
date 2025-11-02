@@ -21,7 +21,8 @@ describe('useAssignmentsQuery', () => {
 
   it('constructs correct query key with draw ID', async () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -53,7 +54,8 @@ describe('useAssignmentsQuery', () => {
       },
     ];
     const mockData: ListAssignmentsResponse = {
-      items: mockAssignments as AssignmentWithNames[],
+      data: mockAssignments as AssignmentWithNames[],
+      meta: { total: 2, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -66,7 +68,7 @@ describe('useAssignmentsQuery', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.items).toHaveLength(2);
+    expect(result.current.data?.data).toHaveLength(2);
   });
 
   it('returns error state when API fails', async () => {
@@ -85,7 +87,8 @@ describe('useAssignmentsQuery', () => {
 
   it('calls API with correct draw ID', async () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -103,7 +106,8 @@ describe('useAssignmentsQuery', () => {
 
   it('does not execute query when draw ID is empty', () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -118,7 +122,8 @@ describe('useAssignmentsQuery', () => {
 
   it('passes include=names parameter to API', async () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });

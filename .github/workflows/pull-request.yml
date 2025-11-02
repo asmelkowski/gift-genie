@@ -6,66 +6,124 @@ on:
       - main
 
 jobs:
-  lint:
-    name: Lint
+  build-images:
+    name: Build Docker Images
     runs-on: ubuntu-latest
-    env:
-      UV_CACHE_DIR: /tmp/.uv-cache
     
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend development image
+        uses: docker/build-push-action@v6
         with:
-          python-version: '3.13'
+          context: ./backend
+          target: development
+          tags: gift-genie-backend:dev
+          cache-from: type=gha,scope=backend-dev
+          cache-to: type=gha,mode=max,scope=backend-dev
+          outputs: type=docker,dest=/tmp/backend-dev.tar
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: Restore uv cache
-        uses: actions/cache@v4
+      - name: Build backend production image
+        uses: docker/build-push-action@v6
         with:
-          path: /tmp/.uv-cache
-          key: uv-${{ runner.os }}-${{ hashFiles('backend/uv.lock') }}
-          restore-keys: |
-            uv-${{ runner.os }}-
+          context: ./backend
+          target: production
+          tags: gift-genie-backend:prod
+          cache-from: type=gha,scope=backend-prod
+          cache-to: type=gha,mode=max,scope=backend-prod
+          outputs: type=docker,dest=/tmp/backend-prod.tar
 
-      - name: Install backend dependencies
-        working-directory: ./backend
-        run: uv sync
+      - name: Build frontend development image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          target: development
+          tags: gift-genie-frontend:dev
+          cache-from: type=gha,scope=frontend-dev
+          cache-to: type=gha,mode=max,scope=frontend-dev
+          outputs: type=docker,dest=/tmp/frontend-dev.tar
+
+      - name: Build frontend production image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          target: production
+          tags: gift-genie-frontend:prod
+          cache-from: type=gha,scope=frontend-prod
+          cache-to: type=gha,mode=max,scope=frontend-prod
+          outputs: type=docker,dest=/tmp/frontend-prod.tar
+
+      - name: Upload backend development image
+        uses: actions/upload-artifact@v5
+        with:
+          name: backend-dev-image
+          path: /tmp/backend-dev.tar
+          retention-days: 1
+
+      - name: Upload backend production image
+        uses: actions/upload-artifact@v5
+        with:
+          name: backend-prod-image
+          path: /tmp/backend-prod.tar
+          retention-days: 1
+
+      - name: Upload frontend development image
+        uses: actions/upload-artifact@v5
+        with:
+          name: frontend-dev-image
+          path: /tmp/frontend-dev.tar
+          retention-days: 1
+
+      - name: Upload frontend production image
+        uses: actions/upload-artifact@v5
+        with:
+          name: frontend-prod-image
+          path: /tmp/frontend-prod.tar
+          retention-days: 1
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: build-images
+    
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Download backend development image
+        uses: actions/download-artifact@v6
+        with:
+          name: backend-dev-image
+          path: /tmp
+
+      - name: Download frontend development image
+        uses: actions/download-artifact@v6
+        with:
+          name: frontend-dev-image
+          path: /tmp
+
+      - name: Load Docker images
+        run: |
+          docker load --input /tmp/backend-dev.tar
+          docker load --input /tmp/frontend-dev.tar
 
       - name: Lint backend (ruff)
-        working-directory: ./backend
-        run: uv run ruff check src/
+        run: docker run --rm gift-genie-backend:dev ruff check src/
 
       - name: Type check backend (mypy)
-        working-directory: ./backend
-        run: uv run mypy src/
-
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: bun install --frozen-lockfile
+        run: docker run --rm gift-genie-backend:dev mypy src/
 
       - name: Lint frontend (ESLint)
-        working-directory: ./frontend
-        run: bun run lint
-
-      - name: Minimize uv cache
-        run: uv cache prune --ci
+        run: docker run --rm gift-genie-frontend:dev bun run lint
 
   unit-test:
     name: Unit Tests
     runs-on: ubuntu-latest
-    needs: lint
-    env:
-      UV_CACHE_DIR: /tmp/.uv-cache
+    needs: [build-images, lint]
     
     services:
       postgres:
@@ -96,35 +154,35 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v6
+      - name: Download backend development image
+        uses: actions/download-artifact@v6
         with:
-          python-version: '3.13'
+          name: backend-dev-image
+          path: /tmp
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: Restore uv cache
-        uses: actions/cache@v4
+      - name: Download frontend development image
+        uses: actions/download-artifact@v6
         with:
-          path: /tmp/.uv-cache
-          key: uv-${{ runner.os }}-${{ hashFiles('backend/uv.lock') }}
-          restore-keys: |
-            uv-${{ runner.os }}-
+          name: frontend-dev-image
+          path: /tmp
 
-      - name: Install backend dependencies
-        working-directory: ./backend
-        run: uv sync
+      - name: Load Docker images
+        run: |
+          docker load --input /tmp/backend-dev.tar
+          docker load --input /tmp/frontend-dev.tar
 
       - name: Run backend tests with coverage
-        working-directory: ./backend
-        env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie_test
-          REDIS_URL: redis://localhost:6379
-          SECRET_KEY: test-secret-key-for-ci
-          ALGORITHM: HS256
-          ACCESS_TOKEN_EXPIRE_MINUTES: 30
-        run: uv run pytest --cov=gift_genie --cov-report=xml --cov-report=term
+        run: |
+          docker run --rm \
+            --network host \
+            -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie_test \
+            -e REDIS_URL=redis://localhost:6379 \
+            -e SECRET_KEY=test-secret-key-for-ci \
+            -e ALGORITHM=HS256 \
+            -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
+            -v ${{ github.workspace }}/backend:/workspace \
+            gift-genie-backend:dev \
+            sh -c "pytest --cov=gift_genie --cov-report=xml:/workspace/coverage.xml --cov-report=term"
 
       - name: Upload backend coverage to artifacts
         uses: actions/upload-artifact@v5
@@ -132,18 +190,12 @@ jobs:
           name: backend-coverage
           path: backend/coverage.xml
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: bun install --frozen-lockfile
-
       - name: Run frontend unit tests with coverage
-        working-directory: ./frontend
-        run: bun run test:coverage
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/frontend/coverage:/app/coverage \
+            gift-genie-frontend:dev \
+            bun run test:coverage
 
       - name: Upload frontend coverage to artifacts
         uses: actions/upload-artifact@v5
@@ -151,103 +203,108 @@ jobs:
           name: frontend-unit-coverage
           path: frontend/coverage/coverage-final.json
 
-      - name: Minimize uv cache
-        run: uv cache prune --ci
-
   e2e-test:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: lint
-    env:
-      UV_CACHE_DIR: /tmp/.uv-cache
-    
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: gift_genie_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
+    needs: [build-images, lint]
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v6
+      - name: Download backend production image
+        uses: actions/download-artifact@v6
         with:
-          python-version: '3.13'
+          name: backend-prod-image
+          path: /tmp
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: Restore uv cache
-        uses: actions/cache@v4
+      - name: Download frontend development image
+        uses: actions/download-artifact@v6
         with:
-          path: /tmp/.uv-cache
-          key: uv-${{ runner.os }}-${{ hashFiles('backend/uv.lock') }}
-          restore-keys: |
-            uv-${{ runner.os }}-
+          name: frontend-dev-image
+          path: /tmp
 
-      - name: Install backend dependencies
-        working-directory: ./backend
-        run: uv sync
+      - name: Load Docker images
+        run: |
+          docker load --input /tmp/backend-prod.tar
+          docker load --input /tmp/frontend-dev.tar
+
+      - name: Create Docker network
+        run: docker network create gift-genie-test
+
+      - name: Start PostgreSQL
+        run: |
+          docker run -d \
+            --name postgres \
+            --network gift-genie-test \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_PASSWORD=postgres \
+            -e POSTGRES_DB=gift_genie_test \
+            postgres:16
+
+      - name: Start Redis
+        run: |
+          docker run -d \
+            --name redis \
+            --network gift-genie-test \
+            redis:7-alpine
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for PostgreSQL..."
+          for i in {1..30}; do
+            docker exec postgres pg_isready -U postgres && break || sleep 1
+          done
+          
+          echo "Waiting for Redis..."
+          for i in {1..30}; do
+            docker exec redis redis-cli ping | grep -q PONG && break || sleep 1
+          done
 
       - name: Run database migrations
-        working-directory: ./backend
-        env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie_test
-        run: uv run alembic upgrade head
+        run: |
+          docker run --rm \
+            --network gift-genie-test \
+            -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie_test \
+            gift-genie-backend:prod \
+            alembic upgrade head
 
       - name: Start backend server
-        working-directory: ./backend
-        env:
-          PYTHONPATH: src
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie_test
-          REDIS_URL: redis://localhost:6379
-          SECRET_KEY: test-secret-key-for-ci
-          ALGORITHM: HS256
-          ACCESS_TOKEN_EXPIRE_MINUTES: 30
         run: |
-          uv run uvicorn src.gift_genie.main:app --host 0.0.0.0 --port 8000 &
-          sleep 5
-          curl --retry 10 --retry-delay 1 --retry-connrefused http://localhost:8000/api/v1/health || true
+          docker run -d \
+            --name backend \
+            --network gift-genie-test \
+            -p 8000:8000 \
+            -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie_test \
+            -e REDIS_URL=redis://redis:6379 \
+            -e SECRET_KEY=test-secret-key-for-ci \
+            -e ALGORITHM=HS256 \
+            -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
+            gift-genie-backend:prod
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - name: Wait for backend to be healthy
+        run: |
+          echo "Waiting for backend..."
+          for i in {1..30}; do
+            curl -f http://localhost:8000/api/v1/health && break || sleep 2
+          done
 
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: bun install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        working-directory: ./frontend
-        run: bunx playwright install --with-deps chromium
+      - name: Install Playwright dependencies
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/frontend:/workspace \
+            gift-genie-frontend:dev \
+            sh -c "cd /workspace && bunx playwright install --with-deps chromium"
 
       - name: Run E2E tests
-        working-directory: ./frontend
-        env:
-          VITE_API_BASE_URL: http://localhost:8000/api/v1
-        run: bun run e2e
+        run: |
+          docker run --rm \
+            --network host \
+            -e VITE_API_BASE_URL=http://localhost:8000/api/v1 \
+            -v ${{ github.workspace }}/frontend:/workspace \
+            -w /workspace \
+            gift-genie-frontend:dev \
+            bun run e2e
 
       - name: Upload E2E test results
         if: always()
@@ -265,8 +322,12 @@ jobs:
           path: frontend/coverage/
           retention-days: 7
 
-      - name: Minimize uv cache
-        run: uv cache prune --ci
+      - name: Cleanup containers
+        if: always()
+        run: |
+          docker stop backend postgres redis || true
+          docker rm backend postgres redis || true
+          docker network rm gift-genie-test || true
 
   status-comment:
     name: Status Comment

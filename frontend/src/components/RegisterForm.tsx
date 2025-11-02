@@ -130,10 +130,10 @@ export function RegisterForm() {
               updateFormState({ errors: { email: 'Email already in use' } });
             } else if (status === 400) {
               // Parse field-specific errors from response
-              const responseData = error.response?.data;
+              const responseData = error.response?.data as { detail?: { loc: string[]; msg: string }[] };
               if (responseData?.detail) {
                 const fieldErrors: Record<string, string> = {};
-               responseData.detail.forEach((detail: { loc: string[]; msg: string }) => {
+                responseData.detail.forEach((detail: { loc: string[]; msg: string }) => {
                    if (detail.loc && detail.loc.length > 1) {
                      const field = detail.loc[1];
                      fieldErrors[field] = detail.msg;

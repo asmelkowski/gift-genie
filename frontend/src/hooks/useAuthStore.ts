@@ -7,7 +7,7 @@ interface UserViewModel {
   name: string;
 }
 
-interface AuthState {
+export interface AuthState {
   user: UserViewModel | null;
   csrfToken: string | null;
   isAuthenticated: () => boolean;
