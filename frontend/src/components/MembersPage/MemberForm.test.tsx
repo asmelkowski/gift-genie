@@ -65,7 +65,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockReturnValue({
         mutate: vi.fn(),
@@ -77,7 +77,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -99,7 +99,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       const member = createMockMember({ name: 'Jane Smith', email: 'jane@example.com' });
 
@@ -125,7 +125,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
     });
 
     it('shows error when name is empty', async () => {
@@ -191,7 +191,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -219,7 +219,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -252,7 +252,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -287,7 +287,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm({ member });
 
@@ -324,7 +324,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm({ member });
 
@@ -368,7 +368,7 @@ describe('MemberForm', () => {
           error: null,
           reset: vi.fn(),
           status: 'idle',
-        } as any;
+        } as never;
       });
 
       renderForm();
@@ -404,7 +404,7 @@ describe('MemberForm', () => {
           error: null,
           reset: vi.fn(),
           status: 'idle',
-        } as any;
+        } as never;
       });
 
       renderForm();
@@ -441,7 +441,7 @@ describe('MemberForm', () => {
           error: null,
           reset: vi.fn(),
           status: 'idle',
-        } as any;
+        } as never;
       });
 
       renderForm({ member });
@@ -472,7 +472,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
     });
 
     it('disables form while loading', () => {
@@ -486,7 +486,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'pending',
-      } as any);
+      } as never);
 
       renderForm();
 
