@@ -205,8 +205,8 @@ describe('drawUtils', () => {
   });
 
   describe('exportToCSV', () => {
-    let mockAppendChild: any;
-    let mockRemoveChild: any;
+    let mockAppendChild: unknown;
+    let mockRemoveChild: unknown;
     let mockLink: HTMLElement;
 
     beforeEach(() => {
@@ -217,8 +217,8 @@ describe('drawUtils', () => {
       } as unknown as HTMLElement;
 
       vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
-      mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
-      mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
+      mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as Node);
+      mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as Node);
       vi.stubGlobal('URL', {
         createObjectURL: vi.fn(() => 'blob:mock-url'),
       });
