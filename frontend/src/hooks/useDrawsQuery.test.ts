@@ -21,10 +21,13 @@ describe('useDrawsQuery', () => {
 
   it('constructs correct query key', async () => {
     const mockData: PaginatedDrawsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -40,10 +43,13 @@ describe('useDrawsQuery', () => {
 
   it('calls API with correct group ID', async () => {
     const mockData: PaginatedDrawsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -60,12 +66,28 @@ describe('useDrawsQuery', () => {
   });
 
   it('returns data when API succeeds', async () => {
-    const mockDraws = [
-      { id: '1', name: 'Draw 1', status: 'pending' },
-      { id: '2', name: 'Draw 2', status: 'finalized' },
+    const mockDraws: DrawResponse[] = [
+      {
+        id: '1',
+        group_id: 'group-1',
+        status: 'pending',
+        created_at: '2024-10-22T10:00:00Z',
+        finalized_at: null,
+        notification_sent_at: null,
+        assignments_count: 0,
+      },
+      {
+        id: '2',
+        group_id: 'group-1',
+        status: 'finalized',
+        created_at: '2024-10-22T10:00:00Z',
+        finalized_at: '2024-10-22T11:00:00Z',
+        notification_sent_at: null,
+        assignments_count: 5,
+      },
     ];
     const mockData: PaginatedDrawsResponse = {
-      data: mockDraws as DrawResponse[],
+      data: mockDraws,
       meta: {
         total: 2,
         page: 1,
@@ -103,10 +125,13 @@ describe('useDrawsQuery', () => {
 
   it('passes status filter when provided', async () => {
     const mockData: PaginatedDrawsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -126,10 +151,13 @@ describe('useDrawsQuery', () => {
 
   it('uses default parameters when not provided', async () => {
     const mockData: PaginatedDrawsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -152,10 +180,13 @@ describe('useDrawsQuery', () => {
 
   it('passes custom page and sort parameters', async () => {
     const mockData: PaginatedDrawsResponse = {
-      items: [],
-      total: 0,
-      page: 2,
-      page_size: 20,
+      data: [],
+      meta: {
+        total: 0,
+        page: 2,
+        page_size: 20,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });

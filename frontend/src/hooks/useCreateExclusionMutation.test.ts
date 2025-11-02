@@ -23,10 +23,19 @@ describe('useCreateExclusionMutation', () => {
 
   it('calls API with correct endpoint', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'unidirectional',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: false,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: false,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -41,6 +50,7 @@ describe('useCreateExclusionMutation', () => {
     const exclusionData: CreateExclusionRequest = {
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     };
 
     result.current.mutate(exclusionData);
@@ -57,10 +67,19 @@ describe('useCreateExclusionMutation', () => {
 
   it('invalidates exclusions query on success', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'unidirectional',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: false,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: false,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -76,6 +95,7 @@ describe('useCreateExclusionMutation', () => {
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     });
 
     await waitFor(() => {
@@ -89,10 +109,19 @@ describe('useCreateExclusionMutation', () => {
 
   it('shows success toast', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'unidirectional',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: false,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: false,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -107,6 +136,7 @@ describe('useCreateExclusionMutation', () => {
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     });
 
     await waitFor(() => {
@@ -135,6 +165,7 @@ describe('useCreateExclusionMutation', () => {
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     });
 
     await waitFor(() => {
@@ -146,10 +177,19 @@ describe('useCreateExclusionMutation', () => {
 
   it('returns exclusion data on success', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'mutual',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: true,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: true,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -164,6 +204,7 @@ describe('useCreateExclusionMutation', () => {
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: true,
     });
 
     await waitFor(() => {

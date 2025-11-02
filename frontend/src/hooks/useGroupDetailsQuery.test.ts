@@ -36,11 +36,15 @@ describe('useGroupDetailsQuery', () => {
     const mockData: GroupDetailWithStatsResponse = {
       id: groupId,
       name: 'Test Group',
-      description: 'Test',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
-      members_count: 5,
-      draws_count: 2,
+      stats: {
+        member_count: 5,
+        active_member_count: 5,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -58,11 +62,15 @@ describe('useGroupDetailsQuery', () => {
     const mockData: GroupDetailWithStatsResponse = {
       id: 'group-1',
       name: 'Test Group',
-      description: 'A test group',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
-      members_count: 5,
-      draws_count: 2,
+      stats: {
+        member_count: 5,
+        active_member_count: 5,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -109,11 +117,15 @@ describe('useGroupDetailsQuery', () => {
     const mockData: GroupDetailWithStatsResponse = {
       id: 'group-1',
       name: 'Test Group',
-      description: 'Test',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
-      members_count: 5,
-      draws_count: 2,
+      stats: {
+        member_count: 5,
+        active_member_count: 5,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -135,11 +147,15 @@ describe('useGroupDetailsQuery', () => {
     const mockData: GroupDetailWithStatsResponse = {
       id: 'group-1',
       name: 'Test Group',
-      description: 'Test',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
-      members_count: 5,
-      draws_count: 2,
+      stats: {
+        member_count: 5,
+        active_member_count: 5,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });

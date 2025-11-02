@@ -21,10 +21,13 @@ describe('useMembersQuery', () => {
 
   it('constructs correct query key with group ID and params', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -40,10 +43,13 @@ describe('useMembersQuery', () => {
 
   it('calls API with correct parameters', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 20,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 20,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -107,10 +113,13 @@ describe('useMembersQuery', () => {
 
   it('handles is_active filter correctly', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -133,10 +142,13 @@ describe('useMembersQuery', () => {
 
   it('uses default parameters when not provided', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });

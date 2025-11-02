@@ -24,6 +24,7 @@ describe('useCreateMemberMutation', () => {
   it('calls API with correct endpoint including group ID', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Doe',
       email: 'john@example.com',
       is_active: true,
@@ -59,6 +60,7 @@ describe('useCreateMemberMutation', () => {
   it('invalidates members query with correct group ID on success', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Doe',
       email: 'john@example.com',
       is_active: true,
@@ -89,6 +91,7 @@ describe('useCreateMemberMutation', () => {
   it('shows success toast on successful mutation', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Doe',
       email: 'john@example.com',
       is_active: true,
@@ -167,6 +170,7 @@ describe('useCreateMemberMutation', () => {
   it('returns data on successful mutation', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Doe',
       email: 'john@example.com',
       is_active: true,
@@ -194,6 +198,7 @@ describe('useCreateMemberMutation', () => {
   it('provides loading state during mutation', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Doe',
       email: 'john@example.com',
       is_active: true,

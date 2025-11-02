@@ -1,15 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider, type UseMutationResult } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemberForm, type MemberFormProps } from './MemberForm';
 import * as useCreateMemberMutationModule from '@/hooks/useCreateMemberMutation';
 import * as useUpdateMemberMutationModule from '@/hooks/useUpdateMemberMutation';
 import type { components } from '@/types/schema';
 
 type MemberResponse = components['schemas']['MemberResponse'];
-type CreateMemberRequest = components['schemas']['CreateMemberRequest'];
-type UpdateMemberRequest = components['schemas']['UpdateMemberRequest'];
 
 vi.mock('@/hooks/useCreateMemberMutation');
 vi.mock('@/hooks/useUpdateMemberMutation');
@@ -22,6 +20,7 @@ describe('MemberForm', () => {
 
   const createMockMember = (overrides?: Partial<MemberResponse>): MemberResponse => ({
     id: 'member-1',
+    group_id: 'group-1',
     name: 'John Doe',
     email: 'john@example.com',
     is_active: true,
@@ -66,7 +65,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockReturnValue({
         mutate: vi.fn(),
@@ -78,7 +77,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       renderForm();
 
@@ -100,7 +99,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       const member = createMockMember({ name: 'Jane Smith', email: 'jane@example.com' });
 
@@ -126,7 +125,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
     });
 
     it('shows error when name is empty', async () => {
@@ -192,7 +191,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       renderForm();
 
@@ -220,7 +219,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       renderForm();
 
@@ -253,7 +252,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       renderForm();
 
@@ -288,7 +287,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       renderForm({ member });
 
@@ -325,7 +324,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       renderForm({ member });
 
@@ -352,7 +351,7 @@ describe('MemberForm', () => {
       let capturedOnError: ((detail: string) => void) | undefined;
       
       // Capture the onError callback passed to the hook
-      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((groupId, onError) => {
+      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((_groupId, onError) => {
         capturedOnError = onError;
         return {
           mutate: vi.fn(() => {
@@ -369,7 +368,7 @@ describe('MemberForm', () => {
           error: null,
           reset: vi.fn(),
           status: 'idle',
-        } as UseMutationResult<MemberResponse, Error, CreateMemberRequest>;
+        } as any;
       });
 
       renderForm();
@@ -389,7 +388,7 @@ describe('MemberForm', () => {
       const user = userEvent.setup();
       let capturedOnError: ((detail: string) => void) | undefined;
       
-      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((groupId, onError) => {
+      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((_groupId, onError) => {
         capturedOnError = onError;
         return {
           mutate: vi.fn(() => {
@@ -405,7 +404,7 @@ describe('MemberForm', () => {
           error: null,
           reset: vi.fn(),
           status: 'idle',
-        } as UseMutationResult<MemberResponse, Error, CreateMemberRequest>;
+        } as any;
       });
 
       renderForm();
@@ -426,7 +425,7 @@ describe('MemberForm', () => {
       let capturedOnError: ((detail: string) => void) | undefined;
       const member = createMockMember({ is_active: true });
 
-      vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockImplementation((groupId, onError) => {
+      vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockImplementation((_groupId, onError) => {
         capturedOnError = onError;
         return {
           mutate: vi.fn(() => {
@@ -442,7 +441,7 @@ describe('MemberForm', () => {
           error: null,
           reset: vi.fn(),
           status: 'idle',
-        } as UseMutationResult<MemberResponse, Error, CreateMemberRequest>;
+        } as any;
       });
 
       renderForm({ member });
@@ -473,7 +472,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
     });
 
     it('disables form while loading', () => {
@@ -487,7 +486,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'pending',
-      } as UseMutationResult<MemberResponse, Error, { memberId: string; payload: UpdateMemberRequest }>);
+      } as any);
 
       renderForm();
 

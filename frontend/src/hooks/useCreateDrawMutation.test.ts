@@ -24,13 +24,11 @@ describe('useCreateDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -52,13 +50,11 @@ describe('useCreateDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -83,13 +79,11 @@ describe('useCreateDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -135,13 +129,11 @@ describe('useCreateDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });

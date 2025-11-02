@@ -8,7 +8,7 @@ import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 
-type GroupResponse = components['schemas']['GroupResponse'];
+type GroupSummary = components['schemas']['GroupSummary'];
 type PaginatedGroupsResponse = components['schemas']['PaginatedGroupsResponse'];
 
 describe('useGroupsQuery', () => {
@@ -36,10 +36,13 @@ describe('useGroupsQuery', () => {
   it('constructs correct query key', async () => {
     const params = { search: 'test', page: 2 };
     const mockData: PaginatedGroupsResponse = {
-      items: [],
-      total: 0,
-      page: 2,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 2,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -58,10 +61,13 @@ describe('useGroupsQuery', () => {
   it('calls API with correct parameters', async () => {
     const params = { search: 'my-group', page: 1, page_size: 20 };
     const mockData: PaginatedGroupsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 20,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 20,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -84,10 +90,13 @@ describe('useGroupsQuery', () => {
 
   it('uses default parameters when not provided', async () => {
     const mockData: PaginatedGroupsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -109,12 +118,24 @@ describe('useGroupsQuery', () => {
   });
 
   it('returns data on successful API call', async () => {
-    const mockGroups = [
-      { id: '1', name: 'Group 1', description: 'Test group' },
-      { id: '2', name: 'Group 2', description: 'Another group' },
+    const mockGroups: GroupSummary[] = [
+      {
+        id: '1',
+        name: 'Group 1',
+        created_at: '2024-10-22T10:00:00Z',
+        historical_exclusions_enabled: false,
+        historical_exclusions_lookback: 1,
+      },
+      {
+        id: '2',
+        name: 'Group 2',
+        created_at: '2024-10-22T10:00:00Z',
+        historical_exclusions_enabled: true,
+        historical_exclusions_lookback: 2,
+      },
     ];
     const mockData: PaginatedGroupsResponse = {
-      data: mockGroups as GroupResponse[],
+      data: mockGroups,
       meta: {
         total: 2,
         page: 1,
@@ -168,10 +189,13 @@ describe('useGroupsQuery', () => {
   it('includes sort parameter when provided', async () => {
     const params = { sort: 'name' };
     const mockData: PaginatedGroupsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });

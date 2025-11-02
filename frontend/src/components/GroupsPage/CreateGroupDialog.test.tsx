@@ -1,13 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider, type UseMutationResult } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CreateGroupDialog } from './CreateGroupDialog';
 import * as useCreateGroupMutationModule from '@/hooks/useCreateGroupMutation';
-import type { components } from '@/types/schema';
-
-type CreateGroupRequest = components['schemas']['CreateGroupRequest'];
-type GroupDetailResponse = components['schemas']['GroupDetailResponse'];
 
 vi.mock('@/hooks/useCreateGroupMutation');
 
@@ -44,7 +40,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -65,7 +61,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -84,7 +80,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -106,7 +102,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -130,7 +126,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -152,7 +148,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -186,7 +182,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -223,7 +219,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -258,7 +254,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     const { rerender } = renderDialog(true);
 
@@ -297,7 +293,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'pending',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -319,7 +315,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -341,7 +337,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 
@@ -372,7 +368,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as UseMutationResult<GroupDetailResponse, Error, CreateGroupRequest>);
+    } as any);
 
     renderDialog(true);
 

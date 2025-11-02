@@ -25,15 +25,13 @@ describe('useExecuteDrawMutation', () => {
       draw: {
         id: 'draw-1',
         group_id: 'group-1',
-        name: 'Draw',
         status: 'pending',
         assignments_count: 5,
         created_at: '2024-10-22T10:00:00Z',
         finalized_at: null,
         notification_sent_at: null,
-        updated_at: '2024-10-22T10:00:00Z',
       },
-      assignments: [{ id: '1' }],
+      assignments: [{ giver_member_id: 'm1', receiver_member_id: 'm2' }],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -57,15 +55,13 @@ describe('useExecuteDrawMutation', () => {
       draw: {
         id: 'draw-1',
         group_id: 'group-1',
-        name: 'Draw',
         status: 'pending',
         assignments_count: 5,
         created_at: '2024-10-22T10:00:00Z',
         finalized_at: null,
         notification_sent_at: null,
-        updated_at: '2024-10-22T10:00:00Z',
       },
-      assignments: [{ id: '1' }],
+      assignments: [{ giver_member_id: 'm1', receiver_member_id: 'm2' }],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -89,15 +85,17 @@ describe('useExecuteDrawMutation', () => {
       draw: {
         id: 'draw-1',
         group_id: 'group-1',
-        name: 'Draw',
         status: 'pending',
         assignments_count: 3,
         created_at: '2024-10-22T10:00:00Z',
         finalized_at: null,
         notification_sent_at: null,
-        updated_at: '2024-10-22T10:00:00Z',
       },
-      assignments: [{ id: '1' }, { id: '2' }, { id: '3' }],
+      assignments: [
+        { giver_member_id: 'm1', receiver_member_id: 'm2' },
+        { giver_member_id: 'm2', receiver_member_id: 'm3' },
+        { giver_member_id: 'm3', receiver_member_id: 'm1' },
+      ],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });

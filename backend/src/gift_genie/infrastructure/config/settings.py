@@ -1,4 +1,5 @@
 from functools import lru_cache
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +22,10 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie"
 
+    # Redis
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+
     # Security
     SECRET_KEY: str = "your-secret-key-here-change-in-production"
     ALGORITHM: str = "HS256"
@@ -31,6 +36,22 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = ""
 
 
+class ProdSettings(Settings):
+    DEBUG: bool = False
+
+    # CORS
+    CORS_ORIGINS: list[str] = ["http://gift-genie-frontend:80"]
+
+    # Database
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@gift-genie-postgres:5432/gift_genie"
+
+    # Redis
+    REDIS_HOST: str = "gift-genie-redis"
+    REDIS_PORT: int = 6379
+
+
+
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    is_prod = os.getenv("PROD", False)
+    return Settings() if not is_prod else ProdSettings()

@@ -22,8 +22,8 @@ describe('useNotifyDrawMutation', () => {
 
   it('calls API with correct endpoint and resend parameter', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications sent to 5 recipients',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -49,8 +49,8 @@ describe('useNotifyDrawMutation', () => {
 
   it('invalidates both draws and draw queries on success', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications sent',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -79,8 +79,8 @@ describe('useNotifyDrawMutation', () => {
 
   it('handles resend parameter correctly', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications resent',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -106,8 +106,8 @@ describe('useNotifyDrawMutation', () => {
 
   it('returns notification response data', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications sent to 5 recipients',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
