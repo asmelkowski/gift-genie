@@ -219,6 +219,7 @@ jobs:
       - name: Start backend server
         working-directory: ./backend
         env:
+          PYTHONPATH: src
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie_test
           REDIS_URL: redis://localhost:6379
           SECRET_KEY: test-secret-key-for-ci
