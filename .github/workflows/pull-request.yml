@@ -289,13 +289,6 @@ jobs:
             curl -f http://localhost:8000/api/v1/health && break || sleep 2
           done
 
-      - name: Install Playwright dependencies
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/frontend:/workspace \
-            gift-genie-frontend:dev \
-            sh -c "cd /workspace && bunx playwright install --with-deps chromium"
-
       - name: Run E2E tests
         run: |
           docker run --rm \
@@ -304,7 +297,7 @@ jobs:
             -v ${{ github.workspace }}/frontend:/workspace \
             -w /workspace \
             gift-genie-frontend:dev \
-            bun run e2e
+            sh -c "bunx playwright install --with-deps chromium && bun run e2e"
 
       - name: Upload E2E test results
         if: always()

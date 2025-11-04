@@ -37,11 +37,9 @@ htmlcov/
 Thumbs.db
 
 # Project specific
-tests/
 *.md
 Makefile
 mise.toml
-pytest.ini
 
 # Git
 .git/
