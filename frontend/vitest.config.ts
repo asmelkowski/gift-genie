@@ -15,7 +15,7 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
     exclude: ["node_modules", "dist"],
     coverage: {
-      provider: "v8",
+      provider: "istanbul",
       reporter: ["text", "json", "html"],
       exclude: ["node_modules/", "src/test/"],
     },

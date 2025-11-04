@@ -12,10 +12,10 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "e2e": "playwright test",
-    "e2e:ui": "playwright test --ui",
-    "e2e:debug": "playwright test --debug",
-    "e2e:codegen": "playwright codegen http://localhost:3000"
+    "e2e": "bunx playwright test",
+    "e2e:ui": "bunx playwright test --ui",
+    "e2e:debug": "bunx playwright test --debug",
+    "e2e:codegen": "bunx playwright codegen http://localhost:3000"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",
@@ -55,7 +55,7 @@
     "vite": "^7.1.7",
     "vitest": "^3.2.4",
     "@playwright/test": "^1.48.0",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-istanbul": "^3.2.4",
     "msw": "^2.5.0"
   }
 }

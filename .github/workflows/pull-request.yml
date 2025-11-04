@@ -193,7 +193,7 @@ jobs:
       - name: Run frontend unit tests with coverage
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}/frontend/coverage:/app/coverage \
+            -v ${{ github.workspace }}/frontend:/app \
             gift-genie-frontend:dev \
             bun run test:coverage
 
@@ -289,10 +289,26 @@ jobs:
             curl -f http://localhost:8000/api/v1/health && break || sleep 2
           done
 
+      - name: Start frontend dev server
+        run: |
+          docker run -d \
+            --name frontend \
+            -p 5173:5173 \
+            -v ${{ github.workspace }}/frontend:/app \
+            gift-genie-frontend:dev
+
+      - name: Wait for frontend to be healthy
+        run: |
+          echo "Waiting for frontend..."
+          for i in {1..30}; do
+            curl -f http://localhost:5173 && break || sleep 2
+          done
+
       - name: Run E2E tests
         run: |
           docker run --rm \
             --network host \
+            -e CI=true \
             -e VITE_API_BASE_URL=http://localhost:8000/api/v1 \
             -v ${{ github.workspace }}/frontend:/workspace \
             -w /workspace \
@@ -318,8 +334,8 @@ jobs:
       - name: Cleanup containers
         if: always()
         run: |
-          docker stop backend postgres redis || true
-          docker rm backend postgres redis || true
+          docker stop backend frontend postgres redis || true
+          docker rm backend frontend postgres redis || true
           docker network rm gift-genie-test || true
 
   status-comment:
