@@ -409,7 +409,7 @@ jobs:
           echo "Waiting for backend..."
           success=0
           for i in {1..60}; do
-            if curl -sf http://localhost:8000/api/v1/health > /dev/null; then
+            if curl -sf http://localhost:8000/health > /dev/null; then
               echo "✅ Backend is healthy"
               success=1
               break
