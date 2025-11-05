@@ -492,7 +492,7 @@ jobs:
       - name: Run E2E tests
         run: |
           docker run --rm \
-            --network host \
+            --network gift-genie-test \
             -e CI=true \
             -e DEBUG=pw:api \
             -e VITE_API_BASE_URL=http://localhost:8000/api/v1 \
