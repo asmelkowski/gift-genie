@@ -407,9 +407,43 @@ jobs:
       - name: Wait for backend to be healthy
         run: |
           echo "Waiting for backend..."
-          for i in {1..30}; do
-            curl -f http://localhost:8000/api/v1/health && break || sleep 2
+          success=0
+          for i in {1..60}; do
+            if curl -sf http://localhost:8000/api/v1/health > /dev/null; then
+              echo "✅ Backend is healthy"
+              success=1
+              break
+            fi
+            status=$(docker inspect backend --format='{{.State.Status}} (exit={{.State.ExitCode}})' 2>/dev/null || echo 'unknown')
+            echo "Attempt $i/60: not ready (status=$status)"
+            sleep 2
           done
+          if [ "$success" -ne 1 ]; then
+            echo "❌ Backend did not become healthy in time"
+            echo "--- docker ps -a ---"
+            docker ps -a || true
+            echo "--- docker inspect backend ---"
+            docker inspect backend || true
+            echo "--- docker logs backend ---"
+            docker logs backend || true
+            exit 1
+          fi
+
+      - name: Collect backend logs (on failure)
+        if: failure()
+        run: |
+          docker logs backend > backend-logs.txt 2>&1 || true
+          docker inspect backend > backend-inspect.json 2>&1 || true
+
+      - name: Upload backend logs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: backend-diagnostics
+          path: |
+            backend-logs.txt
+            backend-inspect.json
+          retention-days: 7
 
       - name: Download frontend e2e image
         uses: actions/download-artifact@v6
