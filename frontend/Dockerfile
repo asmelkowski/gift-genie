@@ -1,5 +1,5 @@
 # Frontend Dockerfile for Gift Genie
-# Multi-stage build with dev and production targets
+# Multi-stage build with dev, test, and production targets
 
 # ============================================================================
 # Base stage - Common dependencies
@@ -9,16 +9,21 @@ FROM oven/bun:1 AS base
 # Set working directory
 WORKDIR /app
 
+# ============================================================================
+# Dependencies stage - Install all dependencies including devDependencies
+# ============================================================================
+FROM base AS deps
+
 # Copy dependency files
 COPY package.json bun.lock ./
 
-# Install dependencies
+# Install dependencies (includes devDependencies so vitest is available)
 RUN bun install --frozen-lockfile
 
 # ============================================================================
 # Development stage - Run Vite dev server with HMR
 # ============================================================================
-FROM base AS development
+FROM deps AS development
 
 # Copy application source
 COPY . .
@@ -30,9 +35,20 @@ EXPOSE 5173
 CMD ["bun", "run", "dev", "--host", "0.0.0.0"]
 
 # ============================================================================
+# Test stage - Run tests with coverage
+# ============================================================================
+FROM deps AS test
+
+# Copy application source
+COPY . .
+
+# Default command runs tests with coverage
+CMD ["bun", "run", "test:coverage"]
+
+# ============================================================================
 # Builder stage - Build production assets
 # ============================================================================
-FROM base AS builder
+FROM deps AS builder
 
 # Copy application source
 COPY . .

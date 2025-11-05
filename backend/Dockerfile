@@ -1,5 +1,5 @@
 # Backend Dockerfile for Gift Genie
-# Multi-stage build with dev and production targets
+# Multi-stage build with dev, test, and production targets
 
 # ============================================================================
 # Base stage - Common dependencies
@@ -25,15 +25,20 @@ ENV PYTHONPATH=/app/src \
     PYTHONDONTWRITEBYTECODE=1
 
 # ============================================================================
-# Development stage - Includes dev dependencies and hot-reloading
+# Dependencies stage - Install all dependencies including dev
 # ============================================================================
-FROM base AS development
+FROM base AS deps
 
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-# Install all dependencies (including dev)
+# Install all dependencies (including dev/test dependencies)
 RUN uv sync --frozen
+
+# ============================================================================
+# Development stage - Includes dev dependencies and hot-reloading
+# ============================================================================
+FROM deps AS development
 
 # Copy application code
 COPY . .
@@ -46,6 +51,20 @@ EXPOSE 8000
 
 # Run with hot-reloading enabled
 CMD ["uvicorn", "gift_genie.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+# ============================================================================
+# Test stage - Run tests with coverage
+# ============================================================================
+FROM deps AS test
+
+# Copy application code
+COPY . .
+
+# Set PATH for virtual environment
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Default command runs tests with coverage
+CMD ["pytest", "--cov=gift_genie", "--cov-report=xml:/app/coverage.xml", "--cov-report=term"]
 
 # ============================================================================
 # Builder stage - Install production dependencies only
