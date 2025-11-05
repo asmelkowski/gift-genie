@@ -27,15 +27,15 @@ jobs:
           cache-to: type=gha,mode=max,scope=backend-dev
           outputs: type=docker,dest=/tmp/backend-dev.tar
 
-      - name: Build backend production image
+      - name: Build backend test image
         uses: docker/build-push-action@v6
         with:
           context: ./backend
-          target: production
-          tags: gift-genie-backend:prod
-          cache-from: type=gha,scope=backend-prod
-          cache-to: type=gha,mode=max,scope=backend-prod
-          outputs: type=docker,dest=/tmp/backend-prod.tar
+          target: test
+          tags: gift-genie-backend:test
+          cache-from: type=gha,scope=backend-test
+          cache-to: type=gha,mode=max,scope=backend-test
+          outputs: type=docker,dest=/tmp/backend-test.tar
 
       - name: Build frontend development image
         uses: docker/build-push-action@v6
@@ -47,15 +47,15 @@ jobs:
           cache-to: type=gha,mode=max,scope=frontend-dev
           outputs: type=docker,dest=/tmp/frontend-dev.tar
 
-      - name: Build frontend production image
+      - name: Build frontend test image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
-          target: production
-          tags: gift-genie-frontend:prod
-          cache-from: type=gha,scope=frontend-prod
-          cache-to: type=gha,mode=max,scope=frontend-prod
-          outputs: type=docker,dest=/tmp/frontend-prod.tar
+          target: test
+          tags: gift-genie-frontend:test
+          cache-from: type=gha,scope=frontend-test
+          cache-to: type=gha,mode=max,scope=frontend-test
+          outputs: type=docker,dest=/tmp/frontend-test.tar
 
       - name: Upload backend development image
         uses: actions/upload-artifact@v5
@@ -64,11 +64,11 @@ jobs:
           path: /tmp/backend-dev.tar
           retention-days: 1
 
-      - name: Upload backend production image
+      - name: Upload backend test image
         uses: actions/upload-artifact@v5
         with:
-          name: backend-prod-image
-          path: /tmp/backend-prod.tar
+          name: backend-test-image
+          path: /tmp/backend-test.tar
           retention-days: 1
 
       - name: Upload frontend development image
@@ -78,11 +78,11 @@ jobs:
           path: /tmp/frontend-dev.tar
           retention-days: 1
 
-      - name: Upload frontend production image
+      - name: Upload frontend test image
         uses: actions/upload-artifact@v5
         with:
-          name: frontend-prod-image
-          path: /tmp/frontend-prod.tar
+          name: frontend-test-image
+          path: /tmp/frontend-test.tar
           retention-days: 1
 
   lint:
@@ -104,6 +104,12 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           name: frontend-dev-image
+          path: /tmp
+
+      - name: Download frontend test image
+        uses: actions/download-artifact@v6
+        with:
+          name: frontend-test-image
           path: /tmp
 
       - name: Load Docker images
@@ -160,29 +166,42 @@ jobs:
           name: backend-dev-image
           path: /tmp
 
-      - name: Download frontend development image
+      - name: Download backend test image
         uses: actions/download-artifact@v6
         with:
-          name: frontend-dev-image
+          name: backend-test-image
           path: /tmp
 
       - name: Load Docker images
         run: |
           docker load --input /tmp/backend-dev.tar
-          docker load --input /tmp/frontend-dev.tar
+          docker load --input /tmp/backend-test.tar
 
       - name: Run backend tests with coverage
         run: |
-          docker run --rm \
+          # Run tests in a named container (will keep running until tests complete)
+          docker run --name backend-test-container \
             --network host \
             -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie_test \
             -e REDIS_URL=redis://localhost:6379 \
             -e SECRET_KEY=test-secret-key-for-ci \
             -e ALGORITHM=HS256 \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
-            -v ${{ github.workspace }}/backend:/workspace \
-            gift-genie-backend:dev \
-            sh -c "pytest --cov=gift_genie --cov-report=xml:/workspace/coverage.xml --cov-report=term"
+            gift-genie-backend:test
+          
+          # Get the exit code from the container
+          EXIT_CODE=$(docker inspect backend-test-container --format='{{.State.ExitCode}}')
+          
+          # Copy coverage results from container
+          mkdir -p ./backend
+          docker cp backend-test-container:/app/coverage.xml \
+            ./backend/coverage.xml 2>/dev/null || true
+          
+          # Clean up container
+          docker rm -f backend-test-container 2>/dev/null || true
+          
+          # Exit with the original test exit code
+          exit $EXIT_CODE
 
       - name: Upload backend coverage to artifacts
         uses: actions/upload-artifact@v5
@@ -190,12 +209,34 @@ jobs:
           name: backend-coverage
           path: backend/coverage.xml
 
+      - name: Download frontend test image
+        uses: actions/download-artifact@v6
+        with:
+          name: frontend-test-image
+          path: /tmp
+
+      - name: Load frontend test image
+        run: docker load --input /tmp/frontend-test.tar
+
       - name: Run frontend unit tests with coverage
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/frontend:/app \
-            gift-genie-frontend:dev \
-            bun run test:coverage
+          # Run tests in a named container (will keep running until tests complete)
+          docker run --name frontend-test-container \
+            gift-genie-frontend:test
+          
+          # Get the exit code from the container
+          EXIT_CODE=$(docker inspect frontend-test-container --format='{{.State.ExitCode}}')
+          
+          # Copy coverage results from container
+          mkdir -p ./frontend/coverage
+          docker cp frontend-test-container:/app/coverage/coverage-final.json \
+            ./frontend/coverage/coverage-final.json 2>/dev/null || true
+          
+          # Clean up container
+          docker rm -f frontend-test-container 2>/dev/null || true
+          
+          # Exit with the original test exit code
+          exit $EXIT_CODE
 
       - name: Upload frontend coverage to artifacts
         uses: actions/upload-artifact@v5
@@ -203,10 +244,68 @@ jobs:
           name: frontend-unit-coverage
           path: frontend/coverage/coverage-final.json
 
+  build-frontend-prod:
+    name: Build Frontend Production Image
+    runs-on: ubuntu-latest
+    needs: unit-test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend production image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          target: production
+          tags: gift-genie-frontend:prod
+          cache-from: type=gha,scope=frontend-prod
+          cache-to: type=gha,mode=max,scope=frontend-prod
+          outputs: type=docker,dest=/tmp/frontend-prod.tar
+
+      - name: Upload frontend production image
+        uses: actions/upload-artifact@v5
+        with:
+          name: frontend-prod-image
+          path: /tmp/frontend-prod.tar
+          retention-days: 1
+
+  build-backend-prod:
+    name: Build Backend Production Image
+    runs-on: ubuntu-latest
+    needs: unit-test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend production image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          target: production
+          tags: gift-genie-backend:prod
+          cache-from: type=gha,scope=backend-prod
+          cache-to: type=gha,mode=max,scope=backend-prod
+          outputs: type=docker,dest=/tmp/backend-prod.tar
+
+      - name: Upload backend production image
+        uses: actions/upload-artifact@v5
+        with:
+          name: backend-prod-image
+          path: /tmp/backend-prod.tar
+          retention-days: 1
+
   e2e-test:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [build-images, lint]
+    needs: [build-images, lint, build-frontend-prod, build-backend-prod]
 
     steps:
       - name: Check out repository
