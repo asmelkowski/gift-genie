@@ -42,8 +42,8 @@ FROM deps AS test
 # Copy application source
 COPY . .
 
-# Default command runs tests with coverage
-CMD ["bun", "run", "test:coverage"]
+# Default command runs tests with coverage in non-watch mode
+CMD ["bun", "run", "test", "--", "--run", "--coverage"]
 
 # ============================================================================
 # E2E stage - Run E2E tests with pre-installed Playwright browsers

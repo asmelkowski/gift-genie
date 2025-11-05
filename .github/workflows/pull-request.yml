@@ -235,6 +235,12 @@ jobs:
       - name: Load frontend test image
         run: docker load --input /tmp/frontend-test.tar
 
+      - name: Verify frontend test image has test files
+        run: |
+          echo "🔍 Checking test image..."
+          docker run --rm gift-genie-frontend:test ls -la /app/src/lib/
+          echo "✅ Test image ready"
+
       - name: Run frontend unit tests with coverage
         run: |
           # Run tests in a named container (will keep running until tests complete)
@@ -419,7 +425,6 @@ jobs:
           docker run -d \
             --name frontend \
             -p 5173:5173 \
-            -v ${{ github.workspace }}/frontend:/app \
             gift-genie-frontend:dev
 
       - name: Wait for frontend to be healthy
@@ -438,6 +443,18 @@ jobs:
           echo "Allowing frontend to fully hydrate..."
           sleep 5
 
+      - name: Verify E2E image and dependencies
+        run: |
+          echo "🔍 Checking e2e image..."
+          docker run --rm gift-genie-frontend:e2e ls -la /app/playwright.config.ts
+          echo "✅ Config found"
+          
+          docker run --rm gift-genie-frontend:e2e ls -la /app/e2e/
+          echo "✅ E2E tests found"
+          
+          docker run --rm gift-genie-frontend:e2e which bunx
+          echo "✅ Bun found"
+
       - name: Run E2E tests
         run: |
           docker run --rm \
@@ -445,8 +462,6 @@ jobs:
             -e CI=true \
             -e DEBUG=pw:api \
             -e VITE_API_BASE_URL=http://localhost:8000/api/v1 \
-            -v ${{ github.workspace }}/frontend:/workspace \
-            -w /workspace \
             gift-genie-frontend:e2e \
             bunx playwright test --reporter=list --trace=on
 
