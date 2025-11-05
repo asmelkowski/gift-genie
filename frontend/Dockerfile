@@ -46,6 +46,54 @@ COPY . .
 CMD ["bun", "run", "test:coverage"]
 
 # ============================================================================
+# E2E stage - Run E2E tests with pre-installed Playwright browsers
+# ============================================================================
+FROM base AS e2e
+
+# Install system dependencies required by Chromium
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxrandr2 \
+    libxext6 \
+    libxfixes3 \
+    libxdamage1 \
+    libxcomposite1 \
+    libxrender1 \
+    libxkbcommon0 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libatspi2.0-0 \
+    libcairo2 \
+    libcups2 \
+    libdbus-1-3 \
+    libegl1 \
+    libgl1 \
+    libglib2.0-0 \
+    libnspr4 \
+    libnss3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency files
+COPY package.json bun.lock ./
+
+# Install dependencies (includes devDependencies so Playwright is available)
+RUN bun install --frozen-lockfile
+
+# Pre-install Playwright browsers (including system dependencies with --with-deps)
+RUN bunx playwright install --with-deps chromium
+
+# Copy application source
+COPY . .
+
+# Default command runs e2e tests
+CMD ["bunx", "playwright", "test"]
+
+# ============================================================================
 # Builder stage - Build production assets
 # ============================================================================
 FROM deps AS builder
