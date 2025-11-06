@@ -245,6 +245,7 @@ jobs:
         run: |
           # Run tests in a named container (will keep running until tests complete)
           docker run --name frontend-test-container \
+            -e CI=true \
             gift-genie-frontend:test
           
           # Get the exit code from the container
@@ -458,6 +459,7 @@ jobs:
         run: |
           docker run -d \
             --name frontend \
+            --network gift-genie-test \
             -p 5173:5173 \
             gift-genie-frontend:dev
 
@@ -490,21 +492,67 @@ jobs:
           echo "✅ Bun found"
 
       - name: Run E2E tests
+        timeout-minutes: 30
         run: |
-          docker run --rm \
+          # Create test results directory
+          mkdir -p test-results
+          
+          # Run E2E tests with comprehensive logging and diagnostics
+          docker run --name e2e-tests \
             --network gift-genie-test \
             -e CI=true \
             -e DEBUG=pw:api \
-            -e VITE_API_BASE_URL=http://localhost:8000/api/v1 \
+            -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
+            -v $(pwd)/test-results:/app/test-results \
             gift-genie-frontend:e2e \
-            bunx playwright test --reporter=list --trace=on
+            bunx playwright test --reporter=list --trace=on 2>&1 | tee test-results/e2e-test-output.log
+          
+          # Get exit code from container
+          EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
+          
+          # Copy test results from container
+          docker cp e2e-tests:/app/playwright-report ./test-results/ 2>/dev/null || true
+          docker cp e2e-tests:/app/coverage ./test-results/ 2>/dev/null || true
+          docker cp e2e-tests:/app/test-results ./test-results/container-results 2>/dev/null || true
+          
+          # Clean up container
+          docker rm -f e2e-tests 2>/dev/null || true
+          
+          # Exit with the original test exit code
+          exit $EXIT_CODE
+
+      - name: Collect E2E diagnostics (on failure)
+        if: failure()
+        run: |
+          echo "🔍 Collecting E2E diagnostics..."
+          
+          # Collect container logs
+          docker logs frontend > test-results/frontend-logs.txt 2>&1 || true
+          docker logs backend > test-results/backend-logs.txt 2>&1 || true
+          docker logs postgres > test-results/postgres-logs.txt 2>&1 || true
+          docker logs redis > test-results/redis-logs.txt 2>&1 || true
+          
+          # Collect container inspection
+          docker inspect frontend > test-results/frontend-inspect.json 2>&1 || true
+          docker inspect backend > test-results/backend-inspect.json 2>&1 || true
+          
+          # Test network connectivity
+          echo "Testing network connectivity..." > test-results/network-test.txt
+          docker run --rm --network gift-genie-test curl -s -o /dev/null -w "%{http_code}" http://backend:8000/health >> test-results/network-test.txt 2>/dev/null || echo "Backend unreachable" >> test-results/network-test.txt
+          docker run --rm --network gift-genie-test curl -s -o /dev/null -w "%{http_code}" http://frontend:5173 >> test-results/network-test.txt 2>/dev/null || echo "Frontend unreachable" >> test-results/network-test.txt
+          
+          # List all containers and networks
+          docker ps -a > test-results/docker-ps.txt 2>&1 || true
+          docker network ls > test-results/docker-networks.txt 2>&1 || true
+          
+          echo "✅ Diagnostics collected"
 
       - name: Upload E2E test results
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: playwright-report
-          path: frontend/playwright-report/
+          path: test-results/playwright-report/
           retention-days: 7
 
       - name: Upload E2E coverage to artifacts
@@ -512,7 +560,15 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: frontend-e2e-coverage
-          path: frontend/coverage/
+          path: test-results/coverage/
+          retention-days: 7
+
+      - name: Upload E2E diagnostics
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: e2e-diagnostics
+          path: test-results/
           retention-days: 7
 
       - name: Cleanup containers
