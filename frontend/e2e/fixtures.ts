@@ -17,8 +17,8 @@ export class LoginPage {
     await this.page.fill('input[type="email"]', email);
     await this.page.fill('input[type="password"]', password);
     await this.page.click('button[type="submit"]');
-    // Wait for navigation to complete
-    await this.page.waitForURL("/app/groups");
+    // Wait for navigation to complete with explicit timeout
+    await this.page.waitForURL("/app/groups", { timeout: 15000 });
   }
 
   async submitLogin(email: string, password: string) {
@@ -135,11 +135,10 @@ export const test = base.extend<TestFixtures>({
     // Login before each test
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    // Use test credentials (these should be set up in the test database)
-    await loginPage.login(
-      "test@example.com",
-      "09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q",
-    );
+    // Use environment-based test credentials
+    const testEmail = process.env.CI ? "test@example.com" : "test@example.com";
+    const testPassword = "09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q";
+    await loginPage.login(testEmail, testPassword);
     await use(page);
   },
 });

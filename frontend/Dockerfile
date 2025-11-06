@@ -43,15 +43,17 @@ FROM deps AS test
 COPY . .
 
 # Default command runs tests with coverage in non-watch mode
-CMD ["bun", "run", "test", "--", "--run", "--coverage"]
+# Use vitest run explicitly to ensure CI mode and proper execution
+CMD ["bunx", "vitest", "run", "--coverage", "--reporter=verbose"]
 
 # ============================================================================
 # E2E stage - Run E2E tests with pre-installed Playwright browsers
 # ============================================================================
 FROM base AS e2e
 
-# Install system dependencies required by Chromium
+# Install system dependencies required by Chromium and curl for connectivity testing
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
     libx11-6 \
     libx11-xcb1 \
     libxcb1 \
@@ -86,6 +88,9 @@ RUN bun install --frozen-lockfile
 
 # Pre-install Playwright browsers (including system dependencies with --with-deps)
 RUN bunx playwright install --with-deps chromium
+
+# Create test results directory
+RUN mkdir -p /app/test-results
 
 # Copy application source
 COPY . .
