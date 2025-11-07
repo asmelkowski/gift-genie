@@ -479,6 +479,22 @@ jobs:
           echo "Allowing frontend to fully hydrate..."
           sleep 5
 
+      - name: Verify E2E network connectivity
+        run: |
+          echo "🔍 Testing network connectivity from E2E container perspective..."
+          
+          # Test backend connectivity
+          echo "Testing backend at http://backend:8000/health..."
+          docker run --rm --network gift-genie-test curlimages/curl:latest \
+            curl -v --max-time 10 http://backend:8000/health
+          
+          # Test frontend connectivity
+          echo "Testing frontend at http://frontend:5173..."
+          docker run --rm --network gift-genie-test curlimages/curl:latest \
+            curl -v --max-time 10 http://frontend:5173
+          
+          echo "✅ Network connectivity verified"
+
       - name: Verify E2E image and dependencies
         run: |
           echo "🔍 Checking e2e image..."
@@ -491,8 +507,14 @@ jobs:
           docker run --rm gift-genie-frontend:e2e which bunx
           echo "✅ Bun found"
 
+      - name: Create Playwright directories
+        run: |
+          mkdir -p playwright/.auth
+          mkdir -p playwright/screenshots
+          echo "✅ Playwright directories created"
+
       - name: Run E2E tests
-        timeout-minutes: 30
+        timeout-minutes: 5
         run: |
           # Create test results directory
           mkdir -p test-results
@@ -504,14 +526,16 @@ jobs:
             -e DEBUG=pw:api \
             -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
             -v $(pwd)/test-results:/app/test-results \
+            -v $(pwd)/playwright:/app/playwright \
             gift-genie-frontend:e2e \
-            bunx playwright test --reporter=list --trace=on 2>&1 | tee test-results/e2e-test-output.log
+            npx playwright test --reporter=list,html --trace=on
           
           # Get exit code from container
           EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
           
-          # Copy test results from container
+          # Copy test results from container (in case volume mount had issues)
           docker cp e2e-tests:/app/playwright-report ./test-results/ 2>/dev/null || true
+          docker cp e2e-tests:/app/playwright ./playwright-results 2>/dev/null || true
           docker cp e2e-tests:/app/coverage ./test-results/ 2>/dev/null || true
           docker cp e2e-tests:/app/test-results ./test-results/container-results 2>/dev/null || true
           
@@ -528,6 +552,7 @@ jobs:
           
           # Collect container logs
           docker logs frontend > test-results/frontend-logs.txt 2>&1 || true
+          docker logs e2e-tests > test-results/e2e-tests-logs.txt 2>&1 || true
           docker logs backend > test-results/backend-logs.txt 2>&1 || true
           docker logs postgres > test-results/postgres-logs.txt 2>&1 || true
           docker logs redis > test-results/redis-logs.txt 2>&1 || true
