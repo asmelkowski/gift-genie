@@ -131,15 +131,44 @@ export const test = base.extend<TestFixtures>({
     await use(drawsPage);
   },
 
-  authenticatedPage: async ({ page }, use) => {
-    // Login before each test
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    // Use environment-based test credentials
-    const testEmail = process.env.CI ? "test@example.com" : "test@example.com";
-    const testPassword = "09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q";
-    await loginPage.login(testEmail, testPassword);
+  authenticatedPage: async ({ browser }, use) => {
+    // Try to load saved auth state first
+    let context;
+    const authFile = 'playwright/.auth/user.json';
+    
+    try {
+      // Check if auth state exists (it should be created by global-setup.ts)
+      const fs = await import('fs');
+      const { existsSync } = fs;
+      
+      if (existsSync(authFile)) {
+        console.log('📂 Loading saved authentication state...');
+        context = await browser.newContext({ storageState: authFile });
+      } else {
+        throw new Error('Auth state not found, will perform login');
+      }
+    } catch {
+      console.log('⚠️  No saved auth state, performing login...');
+      context = await browser.newContext();
+      const page = await context.newPage();
+      
+      const loginPage = new LoginPage(page);
+      await loginPage.goto();
+      
+      const testEmail = "test@example.com";
+      const testPassword = "09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q";
+      await loginPage.login(testEmail, testPassword);
+      
+      // Save the state for next time
+      await context.storageState({ path: authFile });
+      console.log('✅ Authentication state saved');
+      
+      await page.close();
+    }
+    
+    const page = await context.newPage();
     await use(page);
+    await context.close();
   },
 });
 

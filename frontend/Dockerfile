@@ -54,6 +54,7 @@ FROM base AS e2e
 # Install system dependencies required by Chromium and curl for connectivity testing
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    npm \
     libx11-6 \
     libx11-xcb1 \
     libxcb1 \
@@ -87,16 +88,18 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # Pre-install Playwright browsers (including system dependencies with --with-deps)
-RUN bunx playwright install --with-deps chromium
+RUN npx playwright install --with-deps chromium
 
 # Create test results directory
 RUN mkdir -p /app/test-results
+RUN mkdir -p /app/playwright/.auth
+RUN mkdir -p /app/playwright/screenshots
 
 # Copy application source
 COPY . .
 
 # Default command runs e2e tests
-CMD ["bunx", "playwright", "test"]
+CMD ["npx", "playwright", "test"]
 
 # ============================================================================
 # Builder stage - Build production assets
