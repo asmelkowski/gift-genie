@@ -17,7 +17,7 @@ export const useCreateGroupMutation = () => {
       const response = await api.post<GroupDetailResponse>('/api/v1/groups', data);
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });
       toast.success('Group created successfully');
       navigate(`/app/groups/${data.id}/members`);

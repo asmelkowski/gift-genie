@@ -10,11 +10,7 @@ interface ExportActionsProps {
   groupName?: string;
 }
 
-export default function ExportActions({
-  assignments,
-  drawId,
-  groupName,
-}: ExportActionsProps) {
+export default function ExportActions({ assignments, drawId, groupName }: ExportActionsProps) {
   const handleCopyToClipboard = useCallback(async () => {
     try {
       await copyToClipboard(assignments, groupName);
@@ -34,19 +30,11 @@ export default function ExportActions({
 
   return (
     <div className="flex gap-2 mt-4 sm:mt-0">
-      <Button
-        variant="outline"
-        onClick={handleCopyToClipboard}
-        disabled={assignments.length === 0}
-      >
+      <Button variant="outline" onClick={handleCopyToClipboard} disabled={assignments.length === 0}>
         <Copy className="w-4 h-4 mr-2" />
         Copy
       </Button>
-      <Button
-        variant="outline"
-        onClick={handleExportCSV}
-        disabled={assignments.length === 0}
-      >
+      <Button variant="outline" onClick={handleExportCSV} disabled={assignments.length === 0}>
         <Download className="w-4 h-4 mr-2" />
         CSV
       </Button>

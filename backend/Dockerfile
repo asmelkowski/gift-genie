@@ -119,4 +119,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # Run the application
 CMD ["uvicorn", "gift_genie.main:app", "--host", "0.0.0.0", "--port", "8000"]
-

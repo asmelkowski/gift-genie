@@ -26,7 +26,11 @@ class Exclusion:
     def applies_to_pairing(self, giver_id: str, receiver_id: str) -> bool:
         if self.giver_member_id == giver_id and self.receiver_member_id == receiver_id:
             return True
-        if self.is_mutual and self.giver_member_id == receiver_id and self.receiver_member_id == giver_id:
+        if (
+            self.is_mutual
+            and self.giver_member_id == receiver_id
+            and self.receiver_member_id == giver_id
+        ):
             return True
         return False
 

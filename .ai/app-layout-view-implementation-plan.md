@@ -351,7 +351,7 @@ interface AppLayoutContextState {
 const AppLayoutContext = createContext<AppLayoutContextState>(/* ... */);
 
 export function AppLayoutProvider({ children }) {
-  const [theme, setTheme] = useState(() => 
+  const [theme, setTheme] = useState(() =>
     localStorage.getItem('app-theme') ?? 'light'
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -400,7 +400,7 @@ function useAppLayout() {
 ```typescript
 function useBreadcrumbs(): BreadcrumbItem[] {
   const location = useLocation();
-  
+
   const breadcrumbMap: Record<string, string> = {
     '/app/groups': 'Groups',
     '/app/settings': 'Settings',

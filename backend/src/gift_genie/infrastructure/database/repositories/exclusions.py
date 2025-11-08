@@ -27,7 +27,7 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
         receiver_member_id: str | None,
         page: int,
         page_size: int,
-        sort: str
+        sort: str,
     ) -> tuple[list[Exclusion], int]:
         # Build base where clause
         base_where = ExclusionModel.group_id == UUID(group_id)
@@ -50,9 +50,7 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             receiver_member = aliased(MemberModel, name="receiver_member")
             query = query.join(
                 giver_member, ExclusionModel.giver_member_id == giver_member.id
-            ).join(
-                receiver_member, ExclusionModel.receiver_member_id == receiver_member.id
-            )
+            ).join(receiver_member, ExclusionModel.receiver_member_id == receiver_member.id)
 
         if "name" in sort:
             query = self._apply_sort(query, sort, giver_member)
@@ -76,7 +74,9 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             exclusion_type=exclusion.exclusion_type,
             is_mutual=exclusion.is_mutual,
             created_at=exclusion.created_at,
-            created_by_user_id=UUID(exclusion.created_by_user_id) if exclusion.created_by_user_id else None,
+            created_by_user_id=UUID(exclusion.created_by_user_id)
+            if exclusion.created_by_user_id
+            else None,
         )
         self._session.add(model)
         try:
@@ -100,7 +100,9 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
                 exclusion_type=exclusion.exclusion_type,
                 is_mutual=exclusion.is_mutual,
                 created_at=exclusion.created_at,
-                created_by_user_id=UUID(exclusion.created_by_user_id) if exclusion.created_by_user_id else None,
+                created_by_user_id=UUID(exclusion.created_by_user_id)
+                if exclusion.created_by_user_id
+                else None,
             )
             models.append(model)
 
@@ -126,19 +128,24 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
 
     async def get_by_group_and_id(self, group_id: str, exclusion_id: str) -> Exclusion | None:
         stmt = select(ExclusionModel).where(
-            ExclusionModel.id == UUID(exclusion_id),
-            ExclusionModel.group_id == UUID(group_id)
+            ExclusionModel.id == UUID(exclusion_id), ExclusionModel.group_id == UUID(group_id)
         )
         res = await self._session.execute(stmt)
         row = res.scalar_one_or_none()
         return self._to_domain(row) if row else None
 
-    async def exists_for_pair(self, group_id: str, giver_member_id: str, receiver_member_id: str) -> bool:
+    async def exists_for_pair(
+        self, group_id: str, giver_member_id: str, receiver_member_id: str
+    ) -> bool:
         # Check for direct exclusion
-        stmt = select(func.count()).select_from(ExclusionModel).where(
-            ExclusionModel.group_id == UUID(group_id),
-            ExclusionModel.giver_member_id == UUID(giver_member_id),
-            ExclusionModel.receiver_member_id == UUID(receiver_member_id)
+        stmt = (
+            select(func.count())
+            .select_from(ExclusionModel)
+            .where(
+                ExclusionModel.group_id == UUID(group_id),
+                ExclusionModel.giver_member_id == UUID(giver_member_id),
+                ExclusionModel.receiver_member_id == UUID(receiver_member_id),
+            )
         )
         res = await self._session.execute(stmt)
         direct_count = res.scalar_one() or 0
@@ -147,11 +154,15 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             return True
 
         # Check for mutual exclusion (reverse direction)
-        stmt = select(func.count()).select_from(ExclusionModel).where(
-            ExclusionModel.group_id == UUID(group_id),
-            ExclusionModel.giver_member_id == UUID(receiver_member_id),
-            ExclusionModel.receiver_member_id == UUID(giver_member_id),
-            ExclusionModel.is_mutual
+        stmt = (
+            select(func.count())
+            .select_from(ExclusionModel)
+            .where(
+                ExclusionModel.group_id == UUID(group_id),
+                ExclusionModel.giver_member_id == UUID(receiver_member_id),
+                ExclusionModel.receiver_member_id == UUID(giver_member_id),
+                ExclusionModel.is_mutual,
+            )
         )
         res = await self._session.execute(stmt)
         mutual_count = res.scalar_one() or 0
@@ -167,21 +178,25 @@ class ExclusionRepositorySqlAlchemy(ExclusionRepository):
             pair = (giver_id, receiver_id)
             reverse_pair = (receiver_id, giver_id)
             if pair in seen_pairs or reverse_pair in seen_pairs:
-                conflicts.append({
-                    "giver_member_id": giver_id,
-                    "receiver_member_id": receiver_id,
-                    "reason": "duplicate_in_batch"
-                })
+                conflicts.append(
+                    {
+                        "giver_member_id": giver_id,
+                        "receiver_member_id": receiver_id,
+                        "reason": "duplicate_in_batch",
+                    }
+                )
             seen_pairs.add(pair)
 
         # Check for existing exclusions
         for giver_id, receiver_id in pairs:
             if await self.exists_for_pair(group_id, giver_id, receiver_id):
-                conflicts.append({
-                    "giver_member_id": giver_id,
-                    "receiver_member_id": receiver_id,
-                    "reason": "already_exists"
-                })
+                conflicts.append(
+                    {
+                        "giver_member_id": giver_id,
+                        "receiver_member_id": receiver_id,
+                        "reason": "already_exists",
+                    }
+                )
 
         return conflicts
 

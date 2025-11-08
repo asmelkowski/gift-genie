@@ -20,12 +20,9 @@ describe('useDeleteMemberMutation', () => {
   it('calls API with correct delete endpoint', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
 
-    const { result } = renderHook(
-      () => useDeleteMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('member-1');
 
@@ -33,21 +30,16 @@ describe('useDeleteMemberMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.delete).toHaveBeenCalledWith(
-      '/api/v1/groups/group-1/members/member-1'
-    );
+    expect(api.delete).toHaveBeenCalledWith('/api/v1/groups/group-1/members/member-1');
   });
 
   it('invalidates members query with correct group ID on success', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useDeleteMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('member-1');
 
@@ -63,12 +55,9 @@ describe('useDeleteMemberMutation', () => {
   it('shows success toast on successful deletion', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
 
-    const { result } = renderHook(
-      () => useDeleteMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('member-1');
 
@@ -88,12 +77,9 @@ describe('useDeleteMemberMutation', () => {
 
     vi.mocked(api.delete).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useDeleteMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('invalid-id');
 
@@ -113,12 +99,9 @@ describe('useDeleteMemberMutation', () => {
 
     vi.mocked(api.delete).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useDeleteMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('member-1');
 
@@ -131,18 +114,12 @@ describe('useDeleteMemberMutation', () => {
 
   it('provides loading and success states', async () => {
     vi.mocked(api.delete).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({}), 100)
-        )
+      () => new Promise(resolve => setTimeout(() => resolve({}), 100))
     );
 
-    const { result } = renderHook(
-      () => useDeleteMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('member-1');
 

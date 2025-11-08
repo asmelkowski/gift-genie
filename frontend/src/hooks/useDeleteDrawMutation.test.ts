@@ -20,12 +20,9 @@ describe('useDeleteDrawMutation', () => {
   it('calls API with correct delete endpoint', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
 
-    const { result } = renderHook(
-      () => useDeleteDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -40,12 +37,9 @@ describe('useDeleteDrawMutation', () => {
     vi.mocked(api.delete).mockResolvedValue({});
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useDeleteDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -61,12 +55,9 @@ describe('useDeleteDrawMutation', () => {
   it('shows success toast', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
 
-    const { result } = renderHook(
-      () => useDeleteDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -86,12 +77,9 @@ describe('useDeleteDrawMutation', () => {
 
     vi.mocked(api.delete).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useDeleteDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -111,12 +99,9 @@ describe('useDeleteDrawMutation', () => {
 
     vi.mocked(api.delete).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useDeleteDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useDeleteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 

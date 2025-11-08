@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface UserViewModel {
   id: string;
@@ -29,9 +29,8 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "auth-storage",
-      partialize: (state) => ({ user: state.user, csrfToken: state.csrfToken }),
-    },
-  ),
+      name: 'auth-storage',
+      partialize: state => ({ user: state.user, csrfToken: state.csrfToken }),
+    }
+  )
 );
-

@@ -12,10 +12,10 @@ beforeAll(() => {
 afterEach(() => {
   // Clean up React Testing Library DOM - this unmounts components
   cleanup();
-  
+
   // Reset all MSW handlers for next test
   server.resetHandlers();
-  
+
   // Clear all mocks
   vi.clearAllMocks();
 });

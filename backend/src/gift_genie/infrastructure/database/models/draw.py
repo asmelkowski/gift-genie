@@ -27,9 +27,13 @@ class DrawModel(Base):
     status: Mapped[DrawStatus] = mapped_column(
         ENUM(DrawStatus, name="draw_status_enum"), nullable=False, default=DrawStatus.PENDING
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_datetime_now)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_datetime_now
+    )
     finalized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    notification_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    notification_sent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     group: Mapped["GroupModel"] = relationship("GroupModel", back_populates="draws")
     assignments: Mapped[list["AssignmentModel"]] = relationship(

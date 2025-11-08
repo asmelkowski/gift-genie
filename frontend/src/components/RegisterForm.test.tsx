@@ -24,9 +24,7 @@ const createWrapper = () => {
 
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {children}
-      </BrowserRouter>
+      <BrowserRouter>{children}</BrowserRouter>
     </QueryClientProvider>
   );
 };
@@ -74,7 +72,9 @@ describe('RegisterForm', () => {
     const form = screen.getByTestId('register-form');
     fireEvent.submit(form);
 
-    await waitFor(() => expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()
+    );
   });
 
   it('validates password strength', async () => {
@@ -92,7 +92,9 @@ describe('RegisterForm', () => {
     const form = screen.getByTestId('register-form');
     fireEvent.submit(form);
 
-    await waitFor(() => expect(screen.getByText('Password must be at least 8 characters long')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Password must be at least 8 characters long')).toBeInTheDocument()
+    );
   });
 
   it('validates password character classes', async () => {
@@ -110,7 +112,13 @@ describe('RegisterForm', () => {
     const form = screen.getByTestId('register-form');
     fireEvent.submit(form);
 
-    await waitFor(() => expect(screen.getByText('Password must contain at least 3 of the following: lowercase letter, uppercase letter, digit, symbol')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          'Password must contain at least 3 of the following: lowercase letter, uppercase letter, digit, symbol'
+        )
+      ).toBeInTheDocument()
+    );
   });
 
   it('validates password does not contain name', async () => {
@@ -128,7 +136,9 @@ describe('RegisterForm', () => {
     const form = screen.getByTestId('register-form');
     fireEvent.submit(form);
 
-    await waitFor(() => expect(screen.getByText('Password must not contain your name')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Password must not contain your name')).toBeInTheDocument()
+    );
   });
 
   it('validates password does not contain email local part', async () => {
@@ -164,11 +174,14 @@ describe('RegisterForm', () => {
     const submitButton = screen.getByRole('button', { name: /register/i });
     await user.click(submitButton);
 
-    expect(mockMutate).toHaveBeenCalledWith({
-      email: 'john@example.com',
-      password: 'Password123!',
-      name: 'John Doe',
-    }, expect.any(Object));
+    expect(mockMutate).toHaveBeenCalledWith(
+      {
+        email: 'john@example.com',
+        password: 'Password123!',
+        name: 'John Doe',
+      },
+      expect.any(Object)
+    );
   });
 
   it('toggles password visibility', async () => {

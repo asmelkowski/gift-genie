@@ -32,16 +32,15 @@ export function RegisterForm() {
     setFormState(prev => ({ ...prev, ...updates }));
   };
 
-  const handleInputChange = (field: keyof RegisterFormState) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    updateFormState({ [field]: value });
-    // Clear error for this field when user starts typing
-    if (formState.errors[field]) {
-      updateFormState({ errors: { ...formState.errors, [field]: '' } });
-    }
-  };
+  const handleInputChange =
+    (field: keyof RegisterFormState) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      updateFormState({ [field]: value });
+      // Clear error for this field when user starts typing
+      if (formState.errors[field]) {
+        updateFormState({ errors: { ...formState.errors, [field]: '' } });
+      }
+    };
 
   const handlePasswordToggle = () => {
     updateFormState({ showPassword: !formState.showPassword });
@@ -79,7 +78,9 @@ export function RegisterForm() {
     const hasDigit = /\d/.test(password);
     const hasSymbol = /[^\w\s]/.test(password);
 
-    const characterClasses = [hasLowercase, hasUppercase, hasDigit, hasSymbol].filter(Boolean).length;
+    const characterClasses = [hasLowercase, hasUppercase, hasDigit, hasSymbol].filter(
+      Boolean
+    ).length;
     if (characterClasses < 3) {
       return 'Password must contain at least 3 of the following: lowercase letter, uppercase letter, digit, symbol';
     }
@@ -112,7 +113,8 @@ export function RegisterForm() {
     return Object.keys(errors).length === 0;
   };
 
-  const isFormValid = formState.name.trim() !== '' || formState.email.trim() !== '' || formState.password !== '';
+  const isFormValid =
+    formState.name.trim() !== '' || formState.email.trim() !== '' || formState.password !== '';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,21 +132,25 @@ export function RegisterForm() {
               updateFormState({ errors: { email: 'Email already in use' } });
             } else if (status === 400) {
               // Parse field-specific errors from response
-              const responseData = error.response?.data as { detail?: { loc: string[]; msg: string }[] };
+              const responseData = error.response?.data as {
+                detail?: { loc: string[]; msg: string }[];
+              };
               if (responseData?.detail) {
                 const fieldErrors: Record<string, string> = {};
                 responseData.detail.forEach((detail: { loc: string[]; msg: string }) => {
-                   if (detail.loc && detail.loc.length > 1) {
-                     const field = detail.loc[1];
-                     fieldErrors[field] = detail.msg;
-                   }
-                 });
+                  if (detail.loc && detail.loc.length > 1) {
+                    const field = detail.loc[1];
+                    fieldErrors[field] = detail.msg;
+                  }
+                });
                 updateFormState({ errors: fieldErrors });
               } else {
                 updateFormState({ errors: { general: 'Invalid registration data' } });
               }
             } else {
-              updateFormState({ errors: { general: 'An unexpected error occurred. Please try again later.' } });
+              updateFormState({
+                errors: { general: 'An unexpected error occurred. Please try again later.' },
+              });
             }
           },
         }

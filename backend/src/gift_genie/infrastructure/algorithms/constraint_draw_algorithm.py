@@ -67,12 +67,12 @@ class ConstraintDrawAlgorithm(DrawAlgorithm):
         if self._backtrack(ordered_givers, constraints, assignment, used_receivers, 0):
             return assignment
         else:
-            raise DrawImpossibleError("No valid assignment configuration possible with current constraints")
+            raise DrawImpossibleError(
+                "No valid assignment configuration possible with current constraints"
+            )
 
     def _build_constraints(
-        self,
-        member_ids: List[str],
-        exclusions: Set[Tuple[str, str]]
+        self, member_ids: List[str], exclusions: Set[Tuple[str, str]]
     ) -> Dict[str, Set[str]]:
         """Build constraint graph: giver -> set of valid receivers."""
         constraints = {}
@@ -92,7 +92,7 @@ class ConstraintDrawAlgorithm(DrawAlgorithm):
         constraints: Dict[str, Set[str]],
         assignment: Dict[str, str],
         used_receivers: Set[str],
-        index: int
+        index: int,
     ) -> bool:
         """Recursive backtracking to find valid assignment.
 

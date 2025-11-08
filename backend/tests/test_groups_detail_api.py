@@ -23,12 +23,7 @@ class InMemoryGroupRepo(GroupRepository):
         return group
 
     async def list_by_admin_user(
-        self,
-        user_id: str,
-        search: str | None,
-        page: int,
-        page_size: int,
-        sort: str
+        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
     ) -> tuple[list[Group], int]:
         groups = [g for g in self._groups.values() if g.admin_user_id == user_id]
         if search:
@@ -99,6 +94,7 @@ async def test_get_group_details_unauthorized(client: AsyncClient):
     # Override to raise unauthorized
     async def unauthorized():
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
+
     app.dependency_overrides[groups_router.get_current_user] = unauthorized
 
     resp = await client.get("/api/v1/groups/some-id")

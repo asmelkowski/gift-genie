@@ -14,9 +14,7 @@ export const useDeleteExclusionMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (exclusionId: string) => {
-      await api.delete(
-        `/api/v1/groups/${groupId}/exclusions/${exclusionId}`
-      );
+      await api.delete(`/api/v1/groups/${groupId}/exclusions/${exclusionId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exclusions', groupId] });

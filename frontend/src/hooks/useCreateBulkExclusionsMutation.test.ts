@@ -10,8 +10,7 @@ import type { components } from '@/types/schema';
 vi.mock('@/lib/api');
 vi.mock('react-hot-toast');
 
-type CreateExclusionsBulkResponse =
-  components['schemas']['CreateExclusionsBulkResponse'];
+type CreateExclusionsBulkResponse = components['schemas']['CreateExclusionsBulkResponse'];
 
 describe('useCreateBulkExclusionsMutation', () => {
   let queryClient: QueryClient;
@@ -23,24 +22,25 @@ describe('useCreateBulkExclusionsMutation', () => {
 
   it('calls API with correct endpoint', async () => {
     const mockData: CreateExclusionsBulkResponse = {
-      created: [{
-        id: '1',
-        group_id: 'group-1',
-        giver_member_id: 'm1',
-        receiver_member_id: 'm2',
-        exclusion_type: 'unidirectional',
-        is_mutual: false,
-        created_at: '2024-01-01T00:00:00Z',
-        created_by_user_id: 'user-1',
-      }],
+      created: [
+        {
+          id: '1',
+          group_id: 'group-1',
+          giver_member_id: 'm1',
+          receiver_member_id: 'm2',
+          exclusion_type: 'unidirectional',
+          is_mutual: false,
+          created_at: '2024-01-01T00:00:00Z',
+          created_by_user_id: 'user-1',
+        },
+      ],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateBulkExclusionsMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useCreateBulkExclusionsMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     const requestData = {
       items: [{ giver_member_id: 'm1', receiver_member_id: 'm2', is_mutual: false }],
@@ -49,10 +49,7 @@ describe('useCreateBulkExclusionsMutation', () => {
     result.current.mutate(requestData);
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/groups/group-1/exclusions/bulk',
-      requestData
-    );
+    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions/bulk', requestData);
   });
 
   it('shows success toast with count', async () => {
@@ -83,10 +80,9 @@ describe('useCreateBulkExclusionsMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateBulkExclusionsMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useCreateBulkExclusionsMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       items: [{ giver_member_id: 'm1', receiver_member_id: 'm2', is_mutual: false }],
@@ -101,10 +97,9 @@ describe('useCreateBulkExclusionsMutation', () => {
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useCreateBulkExclusionsMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useCreateBulkExclusionsMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ items: [] });
 
@@ -119,17 +114,14 @@ describe('useCreateBulkExclusionsMutation', () => {
       response: {
         data: {
           code: 'conflicts_present',
-          details: [
-            { giver_member_id: 'm1', receiver_member_id: 'm2', reason: 'exists' },
-          ],
+          details: [{ giver_member_id: 'm1', receiver_member_id: 'm2', reason: 'exists' }],
         },
       },
     });
 
-    const { result } = renderHook(
-      () => useCreateBulkExclusionsMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useCreateBulkExclusionsMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ items: [] });
 

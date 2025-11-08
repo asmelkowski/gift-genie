@@ -37,18 +37,14 @@ describe('useFinalizeDrawMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useFinalizeDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useFinalizeDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/draws/draw-1/finalize',
-      {}
-    );
+    expect(api.post).toHaveBeenCalledWith('/api/v1/draws/draw-1/finalize', {});
   });
 
   it('invalidates draws query on success', async () => {
@@ -65,10 +61,9 @@ describe('useFinalizeDrawMutation', () => {
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useFinalizeDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useFinalizeDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -91,10 +86,9 @@ describe('useFinalizeDrawMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useFinalizeDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useFinalizeDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -115,10 +109,9 @@ describe('useFinalizeDrawMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useFinalizeDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useFinalizeDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -131,10 +124,9 @@ describe('useFinalizeDrawMutation', () => {
       response: { data: { detail: 'Draw already finalized' } },
     });
 
-    const { result } = renderHook(
-      () => useFinalizeDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useFinalizeDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 

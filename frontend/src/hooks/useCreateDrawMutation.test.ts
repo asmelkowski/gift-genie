@@ -120,9 +120,7 @@ describe('useCreateDrawMutation', () => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect(toast.error).toHaveBeenCalledWith(
-      'Group must have at least 2 members'
-    );
+    expect(toast.error).toHaveBeenCalledWith('Group must have at least 2 members');
   });
 
   it('returns draw data on success', async () => {

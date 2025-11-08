@@ -37,14 +37,11 @@ export default function NotifyDrawDialog({
                 id="resend"
                 type="checkbox"
                 checked={resend}
-                onChange={(e) => setResend(e.target.checked)}
+                onChange={e => setResend(e.target.checked)}
                 disabled={isLoading}
                 className="mt-1"
               />
-              <Label
-                htmlFor="resend"
-                className="text-sm text-gray-700 cursor-pointer"
-              >
+              <Label htmlFor="resend" className="text-sm text-gray-700 cursor-pointer">
                 Resend to all members (notifications were previously sent)
               </Label>
             </div>
@@ -52,11 +49,7 @@ export default function NotifyDrawDialog({
         )}
 
         <div className="flex gap-3 justify-end pt-4">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
           <Button

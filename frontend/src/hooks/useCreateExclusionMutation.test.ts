@@ -40,12 +40,9 @@ describe('useCreateExclusionMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     const exclusionData: CreateExclusionRequest = {
       giver_member_id: 'member-1',
@@ -59,10 +56,7 @@ describe('useCreateExclusionMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/groups/group-1/exclusions',
-      exclusionData
-    );
+    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions', exclusionData);
   });
 
   it('invalidates exclusions query on success', async () => {
@@ -85,12 +79,9 @@ describe('useCreateExclusionMutation', () => {
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',
@@ -126,12 +117,9 @@ describe('useCreateExclusionMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',
@@ -155,12 +143,9 @@ describe('useCreateExclusionMutation', () => {
 
     vi.mocked(api.post).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',
@@ -194,12 +179,9 @@ describe('useCreateExclusionMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',

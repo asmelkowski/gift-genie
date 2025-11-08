@@ -97,12 +97,9 @@ describe('useMembersQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useMembersQuery('group-1', {}),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useMembersQuery('group-1', {}), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -124,12 +121,9 @@ describe('useMembersQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    renderHook(
-      () => useMembersQuery('group-1', { is_active: false }),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    renderHook(() => useMembersQuery('group-1', { is_active: false }), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/members', {
@@ -173,12 +167,9 @@ describe('useMembersQuery', () => {
   it('handles API errors correctly', async () => {
     vi.mocked(api.get).mockRejectedValue(new Error('API Error'));
 
-    const { result } = renderHook(
-      () => useMembersQuery('group-1', {}),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useMembersQuery('group-1', {}), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);

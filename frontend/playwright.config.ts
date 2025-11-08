@@ -46,19 +46,28 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
-        launchOptions: process.env.CI ? {
-          args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-software-rasterizer']
-        } : undefined
+        launchOptions: process.env.CI
+          ? {
+              args: [
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-software-rasterizer',
+              ],
+            }
+          : undefined,
       },
     },
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: process.env.CI ? undefined : {
-    command: 'bun run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-  },
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: 'bun run dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: true,
+      },
 });

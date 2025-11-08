@@ -10,7 +10,7 @@ In this session, we successfully completed **Phase 2: Core Features** with **129
 1. **GroupsGrid.test.tsx** (5 tests)
    - Empty state, multiple cards, click handlers, responsive layout
 
-2. **MembersGrid.test.tsx** (5 tests)  
+2. **MembersGrid.test.tsx** (5 tests)
    - Empty state, card rendering, edit/delete callbacks, layout
 
 3. **DrawsGrid.test.tsx** (6 tests)
@@ -60,6 +60,6 @@ In this session, we successfully completed **Phase 2: Core Features** with **129
 
 ## Next Priority: Phase 3
 - AssignmentsTable (6 tests)
-- Dialog components (11 tests)  
+- Dialog components (11 tests)
 - Layout components (17 tests)
 - Custom hooks (19 tests)

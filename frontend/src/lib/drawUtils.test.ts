@@ -46,13 +46,9 @@ describe('drawUtils', () => {
     });
 
     it('handles different time formats', () => {
-      const timestamps = [
-        '2024-01-01T00:00:00Z',
-        '2024-06-15T12:30:00Z',
-        '2024-12-25T23:59:59Z',
-      ];
+      const timestamps = ['2024-01-01T00:00:00Z', '2024-06-15T12:30:00Z', '2024-12-25T23:59:59Z'];
 
-      timestamps.forEach((ts) => {
+      timestamps.forEach(ts => {
         const result = formatDrawTimestamp(ts);
         expect(result).toBeTruthy();
         expect(typeof result).toBe('string');
@@ -217,8 +213,12 @@ describe('drawUtils', () => {
       } as unknown as HTMLElement;
 
       vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
-      mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as Node);
-      mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as Node);
+      mockAppendChild = vi
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockLink as Node);
+      mockRemoveChild = vi
+        .spyOn(document.body, 'removeChild')
+        .mockImplementation(() => mockLink as Node);
       vi.stubGlobal('URL', {
         createObjectURL: vi.fn(() => 'blob:mock-url'),
       });
@@ -331,7 +331,9 @@ describe('drawUtils', () => {
 
       await copyToClipboard(assignments, 'My Group');
 
-      expect(mockWriteText).toHaveBeenCalledWith(expect.stringContaining('Draw Results - My Group'));
+      expect(mockWriteText).toHaveBeenCalledWith(
+        expect.stringContaining('Draw Results - My Group')
+      );
     });
 
     it('formats clipboard text correctly with multiple assignments', async () => {

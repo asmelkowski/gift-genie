@@ -8,9 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from gift_genie.domain.entities.enums import ExclusionType
 from gift_genie.domain.entities.exclusion import Exclusion
 from gift_genie.infrastructure.database.models.base import Base
-from gift_genie.infrastructure.database.models.exclusion import ExclusionModel
-from gift_genie.infrastructure.database.models.group import GroupModel
-from gift_genie.infrastructure.database.models.member import MemberModel
 from gift_genie.infrastructure.database.repositories.exclusions import (
     ExclusionRepositorySqlAlchemy,
 )
@@ -293,7 +290,9 @@ async def test_list_by_group_with_filters(session: AsyncSession):
     receiver_id = _make_member(group_id)
 
     manual_exclusion = _make_exclusion(group_id, giver_id, receiver_id, ExclusionType.MANUAL)
-    historical_exclusion = _make_exclusion(group_id, receiver_id, giver_id, ExclusionType.HISTORICAL)
+    historical_exclusion = _make_exclusion(
+        group_id, receiver_id, giver_id, ExclusionType.HISTORICAL
+    )
     await repo.create(manual_exclusion)
     await repo.create(historical_exclusion)
 

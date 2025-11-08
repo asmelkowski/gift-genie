@@ -9,7 +9,7 @@ jobs:
   build-images:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -106,7 +106,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     needs: build-images
-    
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -147,7 +147,7 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     needs: [build-images, lint]
-    
+
     services:
       postgres:
         image: postgres:16
@@ -162,7 +162,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7-alpine
         options: >-
@@ -205,18 +205,18 @@ jobs:
             -e ALGORITHM=HS256 \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
             gift-genie-backend:test
-          
+
           # Get the exit code from the container
           EXIT_CODE=$(docker inspect backend-test-container --format='{{.State.ExitCode}}')
-          
+
           # Copy coverage results from container
           mkdir -p ./backend
           docker cp backend-test-container:/app/coverage.xml \
             ./backend/coverage.xml 2>/dev/null || true
-          
+
           # Clean up container
           docker rm -f backend-test-container 2>/dev/null || true
-          
+
           # Exit with the original test exit code
           exit $EXIT_CODE
 
@@ -247,18 +247,18 @@ jobs:
           docker run --name frontend-test-container \
             -e CI=true \
             gift-genie-frontend:test
-          
+
           # Get the exit code from the container
           EXIT_CODE=$(docker inspect frontend-test-container --format='{{.State.ExitCode}}')
-          
+
           # Copy coverage results from container
           mkdir -p ./frontend/coverage
           docker cp frontend-test-container:/app/coverage/coverage-final.json \
             ./frontend/coverage/coverage-final.json 2>/dev/null || true
-          
+
           # Clean up container
           docker rm -f frontend-test-container 2>/dev/null || true
-          
+
           # Exit with the original test exit code
           exit $EXIT_CODE
 
@@ -378,7 +378,7 @@ jobs:
           for i in {1..30}; do
             docker exec postgres pg_isready -U postgres && break || sleep 1
           done
-          
+
           echo "Waiting for Redis..."
           for i in {1..30}; do
             docker exec redis redis-cli ping | grep -q PONG && break || sleep 1
@@ -474,7 +474,7 @@ jobs:
             echo "Attempt $i/60: Frontend not ready yet..."
             sleep 1
           done
-          
+
           # Give frontend a bit more time to fully hydrate
           echo "Allowing frontend to fully hydrate..."
           sleep 5
@@ -482,17 +482,17 @@ jobs:
       - name: Verify E2E network connectivity
         run: |
           echo "🔍 Testing network connectivity from E2E container perspective..."
-          
+
           # Test backend connectivity
           echo "Testing backend at http://backend:8000/health..."
           docker run --rm --network gift-genie-test curlimages/curl:latest \
             curl -v --max-time 10 http://backend:8000/health
-          
+
           # Test frontend connectivity
           echo "Testing frontend at http://frontend:5173..."
           docker run --rm --network gift-genie-test curlimages/curl:latest \
             curl -v --max-time 10 http://frontend:5173
-          
+
           echo "✅ Network connectivity verified"
 
       - name: Verify E2E image and dependencies
@@ -500,10 +500,10 @@ jobs:
           echo "🔍 Checking e2e image..."
           docker run --rm gift-genie-frontend:e2e ls -la /app/playwright.config.ts
           echo "✅ Config found"
-          
+
           docker run --rm gift-genie-frontend:e2e ls -la /app/e2e/
           echo "✅ E2E tests found"
-          
+
           docker run --rm gift-genie-frontend:e2e which bunx
           echo "✅ Bun found"
 
@@ -520,7 +520,7 @@ jobs:
         run: |
           # Create test results directory
           mkdir -p test-results
-          
+
           # Run E2E tests with comprehensive logging and diagnostics
           docker run --name e2e-tests \
             --network gift-genie-test \
@@ -531,28 +531,28 @@ jobs:
             -v $(pwd)/playwright:/app/playwright \
             gift-genie-frontend:e2e \
             npx playwright test --reporter=list,html --trace=on --screenshots=only-on-failure --videos=retain-on-failure
-          
+
           # Get exit code from container
           EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
-          
+
           # Copy test results from container (in case volume mount had issues)
           docker cp e2e-tests:/app/playwright-report ./test-results/ 2>/dev/null || true
           docker cp e2e-tests:/app/playwright ./playwright-results 2>/dev/null || true
           docker cp e2e-tests:/app/coverage ./test-results/ 2>/dev/null || true
           docker cp e2e-tests:/app/test-results ./test-results/container-results 2>/dev/null || true
-          
+
           # Copy screenshots from all possible locations
           echo "📸 Collecting screenshots from container..."
           docker cp e2e-tests:/app/playwright-report ./test-results/playwright-report-copy 2>/dev/null || true
           docker cp e2e-tests:/app/playwright/screenshots ./test-results/screenshots-from-container 2>/dev/null || true
           docker cp e2e-tests:/app/test-results/screenshots ./test-results/screenshots-from-test-results 2>/dev/null || true
-          
+
           # Copy any screenshots from playwright root directory
           docker cp e2e-tests:/app/playwright/*.png ./test-results/screenshots/ 2>/dev/null || true
-          
+
           # Clean up container
           docker rm -f e2e-tests 2>/dev/null || true
-          
+
           # Exit with the original test exit code
           exit $EXIT_CODE
 
@@ -575,22 +575,22 @@ jobs:
         if: failure()
         run: |
           echo "🔍 Collecting E2E diagnostics..."
-          
+
           # Collect container logs
           docker logs frontend > test-results/frontend-logs.txt 2>&1 || true
           docker logs e2e-tests > test-results/e2e-tests-logs.txt 2>&1 || true
           docker logs backend > test-results/backend-logs.txt 2>&1 || true
           docker logs postgres > test-results/postgres-logs.txt 2>&1 || true
           docker logs redis > test-results/redis-logs.txt 2>&1 || true
-          
+
           # Collect container inspection
           docker inspect frontend > test-results/frontend-inspect.json 2>&1 || true
           docker inspect backend > test-results/backend-inspect.json 2>&1 || true
-          
+
           # Explicitly collect screenshots for diagnostics
           echo "📸 Collecting screenshots for diagnostics..."
           mkdir -p test-results/diagnostics-screenshots
-          
+
           # Copy screenshots from all possible locations to diagnostics
           cp -r test-results/screenshots/* test-results/diagnostics-screenshots/ 2>/dev/null || true
           cp -r test-results/playwright-report-copy/* test-results/diagnostics-screenshots/ 2>/dev/null || true
@@ -598,23 +598,23 @@ jobs:
           cp -r test-results/screenshots-from-test-results/* test-results/diagnostics-screenshots/ 2>/dev/null || true
           cp -r playwright-results/screenshots/* test-results/diagnostics-screenshots/ 2>/dev/null || true
           cp playwright/*.png test-results/diagnostics-screenshots/ 2>/dev/null || true
-          
+
           # Create screenshot inventory
           echo "📋 Screenshot inventory:" > test-results/screenshot-inventory.txt
           find test-results/diagnostics-screenshots -name "*.png" -type f 2>/dev/null | while read file; do
             echo "Found screenshot: $file" >> test-results/screenshot-inventory.txt
             ls -la "$file" >> test-results/screenshot-inventory.txt
           done
-          
+
           # Test network connectivity
           echo "Testing network connectivity..." > test-results/network-test.txt
           docker run --rm --network gift-genie-test curl -s -o /dev/null -w "%{http_code}" http://backend:8000/health >> test-results/network-test.txt 2>/dev/null || echo "Backend unreachable" >> test-results/network-test.txt
           docker run --rm --network gift-genie-test curl -s -o /dev/null -w "%{http_code}" http://frontend:5173 >> test-results/network-test.txt 2>/dev/null || echo "Frontend unreachable" >> test-results/network-test.txt
-          
+
           # List all containers and networks
           docker ps -a > test-results/docker-ps.txt 2>&1 || true
           docker network ls > test-results/docker-networks.txt 2>/dev/null || true
-          
+
           echo "✅ Diagnostics collected"
 
       - name: Upload E2E test results
@@ -658,7 +658,7 @@ jobs:
     if: always()
     permissions:
       pull-requests: write
-    
+
     steps:
       - name: Check job statuses
         id: check_status
@@ -730,8 +730,8 @@ jobs:
               issue_number: context.issue.number,
             });
 
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
               comment.body.includes('Job Results')
             );
 

@@ -29,9 +29,17 @@ from gift_genie.application.use_cases.notify_draw import NotifyDrawUseCase
 from gift_genie.domain.entities.enums import DrawStatus
 from gift_genie.domain.interfaces.draw_algorithm import DrawAlgorithm
 from gift_genie.domain.interfaces.notification_service import NotificationService
-from gift_genie.domain.interfaces.repositories import AssignmentRepository, DrawRepository, ExclusionRepository, GroupRepository, MemberRepository
+from gift_genie.domain.interfaces.repositories import (
+    AssignmentRepository,
+    DrawRepository,
+    ExclusionRepository,
+    GroupRepository,
+    MemberRepository,
+)
 from gift_genie.infrastructure.algorithms.constraint_draw_algorithm import ConstraintDrawAlgorithm
-from gift_genie.infrastructure.database.repositories.assignments import AssignmentRepositorySqlAlchemy
+from gift_genie.infrastructure.database.repositories.assignments import (
+    AssignmentRepositorySqlAlchemy,
+)
 from gift_genie.infrastructure.database.repositories.draws import DrawRepositorySqlAlchemy
 from gift_genie.infrastructure.database.repositories.exclusions import ExclusionRepositorySqlAlchemy
 
@@ -246,6 +254,7 @@ async def get_list_assignments_use_case(
 
 
 # API Endpoints
+
 
 @router.get("/groups/{group_id}/draws", response_model=PaginatedDrawsResponse)
 @handle_application_exceptions

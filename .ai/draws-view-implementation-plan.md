@@ -115,7 +115,7 @@ DrawResultsPage (page component)
 - **Handled interactions**:
   - Create draw button click
 - **Handled validation**: None
-- **Types**: 
+- **Types**:
   - `onCreateClick: () => void`
   - `groupId: string`
 - **Props**:
@@ -549,7 +549,7 @@ const useDrawsQuery = (params: DrawsQueryParams) => {
     queryFn: async () => {
       const response = await api.get<PaginatedDrawsResponse>(
         `/api/v1/groups/${params.groupId}/draws`,
-        { params: { 
+        { params: {
           status: params.status,
           page: params.page || 1,
           page_size: params.page_size || 10,
@@ -585,7 +585,7 @@ Purpose: Create a new pending draw
 ```typescript
 const useCreateDrawMutation = (groupId: string) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async () => {
       const response = await api.post<DrawResponse>(
@@ -611,7 +611,7 @@ Purpose: Execute draw algorithm
 ```typescript
 const useExecuteDrawMutation = (groupId: string) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (drawId: string) => {
       const response = await api.post<ExecuteDrawResponse>(
@@ -643,7 +643,7 @@ Purpose: Finalize a draw (immutable)
 const useFinalizeDrawMutation = (groupId: string) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  
+
   return useMutation({
     mutationFn: async (drawId: string) => {
       const response = await api.post<DrawResponse>(
@@ -655,10 +655,10 @@ const useFinalizeDrawMutation = (groupId: string) => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['draws', groupId] });
       queryClient.setQueryData(['draw', data.id], data);
-      
+
       // Set flag for confetti on results page
       sessionStorage.setItem(`draw-${data.id}-just-finalized`, 'true');
-      
+
       toast.success('Draw finalized successfully!');
       navigate(`/app/draws/${data.id}/results`);
     },
@@ -675,7 +675,7 @@ Purpose: Send email notifications
 ```typescript
 const useNotifyDrawMutation = (groupId: string) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ drawId, resend }: { drawId: string; resend: boolean }) => {
       const response = await api.post<NotifyDrawResponse>(
@@ -702,7 +702,7 @@ Purpose: Delete a pending draw
 ```typescript
 const useDeleteDrawMutation = (groupId: string) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (drawId: string) => {
       await api.delete(`/api/v1/draws/${drawId}`);
@@ -742,17 +742,17 @@ Purpose: Sync draws filter/sort/pagination with URL query params
 ```typescript
 const useDrawsParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const params = useMemo(() => ({
     status: (searchParams.get('status') as 'pending' | 'finalized' | null) || undefined,
     page: parseInt(searchParams.get('page') || '1', 10),
     page_size: parseInt(searchParams.get('page_size') || '10', 10),
     sort: searchParams.get('sort') || '-created_at',
   }), [searchParams]);
-  
+
   const updateParams = useCallback((updates: Partial<typeof params>) => {
     const newParams = new URLSearchParams(searchParams);
-    
+
     Object.entries(updates).forEach(([key, value]) => {
       if (value === undefined || value === null || value === '') {
         newParams.delete(key);
@@ -760,10 +760,10 @@ const useDrawsParams = () => {
         newParams.set(key, String(value));
       }
     });
-    
+
     setSearchParams(newParams);
   }, [searchParams, setSearchParams]);
-  
+
   return { params, updateParams };
 };
 ```
@@ -879,7 +879,7 @@ const useDrawsParams = () => {
 1. User clicks "Execute" button on pending draw card
 2. System shows full-screen loading overlay with message "Executing draw algorithm..."
 3. System POSTs to `/api/v1/draws/{drawId}/execute`
-4. Success: 
+4. Success:
    - Loading overlay dismisses
    - Toast shows "Draw executed! X assignments generated"
    - Draw card updates to show lifecycle at "Executed" step
@@ -987,7 +987,7 @@ const useDrawsParams = () => {
 2. System formats assignments as text:
    ```
    Draw Results - [Group Name]
-   
+
    Alice → Bob
    Bob → Charlie
    Charlie → Alice

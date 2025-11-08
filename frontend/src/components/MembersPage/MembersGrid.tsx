@@ -12,7 +12,7 @@ interface MembersGridProps {
 export function MembersGrid({ members, onMemberEdit, onMemberDelete }: MembersGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {members.map((member) => (
+      {members.map(member => (
         <MemberCard
           key={member.id}
           member={member}

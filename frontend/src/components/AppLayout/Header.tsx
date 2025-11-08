@@ -11,13 +11,8 @@ interface HeaderProps {
   onToggleTheme: () => void;
 }
 
-export function Header({
-  onToggleSidebar,
-  onLogout,
-  theme,
-  onToggleTheme,
-}: HeaderProps) {
-  const user = useAuthStore((state) => state.user);
+export function Header({ onToggleSidebar, onLogout, theme, onToggleTheme }: HeaderProps) {
+  const user = useAuthStore(state => state.user);
   const breadcrumbs = useBreadcrumbs();
 
   const handleLogout = useCallback(() => {

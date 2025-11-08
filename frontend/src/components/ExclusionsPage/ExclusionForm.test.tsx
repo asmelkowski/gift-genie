@@ -27,13 +27,7 @@ const mockMembers: MemberResponse[] = [
 
 describe('ExclusionForm', () => {
   it('renders all form fields', () => {
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={() => {}}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={() => {}} onCancel={() => {}} />);
 
     expect(screen.getByLabelText(/giver member/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/receiver member/i)).toBeInTheDocument();
@@ -41,13 +35,7 @@ describe('ExclusionForm', () => {
   });
 
   it('populates member dropdowns', () => {
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={() => {}}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={() => {}} onCancel={() => {}} />);
 
     const giverSelect = screen.getByLabelText(/giver member/i) as HTMLSelectElement;
     expect(giverSelect.options).toHaveLength(3); // placeholder + 2 members
@@ -57,13 +45,7 @@ describe('ExclusionForm', () => {
 
   it('validates that giver is selected', async () => {
     const user = userEvent.setup();
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={() => {}}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={() => {}} onCancel={() => {}} />);
 
     const receiverSelect = screen.getByLabelText(/receiver member/i);
     await userEvent.selectOptions(receiverSelect, 'member-1');
@@ -78,13 +60,7 @@ describe('ExclusionForm', () => {
 
   it('validates that receiver is selected', async () => {
     const user = userEvent.setup();
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={() => {}}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={() => {}} onCancel={() => {}} />);
 
     const giverSelect = screen.getByLabelText(/giver member/i);
     await userEvent.selectOptions(giverSelect, 'member-1');
@@ -99,13 +75,7 @@ describe('ExclusionForm', () => {
 
   it('prevents self-exclusions', async () => {
     const user = userEvent.setup();
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={() => {}}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={() => {}} onCancel={() => {}} />);
 
     const giverSelect = screen.getByLabelText(/giver member/i);
     const receiverSelect = screen.getByLabelText(/receiver member/i);
@@ -118,22 +88,14 @@ describe('ExclusionForm', () => {
     });
     await user.click(submitButton);
 
-    expect(
-      screen.getByText(/giver and receiver cannot be the same/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/giver and receiver cannot be the same/i)).toBeInTheDocument();
   });
 
   it('submits form with correct data', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={onSubmit}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={onSubmit} onCancel={() => {}} />);
 
     const giverSelect = screen.getByLabelText(/giver member/i);
     const receiverSelect = screen.getByLabelText(/receiver member/i);
@@ -155,13 +117,7 @@ describe('ExclusionForm', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={onSubmit}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={onSubmit} onCancel={() => {}} />);
 
     const giverSelect = screen.getByLabelText(/giver member/i);
     const receiverSelect = screen.getByLabelText(/receiver member/i);
@@ -181,13 +137,7 @@ describe('ExclusionForm', () => {
     const user = userEvent.setup();
     const onCancel = vi.fn();
 
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={() => {}}
-        onCancel={onCancel}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={() => {}} onCancel={onCancel} />);
 
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
@@ -222,13 +172,7 @@ describe('ExclusionForm', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
-    render(
-      <ExclusionForm
-        members={mockMembers}
-        onSubmit={onSubmit}
-        onCancel={() => {}}
-      />
-    );
+    render(<ExclusionForm members={mockMembers} onSubmit={onSubmit} onCancel={() => {}} />);
 
     const submitButton = screen.getByRole('button', {
       name: /create exclusion/i,

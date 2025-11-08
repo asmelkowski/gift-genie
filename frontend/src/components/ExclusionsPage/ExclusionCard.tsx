@@ -112,24 +112,18 @@ export function ExclusionCard({
                   {giverStatusBadge}
                 </div>
                 {giverMember?.email && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    {giverMember.email}
-                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{giverMember.email}</div>
                 )}
               </div>
 
               <div className="text-sm">
                 <div className="text-gray-600 font-medium mb-1">To:</div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">
-                    {receiverName}
-                  </span>
+                  <span className="font-medium text-gray-900">{receiverName}</span>
                   {receiverStatusBadge}
                 </div>
                 {receiverMember?.email && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    {receiverMember.email}
-                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{receiverMember.email}</div>
                 )}
               </div>
 

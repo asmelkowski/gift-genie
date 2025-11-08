@@ -19,15 +19,21 @@ export function PageHeader({ groupName, groupId, onAddClick }: PageHeaderProps) 
         >
           Groups
         </button>
-        <span className="text-gray-400" aria-hidden="true">/</span>
+        <span className="text-gray-400" aria-hidden="true">
+          /
+        </span>
         <button
           onClick={() => navigate(`/app/groups/${groupId}`)}
           className="text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
         >
           {groupName}
         </button>
-        <span className="text-gray-400" aria-hidden="true">/</span>
-        <span className="text-gray-600" aria-current="page">Members</span>
+        <span className="text-gray-400" aria-hidden="true">
+          /
+        </span>
+        <span className="text-gray-600" aria-current="page">
+          Members
+        </span>
       </nav>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>

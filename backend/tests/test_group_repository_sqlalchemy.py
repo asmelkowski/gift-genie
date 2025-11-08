@@ -8,7 +8,6 @@ from uuid import UUID
 
 from gift_genie.domain.entities.group import Group
 from gift_genie.infrastructure.database.models.base import Base
-from gift_genie.infrastructure.database.models.group import GroupModel
 from gift_genie.infrastructure.database.models.member import MemberModel
 from gift_genie.infrastructure.database.repositories.groups import (
     GroupRepositorySqlAlchemy,

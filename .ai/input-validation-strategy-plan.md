@@ -16,22 +16,22 @@ Establish clear, consistent input validation throughout the application followin
 
 ## Architecture Principles
 
-1. **Presentation layer**: 
+1. **Presentation layer**:
    - Validates all input format/structure (types, formats, ranges)
    - Returns 400/422 for invalid input format
    - Converts external formats to domain types
 
-2. **Application layer**: 
+2. **Application layer**:
    - Validates business rules (e.g., "user can only access their own groups")
    - Returns 403 for authorization failures, 404 for not found, 409 for conflicts
    - Assumes inputs are well-formed
 
-3. **Domain layer**: 
+3. **Domain layer**:
    - Encapsulates business rules in entities
    - May raise domain exceptions for invariant violations
    - Uses simple, serialization-friendly types
 
-4. **Infrastructure layer**: 
+4. **Infrastructure layer**:
    - No validation - trusts application layer
    - Handles technical conversions only
 
@@ -171,7 +171,7 @@ class ConflictError(ApplicationError):
    ```python
    from uuid import UUID
    from fastapi import Path
-   
+
    @router.get("/groups/{group_id}")
    async def get_group(
        group_id: UUID = Path(..., description="Group UUID"),
@@ -185,7 +185,7 @@ class ConflictError(ApplicationError):
    ```python
    from typing import Annotated
    from fastapi import Query
-   
+
    @router.get("/groups")
    async def list_groups(
        limit: Annotated[int, Query(ge=1, le=100)] = 10,
@@ -198,11 +198,11 @@ class ConflictError(ApplicationError):
 3. **Request bodies (DTOs):**
    ```python
    from pydantic import BaseModel, Field, field_validator
-   
+
    class CreateGroupRequest(BaseModel):
        name: str = Field(..., min_length=1, max_length=100)
        description: str | None = Field(None, max_length=500)
-       
+
        @field_validator('name')
        @classmethod
        def name_not_empty(cls, v: str) -> str:
@@ -219,7 +219,7 @@ class ConflictError(ApplicationError):
        ValidationError,
        ConflictError
    )
-   
+
    @router.post("/groups")
    async def create_group(request: CreateGroupRequest, ...):
        try:
@@ -249,17 +249,17 @@ class ConflictError(ApplicationError):
 1. **Business rule validation:**
    ```python
    from gift_genie.application.errors import ValidationError, AuthorizationError
-   
+
    async def create_exclusion(command: CreateExclusionCommand) -> Exclusion:
        # Check authorization
        group = await group_repo.get_by_id(command.group_id)
        if not group or group.created_by != command.user_id:
            raise AuthorizationError("Cannot modify this group")
-       
+
        # Check business rules
        if command.excluder_id == command.excluded_id:
            raise ValidationError("Member cannot exclude themselves")
-       
+
        # Check existence
        excluder = await member_repo.get_by_id(command.excluder_id)
        if not excluder:
@@ -306,16 +306,16 @@ class ConflictError(ApplicationError):
    async def test_invalid_uuid_returns_422(client):
        response = await client.get("/api/v1/groups/not-a-uuid")
        assert response.status_code == 422
-   
+
    async def test_empty_group_name_returns_422(client):
        response = await client.post("/api/v1/groups", json={"name": ""})
        assert response.status_code == 422
-   
+
    # Test business validation (403, 404, 409)
    async def test_unauthorized_access_returns_403(client):
        # Try to access another user's group
        assert response.status_code == 403
-   
+
    async def test_nonexistent_resource_returns_404(client):
        valid_uuid = str(uuid4())
        response = await client.get(f"/api/v1/groups/{valid_uuid}")
@@ -339,20 +339,20 @@ class ConflictError(ApplicationError):
 1. **`.ai/rules/api-docs.md`:**
    ```markdown
    ## Input Validation
-   
+
    ### Format Validation (Presentation Layer)
    - All format validation happens at API endpoints
    - FastAPI validates types, UUIDs, ranges automatically
    - Invalid format returns 422 with detailed error messages
    - Use Pydantic validators for complex validation
-   
+
    ### Business Validation (Application Layer)
    - Business rules validated in use cases
    - Authorization: 403 Forbidden
    - Not found: 404 Not Found
    - Conflicts: 409 Conflict
    - Invalid state: 422 Unprocessable Entity
-   
+
    ### Examples
    [Add examples]
    ```
@@ -360,25 +360,25 @@ class ConflictError(ApplicationError):
 2. **`.ai/rules/architecture.md`:**
    ```markdown
    ## Validation Responsibilities
-   
+
    ### Presentation Layer
    - Format/structure validation
    - Type checking
    - Range validation
    - Pattern matching
    Returns: 400/422 for invalid input
-   
+
    ### Application Layer
    - Business rule validation
    - Authorization checks
    - State validation
    Returns: 403/404/409/422 via custom exceptions
-   
+
    ### Domain Layer
    - Entity invariants
    - Core business rules
    Raises: Domain exceptions
-   
+
    ### Infrastructure Layer
    - No validation
    - Technical conversions only

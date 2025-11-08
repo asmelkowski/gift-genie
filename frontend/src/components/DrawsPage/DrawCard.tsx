@@ -70,42 +70,25 @@ export default function DrawCard({
 
       <div className="flex flex-wrap gap-2 mt-4">
         {draw.canExecute && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleExecute}
-            disabled={isLoading}
-          >
+          <Button size="sm" variant="outline" onClick={handleExecute} disabled={isLoading}>
             <Zap className="w-4 h-4 mr-2" />
             Execute
           </Button>
         )}
         {draw.canFinalize && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onFinalize(draw)}
-          >
+          <Button size="sm" variant="outline" onClick={() => onFinalize(draw)}>
             <CheckCircle className="w-4 h-4 mr-2" />
             Finalize
           </Button>
         )}
         {draw.canNotify && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onNotify(draw)}
-          >
+          <Button size="sm" variant="outline" onClick={() => onNotify(draw)}>
             <Mail className="w-4 h-4 mr-2" />
             Notify
           </Button>
         )}
         {draw.canViewResults && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleViewResults}
-          >
+          <Button size="sm" variant="outline" onClick={handleViewResults}>
             View Results
           </Button>
         )}
@@ -147,18 +130,14 @@ function DrawLifecycleStepper({ draw }: { draw: DrawViewModel }) {
         <div key={idx} className="flex items-center flex-1">
           <div
             className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${
-              step.completed
-                ? 'bg-green-100 text-green-700'
-                : 'bg-gray-200 text-gray-600'
+              step.completed ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'
             }`}
           >
             {step.completed ? '✓' : idx + 1}
           </div>
           {idx < steps.length - 1 && (
             <div
-              className={`flex-1 h-0.5 mx-1 ${
-                step.completed ? 'bg-green-200' : 'bg-gray-200'
-              }`}
+              className={`flex-1 h-0.5 mx-1 ${step.completed ? 'bg-green-200' : 'bg-gray-200'}`}
             />
           )}
         </div>
