@@ -7,22 +7,36 @@ export default defineConfig({
   testDir: './e2e',
   /* Output directory for all test artifacts */
   outputDir: 'test-results/',
-  /* Run tests in files in parallel */
-  fullyParallel: process.env.CI ? false : true,
+
+  /**
+   * Test Ordering Strategy:
+   * - Tests run in filename order to ensure proper setup sequence
+   * - 01-auth-setup.spec.ts always runs first to establish authentication state
+   * - Other tests run in alphabetical order after setup
+   * - In CI: tests run serially (workers: 1) for reliability
+   * - Locally: tests run serially (workers: 1) to ensure auth setup completes first
+   */
+  /* Run tests in files in parallel but maintain filename order */
+  fullyParallel: false, // Changed to false to ensure proper ordering
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Use single worker for both CI and local to ensure proper test ordering */
+  workers: 1, // Changed to 1 for both CI and local
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? 'list' : 'html',
   /* Global setup to run before all tests */
   globalSetup: './e2e/global-setup.ts',
   /* Timeout for global setup */
   globalTimeout: process.env.CI ? 180000 : 120000,
+
+  /* Test ordering configuration - ensures tests run in filename order */
+  testOrder: 'filename',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    /* Test grep pattern - include all .spec.ts files in e2e directory */
+    testMatch: '**/*.spec.ts',
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.CI ? 'http://frontend:5173' : 'http://localhost:5173',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
