@@ -511,6 +511,8 @@ jobs:
         run: |
           mkdir -p playwright/.auth
           mkdir -p playwright/screenshots
+          mkdir -p playwright/screenshots/test-results
+          mkdir -p test-results/screenshots
           echo "✅ Playwright directories created"
 
       - name: Run E2E tests
@@ -528,7 +530,7 @@ jobs:
             -v $(pwd)/test-results:/app/test-results \
             -v $(pwd)/playwright:/app/playwright \
             gift-genie-frontend:e2e \
-            npx playwright test --reporter=list,html --trace=on
+            npx playwright test --reporter=list,html --trace=on --screenshots=only-on-failure --videos=retain-on-failure
           
           # Get exit code from container
           EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
@@ -539,11 +541,35 @@ jobs:
           docker cp e2e-tests:/app/coverage ./test-results/ 2>/dev/null || true
           docker cp e2e-tests:/app/test-results ./test-results/container-results 2>/dev/null || true
           
+          # Copy screenshots from all possible locations
+          echo "📸 Collecting screenshots from container..."
+          docker cp e2e-tests:/app/playwright-report ./test-results/playwright-report-copy 2>/dev/null || true
+          docker cp e2e-tests:/app/playwright/screenshots ./test-results/screenshots-from-container 2>/dev/null || true
+          docker cp e2e-tests:/app/test-results/screenshots ./test-results/screenshots-from-test-results 2>/dev/null || true
+          
+          # Copy any screenshots from playwright root directory
+          docker cp e2e-tests:/app/playwright/*.png ./test-results/screenshots/ 2>/dev/null || true
+          
           # Clean up container
           docker rm -f e2e-tests 2>/dev/null || true
           
           # Exit with the original test exit code
           exit $EXIT_CODE
+
+      - name: Upload E2E screenshots
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: e2e-screenshots
+          path: |
+            test-results/screenshots/
+            test-results/playwright-report-copy/
+            test-results/screenshots-from-container/
+            test-results/screenshots-from-test-results/
+            playwright-results/screenshots/
+            playwright/*.png
+          retention-days: 14
+          if-no-files-found: warn
 
       - name: Collect E2E diagnostics (on failure)
         if: failure()
@@ -561,6 +587,25 @@ jobs:
           docker inspect frontend > test-results/frontend-inspect.json 2>&1 || true
           docker inspect backend > test-results/backend-inspect.json 2>&1 || true
           
+          # Explicitly collect screenshots for diagnostics
+          echo "📸 Collecting screenshots for diagnostics..."
+          mkdir -p test-results/diagnostics-screenshots
+          
+          # Copy screenshots from all possible locations to diagnostics
+          cp -r test-results/screenshots/* test-results/diagnostics-screenshots/ 2>/dev/null || true
+          cp -r test-results/playwright-report-copy/* test-results/diagnostics-screenshots/ 2>/dev/null || true
+          cp -r test-results/screenshots-from-container/* test-results/diagnostics-screenshots/ 2>/dev/null || true
+          cp -r test-results/screenshots-from-test-results/* test-results/diagnostics-screenshots/ 2>/dev/null || true
+          cp -r playwright-results/screenshots/* test-results/diagnostics-screenshots/ 2>/dev/null || true
+          cp playwright/*.png test-results/diagnostics-screenshots/ 2>/dev/null || true
+          
+          # Create screenshot inventory
+          echo "📋 Screenshot inventory:" > test-results/screenshot-inventory.txt
+          find test-results/diagnostics-screenshots -name "*.png" -type f 2>/dev/null | while read file; do
+            echo "Found screenshot: $file" >> test-results/screenshot-inventory.txt
+            ls -la "$file" >> test-results/screenshot-inventory.txt
+          done
+          
           # Test network connectivity
           echo "Testing network connectivity..." > test-results/network-test.txt
           docker run --rm --network gift-genie-test curl -s -o /dev/null -w "%{http_code}" http://backend:8000/health >> test-results/network-test.txt 2>/dev/null || echo "Backend unreachable" >> test-results/network-test.txt
@@ -568,7 +613,7 @@ jobs:
           
           # List all containers and networks
           docker ps -a > test-results/docker-ps.txt 2>&1 || true
-          docker network ls > test-results/docker-networks.txt 2>&1 || true
+          docker network ls > test-results/docker-networks.txt 2>/dev/null || true
           
           echo "✅ Diagnostics collected"
 
@@ -593,7 +638,10 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: e2e-diagnostics
-          path: test-results/
+          path: |
+            test-results/
+            !test-results/playwright-report/
+            !test-results/coverage/
           retention-days: 7
 
       - name: Cleanup containers
