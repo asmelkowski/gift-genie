@@ -44,7 +44,8 @@ COPY . .
 
 # Default command runs tests with coverage in non-watch mode
 # Use vitest run explicitly to ensure CI mode and proper execution
-CMD ["bunx", "vitest", "run", "--coverage", "--reporter=verbose"]
+ENV CI=true
+CMD ["bun", "run", "test:coverage", "--reporter=verbose"]
 
 # ============================================================================
 # E2E stage - Run E2E tests with pre-installed Playwright browsers
