@@ -1,4 +1,6 @@
 import { chromium, FullConfig } from "@playwright/test";
+import { mkdir } from "fs/promises";
+import { dirname } from "path";
 
 /**
  * Global setup that runs once before all E2E tests
@@ -8,6 +10,15 @@ import { chromium, FullConfig } from "@playwright/test";
 async function globalSetup(config: FullConfig) {
   const { baseURL } = config.projects[0].use;
   const isCI = !!process.env.CI;
+  
+  // Ensure screenshot directory exists
+  const screenshotDir = 'test-results/screenshots';
+  try {
+    await mkdir(screenshotDir, { recursive: true });
+    console.log(`   📁 Screenshot directory ensured: ${screenshotDir}`);
+  } catch (error) {
+    console.warn(`   ⚠️  Could not create screenshot directory: ${error}`);
+  }
   
   console.log("=".repeat(80));
   console.log("🚀 Starting E2E Global Setup");
@@ -108,9 +119,10 @@ async function globalSetup(config: FullConfig) {
         
       } else {
         // Take screenshot for debugging
-        await page.screenshot({ path: 'playwright/setup-failure.png', fullPage: true });
+        const screenshotPath = `${screenshotDir}/setup-failure.png`;
+        await page.screenshot({ path: screenshotPath, fullPage: true });
         console.error("   ❌ Registration failed with unexpected error");
-        console.error(`   📸 Screenshot saved to: playwright/setup-failure.png`);
+        console.error(`   📸 Screenshot saved to: ${screenshotPath}`);
         throw redirectError;
       }
     }
@@ -130,11 +142,12 @@ async function globalSetup(config: FullConfig) {
     
     // Take screenshot
     try {
+      const screenshotPath = `${screenshotDir}/setup-error.png`;
       await page.screenshot({ 
-        path: 'playwright/setup-error.png', 
+        path: screenshotPath, 
         fullPage: true 
       });
-      console.log("   📸 Screenshot saved to: playwright/setup-error.png");
+      console.log(`   📸 Screenshot saved to: ${screenshotPath}`);
     } catch (screenshotError) {
       console.error("   ✗ Failed to capture screenshot:", screenshotError);
     }
