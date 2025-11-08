@@ -461,6 +461,7 @@ jobs:
             --name frontend \
             --network gift-genie-test \
             -p 5173:5173 \
+            -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
             gift-genie-frontend:dev
 
       - name: Wait for frontend to be healthy
@@ -492,6 +493,15 @@ jobs:
           echo "Testing frontend at http://frontend:5173..."
           docker run --rm --network gift-genie-test curlimages/curl:latest \
             curl -v --max-time 10 http://frontend:5173
+
+          # Test API endpoint that frontend will use
+          echo "Testing API endpoint at http://backend:8000/api/v1/health..."
+          docker run --rm --network gift-genie-test curlimages/curl:latest \
+            curl -v --max-time 10 http://backend:8000/api/v1/health
+
+          # Test connectivity from frontend container perspective
+          echo "Testing backend connectivity from frontend container..."
+          docker exec frontend curl -v --max-time 10 http://backend:8000/health || echo "Frontend container cannot reach backend"
 
           echo "✅ Network connectivity verified"
 
