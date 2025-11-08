@@ -1,163 +1,114 @@
-import { chromium, FullConfig } from '@playwright/test';
-import { mkdir } from 'fs/promises';
+import { FullConfig } from '@playwright/test';
+import { mkdir, access, constants, stat } from 'fs/promises';
+import { resolve, dirname } from 'path';
 
 /**
  * Global setup that runs once before all E2E tests
- * Registers the test user via the UI to set up test data
- * Also serves as a smoke test for registration and login flows
+ * Only handles environment preparation (directories, basic setup)
+ * User registration and login are now handled by 01-auth-setup.spec.ts
  */
 async function globalSetup(config: FullConfig) {
   const { baseURL } = config.projects[0].use;
   const isCI = !!process.env.CI;
 
-  // Ensure screenshot directory exists
-  const screenshotDir = 'test-results/screenshots';
-  try {
-    await mkdir(screenshotDir, { recursive: true });
-    console.log(`   📁 Screenshot directory ensured: ${screenshotDir}`);
-  } catch (error) {
-    console.warn(`   ⚠️  Could not create screenshot directory: ${error}`);
-  }
-
   console.log('='.repeat(80));
   console.log('🚀 Starting E2E Global Setup');
   console.log('='.repeat(80));
+
+  // Log comprehensive environment information
   console.log(`📍 Environment: ${isCI ? 'CI' : 'Local'}`);
   console.log(`📍 Base URL: ${baseURL}`);
   console.log(`📍 Timestamp: ${new Date().toISOString()}`);
-  console.log('='.repeat(80));
+  console.log(`📍 Node Version: ${process.version}`);
+  console.log(`📍 Platform: ${process.platform} (${process.arch})`);
+  console.log(`📍 Current Working Directory: ${process.cwd()}`);
+  console.log(`📍 Process ID: ${process.pid}`);
 
-  // Launch browser - it will handle connectivity checks naturally
-  console.log('\n🔍 Launching browser for registration/login test...');
-
-  const browser = await chromium.launch({
-    args: isCI ? ['--no-sandbox', '--disable-dev-shm-usage'] : undefined,
-  });
-  const context = await browser.newContext();
-  const page = await context.newPage();
-
-  // Test credentials
-  const timestamp = Date.now();
-  const testEmail = isCI ? 'test@example.com' : `test-${timestamp}@example.com`;
-  const testPassword = '09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q';
-
-  try {
-    console.log(`   👤 Test email: ${testEmail}`);
-    console.log(`   🔐 Test password: ${testPassword.substring(0, 4)}...`);
-
-    // Navigate to registration page - this will naturally test connectivity
-    console.log('\n   📄 Navigating to registration page...');
-    await page.goto(`${baseURL}/register`, {
-      waitUntil: 'domcontentloaded',
-      timeout: 60000,
-    });
-    console.log(`   ✅ Navigation successful: ${page.url()}`);
-    console.log(`   ✅ Frontend is accessible and responding`);
-
-    // Fill registration form
-    console.log('\n   📝 Filling registration form...');
-    await page.fill('#name', 'Test User', { timeout: 15000 });
-    console.log('      ✓ Name filled');
-
-    await page.fill('#email', testEmail, { timeout: 15000 });
-    console.log('      ✓ Email filled');
-
-    await page.fill('#password', testPassword, { timeout: 15000 });
-    console.log('      ✓ Password filled');
-
-    // Submit registration
-    console.log('\n   🔄 Submitting registration form...');
-    await page.click('button[type="submit"]', { timeout: 15000 });
-    console.log('      ✓ Form submitted');
-
-    // Wait for successful registration and redirect
-    console.log('\n   ⏳ Waiting for redirect to groups page...');
-    try {
-      await page.waitForURL('**/app/groups', { timeout: 30000 });
-      console.log(`   ✅ Successfully registered and redirected to: ${page.url()}`);
-      console.log(`   ✅ Backend API is working (registration succeeded)`);
-
-      // Save authentication state for reuse in tests
-      await context.storageState({ path: 'playwright/.auth/user.json' });
-      console.log('   ✅ Authentication state saved');
-    } catch (redirectError) {
-      // Check if user already exists (expected in CI on subsequent runs)
-      console.log('\n   ℹ️  Registration redirect timeout, checking for existing user...');
-
-      const emailError = await page
-        .locator('text=Email already in use')
-        .isVisible({ timeout: 5000 });
-
-      if (emailError) {
-        console.log('   ✅ Email conflict detected (user already exists)');
-        console.log('   🔄 Attempting login with existing user...');
-
-        // Navigate to login page
-        await page.goto(`${baseURL}/login`, {
-          waitUntil: 'domcontentloaded',
-          timeout: 60000,
-        });
-        console.log(`   ✅ Navigated to login page: ${page.url()}`);
-
-        // Fill login form
-        await page.fill('input[type="email"]', testEmail, { timeout: 15000 });
-        await page.fill('input[type="password"]', testPassword, { timeout: 15000 });
-        console.log('   ✓ Login form filled');
-
-        // Submit login
-        await page.click('button[type="submit"]', { timeout: 15000 });
-        console.log('   ✓ Login form submitted');
-
-        // Wait for redirect after login
-        await page.waitForURL('**/app/groups', { timeout: 30000 });
-        console.log(`   ✅ Successfully logged in and redirected to: ${page.url()}`);
-        console.log(`   ✅ Backend API is working (login succeeded)`);
-
-        // Save authentication state
-        await context.storageState({ path: 'playwright/.auth/user.json' });
-        console.log('   ✅ Authentication state saved');
-      } else {
-        // Take screenshot for debugging
-        const screenshotPath = `${screenshotDir}/setup-failure.png`;
-        await page.screenshot({ path: screenshotPath, fullPage: true });
-        console.error('   ❌ Registration failed with unexpected error');
-        console.error(`   📸 Screenshot saved to: ${screenshotPath}`);
-        throw redirectError;
-      }
-    }
-
-    console.log('\n✅ Registration & Login test passed');
-    console.log('✅ Frontend connectivity verified');
-    console.log('✅ Backend API connectivity verified');
-  } catch (error) {
-    console.error('\n❌ Global setup failed during registration/login:');
-    console.error(error);
-
-    // Collect debugging information
-    console.log('\n📋 Debug Information:');
-    console.log(`   Current URL: ${page.url()}`);
-    console.log(`   Page title: ${await page.title().catch(() => 'N/A')}`);
-
-    // Take screenshot
-    try {
-      const screenshotPath = `${screenshotDir}/setup-error.png`;
-      await page.screenshot({
-        path: screenshotPath,
-        fullPage: true,
-      });
-      console.log(`   📸 Screenshot saved to: ${screenshotPath}`);
-    } catch (screenshotError) {
-      console.error('   ✗ Failed to capture screenshot:', screenshotError);
-    }
-
-    throw error;
-  } finally {
-    await browser.close();
-    console.log('\n🧹 Browser closed');
+  if (isCI) {
+    console.log(`📍 CI Provider: ${process.env.GITHUB_ACTIONS ? 'GitHub Actions' : 'Unknown'}`);
+    console.log(`📍 GitHub SHA: ${process.env.GITHUB_SHA || 'N/A'}`);
+    console.log(`📍 GitHub Run ID: ${process.env.GITHUB_RUN_ID || 'N/A'}`);
   }
 
-  console.log('\n' + '='.repeat(80));
-  console.log('✅ Global Setup Complete');
+  console.log('='.repeat(80));
+
+  /**
+   * Ensures a directory exists and is writable
+   */
+  async function ensureDirectory(dirPath: string, description: string): Promise<void> {
+    const absolutePath = resolve(dirPath);
+
+    try {
+      // Try to create directory with recursive option first
+      await mkdir(absolutePath, { recursive: true });
+      console.log(`   📁 Directory created/ensured: ${absolutePath}`);
+    } catch (error) {
+      // If creation fails, check parent directory permissions for better error message
+      const parentDir = dirname(absolutePath);
+      try {
+        await access(parentDir, constants.R_OK | constants.W_OK);
+        console.log(`   ✅ Parent directory accessible: ${parentDir}`);
+      } catch (parentError) {
+        throw new Error(
+          `Parent directory not accessible: ${parentDir}. Original error: ${error}. Parent access error: ${parentError}`
+        );
+      }
+      throw new Error(
+        `Failed to create ${description} directory: ${absolutePath}. Error: ${error}`
+      );
+    }
+
+    try {
+      // Verify directory exists and is writable
+      const stats = await stat(absolutePath);
+      if (!stats.isDirectory()) {
+        throw new Error(`${absolutePath} exists but is not a directory`);
+      }
+
+      // Test write permissions
+      await access(absolutePath, constants.W_OK);
+
+      console.log(`   ✅ Directory verified writable: ${absolutePath}`);
+      console.log(`   📊 Directory permissions: ${stats.mode.toString(8)}`);
+      console.log(`   📊 Directory owner: ${stats.uid}:${stats.gid}`);
+
+      if (isCI) {
+        console.log(`   🔍 CI Debug - Directory details:`);
+        console.log(`      Path: ${absolutePath}`);
+        console.log(`      Size: ${stats.size} bytes`);
+        console.log(`      Modified: ${stats.mtime.toISOString()}`);
+        console.log(`      Created: ${stats.birthtime?.toISOString() || 'N/A'}`);
+      }
+    } catch (error) {
+      throw new Error(
+        `Directory verification failed for ${description}: ${absolutePath}. Error: ${error}`
+      );
+    }
+  }
+
+  // Ensure screenshot directory exists and is writable
+  const screenshotDir = 'test-results/screenshots';
+  try {
+    await ensureDirectory(screenshotDir, 'screenshot');
+    console.log(`   🎯 Screenshot directory ready: ${resolve(screenshotDir)}`);
+  } catch (error) {
+    console.error(`   ❌ Screenshot directory setup failed: ${error}`);
+    throw error; // Re-throw to fail the setup
+  }
+
+  // Ensure playwright auth directory exists and is writable
+  const authDir = 'playwright/.auth';
+  try {
+    await ensureDirectory(authDir, 'auth');
+    console.log(`   🔐 Auth directory ready: ${resolve(authDir)}`);
+  } catch (error) {
+    console.error(`   ❌ Auth directory setup failed: ${error}`);
+    throw error; // Re-throw to fail the setup
+  }
+
+  console.log('='.repeat(80));
+  console.log('✅ Environment preparation complete');
+  console.log('ℹ️  User authentication will be handled by 01-auth-setup.spec.ts');
   console.log('='.repeat(80));
 }
 

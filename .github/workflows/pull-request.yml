@@ -522,49 +522,92 @@ jobs:
           mkdir -p playwright/.auth
           mkdir -p playwright/screenshots
           mkdir -p playwright/screenshots/test-results
-          mkdir -p test-results/screenshots
+           mkdir -p test-results/screenshots
           echo "✅ Playwright directories created"
 
       - name: Run E2E tests
         timeout-minutes: 5
         run: |
-          # Create test results directory
-          mkdir -p test-results
+           # Create test results directory
+           mkdir -p test-results
 
-          # Run E2E tests with comprehensive logging and diagnostics
-          docker run --name e2e-tests \
-            --network gift-genie-test \
-            -e CI=true \
-            -e DEBUG=pw:api \
-            -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
-            -v $(pwd)/test-results:/app/test-results \
-            -v $(pwd)/playwright:/app/playwright \
-            gift-genie-frontend:e2e \
-            npx playwright test --reporter=list,html --trace=on
+           # Ensure playwright directories exist with proper permissions
+           echo "🔧 Setting up Playwright directories..."
+           mkdir -p playwright/.auth
+           mkdir -p playwright/screenshots
+           chmod -R 755 playwright/
+           ls -la playwright/
 
-          # Get exit code from container
-          EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
+           # Verify volume mounts will work
+           echo "🔍 Pre-run directory verification..."
+           echo "Host playwright directory:"
+           ls -la $(pwd)/playwright/ || echo "Host playwright directory not accessible"
+           echo "Host test-results directory:"
+           ls -la $(pwd)/test-results/ || echo "Host test-results directory not accessible"
 
-          # Copy test results from container (in case volume mount had issues)
-          docker cp e2e-tests:/app/playwright-report ./test-results/ 2>/dev/null || true
-          docker cp e2e-tests:/app/playwright ./playwright-results 2>/dev/null || true
-          docker cp e2e-tests:/app/coverage ./test-results/ 2>/dev/null || true
-          docker cp e2e-tests:/app/test-results ./test-results/container-results 2>/dev/null || true
+            # Run E2E tests with comprehensive logging and diagnostics
+            echo "🚀 Starting E2E tests..."
+            docker run --name e2e-tests \
+              --network gift-genie-test \
+              -e CI=true \
+              -e DEBUG=pw:api \
+              -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
+              -v $(pwd)/test-results:/app/test-results \
+              -v $(pwd)/playwright:/app/playwright \
+              gift-genie-frontend:e2e \
+              sh -c "
+                echo '📁 Container directory verification...' &&
+                ls -la /app/playwright/ &&
+                echo '🔐 Checking auth directory before tests...' &&
+                ls -la /app/playwright/.auth/ || echo 'Auth directory empty or missing' &&
+                echo '🏃 Running Playwright tests (01-auth-setup.spec.ts will run first due to testOrder: filename)...' &&
+                npx playwright test &&
+                echo '🔍 Post-run auth state verification...' &&
+                ls -la /app/playwright/.auth/ &&
+                if [ -f /app/playwright/.auth/user.json ]; then
+                  echo '✅ Auth state file exists:' &&
+                  head -c 200 /app/playwright/.auth/user.json &&
+                  echo '...';
+                else
+                  echo '❌ Auth state file NOT found after tests';
+                  exit 1;
+                fi
+              "
 
-          # Copy screenshots from all possible locations
-          echo "📸 Collecting screenshots from container..."
-          docker cp e2e-tests:/app/playwright-report ./test-results/playwright-report-copy 2>/dev/null || true
-          docker cp e2e-tests:/app/playwright/screenshots ./test-results/screenshots-from-container 2>/dev/null || true
-          docker cp e2e-tests:/app/test-results/screenshots ./test-results/screenshots-from-test-results 2>/dev/null || true
+           # Get exit code from container
+           EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
 
-          # Copy any screenshots from playwright root directory
-          docker cp e2e-tests:/app/playwright/*.png ./test-results/screenshots/ 2>/dev/null || true
+           # Verify auth state was created and persisted
+           echo "🔍 Verifying auth state persistence on host..."
+           if [ -f "$(pwd)/playwright/.auth/user.json" ]; then
+             echo "✅ Auth state persisted to host:"
+             ls -la $(pwd)/playwright/.auth/user.json
+             head -c 200 $(pwd)/playwright/.auth/user.json
+           else
+             echo "❌ Auth state NOT persisted to host"
+             EXIT_CODE=1
+           fi
 
-          # Clean up container
-          docker rm -f e2e-tests 2>/dev/null || true
+           # Copy test results from container (in case volume mount had issues)
+           docker cp e2e-tests:/app/playwright-report ./test-results/ 2>/dev/null || true
+           docker cp e2e-tests:/app/playwright ./playwright-results 2>/dev/null || true
+           docker cp e2e-tests:/app/coverage ./test-results/ 2>/dev/null || true
+           docker cp e2e-tests:/app/test-results ./test-results/container-results 2>/dev/null || true
 
-          # Exit with the original test exit code
-          exit $EXIT_CODE
+           # Copy screenshots from all possible locations
+           echo "📸 Collecting screenshots from container..."
+           docker cp e2e-tests:/app/playwright-report ./test-results/playwright-report-copy 2>/dev/null || true
+           docker cp e2e-tests:/app/playwright/screenshots ./test-results/screenshots-from-container 2>/dev/null || true
+           docker cp e2e-tests:/app/test-results/screenshots ./test-results/screenshots-from-test-results 2>/dev/null || true
+
+           # Copy any screenshots from playwright root directory
+           docker cp e2e-tests:/app/playwright/*.png ./test-results/screenshots/ 2>/dev/null || true
+
+           # Clean up container
+           docker rm -f e2e-tests 2>/dev/null || true
+
+           # Exit with the original test exit code
+           exit $EXIT_CODE
 
       - name: Upload E2E screenshots
         if: always()
