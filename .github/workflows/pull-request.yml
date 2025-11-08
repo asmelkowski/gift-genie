@@ -530,7 +530,7 @@ jobs:
             -v $(pwd)/test-results:/app/test-results \
             -v $(pwd)/playwright:/app/playwright \
             gift-genie-frontend:e2e \
-            npx playwright test --reporter=list,html --trace=on --screenshots=only-on-failure --videos=retain-on-failure
+            npx playwright test --reporter=list,html --trace=on
 
           # Get exit code from container
           EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
