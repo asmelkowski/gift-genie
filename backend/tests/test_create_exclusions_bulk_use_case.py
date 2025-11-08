@@ -8,9 +8,6 @@ from gift_genie.application.dto.create_exclusions_bulk_command import (
 )
 from gift_genie.application.errors import (
     ExclusionConflictsError,
-    ForbiddenError,
-    GroupNotFoundError,
-    MemberNotFoundError,
     SelfExclusionNotAllowedError,
 )
 from gift_genie.application.use_cases.create_exclusions_bulk import CreateExclusionsBulkUseCase
@@ -42,8 +39,17 @@ async def test_create_exclusions_bulk_success():
     )
     group_repo.get_by_id.return_value = group
 
-    giver = Member(id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None)
-    receiver = Member(id=receiver_id, group_id=group_id, name="Receiver", email=None, is_active=True, created_at=None)
+    giver = Member(
+        id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None
+    )
+    receiver = Member(
+        id=receiver_id,
+        group_id=group_id,
+        name="Receiver",
+        email=None,
+        is_active=True,
+        created_at=None,
+    )
     member_repo.get_by_group_and_id.side_effect = [giver, receiver]
 
     exclusion_repo.check_conflicts_bulk.return_value = []
@@ -68,7 +74,9 @@ async def test_create_exclusions_bulk_success():
     command = CreateExclusionsBulkCommand(
         group_id=group_id,
         requesting_user_id=user_id,
-        items=[ExclusionItem(giver_member_id=giver_id, receiver_member_id=receiver_id, is_mutual=False)],
+        items=[
+            ExclusionItem(giver_member_id=giver_id, receiver_member_id=receiver_id, is_mutual=False)
+        ],
     )
 
     result = await use_case.execute(command)
@@ -99,11 +107,22 @@ async def test_create_exclusions_bulk_conflicts():
     )
     group_repo.get_by_id.return_value = group
 
-    giver = Member(id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None)
-    receiver = Member(id=receiver_id, group_id=group_id, name="Receiver", email=None, is_active=True, created_at=None)
+    giver = Member(
+        id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None
+    )
+    receiver = Member(
+        id=receiver_id,
+        group_id=group_id,
+        name="Receiver",
+        email=None,
+        is_active=True,
+        created_at=None,
+    )
     member_repo.get_by_group_and_id.side_effect = [giver, receiver]
 
-    conflicts = [{"giver_member_id": giver_id, "receiver_member_id": receiver_id, "reason": "already_exists"}]
+    conflicts = [
+        {"giver_member_id": giver_id, "receiver_member_id": receiver_id, "reason": "already_exists"}
+    ]
     exclusion_repo.check_conflicts_bulk.return_value = conflicts
 
     use_case = CreateExclusionsBulkUseCase(
@@ -114,7 +133,9 @@ async def test_create_exclusions_bulk_conflicts():
     command = CreateExclusionsBulkCommand(
         group_id=group_id,
         requesting_user_id=user_id,
-        items=[ExclusionItem(giver_member_id=giver_id, receiver_member_id=receiver_id, is_mutual=False)],
+        items=[
+            ExclusionItem(giver_member_id=giver_id, receiver_member_id=receiver_id, is_mutual=False)
+        ],
     )
 
     with pytest.raises(ExclusionConflictsError) as exc_info:
@@ -144,7 +165,9 @@ async def test_create_exclusions_bulk_self_exclusion():
     )
     group_repo.get_by_id.return_value = group
 
-    member = Member(id=member_id, group_id=group_id, name="Member", email=None, is_active=True, created_at=None)
+    member = Member(
+        id=member_id, group_id=group_id, name="Member", email=None, is_active=True, created_at=None
+    )
     member_repo.get_by_group_and_id.return_value = member
 
     use_case = CreateExclusionsBulkUseCase(
@@ -155,7 +178,9 @@ async def test_create_exclusions_bulk_self_exclusion():
     command = CreateExclusionsBulkCommand(
         group_id=group_id,
         requesting_user_id=user_id,
-        items=[ExclusionItem(giver_member_id=member_id, receiver_member_id=member_id, is_mutual=False)],
+        items=[
+            ExclusionItem(giver_member_id=member_id, receiver_member_id=member_id, is_mutual=False)
+        ],
     )
 
     with pytest.raises(SelfExclusionNotAllowedError):

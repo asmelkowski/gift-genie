@@ -36,18 +36,14 @@ describe('useExecuteDrawMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/draws/draw-1/execute',
-      {}
-    );
+    expect(api.post).toHaveBeenCalledWith('/api/v1/draws/draw-1/execute', {});
   });
 
   it('invalidates draws query on success', async () => {
@@ -67,10 +63,9 @@ describe('useExecuteDrawMutation', () => {
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -100,17 +95,14 @@ describe('useExecuteDrawMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(toast.success).toHaveBeenCalledWith(
-      'Draw executed! 3 assignments generated.'
-    );
+    expect(toast.success).toHaveBeenCalledWith('Draw executed! 3 assignments generated.');
   });
 
   it('handles errors', async () => {
@@ -118,10 +110,9 @@ describe('useExecuteDrawMutation', () => {
       response: { data: { detail: 'Insufficient members' } },
     });
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 

@@ -4,11 +4,7 @@ import { useDrawQuery } from '@/hooks/useDrawQuery';
 import { useAssignmentsQuery } from '@/hooks/useAssignmentsQuery';
 import { useGroupDetailsQuery } from '@/hooks/useGroupDetailsQuery';
 
-import {
-  shouldShowConfetti,
-  clearConfettiFlag,
-  type AssignmentWithNames,
-} from '@/lib/drawUtils';
+import { shouldShowConfetti, clearConfettiFlag, type AssignmentWithNames } from '@/lib/drawUtils';
 import PageHeader from '@/components/DrawResultsPage/PageHeader';
 import DrawMetadata from '@/components/DrawResultsPage/DrawMetadata';
 import AssignmentsToolbar from '@/components/DrawResultsPage/AssignmentsToolbar';
@@ -21,7 +17,9 @@ export default function DrawResultsPage() {
   const { groupId, drawId } = useParams<{ groupId: string; drawId: string }>();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [sort, setSort] = useState<'giver_asc' | 'giver_desc' | 'receiver_asc' | 'receiver_desc'>('giver_asc');
+  const [sort, setSort] = useState<'giver_asc' | 'giver_desc' | 'receiver_asc' | 'receiver_desc'>(
+    'giver_asc'
+  );
   const [showConfetti, setShowConfetti] = useState(false);
 
   const drawQuery = useDrawQuery(drawId || '');
@@ -48,7 +46,7 @@ export default function DrawResultsPage() {
     const assignments = assignmentsQuery.data.data as AssignmentWithNames[];
 
     const filtered = assignments.filter(
-      (a) =>
+      a =>
         a.giver_name?.toLowerCase().includes(search.toLowerCase()) ||
         a.receiver_name?.toLowerCase().includes(search.toLowerCase())
     );
@@ -133,7 +131,7 @@ export default function DrawResultsPage() {
               search={search}
               onSearchChange={setSearch}
               sort={sort}
-              onSortChange={(newSort) =>
+              onSortChange={newSort =>
                 setSort(newSort as 'giver_asc' | 'giver_desc' | 'receiver_asc' | 'receiver_desc')
               }
             />

@@ -31,18 +31,10 @@ export function PaginationControls({ meta, onPageChange }: PaginationControlsPro
         Showing {startItem}-{endItem} of {meta.total} members
       </p>
       <div className="flex gap-2">
-        <Button
-          onClick={handlePrevious}
-          disabled={meta.page === 1}
-          variant="outline"
-        >
+        <Button onClick={handlePrevious} disabled={meta.page === 1} variant="outline">
           Previous
         </Button>
-        <Button
-          onClick={handleNext}
-          disabled={meta.page >= meta.total_pages}
-          variant="outline"
-        >
+        <Button onClick={handleNext} disabled={meta.page >= meta.total_pages} variant="outline">
           Next
         </Button>
       </div>

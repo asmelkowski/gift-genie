@@ -16,7 +16,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/AppLayout/AppLayout';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import api from '@/lib/api';
-import './App.css'
+import './App.css';
 
 function Home() {
   const { isAuthenticated } = useAuthStore();
@@ -52,74 +52,74 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-        {
-          path: 'groups',
-          element: <GroupsPage />,
-        },
-         {
-           path: 'groups/:groupId/draws',
-           element: <DrawsPage />,
-         },
-         {
-           path: 'groups/:groupId/draws/:drawId/results',
-           element: <DrawResultsPage />,
-         },
-        {
-           path: 'groups/:groupId/members',
-           element: <MembersPage />,
-         },
-          {
-            path: 'groups/:groupId/exclusions',
-            element: <ExclusionsPage />,
-          },
-        {
-          path: 'groups/:groupId',
-          element: <GroupDetails />,
-        },
+      {
+        path: 'groups',
+        element: <GroupsPage />,
+      },
+      {
+        path: 'groups/:groupId/draws',
+        element: <DrawsPage />,
+      },
+      {
+        path: 'groups/:groupId/draws/:drawId/results',
+        element: <DrawResultsPage />,
+      },
+      {
+        path: 'groups/:groupId/members',
+        element: <MembersPage />,
+      },
+      {
+        path: 'groups/:groupId/exclusions',
+        element: <ExclusionsPage />,
+      },
+      {
+        path: 'groups/:groupId',
+        element: <GroupDetails />,
+      },
 
-         {
-           path: 'settings',
-           element: <div>Settings Page (To be implemented)</div>,
-         },
-      ],
+      {
+        path: 'settings',
+        element: <div>Settings Page (To be implemented)</div>,
+      },
+    ],
   },
 ]);
 
 function AppContent() {
-      const { login } = useAuthStore();
-      const [isBootstrapped, setIsBootstrapped] = useState(false);
+  const { login } = useAuthStore();
+  const [isBootstrapped, setIsBootstrapped] = useState(false);
 
-        useEffect(() => {
-          const checkAuth = async () => {
-            try {
-              console.log('[Auth] Checking session...');
-              const response = await api.get('/api/v1/auth/me');
-              console.log('[Auth] Session valid, user:', response.data);
-              const csrfToken = response.headers['x-csrf-token'] || '';
-              login(response.data, csrfToken);
-           } catch (error) {
-             console.log('[Auth] Session check failed:', error);
-           } finally {
-             setIsBootstrapped(true);
-           }
-         };
-
-         checkAuth();
-       }, [login]);
-
-      if (!isBootstrapped) {
-        return (
-          <div className="flex items-center justify-center h-screen bg-gray-50">
-            <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-              <p className="text-gray-600">Loading...</p>
-            </div>
-          </div>
-        );
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        console.log('[Auth] Checking session...');
+        const response = await api.get('/api/v1/auth/me');
+        console.log('[Auth] Session valid, user:', response.data);
+        const csrfToken = response.headers['x-csrf-token'] || '';
+        login(response.data, csrfToken);
+      } catch (error) {
+        console.log('[Auth] Session check failed:', error);
+      } finally {
+        setIsBootstrapped(true);
       }
+    };
 
-      return <RouterProvider router={router} />;
-    }
+    checkAuth();
+  }, [login]);
+
+  if (!isBootstrapped) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <RouterProvider router={router} />;
+}
 
 function App() {
   return (
@@ -130,4 +130,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

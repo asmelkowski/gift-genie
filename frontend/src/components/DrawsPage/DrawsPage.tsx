@@ -31,14 +31,12 @@ export default function DrawsPage() {
 
   const [executingDrawId, setExecutingDrawId] = useState<string | null>(null);
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
-  const [selectedDrawForFinalize, setSelectedDrawForFinalize] =
-    useState<DrawViewModel | null>(null);
-  const [notifyDialogOpen, setNotifyDialogOpen] = useState(false);
-  const [selectedDrawForNotify, setSelectedDrawForNotify] =
-    useState<DrawViewModel | null>(null);
-  const [notifyResult, setNotifyResult] = useState<NotifyDrawResponse | null>(
+  const [selectedDrawForFinalize, setSelectedDrawForFinalize] = useState<DrawViewModel | null>(
     null
   );
+  const [notifyDialogOpen, setNotifyDialogOpen] = useState(false);
+  const [selectedDrawForNotify, setSelectedDrawForNotify] = useState<DrawViewModel | null>(null);
+  const [notifyResult, setNotifyResult] = useState<NotifyDrawResponse | null>(null);
   const [executeError, setExecuteError] = useState<string | null>(null);
 
   const drawsQuery = useDrawsQuery({
@@ -72,9 +70,7 @@ export default function DrawsPage() {
     } catch (error: unknown) {
       const axiosError = error as { response?: { status?: number; data?: { detail?: string } } };
       if (axiosError.response?.status === 422) {
-        setExecuteError(
-          axiosError.response?.data?.detail || 'No valid configuration found'
-        );
+        setExecuteError(axiosError.response?.data?.detail || 'No valid configuration found');
       }
     } finally {
       setExecutingDrawId(null);
@@ -108,18 +104,14 @@ export default function DrawsPage() {
         });
         setNotifyResult(result);
         setNotifyDialogOpen(false);
-       } catch {
-         setNotifyDialogOpen(false);
-       }
+      } catch {
+        setNotifyDialogOpen(false);
+      }
     }
   };
 
   const handleDeleteClick = (drawId: string) => {
-    if (
-      confirm(
-        'Are you sure you want to delete this draw? This action cannot be undone.'
-      )
-    ) {
+    if (confirm('Are you sure you want to delete this draw? This action cannot be undone.')) {
       deleteDrawMutation.mutate(drawId);
     }
   };
@@ -140,7 +132,7 @@ export default function DrawsPage() {
   };
 
   const transformedDraws: DrawViewModel[] =
-    drawsQuery.data?.data.map((draw) => transformToDrawViewModel(draw)) || [];
+    drawsQuery.data?.data.map(draw => transformToDrawViewModel(draw)) || [];
 
   const groupName = groupQuery.data?.name;
 
@@ -164,9 +156,7 @@ export default function DrawsPage() {
           <ErrorState error="Failed to load draws" />
         ) : (
           <>
-            {executeError && (
-              <ErrorGuidanceAlert error={executeError} groupId={groupId} />
-            )}
+            {executeError && <ErrorGuidanceAlert error={executeError} groupId={groupId} />}
 
             <DrawsToolbar
               status={statusDisplay}

@@ -11,18 +11,13 @@ export const useExecuteDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (drawId: string) => {
-      const response = await api.post<ExecuteDrawResponse>(
-        `/api/v1/draws/${drawId}/execute`,
-        {}
-      );
+      const response = await api.post<ExecuteDrawResponse>(`/api/v1/draws/${drawId}/execute`, {});
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['draws', groupId] });
       queryClient.setQueryData(['draw', data.draw.id], data.draw);
-      toast.success(
-        `Draw executed! ${data.assignments.length} assignments generated.`
-      );
+      toast.success(`Draw executed! ${data.assignments.length} assignments generated.`);
     },
     onError: (error: AxiosError<{ detail: string }>) => {
       const detail = error.response?.data?.detail;

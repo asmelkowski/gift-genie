@@ -20,27 +20,23 @@ describe('useDeleteExclusionMutation', () => {
   it('calls API with correct delete endpoint', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
 
-    const { result } = renderHook(
-      () => useDeleteExclusionMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useDeleteExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('exclusion-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.delete).toHaveBeenCalledWith(
-      '/api/v1/groups/group-1/exclusions/exclusion-1'
-    );
+    expect(api.delete).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions/exclusion-1');
   });
 
   it('invalidates exclusions query on success', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useDeleteExclusionMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useDeleteExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('exclusion-1');
 
@@ -53,10 +49,9 @@ describe('useDeleteExclusionMutation', () => {
   it('shows success toast', async () => {
     vi.mocked(api.delete).mockResolvedValue({});
 
-    const { result } = renderHook(
-      () => useDeleteExclusionMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useDeleteExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('exclusion-1');
 
@@ -69,10 +64,9 @@ describe('useDeleteExclusionMutation', () => {
       response: { data: { detail: 'Not found' } },
     });
 
-    const { result } = renderHook(
-      () => useDeleteExclusionMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useDeleteExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('invalid-id');
 

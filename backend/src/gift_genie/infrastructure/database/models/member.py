@@ -27,7 +27,9 @@ class MemberModel(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     email: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_datetime_now)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_datetime_now
+    )
 
     group: Mapped["GroupModel"] = relationship("GroupModel", back_populates="members")
     exclusions_as_giver: Mapped[list["ExclusionModel"]] = relationship(

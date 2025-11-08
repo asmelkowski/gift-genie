@@ -86,10 +86,7 @@ describe('DrawsGrid', () => {
   });
 
   it('applies correct grid layout classes', () => {
-    const draws = [
-      createMockDraw({ id: 'draw-1' }),
-      createMockDraw({ id: 'draw-2' }),
-    ];
+    const draws = [createMockDraw({ id: 'draw-1' }), createMockDraw({ id: 'draw-2' })];
 
     const { container } = renderGrid({ draws });
 

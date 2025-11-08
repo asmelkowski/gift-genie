@@ -33,7 +33,9 @@ class InMemoryGroupRepo(GroupRepository):
         self._groups[group.id] = group
         return group
 
-    async def list_by_admin_user(self, user_id: str, search: str | None, page: int, page_size: int, sort: str):
+    async def list_by_admin_user(
+        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
+    ):
         groups = [g for g in self._groups.values() if g.admin_user_id == user_id]
         total = len(groups)
         return groups, total
@@ -60,7 +62,9 @@ class InMemoryDrawRepo(DrawRepository):
         self._draws[draw.id] = draw
         return draw
 
-    async def list_by_group(self, group_id: str, status: DrawStatus | None, page: int, page_size: int, sort: str):
+    async def list_by_group(
+        self, group_id: str, status: DrawStatus | None, page: int, page_size: int, sort: str
+    ):
         draws = [d for d in self._draws.values() if d.group_id == group_id]
         if status:
             draws = [d for d in draws if d.status == status]
@@ -97,7 +101,15 @@ class InMemoryMemberRepo(MemberRepository):
         self._members[member.id] = member
         return member
 
-    async def list_by_group(self, group_id: str, is_active: bool | None, search: str | None, page: int, page_size: int, sort: str):
+    async def list_by_group(
+        self,
+        group_id: str,
+        is_active: bool | None,
+        search: str | None,
+        page: int,
+        page_size: int,
+        sort: str,
+    ):
         members = [m for m in self._members.values() if m.group_id == group_id]
         if is_active is not None:
             members = [m for m in members if m.is_active == is_active]
@@ -113,10 +125,14 @@ class InMemoryMemberRepo(MemberRepository):
             return m
         return None
 
-    async def name_exists_in_group(self, group_id: str, name: str, exclude_member_id: str | None = None) -> bool:
+    async def name_exists_in_group(
+        self, group_id: str, name: str, exclude_member_id: str | None = None
+    ) -> bool:
         return False
 
-    async def email_exists_in_group(self, group_id: str, email: str, exclude_member_id: str | None = None) -> bool:
+    async def email_exists_in_group(
+        self, group_id: str, email: str, exclude_member_id: str | None = None
+    ) -> bool:
         return False
 
     async def has_pending_draw(self, member_id: str) -> bool:
@@ -131,7 +147,16 @@ class InMemoryMemberRepo(MemberRepository):
 
 
 class InMemoryExclusionRepo(ExclusionRepository):
-    async def list_by_group(self, group_id: str, exclusion_type: ExclusionType | None, giver_member_id: str | None, receiver_member_id: str | None, page: int, page_size: int, sort: str):
+    async def list_by_group(
+        self,
+        group_id: str,
+        exclusion_type: ExclusionType | None,
+        giver_member_id: str | None,
+        receiver_member_id: str | None,
+        page: int,
+        page_size: int,
+        sort: str,
+    ):
         return [], 0
 
     async def create(self, exclusion):
@@ -146,7 +171,9 @@ class InMemoryExclusionRepo(ExclusionRepository):
     async def get_by_group_and_id(self, group_id: str, exclusion_id: str):
         return None
 
-    async def exists_for_pair(self, group_id: str, giver_member_id: str, receiver_member_id: str) -> bool:
+    async def exists_for_pair(
+        self, group_id: str, giver_member_id: str, receiver_member_id: str
+    ) -> bool:
         return False
 
     async def check_conflicts_bulk(self, group_id: str, pairs: list[tuple[str, str]]):
@@ -174,7 +201,9 @@ class InMemoryAssignmentRepo(AssignmentRepository):
     async def count_by_draw(self, draw_id: str) -> int:
         return len(self._assignments_by_draw.get(draw_id, []))
 
-    async def get_historical_exclusions(self, group_id: str, lookback_count: int) -> list[tuple[str, str]]:
+    async def get_historical_exclusions(
+        self, group_id: str, lookback_count: int
+    ) -> list[tuple[str, str]]:
         return []
 
 
@@ -182,13 +211,17 @@ class StubNotificationService(NotificationService):
     def __init__(self):
         self.calls: list[tuple[str, str, str, str, str]] = []
 
-    async def send_assignment_notification(self, member_email: str, member_name: str, receiver_name: str, group_name: str) -> bool:
+    async def send_assignment_notification(
+        self, member_email: str, member_name: str, receiver_name: str, group_name: str
+    ) -> bool:
         self.calls.append((member_email, member_name, receiver_name, group_name))
         return True
 
 
 class SimpleDrawAlgorithm(DrawAlgorithm):
-    def generate_assignments(self, member_ids: list[str], exclusions: set[tuple[str, str]]) -> dict[str, str]:
+    def generate_assignments(
+        self, member_ids: list[str], exclusions: set[tuple[str, str]]
+    ) -> dict[str, str]:
         if len(member_ids) < 3:
             raise ValueError("Draw requires at least 3 members")
         # Simple rotation by 1, ignoring exclusions for test simplicity
@@ -496,9 +529,30 @@ async def test_execute_finalize_notify_draw_flow(client: AsyncClient):
 
     m_ids = [str(uuid4()) for _ in range(3)]
     members = [
-        Member(id=m_ids[0], group_id=group.id, name="A", email="a@example.com", is_active=True, created_at=now),
-        Member(id=m_ids[1], group_id=group.id, name="B", email="b@example.com", is_active=True, created_at=now),
-        Member(id=m_ids[2], group_id=group.id, name="C", email="c@example.com", is_active=True, created_at=now),
+        Member(
+            id=m_ids[0],
+            group_id=group.id,
+            name="A",
+            email="a@example.com",
+            is_active=True,
+            created_at=now,
+        ),
+        Member(
+            id=m_ids[1],
+            group_id=group.id,
+            name="B",
+            email="b@example.com",
+            is_active=True,
+            created_at=now,
+        ),
+        Member(
+            id=m_ids[2],
+            group_id=group.id,
+            name="C",
+            email="c@example.com",
+            is_active=True,
+            created_at=now,
+        ),
     ]
     for m in members:
         await member_repo.create(m)

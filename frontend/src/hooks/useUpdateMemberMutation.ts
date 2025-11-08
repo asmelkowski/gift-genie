@@ -7,10 +7,7 @@ import type { AxiosError } from 'axios';
 type UpdateMemberRequest = components['schemas']['UpdateMemberRequest'];
 type MemberResponse = components['schemas']['MemberResponse'];
 
-export const useUpdateMemberMutation = (
-  groupId: string,
-  onError?: (detail: string) => void
-) => {
+export const useUpdateMemberMutation = (groupId: string, onError?: (detail: string) => void) => {
   const queryClient = useQueryClient();
 
   return useMutation({

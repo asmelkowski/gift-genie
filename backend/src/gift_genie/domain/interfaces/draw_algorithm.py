@@ -1,7 +1,6 @@
 from typing import Protocol
 
 
-
 class DrawAlgorithm(Protocol):
     def generate_assignments(
         self,

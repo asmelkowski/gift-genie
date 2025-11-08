@@ -31,7 +31,9 @@ class AssignmentModel(Base):
         PostgresUUID(as_uuid=True), ForeignKey("members.id", ondelete="CASCADE"), nullable=False
     )
     encrypted_receiver_id: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_datetime_now)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_datetime_now
+    )
 
     draw: Mapped["DrawModel"] = relationship("DrawModel", back_populates="assignments")
     giver_member: Mapped["MemberModel"] = relationship(

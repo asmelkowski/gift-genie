@@ -11,10 +11,13 @@ from gift_genie.infrastructure.config.settings import get_settings
 
 settings = get_settings()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await FastAPILimiter.init(redis_client)
     yield
+
+
 print(settings.DEBUG)
 app = FastAPI(
     title="Gift Genie API",
@@ -23,7 +26,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     debug=settings.DEBUG,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -36,7 +39,9 @@ app.add_middleware(
 )
 
 # Initialize rate limiter
-redis_client = redis.from_url(f"redis://{settings.REDIS_URL}", encoding="utf-8", decode_responses=True)
+redis_client = redis.from_url(
+    f"redis://{settings.REDIS_URL}", encoding="utf-8", decode_responses=True
+)
 
 
 # Include routers

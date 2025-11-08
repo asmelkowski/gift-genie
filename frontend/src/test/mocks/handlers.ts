@@ -5,17 +5,11 @@ const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:8000/api
 export const handlers = [
   // Auth endpoints
   http.post(`${API_BASE_URL}/auth/register`, async () => {
-    return HttpResponse.json(
-      { access_token: 'test-token', token_type: 'bearer' },
-      { status: 201 }
-    );
+    return HttpResponse.json({ access_token: 'test-token', token_type: 'bearer' }, { status: 201 });
   }),
 
   http.post(`${API_BASE_URL}/auth/login`, async () => {
-    return HttpResponse.json(
-      { access_token: 'test-token', token_type: 'bearer' },
-      { status: 200 }
-    );
+    return HttpResponse.json({ access_token: 'test-token', token_type: 'bearer' }, { status: 200 });
   }),
 
   http.post(`${API_BASE_URL}/auth/logout`, async () => {

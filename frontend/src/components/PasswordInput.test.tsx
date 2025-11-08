@@ -6,12 +6,7 @@ import { PasswordInput } from './PasswordInput';
 describe('PasswordInput', () => {
   it('renders input with password type initially', () => {
     render(
-      <PasswordInput
-        value="test"
-        onChange={() => {}}
-        showPassword={false}
-        onToggle={() => {}}
-      />
+      <PasswordInput value="test" onChange={() => {}} showPassword={false} onToggle={() => {}} />
     );
 
     const input = screen.getByDisplayValue('test');
@@ -21,12 +16,7 @@ describe('PasswordInput', () => {
 
   it('shows password when showPassword is true', () => {
     render(
-      <PasswordInput
-        value="test"
-        onChange={() => {}}
-        showPassword={true}
-        onToggle={() => {}}
-      />
+      <PasswordInput value="test" onChange={() => {}} showPassword={true} onToggle={() => {}} />
     );
 
     const input = screen.getByDisplayValue('test');
@@ -37,12 +27,7 @@ describe('PasswordInput', () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
     render(
-      <PasswordInput
-        value=""
-        onChange={mockOnChange}
-        showPassword={false}
-        onToggle={() => {}}
-      />
+      <PasswordInput value="" onChange={mockOnChange} showPassword={false} onToggle={() => {}} />
     );
 
     const input = screen.getByTestId('password-input');
@@ -71,23 +56,13 @@ describe('PasswordInput', () => {
 
   it('shows correct button aria-label based on showPassword', () => {
     const { rerender } = render(
-      <PasswordInput
-        value="test"
-        onChange={() => {}}
-        showPassword={false}
-        onToggle={() => {}}
-      />
+      <PasswordInput value="test" onChange={() => {}} showPassword={false} onToggle={() => {}} />
     );
 
     expect(screen.getByRole('button', { name: /show password/i })).toBeInTheDocument();
 
     rerender(
-      <PasswordInput
-        value="test"
-        onChange={() => {}}
-        showPassword={true}
-        onToggle={() => {}}
-      />
+      <PasswordInput value="test" onChange={() => {}} showPassword={true} onToggle={() => {}} />
     );
 
     expect(screen.getByRole('button', { name: /hide password/i })).toBeInTheDocument();

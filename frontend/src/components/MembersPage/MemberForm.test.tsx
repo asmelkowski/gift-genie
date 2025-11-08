@@ -143,20 +143,20 @@ describe('MemberForm', () => {
       renderForm();
 
       const nameInput = screen.getByLabelText(/Name/) as HTMLInputElement;
-      
+
       // The input has maxlength=100, so we need to bypass it for testing validation logic
       // We'll simulate what would happen if validation received > 100 chars
       await user.click(nameInput);
-      
+
       // Type exactly 100 characters (which is the limit)
       await user.type(nameInput, 'a'.repeat(100));
-      
+
       // The input value should be 100 chars, which is valid
       expect(nameInput.value.length).toBe(100);
-      
+
       const submitButton = screen.getByRole('button', { name: /Add Member/i });
       await user.click(submitButton);
-      
+
       // Should not show an error since 100 chars is exactly at the limit
       expect(screen.queryByText('Name must be 100 characters or less')).not.toBeInTheDocument();
     });
@@ -349,27 +349,29 @@ describe('MemberForm', () => {
     it('displays name_conflict_in_group error', async () => {
       const user = userEvent.setup();
       let capturedOnError: ((detail: string) => void) | undefined;
-      
+
       // Capture the onError callback passed to the hook
-      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((_groupId, onError) => {
-        capturedOnError = onError;
-        return {
-          mutate: vi.fn(() => {
-            // Simulate error by calling the captured onError
-            if (capturedOnError) {
-              capturedOnError('name_conflict_in_group');
-            }
-          }),
-          mutateAsync: vi.fn(),
-          isPending: false,
-          isSuccess: false,
-          isError: false,
-          data: null,
-          error: null,
-          reset: vi.fn(),
-          status: 'idle',
-        } as never;
-      });
+      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation(
+        (_groupId, onError) => {
+          capturedOnError = onError;
+          return {
+            mutate: vi.fn(() => {
+              // Simulate error by calling the captured onError
+              if (capturedOnError) {
+                capturedOnError('name_conflict_in_group');
+              }
+            }),
+            mutateAsync: vi.fn(),
+            isPending: false,
+            isSuccess: false,
+            isError: false,
+            data: null,
+            error: null,
+            reset: vi.fn(),
+            status: 'idle',
+          } as never;
+        }
+      );
 
       renderForm();
 
@@ -387,25 +389,27 @@ describe('MemberForm', () => {
     it('displays email_conflict_in_group error', async () => {
       const user = userEvent.setup();
       let capturedOnError: ((detail: string) => void) | undefined;
-      
-      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((_groupId, onError) => {
-        capturedOnError = onError;
-        return {
-          mutate: vi.fn(() => {
-            if (capturedOnError) {
-              capturedOnError('email_conflict_in_group');
-            }
-          }),
-          mutateAsync: vi.fn(),
-          isPending: false,
-          isSuccess: false,
-          isError: false,
-          data: null,
-          error: null,
-          reset: vi.fn(),
-          status: 'idle',
-        } as never;
-      });
+
+      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation(
+        (_groupId, onError) => {
+          capturedOnError = onError;
+          return {
+            mutate: vi.fn(() => {
+              if (capturedOnError) {
+                capturedOnError('email_conflict_in_group');
+              }
+            }),
+            mutateAsync: vi.fn(),
+            isPending: false,
+            isSuccess: false,
+            isError: false,
+            data: null,
+            error: null,
+            reset: vi.fn(),
+            status: 'idle',
+          } as never;
+        }
+      );
 
       renderForm();
 
@@ -416,7 +420,9 @@ describe('MemberForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('This email is already used by another member')).toBeInTheDocument();
+        expect(
+          screen.getByText('This email is already used by another member')
+        ).toBeInTheDocument();
       });
     });
 
@@ -425,24 +431,26 @@ describe('MemberForm', () => {
       let capturedOnError: ((detail: string) => void) | undefined;
       const member = createMockMember({ is_active: true });
 
-      vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockImplementation((_groupId, onError) => {
-        capturedOnError = onError;
-        return {
-          mutate: vi.fn(() => {
-            if (capturedOnError) {
-              capturedOnError('cannot_deactivate_due_to_pending_draw');
-            }
-          }),
-          mutateAsync: vi.fn(),
-          isPending: false,
-          isSuccess: false,
-          isError: false,
-          data: null,
-          error: null,
-          reset: vi.fn(),
-          status: 'idle',
-        } as never;
-      });
+      vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockImplementation(
+        (_groupId, onError) => {
+          capturedOnError = onError;
+          return {
+            mutate: vi.fn(() => {
+              if (capturedOnError) {
+                capturedOnError('cannot_deactivate_due_to_pending_draw');
+              }
+            }),
+            mutateAsync: vi.fn(),
+            isPending: false,
+            isSuccess: false,
+            isError: false,
+            data: null,
+            error: null,
+            reset: vi.fn(),
+            status: 'idle',
+          } as never;
+        }
+      );
 
       renderForm({ member });
 

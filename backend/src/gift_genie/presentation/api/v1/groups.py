@@ -67,13 +67,23 @@ class GroupDetailResponse(BaseModel):
 
 class UpdateGroupRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    name: Annotated[str, StringConstraints(min_length=1, max_length=100, strip_whitespace=True)] | None = None
+    name: (
+        Annotated[str, StringConstraints(min_length=1, max_length=100, strip_whitespace=True)]
+        | None
+    ) = None
     historical_exclusions_enabled: bool | None = None
     historical_exclusions_lookback: int | None = Field(default=None, ge=1)
 
-    @model_validator(mode='after')
-    def check_at_least_one_field(self) -> 'UpdateGroupRequest':
-        if all(v is None for v in [self.name, self.historical_exclusions_enabled, self.historical_exclusions_lookback]):
+    @model_validator(mode="after")
+    def check_at_least_one_field(self) -> "UpdateGroupRequest":
+        if all(
+            v is None
+            for v in [
+                self.name,
+                self.historical_exclusions_enabled,
+                self.historical_exclusions_lookback,
+            ]
+        ):
             raise ValueError("At least one field must be provided")
         return self
 
@@ -158,17 +168,19 @@ async def list_groups(
             for g in groups
         ]
         total_pages = (total + page_size - 1) // page_size
-        meta = PaginationMeta(
-            total=total, page=page, page_size=page_size, total_pages=total_pages
-        )
+        meta = PaginationMeta(total=total, page=page, page_size=page_size, total_pages=total_pages)
         return PaginatedGroupsResponse(data=data, meta=meta)
     except ValueError as e:
-        logger.warning("Invalid query parameters in list groups", user_id=current_user_id, error=str(e))
+        logger.warning(
+            "Invalid query parameters in list groups", user_id=current_user_id, error=str(e)
+        )
         raise HTTPException(
             status_code=400, detail={"code": "invalid_query_params", "errors": [str(e)]}
         )
     except Exception as e:
-        logger.exception("Unexpected error during list groups", user_id=current_user_id, error=str(e))
+        logger.exception(
+            "Unexpected error during list groups", user_id=current_user_id, error=str(e)
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -214,24 +226,47 @@ async def create_group(
         response.headers["Location"] = f"/api/v1/groups/{group.id}"
         return resp
     except InvalidGroupNameError as e:
-        logger.warning("Invalid group name during creation", user_id=current_user_id, name=payload.name, error=str(e))
+        logger.warning(
+            "Invalid group name during creation",
+            user_id=current_user_id,
+            name=payload.name,
+            error=str(e),
+        )
         raise HTTPException(
             status_code=400,
-            detail={"code": "invalid_payload", "field": "name", "message": "Group name must be 1-100 characters"},
+            detail={
+                "code": "invalid_payload",
+                "field": "name",
+                "message": "Group name must be 1-100 characters",
+            },
         )
     except ValueError as e:
-        logger.warning("Validation error during group creation", user_id=current_user_id, name=payload.name, error=str(e))
+        logger.warning(
+            "Validation error during group creation",
+            user_id=current_user_id,
+            name=payload.name,
+            error=str(e),
+        )
         if "historical_exclusions_lookback" in str(e):
             raise HTTPException(
                 status_code=400,
-                detail={"code": "invalid_payload", "field": "historical_exclusions_lookback", "message": str(e)},
+                detail={
+                    "code": "invalid_payload",
+                    "field": "historical_exclusions_lookback",
+                    "message": str(e),
+                },
             )
         raise HTTPException(
             status_code=400,
             detail={"code": "invalid_payload", "field": "name", "message": str(e)},
         )
     except Exception as e:
-        logger.exception("Unexpected error during group creation", user_id=current_user_id, name=payload.name, error=str(e))
+        logger.exception(
+            "Unexpected error during group creation",
+            user_id=current_user_id,
+            name=payload.name,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -258,13 +293,28 @@ async def get_group_details(
             stats=GroupStats(member_count=member_count, active_member_count=active_count),
         )
     except GroupNotFoundError as e:
-        logger.warning("Group not found during details retrieval", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Group not found during details retrieval",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to group details", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Forbidden access to group details",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except Exception as e:
-        logger.exception("Unexpected error during group details retrieval", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.exception(
+            "Unexpected error during group details retrieval",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -295,23 +345,52 @@ async def update_group(
             updated_at=group.updated_at,
         )
     except GroupNotFoundError as e:
-        logger.warning("Group not found during update", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Group not found during update",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to update group", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Forbidden access to update group",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except InvalidGroupNameError as e:
-        logger.warning("Invalid group name during update", user_id=current_user_id, group_id=group_id, name=payload.name, error=str(e))
+        logger.warning(
+            "Invalid group name during update",
+            user_id=current_user_id,
+            group_id=group_id,
+            name=payload.name,
+            error=str(e),
+        )
         raise HTTPException(
             status_code=400,
-            detail={"code": "invalid_payload", "field": "name", "message": "Group name must be 1-100 characters"},
+            detail={
+                "code": "invalid_payload",
+                "field": "name",
+                "message": "Group name must be 1-100 characters",
+            },
         )
     except ValueError as e:
-        logger.warning("Validation error during group update", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Validation error during group update",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         if "historical_exclusions_lookback" in str(e):
             raise HTTPException(
                 status_code=400,
-                detail={"code": "invalid_payload", "field": "historical_exclusions_lookback", "message": str(e)},
+                detail={
+                    "code": "invalid_payload",
+                    "field": "historical_exclusions_lookback",
+                    "message": str(e),
+                },
             )
         elif "At least one field" in str(e):
             raise HTTPException(
@@ -320,7 +399,12 @@ async def update_group(
             )
         raise HTTPException(status_code=400, detail={"code": "invalid_payload", "message": str(e)})
     except Exception as e:
-        logger.exception("Unexpected error during group update", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.exception(
+            "Unexpected error during group update",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -337,11 +421,26 @@ async def delete_group(
         await use_case.execute(command)
         return Response(status_code=204)
     except GroupNotFoundError as e:
-        logger.warning("Group not found during deletion", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Group not found during deletion",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to delete group", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Forbidden access to delete group",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except Exception as e:
-        logger.exception("Unexpected error during group deletion", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.exception(
+            "Unexpected error during group deletion",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})

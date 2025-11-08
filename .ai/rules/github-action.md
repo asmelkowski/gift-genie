@@ -29,7 +29,7 @@ When the project uses Docker:
 - Better layer caching across builds
 
 ### Final Verification Steps
-Once you're done, as a final step conduct the following: 
+Once you're done, as a final step conduct the following:
 
 1) For each public action always use <tool>"Run Terminal"</tool> to see what is the most up-to-date version (use only major version):
 

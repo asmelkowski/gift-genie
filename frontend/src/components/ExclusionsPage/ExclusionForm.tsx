@@ -58,12 +58,12 @@ export function ExclusionForm({
         <select
           id="giver"
           value={giverMemberId}
-          onChange={(e) => setGiverMemberId(e.target.value)}
+          onChange={e => setGiverMemberId(e.target.value)}
           disabled={isLoading}
           className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Select giver member</option>
-          {members.map((member) => (
+          {members.map(member => (
             <option key={member.id} value={member.id}>
               {member.name}
             </option>
@@ -76,12 +76,12 @@ export function ExclusionForm({
         <select
           id="receiver"
           value={receiverMemberId}
-          onChange={(e) => setReceiverMemberId(e.target.value)}
+          onChange={e => setReceiverMemberId(e.target.value)}
           disabled={isLoading}
           className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Select receiver member</option>
-          {members.map((member) => (
+          {members.map(member => (
             <option key={member.id} value={member.id}>
               {member.name}
             </option>
@@ -94,7 +94,7 @@ export function ExclusionForm({
           type="checkbox"
           id="mutual"
           checked={isMutual}
-          onChange={(e) => setIsMutual(e.target.checked)}
+          onChange={e => setIsMutual(e.target.checked)}
           disabled={isLoading}
           className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
         />
@@ -104,11 +104,7 @@ export function ExclusionForm({
       </div>
 
       <div className="flex gap-2 pt-4">
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="flex-1"
-        >
+        <Button type="submit" disabled={isLoading} className="flex-1">
           {isLoading ? 'Creating...' : 'Create Exclusion'}
         </Button>
         <Button

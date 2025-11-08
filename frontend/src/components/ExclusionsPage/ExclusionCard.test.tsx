@@ -94,7 +94,9 @@ describe('ExclusionCard', () => {
 
     // Use getAllByRole to target the expand button (first button that's not the delete button)
     const buttons = screen.getAllByRole('button');
-    const expandButton = buttons.find(btn => btn.textContent?.includes('→') || btn.textContent?.includes('↔')) || buttons[0];
+    const expandButton =
+      buttons.find(btn => btn.textContent?.includes('→') || btn.textContent?.includes('↔')) ||
+      buttons[0];
     await user.click(expandButton);
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -119,7 +121,9 @@ describe('ExclusionCard', () => {
 
     // Use getAllByRole to target the expand button
     const buttons = screen.getAllByRole('button');
-    const expandButton = buttons.find(btn => btn.textContent?.includes('→') || btn.textContent?.includes('↔')) || buttons[0];
+    const expandButton =
+      buttons.find(btn => btn.textContent?.includes('→') || btn.textContent?.includes('↔')) ||
+      buttons[0];
     await user.click(expandButton);
 
     expect(screen.getByText('Inactive')).toBeInTheDocument();

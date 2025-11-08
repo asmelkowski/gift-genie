@@ -4,13 +4,17 @@ import { queryClient } from './queryClient';
 import { useAuthStore } from '@/hooks/useAuthStore';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000',
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
   const state = useAuthStore.getState();
-  if (state.csrfToken && ['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '')) {
+  if (
+    state.csrfToken &&
+    ['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '')
+  ) {
     config.headers['X-CSRF-Token'] = state.csrfToken;
   }
   return config;
@@ -18,16 +22,16 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor to handle 401 errors
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       // Don't redirect if this is the initial auth check or login attempt
       const isBootstrapCall = error.config?.url === '/api/v1/auth/me';
       const isLoginCall = error.config?.url === '/api/v1/auth/login';
-      
+
       queryClient.clear();
       useAuthStore.getState().logout();
-      
+
       // Only show toast and redirect if not the bootstrap or login call
       if (!isBootstrapCall && !isLoginCall) {
         toast.error('Session expired. Please login again.');

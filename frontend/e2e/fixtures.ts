@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { test as base, expect, Page } from "@playwright/test";
+import { test as base, expect, Page } from '@playwright/test';
 
 /**
  * Base pages and fixtures for e2e tests
@@ -10,7 +10,7 @@ export class LoginPage {
   constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto("/login");
+    await this.page.goto('/login');
   }
 
   async login(email: string, password: string) {
@@ -18,7 +18,7 @@ export class LoginPage {
     await this.page.fill('input[type="password"]', password);
     await this.page.click('button[type="submit"]');
     // Wait for navigation to complete with explicit timeout
-    await this.page.waitForURL("/app/groups", { timeout: 15000 });
+    await this.page.waitForURL('/app/groups', { timeout: 15000 });
   }
 
   async submitLogin(email: string, password: string) {
@@ -29,7 +29,7 @@ export class LoginPage {
   }
 
   async expectErrorMessage(message: string) {
-    const errorMessage = this.page.locator("text=" + message);
+    const errorMessage = this.page.locator('text=' + message);
     await expect(errorMessage).toBeVisible();
   }
 }
@@ -38,12 +38,12 @@ export class HomePage {
   constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto("/");
+    await this.page.goto('/');
   }
 
   async logout() {
     await this.page.click('button[aria-label="Open user menu"]');
-    await this.page.click("text=Logout");
+    await this.page.click('text=Logout');
   }
 }
 
@@ -51,19 +51,19 @@ export class GroupsPage {
   constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto("/app/groups");
+    await this.page.goto('/app/groups');
   }
 
   async expectLoggedIn() {
     // Verify the home page is accessible
-    await expect(this.page).toHaveURL("/app/groups");
+    await expect(this.page).toHaveURL('/app/groups');
   }
 
   async createGroup(name: string, description?: string) {
     await this.page.click('button:has-text("Create Group")');
     await this.page.fill('input[placeholder*="Group name"]', name);
     if (description) {
-      await this.page.fill("textarea", description);
+      await this.page.fill('textarea', description);
     }
     await this.page.click('button:has-text("Create")');
   }
@@ -135,12 +135,12 @@ export const test = base.extend<TestFixtures>({
     // Try to load saved auth state first
     let context;
     const authFile = 'playwright/.auth/user.json';
-    
+
     try {
       // Check if auth state exists (it should be created by global-setup.ts)
       const fs = await import('fs');
       const { existsSync } = fs;
-      
+
       if (existsSync(authFile)) {
         console.log('📂 Loading saved authentication state...');
         context = await browser.newContext({ storageState: authFile });
@@ -151,21 +151,21 @@ export const test = base.extend<TestFixtures>({
       console.log('⚠️  No saved auth state, performing login...');
       context = await browser.newContext();
       const page = await context.newPage();
-      
+
       const loginPage = new LoginPage(page);
       await loginPage.goto();
-      
-      const testEmail = "test@example.com";
-      const testPassword = "09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q";
+
+      const testEmail = 'test@example.com';
+      const testPassword = '09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q';
       await loginPage.login(testEmail, testPassword);
-      
+
       // Save the state for next time
       await context.storageState({ path: authFile });
       console.log('✅ Authentication state saved');
-      
+
       await page.close();
     }
-    
+
     const page = await context.newPage();
     await use(page);
     await context.close();

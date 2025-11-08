@@ -260,18 +260,18 @@ async def execute(self, query: ListAssignmentsQuery) -> list[Assignment | Assign
     draw = await self.draw_repository.get_by_id(query.draw_id)
     if not draw:
         raise DrawNotFoundError()
-    
+
     # 2. Fetch parent group and verify authorization
     group = await self.group_repository.get_by_id(draw.group_id)
     if not group:
         raise DrawNotFoundError()  # Shouldn't happen with referential integrity
-    
+
     if group.admin_user_id != query.requesting_user_id:
         raise ForbiddenError()
-    
+
     # 3. Fetch all assignments for the draw
     assignments = await self.assignment_repository.list_by_draw(query.draw_id)
-    
+
     # 4. Optionally enrich with names
     if query.include_names:
         # Collect unique member IDs
@@ -279,14 +279,14 @@ async def execute(self, query: ListAssignmentsQuery) -> list[Assignment | Assign
         for assignment in assignments:
             member_ids.add(assignment.giver_member_id)
             member_ids.add(assignment.receiver_member_id)
-        
+
         # Fetch all members in one batch (optimization)
         members_map = {}
         for member_id in member_ids:
             member = await self.member_repository.get_by_id(member_id)
             if member:
                 members_map[member_id] = member.name
-        
+
         # Enrich assignments
         enriched = []
         for assignment in assignments:
@@ -300,7 +300,7 @@ async def execute(self, query: ListAssignmentsQuery) -> list[Assignment | Assign
                 receiver_name=members_map.get(assignment.receiver_member_id),
             ))
         return enriched
-    
+
     return assignments
 ```
 
@@ -526,7 +526,7 @@ Add batch member lookup method to `MemberRepository` protocol (optional optimiza
 @runtime_checkable
 class MemberRepository(Protocol):
     # ... existing methods ...
-    
+
     async def get_many_by_ids(self, member_ids: list[str]) -> dict[str, Member]:
         """Fetch multiple members by IDs and return as dict mapping ID to Member"""
         ...
@@ -862,15 +862,15 @@ class TestListAssignmentsUseCase:
         # Mock repositories
         # Test successful listing without names
         pass
-    
+
     async def test_list_assignments_with_names_success(self):
         # Test successful listing with names
         pass
-    
+
     async def test_draw_not_found_raises_error(self):
         # Test 404 when draw doesn't exist
         pass
-    
+
     async def test_forbidden_when_not_admin(self):
         # Test 403 when user is not group admin
         pass
@@ -887,19 +887,19 @@ class TestListAssignmentsAPI:
     async def test_list_assignments_200_without_names(self):
         # Test GET /draws/{id}/assignments returns 200
         pass
-    
+
     async def test_list_assignments_200_with_names(self):
         # Test GET /draws/{id}/assignments?include=names returns 200
         pass
-    
+
     async def test_list_assignments_401_without_auth(self):
         # Test 401 without authentication
         pass
-    
+
     async def test_list_assignments_403_not_admin(self):
         # Test 403 when not group admin
         pass
-    
+
     async def test_list_assignments_404_draw_not_found(self):
         # Test 404 when draw doesn't exist
         pass
@@ -931,4 +931,3 @@ class TestListAssignmentsAPI:
 6. **Assignment History**
    - Track when assignments were viewed
    - Audit trail for compliance
-

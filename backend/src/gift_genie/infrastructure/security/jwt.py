@@ -17,7 +17,9 @@ class JWTService:
 
     def verify_token(self, token: str) -> dict[str, Any]:
         try:
-            payload: dict[str, Any] = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            payload: dict[str, Any] = jwt.decode(
+                token, self.secret_key, algorithms=[self.algorithm]
+            )
             return payload
         except jwt.ExpiredSignatureError:
             raise ValueError("Token has expired")

@@ -32,7 +32,13 @@ export interface MemberFormProps {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDrawAlert }: MemberFormProps) {
+export function MemberForm({
+  member,
+  groupId,
+  onSuccess,
+  onCancel,
+  onPendingDrawAlert,
+}: MemberFormProps) {
   const [formData, setFormData] = useState<MemberFormData>({
     name: member?.name || '',
     email: member?.email || '',
@@ -43,44 +49,44 @@ export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDraw
 
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const handleCreateError = useCallback(
-    (detail: string) => {
-      if (detail === 'name_conflict_in_group') {
-        setErrors((prev) => ({
-          ...prev,
-          name: 'This name is already used by another member',
-        }));
-      } else if (detail === 'email_conflict_in_group') {
-        setErrors((prev) => ({
-          ...prev,
-          email: 'This email is already used by another member',
-        }));
-      } else {
-        setApiError(detail || 'Failed to add member');
-      }
-    },
-    []
-  );
-
-  const handleUpdateError = useCallback((detail: string) => {
+  const handleCreateError = useCallback((detail: string) => {
     if (detail === 'name_conflict_in_group') {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
         name: 'This name is already used by another member',
       }));
     } else if (detail === 'email_conflict_in_group') {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
         email: 'This email is already used by another member',
       }));
-    } else if (detail === 'cannot_deactivate_due_to_pending_draw') {
-      onPendingDrawAlert?.(
-        'Cannot deactivate this member because they are part of a pending draw. Please finalize or delete the draw first.'
-      );
     } else {
-      setApiError(detail || 'Failed to update member');
+      setApiError(detail || 'Failed to add member');
     }
-  }, [onPendingDrawAlert]);
+  }, []);
+
+  const handleUpdateError = useCallback(
+    (detail: string) => {
+      if (detail === 'name_conflict_in_group') {
+        setErrors(prev => ({
+          ...prev,
+          name: 'This name is already used by another member',
+        }));
+      } else if (detail === 'email_conflict_in_group') {
+        setErrors(prev => ({
+          ...prev,
+          email: 'This email is already used by another member',
+        }));
+      } else if (detail === 'cannot_deactivate_due_to_pending_draw') {
+        onPendingDrawAlert?.(
+          'Cannot deactivate this member because they are part of a pending draw. Please finalize or delete the draw first.'
+        );
+      } else {
+        setApiError(detail || 'Failed to update member');
+      }
+    },
+    [onPendingDrawAlert]
+  );
 
   const createMutation = useCreateMemberMutation(groupId, handleCreateError);
   const updateMutation = useUpdateMemberMutation(groupId, handleUpdateError);
@@ -99,31 +105,37 @@ export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDraw
     return undefined;
   }, []);
 
-  const handleNameChange = useCallback((value: string) => {
-    setFormData((prev) => ({ ...prev, name: value }));
-    if (touched.name) {
-      setErrors((prev) => ({ ...prev, name: validateName(value) }));
-    }
-  }, [touched.name, validateName]);
+  const handleNameChange = useCallback(
+    (value: string) => {
+      setFormData(prev => ({ ...prev, name: value }));
+      if (touched.name) {
+        setErrors(prev => ({ ...prev, name: validateName(value) }));
+      }
+    },
+    [touched.name, validateName]
+  );
 
-  const handleEmailChange = useCallback((value: string) => {
-    setFormData((prev) => ({ ...prev, email: value }));
-    if (touched.email) {
-      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
-    }
-  }, [touched.email, validateEmail]);
+  const handleEmailChange = useCallback(
+    (value: string) => {
+      setFormData(prev => ({ ...prev, email: value }));
+      if (touched.email) {
+        setErrors(prev => ({ ...prev, email: validateEmail(value) }));
+      }
+    },
+    [touched.email, validateEmail]
+  );
 
   const handleNameBlur = useCallback(() => {
-    setTouched((prev) => ({ ...prev, name: true }));
-    setErrors((prev) => ({ ...prev, name: validateName(formData.name) }));
+    setTouched(prev => ({ ...prev, name: true }));
+    setErrors(prev => ({ ...prev, name: validateName(formData.name) }));
   }, [formData.name, validateName]);
 
   const handleEmailBlur = useCallback(() => {
-    setTouched((prev) => ({ ...prev, email: true }));
-    setErrors((prev) => ({ ...prev, email: validateEmail(formData.email) }));
+    setTouched(prev => ({ ...prev, email: true }));
+    setErrors(prev => ({ ...prev, email: validateEmail(formData.email) }));
   }, [formData.email, validateEmail]);
 
-  const hasErrors = Object.values(errors).some((error) => error);
+  const hasErrors = Object.values(errors).some(error => error);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -144,10 +156,7 @@ export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDraw
           email: formData.email || undefined,
           is_active: formData.is_active,
         };
-        updateMutation.mutate(
-          { memberId: member.id, payload },
-          { onSuccess }
-        );
+        updateMutation.mutate({ memberId: member.id, payload }, { onSuccess });
       } else {
         const payload: CreateMemberRequest = {
           name: formData.name.trim(),
@@ -175,7 +184,7 @@ export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDraw
         <Input
           id="name"
           value={formData.name}
-          onChange={(e) => handleNameChange(e.target.value)}
+          onChange={e => handleNameChange(e.target.value)}
           onBlur={handleNameBlur}
           maxLength={100}
           placeholder="Enter member name"
@@ -191,7 +200,7 @@ export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDraw
           id="email"
           type="email"
           value={formData.email}
-          onChange={(e) => handleEmailChange(e.target.value)}
+          onChange={e => handleEmailChange(e.target.value)}
           onBlur={handleEmailBlur}
           placeholder="Enter member email"
           className={errors.email ? 'border-red-500' : ''}
@@ -205,7 +214,7 @@ export function MemberForm({ member, groupId, onSuccess, onCancel, onPendingDraw
           id="is_active"
           type="checkbox"
           checked={formData.is_active}
-          onChange={(e) => setFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
+          onChange={e => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
           disabled={isLoading}
           className="h-4 w-4"
           aria-label="Mark member as active"

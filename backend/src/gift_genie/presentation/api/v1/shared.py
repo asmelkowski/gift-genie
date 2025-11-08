@@ -46,7 +46,9 @@ def get_http_status_for_exception(exception_class_name: str) -> int:
     return EXCEPTION_STATUS_MAP.get(exception_class_name, 500)
 
 
-def handle_application_exceptions(func: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
+def handle_application_exceptions(
+    func: Callable[..., Awaitable[Any]],
+) -> Callable[..., Awaitable[Any]]:
     """Decorator to handle application exceptions and convert them to HTTP exceptions."""
 
     @wraps(func)
@@ -62,6 +64,9 @@ def handle_application_exceptions(func: Callable[..., Awaitable[Any]]) -> Callab
                 raise HTTPException(status_code=500, detail={"code": "server_error"})
             else:
                 # Known application exception - convert to HTTP exception
-                raise HTTPException(status_code=status_code, detail={"code": exception_name.lower(), "message": str(e)})
+                raise HTTPException(
+                    status_code=status_code,
+                    detail={"code": exception_name.lower(), "message": str(e)},
+                )
 
     return wrapper

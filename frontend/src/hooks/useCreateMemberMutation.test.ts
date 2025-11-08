@@ -33,12 +33,9 @@ describe('useCreateMemberMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     const memberData: CreateMemberRequest = {
       name: 'John Doe',
@@ -51,10 +48,7 @@ describe('useCreateMemberMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/groups/group-1/members',
-      memberData
-    );
+    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/members', memberData);
   });
 
   it('invalidates members query with correct group ID on success', async () => {
@@ -70,12 +64,9 @@ describe('useCreateMemberMutation', () => {
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useCreateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ name: 'John Doe', email: 'john@example.com' });
 
@@ -100,12 +91,9 @@ describe('useCreateMemberMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ name: 'John Doe', email: 'john@example.com' });
 
@@ -126,12 +114,9 @@ describe('useCreateMemberMutation', () => {
     vi.mocked(api.post).mockRejectedValue(errorResponse);
     const onErrorCallback = vi.fn();
 
-    const { result } = renderHook(
-      () => useCreateMemberMutation('group-1', onErrorCallback),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateMemberMutation('group-1', onErrorCallback), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ name: 'John Doe', email: 'john@example.com' });
 
@@ -151,12 +136,9 @@ describe('useCreateMemberMutation', () => {
 
     vi.mocked(api.post).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useCreateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ name: 'John Doe', email: 'john@example.com' });
 
@@ -179,12 +161,9 @@ describe('useCreateMemberMutation', () => {
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ name: 'John Doe', email: 'john@example.com' });
 
@@ -206,18 +185,12 @@ describe('useCreateMemberMutation', () => {
     };
 
     vi.mocked(api.post).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ data: mockData }), 100)
-        )
+      () => new Promise(resolve => setTimeout(() => resolve({ data: mockData }), 100))
     );
 
-    const { result } = renderHook(
-      () => useCreateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ name: 'John Doe', email: 'john@example.com' });
 

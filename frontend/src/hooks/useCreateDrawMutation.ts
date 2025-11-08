@@ -11,10 +11,7 @@ export const useCreateDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await api.post<DrawResponse>(
-        `/api/v1/groups/${groupId}/draws`,
-        {}
-      );
+      const response = await api.post<DrawResponse>(`/api/v1/groups/${groupId}/draws`, {});
       return response.data;
     },
     onSuccess: () => {

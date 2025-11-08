@@ -189,10 +189,7 @@ describe('useCreateGroupMutation', () => {
     };
 
     vi.mocked(api.post).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ data: mockData }), 100)
-        )
+      () => new Promise(resolve => setTimeout(() => resolve({ data: mockData }), 100))
     );
 
     const { result } = renderHook(() => useCreateGroupMutation(), {

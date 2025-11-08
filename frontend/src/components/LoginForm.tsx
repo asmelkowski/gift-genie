@@ -50,21 +50,21 @@ export function LoginForm() {
       return;
     }
 
-     loginMutation.mutate(
-       { email, password },
-       {
-         onError: (error: AxiosError) => {
-           const status = error.response?.status;
-           if (status === 401) {
-             setError('Invalid email or password');
-           } else if (status === 429) {
-             setError('Too many login attempts. Please try again in a moment.');
-           } else {
-             setError('An unexpected error occurred. Please try again later.');
-           }
-         },
-       }
-     );
+    loginMutation.mutate(
+      { email, password },
+      {
+        onError: (error: AxiosError) => {
+          const status = error.response?.status;
+          if (status === 401) {
+            setError('Invalid email or password');
+          } else if (status === 429) {
+            setError('Too many login attempts. Please try again in a moment.');
+          } else {
+            setError('An unexpected error occurred. Please try again later.');
+          }
+        },
+      }
+    );
   };
 
   return (
@@ -99,11 +99,7 @@ export function LoginForm() {
         </Alert>
       )}
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loginMutation.isPending || !isFormValid}
-      >
+      <Button type="submit" className="w-full" disabled={loginMutation.isPending || !isFormValid}>
         {loginMutation.isPending ? 'Logging in...' : 'Login'}
       </Button>
     </form>

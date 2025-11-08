@@ -18,9 +18,7 @@ type ExclusionType = components['schemas']['ExclusionType'];
 export function ExclusionsPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [filterType, setFilterType] = useState<'all' | 'manual' | 'historical'>(
-    'all'
-  );
+  const [filterType, setFilterType] = useState<'all' | 'manual' | 'historical'>('all');
   const [sortBy, setSortBy] = useState('exclusion_type,name');
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -42,45 +40,33 @@ export function ExclusionsPage() {
     sort: sortBy,
   });
 
-  const {
-    data: membersData,
-  } = useMembersQuery(groupId || '', {
+  const { data: membersData } = useMembersQuery(groupId || '', {
     page_size: 100,
   });
 
   const createExclusionMutation = useCreateExclusionMutation(groupId || '');
   const deleteExclusionMutation = useDeleteExclusionMutation(groupId || '');
 
-  const members = useMemo(
-    () => membersData?.data || [],
-    [membersData]
-  );
+  const members = useMemo(() => membersData?.data || [], [membersData]);
 
-  const exclusionsWithMembers = useMemo(
-    () => {
-      if (!exclusionsData?.data) return [];
+  const exclusionsWithMembers = useMemo(() => {
+    if (!exclusionsData?.data) return [];
 
-      return exclusionsData.data.map((exclusion) => {
-        const giverMember = members.find((m) => m.id === exclusion.giver_member_id);
-        const receiverMember = members.find((m) => m.id === exclusion.receiver_member_id);
-        return {
-          ...exclusion,
-          giverName: giverMember?.name || 'Unknown',
-          receiverName: receiverMember?.name || 'Unknown',
-          giverMember,
-          receiverMember,
-        };
-      });
-    },
-    [exclusionsData?.data, members]
-  );
+    return exclusionsData.data.map(exclusion => {
+      const giverMember = members.find(m => m.id === exclusion.giver_member_id);
+      const receiverMember = members.find(m => m.id === exclusion.receiver_member_id);
+      return {
+        ...exclusion,
+        giverName: giverMember?.name || 'Unknown',
+        receiverName: receiverMember?.name || 'Unknown',
+        giverMember,
+        receiverMember,
+      };
+    });
+  }, [exclusionsData?.data, members]);
 
   const handleCreateExclusion = useCallback(
-    async (
-      giverMemberId: string,
-      receiverMemberId: string,
-      isMutual: boolean
-    ) => {
+    async (giverMemberId: string, receiverMemberId: string, isMutual: boolean) => {
       await createExclusionMutation.mutateAsync({
         giver_member_id: giverMemberId,
         receiver_member_id: receiverMemberId,
@@ -92,11 +78,7 @@ export function ExclusionsPage() {
 
   const handleDeleteExclusion = useCallback(
     (exclusionId: string) => {
-      if (
-        window.confirm(
-          'Are you sure you want to delete this exclusion?'
-        )
-      ) {
+      if (window.confirm('Are you sure you want to delete this exclusion?')) {
         deleteExclusionMutation.mutate(exclusionId);
       }
     },
@@ -137,30 +119,30 @@ export function ExclusionsPage() {
         <LoadingState />
       ) : exclusionsError ? (
         <ErrorState message="Failed to load exclusions" />
-       ) : exclusionsWithMembers.length === 0 ? (
-          <EmptyState 
-            message={
-              filterType === 'historical'
-                ? 'No historical exclusions found. Historical exclusions are created automatically from past draws.'
-                : 'No exclusions found. Create one to prevent specific member pairings.'
-            }
-          />
-       ) : (
-         <>
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-             {exclusionsWithMembers.map((exclusion) => (
-               <ExclusionCard
-                 key={exclusion.id}
-                 exclusion={exclusion}
-                 giverName={exclusion.giverName}
-                 receiverName={exclusion.receiverName}
-                 giverMember={exclusion.giverMember}
-                 receiverMember={exclusion.receiverMember}
-                 onDelete={handleDeleteExclusion}
-                 isLoading={deleteExclusionMutation.isPending}
-               />
-             ))}
-           </div>
+      ) : exclusionsWithMembers.length === 0 ? (
+        <EmptyState
+          message={
+            filterType === 'historical'
+              ? 'No historical exclusions found. Historical exclusions are created automatically from past draws.'
+              : 'No exclusions found. Create one to prevent specific member pairings.'
+          }
+        />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {exclusionsWithMembers.map(exclusion => (
+              <ExclusionCard
+                key={exclusion.id}
+                exclusion={exclusion}
+                giverName={exclusion.giverName}
+                receiverName={exclusion.receiverName}
+                giverMember={exclusion.giverMember}
+                receiverMember={exclusion.receiverMember}
+                onDelete={handleDeleteExclusion}
+                isLoading={deleteExclusionMutation.isPending}
+              />
+            ))}
+          </div>
 
           {exclusionsData && (
             <PaginationControls

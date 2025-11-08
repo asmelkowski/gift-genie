@@ -49,7 +49,7 @@ class MemberRepositorySqlAlchemy(MemberRepository):
         search: str | None,
         page: int,
         page_size: int,
-        sort: str
+        sort: str,
     ) -> tuple[list[Member], int]:
         # Build base where clause
         base_where = MemberModel.group_id == UUID(group_id)
@@ -57,10 +57,9 @@ class MemberRepositorySqlAlchemy(MemberRepository):
             base_where &= MemberModel.is_active == is_active
         if search:
             search_lower = f"%{search.lower()}%"
-            base_where &= (
-                func.lower(MemberModel.name).like(search_lower) |
-                func.lower(MemberModel.email).like(search_lower)
-            )
+            base_where &= func.lower(MemberModel.name).like(search_lower) | func.lower(
+                MemberModel.email
+            ).like(search_lower)
 
         # Get total count
         count_stmt = select(func.count()).select_from(MemberModel).where(base_where)
@@ -94,17 +93,21 @@ class MemberRepositorySqlAlchemy(MemberRepository):
 
     async def get_by_group_and_id(self, group_id: str, member_id: str) -> Optional[Member]:
         stmt = select(MemberModel).where(
-            MemberModel.id == UUID(member_id),
-            MemberModel.group_id == UUID(group_id)
+            MemberModel.id == UUID(member_id), MemberModel.group_id == UUID(group_id)
         )
         res = await self._session.execute(stmt)
         row = res.scalar_one_or_none()
         return self._to_domain(row) if row else None
 
-    async def name_exists_in_group(self, group_id: str, name: str, exclude_member_id: str | None = None) -> bool:
-        stmt = select(func.count()).select_from(MemberModel).where(
-            MemberModel.group_id == UUID(group_id),
-            func.lower(MemberModel.name) == name.lower()
+    async def name_exists_in_group(
+        self, group_id: str, name: str, exclude_member_id: str | None = None
+    ) -> bool:
+        stmt = (
+            select(func.count())
+            .select_from(MemberModel)
+            .where(
+                MemberModel.group_id == UUID(group_id), func.lower(MemberModel.name) == name.lower()
+            )
         )
         if exclude_member_id:
             stmt = stmt.where(MemberModel.id != UUID(exclude_member_id))
@@ -113,10 +116,16 @@ class MemberRepositorySqlAlchemy(MemberRepository):
         count = res.scalar_one() or 0
         return count > 0
 
-    async def email_exists_in_group(self, group_id: str, email: str, exclude_member_id: str | None = None) -> bool:
-        stmt = select(func.count()).select_from(MemberModel).where(
-            MemberModel.group_id == UUID(group_id),
-            func.lower(MemberModel.email) == email.lower()
+    async def email_exists_in_group(
+        self, group_id: str, email: str, exclude_member_id: str | None = None
+    ) -> bool:
+        stmt = (
+            select(func.count())
+            .select_from(MemberModel)
+            .where(
+                MemberModel.group_id == UUID(group_id),
+                func.lower(MemberModel.email) == email.lower(),
+            )
         )
         if exclude_member_id:
             stmt = stmt.where(MemberModel.id != UUID(exclude_member_id))
@@ -127,12 +136,15 @@ class MemberRepositorySqlAlchemy(MemberRepository):
 
     async def has_pending_draw(self, member_id: str) -> bool:
         # Check if member has any assignments in pending draws
-        stmt = select(func.count()).select_from(AssignmentModel).join(
-            DrawModel, AssignmentModel.draw_id == DrawModel.id
-        ).where(
-            (AssignmentModel.giver_member_id == UUID(member_id)) |
-            (AssignmentModel.receiver_member_id == UUID(member_id)),
-            DrawModel.status == DrawStatus.PENDING
+        stmt = (
+            select(func.count())
+            .select_from(AssignmentModel)
+            .join(DrawModel, AssignmentModel.draw_id == DrawModel.id)
+            .where(
+                (AssignmentModel.giver_member_id == UUID(member_id))
+                | (AssignmentModel.receiver_member_id == UUID(member_id)),
+                DrawModel.status == DrawStatus.PENDING,
+            )
         )
 
         res = await self._session.execute(stmt)

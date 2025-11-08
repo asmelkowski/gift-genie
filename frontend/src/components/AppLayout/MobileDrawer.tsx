@@ -44,10 +44,7 @@ export function MobileDrawer({ isOpen, onClose, items, activeRoute }: MobileDraw
   return (
     <>
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={handleBackdropClick}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={handleBackdropClick} />
       )}
       <nav
         className={`fixed inset-y-0 left-0 w-64 bg-gray-50 border-r border-gray-200 p-6 overflow-y-auto z-50 lg:hidden transform transition-transform duration-300 ease-in-out ${
@@ -55,7 +52,7 @@ export function MobileDrawer({ isOpen, onClose, items, activeRoute }: MobileDraw
         }`}
       >
         <ul className="space-y-2 list-none m-0 p-0">
-          {items.map((item) => {
+          {items.map(item => {
             const isActive = currentPath === item.path || currentPath.startsWith(`${item.path}/`);
 
             return (

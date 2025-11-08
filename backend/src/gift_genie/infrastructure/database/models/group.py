@@ -32,7 +32,9 @@ class GroupModel(Base):
         Boolean, nullable=False, default=True
     )
     historical_exclusions_lookback: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_datetime_now)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_datetime_now
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_datetime_now, onupdate=utc_datetime_now
     )

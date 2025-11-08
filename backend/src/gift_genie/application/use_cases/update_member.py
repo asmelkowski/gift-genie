@@ -31,7 +31,9 @@ class UpdateMemberUseCase:
             raise ForbiddenError()
 
         # Retrieve existing member
-        member = await self.member_repository.get_by_group_and_id(command.group_id, command.member_id)
+        member = await self.member_repository.get_by_group_and_id(
+            command.group_id, command.member_id
+        )
         if not member:
             raise MemberNotFoundError()
 

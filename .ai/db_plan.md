@@ -390,8 +390,8 @@ Minimal database-level constraints (most validation in domain layer):
 ### 8.1 Authentication
 ```sql
 -- User login
-SELECT id, email, password_hash, name 
-FROM users 
+SELECT id, email, password_hash, name
+FROM users
 WHERE LOWER(email) = LOWER('user@example.com');
 ```
 
@@ -399,7 +399,7 @@ WHERE LOWER(email) = LOWER('user@example.com');
 ```sql
 -- Get all groups for a user
 SELECT id, name, created_at, historical_exclusions_enabled, historical_exclusions_lookback
-FROM groups 
+FROM groups
 WHERE admin_user_id = 'user-uuid-here'
 ORDER BY created_at DESC;
 
@@ -420,15 +420,15 @@ WHERE group_id = 'group-uuid-here' AND is_active = true
 ORDER BY name;
 
 -- Check email uniqueness within group (case-insensitive)
-SELECT id FROM members 
+SELECT id FROM members
 WHERE group_id = 'group-uuid-here' AND LOWER(email) = LOWER('member@example.com');
 ```
 
 ### 8.4 Exclusions
 ```sql
 -- Get all exclusions for a group
-SELECT e.*, 
-       mg.name as giver_name, 
+SELECT e.*,
+       mg.name as giver_name,
        mr.name as receiver_name
 FROM exclusions e
 JOIN members mg ON e.giver_member_id = mg.id

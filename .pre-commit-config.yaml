@@ -1,0 +1,74 @@
+repos:
+  # General pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+      - id: check-docstring-first
+
+  # Backend Python hooks
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
+    hooks:
+      # Run the formatter first
+      - id: ruff-format
+        files: ^backend/.*\.py$
+        types_or: [python]
+      # Run the linter with --fix to auto-fix issues
+      - id: ruff
+        files: ^backend/.*\.py$
+        types_or: [python]
+        args: [--fix]
+
+  # Frontend hooks - use local installations
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: sh -c 'cd frontend && npm run format'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|json|css|md|yml|yaml)$
+        types_or: [javascript, jsx, ts, tsx, json, css, markdown]
+        pass_filenames: false
+        exclude: ^frontend/(node_modules|dist|build)/
+
+      - id: eslint
+        name: eslint
+        entry: sh -c 'cd frontend && npm run lint:fix'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx)$
+        types_or: [javascript, jsx, ts, tsx]
+        pass_filenames: false
+        exclude: ^frontend/(node_modules|dist|build)/
+
+  # Security hooks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        files: ^backend/src/.*\.py$
+        additional_dependencies: ["bandit[toml]", "pbr"]
+        args: [--exit-zero]
+
+  # Docker hooks
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        files: ^.*Dockerfile$
+        types: [dockerfile]
+        args: [--failure-threshold, error]
+
+# Global settings
+fail_fast: false
+default_stages: [pre-commit]

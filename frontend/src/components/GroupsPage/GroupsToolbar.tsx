@@ -16,12 +16,7 @@ const SORT_OPTIONS = [
   { value: '-name', label: 'Name (Z-A)' },
 ];
 
-export function GroupsToolbar({
-  search,
-  sort,
-  onSearchChange,
-  onSortChange,
-}: GroupsToolbarProps) {
+export function GroupsToolbar({ search, sort, onSearchChange, onSortChange }: GroupsToolbarProps) {
   const [inputValue, setInputValue] = useState(search);
 
   const handleSearchChange = useCallback(
@@ -43,10 +38,7 @@ export function GroupsToolbar({
     [onSortChange]
   );
 
-  const isValidSort = useMemo(
-    () => SORT_OPTIONS.some((opt) => opt.value === sort),
-    [sort]
-  );
+  const isValidSort = useMemo(() => SORT_OPTIONS.some(opt => opt.value === sort), [sort]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -73,7 +65,7 @@ export function GroupsToolbar({
           onChange={handleSortChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          {SORT_OPTIONS.map((opt) => (
+          {SORT_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>

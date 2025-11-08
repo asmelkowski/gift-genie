@@ -44,6 +44,7 @@ class UserRepositorySqlAlchemy(UserRepository):
         res = await self._session.execute(stmt)
         row = res.scalar_one_or_none()
         return self._to_domain(row) if row else None
+
     async def get_by_email_ci(self, email: str) -> Optional[User]:
         stmt = select(UserModel).where(func.lower(UserModel.email) == func.lower(email))
         res = await self._session.execute(stmt)
@@ -51,8 +52,10 @@ class UserRepositorySqlAlchemy(UserRepository):
         return self._to_domain(row) if row else None
 
     async def email_exists_ci(self, email: str) -> bool:
-        stmt = select(func.count()).select_from(UserModel).where(
-            func.lower(UserModel.email) == func.lower(email)
+        stmt = (
+            select(func.count())
+            .select_from(UserModel)
+            .where(func.lower(UserModel.email) == func.lower(email))
         )
         res = await self._session.execute(stmt)
         count = res.scalar_one() or 0

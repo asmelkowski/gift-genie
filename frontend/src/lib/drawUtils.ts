@@ -61,9 +61,7 @@ export function transformToDrawViewModel(draw: DrawResponse): DrawViewModel {
     statusLabel: isFinalized ? 'Finalized' : 'Pending',
     statusColor: isFinalized ? 'green' : 'yellow',
     formattedCreatedAt: formatDrawTimestamp(draw.created_at),
-    formattedFinalizedAt: draw.finalized_at
-      ? formatDrawTimestamp(draw.finalized_at)
-      : null,
+    formattedFinalizedAt: draw.finalized_at ? formatDrawTimestamp(draw.finalized_at) : null,
     formattedNotificationSentAt: draw.notification_sent_at
       ? formatDrawTimestamp(draw.notification_sent_at)
       : null,
@@ -78,17 +76,11 @@ export function transformToDrawViewModel(draw: DrawResponse): DrawViewModel {
   };
 }
 
-export function exportToCSV(
-  assignments: AssignmentWithNames[],
-  drawId: string
-): void {
+export function exportToCSV(assignments: AssignmentWithNames[], drawId: string): void {
   const headers = ['Giver', 'Receiver'];
-  const rows = assignments.map((a) => [a.giver_name, a.receiver_name]);
+  const rows = assignments.map(a => [a.giver_name, a.receiver_name]);
 
-  const csvContent = [
-    headers.join(','),
-    ...rows.map((row) => row.join(',')),
-  ].join('\n');
+  const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
@@ -110,7 +102,7 @@ export async function copyToClipboard(
   const text = [
     `Draw Results${groupName ? ` - ${groupName}` : ''}`,
     '',
-    ...assignments.map((a) => `${a.giver_name} → ${a.receiver_name}`),
+    ...assignments.map(a => `${a.giver_name} → ${a.receiver_name}`),
   ].join('\n');
 
   if (navigator.clipboard) {
@@ -128,9 +120,7 @@ export async function copyToClipboard(
 export function shouldShowConfetti(drawId: string): boolean {
   if (typeof window === 'undefined') return false;
 
-  const hasReducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches;
+  const hasReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (hasReducedMotion) return false;
 
   const flag = sessionStorage.getItem(`draw-${drawId}-just-finalized`);
