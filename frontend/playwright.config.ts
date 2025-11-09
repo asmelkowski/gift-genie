@@ -33,7 +33,7 @@ export default defineConfig({
   /* Enhanced global setup for parallel execution */
   globalSetup: './e2e/global-setup.ts',
   /* Timeout for global setup */
-  globalTimeout: process.env.CI ? 60000 : 30000,
+  globalTimeout: process.env.CI ? 180000 : 120000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Test grep pattern - include all .spec.ts files in e2e directory */

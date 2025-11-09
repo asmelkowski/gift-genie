@@ -2,6 +2,7 @@ from functools import wraps
 from typing import Any, Callable, Awaitable
 from fastapi import HTTPException
 from pydantic import BaseModel
+from loguru import logger
 
 
 class PaginationMeta(BaseModel):
@@ -57,6 +58,7 @@ def handle_application_exceptions(
             return await func(*args, **kwargs)
         except Exception as e:
             exception_name = type(e).__name__
+            logger.exception("Exception occured")
             status_code = get_http_status_for_exception(exception_name)
 
             if status_code == 500:

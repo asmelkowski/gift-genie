@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Cookie settings
+    COOKIE_SAMESITE: str = "lax"
+    COOKIE_SECURE: bool = False
+
     # Email (to be configured)
     EMAIL_ENABLED: bool = False
     EMAIL_FROM: str = ""

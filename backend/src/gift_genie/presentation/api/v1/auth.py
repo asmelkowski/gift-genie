@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 from collections.abc import AsyncGenerator
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from loguru import logger
@@ -200,12 +200,13 @@ async def login_user(
     access_token = jwt_service.create_access_token(data={"sub": user.id})
 
     # Set httpOnly cookie
+    settings = get_settings()
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
+        secure=settings.COOKIE_SECURE,
+        samesite=_get_samesite_value(settings.COOKIE_SAMESITE),
     )
 
     # Generate CSRF token
@@ -251,19 +252,42 @@ async def get_current_user_profile(
 @router.post("/logout", status_code=204)
 async def logout(response: Response) -> None:
     try:
+        settings = get_settings()
         response.set_cookie(
             key="access_token",
             value="",
             max_age=0,
             httponly=True,
-            secure=False,
-            samesite="lax",
+            secure=settings.COOKIE_SECURE,
+            samesite=_get_samesite_value(settings.COOKIE_SAMESITE),
             path="/",
         )
         logger.info("User logged out successfully")
     except Exception:
         logger.exception("Unexpected error during logout")
         raise HTTPException(status_code=500, detail={"code": "server_error"})
+
+
+def _get_samesite_value(samesite_str: str) -> Literal["lax", "strict", "none"] | None:
+    """Convert string samesite value to the literal type expected by FastAPI.
+
+    Args:
+        samesite_str: The samesite value from settings (case insensitive)
+
+    Returns:
+        The validated samesite literal or None if invalid
+
+    Raises:
+        ValueError: If the samesite value is not one of the allowed values
+    """
+    if not samesite_str:
+        return None
+
+    normalized = samesite_str.lower().strip()
+    if normalized in ("lax", "strict", "none"):
+        return normalized  # type: ignore[return-value]
+
+    raise ValueError(f"Invalid samesite value: {samesite_str}. Must be 'lax', 'strict', or 'none'")
 
 
 def _is_strong_password(pwd: str, email_local: str, name_norm: str) -> bool:

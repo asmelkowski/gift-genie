@@ -1,185 +1,123 @@
 /**
- * Example E2E Test using the new Auth Setup Utilities
- * Demonstrates independent test execution with automatic cleanup
+ * Slimmed-down E2E Tests for Auth Setup Utilities
+ * Only tests unique functionality not covered by auth tests
  */
 
 import { test, expect } from '../fixtures';
 import { TestDataFactory, AuthSetup, DatabaseCleanup, TestHelpers } from '../utils';
 
-test.describe('Auth Setup Utilities - Examples', () => {
-  test('should register new user and access protected routes', async ({ browser }) => {
-    // Generate unique test user data
-    const userData = TestDataFactory.createTestUser('new-user-example');
-
-    // Create authenticated context (handles registration + login)
-    const { page, cleanup } = await AuthSetup.createAuthenticatedContext({
-      browser,
-      existingUser: false, // Register new user
-    });
-
-    try {
-      // Verify we're authenticated and on the groups page
-      await TestHelpers.waitForVisible(page, '[data-testid="groups-page-header"]');
-      await expect(page).toHaveURL('/app/groups');
-
-      // Test basic functionality
-      await TestHelpers.withTestStep(
-        'Verify groups page loads',
-        async () => {
-          const headerText = await page.textContent('[data-testid="groups-page-header"]');
-          expect(headerText).toContain('Groups');
-        },
-        page
-      );
-    } finally {
-      // Clean up test data and browser context
-      await DatabaseCleanup.cleanupTestData(userData);
-      await cleanup();
-    }
-  });
-
-  test('should handle existing user login gracefully', async ({ browser }) => {
-    // Use existing user credentials (will fallback to registration if user doesn't exist)
-    const { page, cleanup } = await AuthSetup.createAuthenticatedContext({
-      browser,
-      existingUser: true, // Try login first, register if needed
-    });
-
-    try {
-      // Verify authentication
-      await TestHelpers.waitForVisible(page, '[data-testid="groups-page-header"]');
-
-      // Test that we can create a group
-      const groupName = TestDataFactory.createTestGroupName();
-
-      await TestHelpers.withTestStep(
-        'Create test group',
-        async () => {
-          await page.click('[data-testid="groups-page-header"] button:has-text("Create Group")');
-          await TestHelpers.waitForVisible(page, 'input[placeholder="Enter group name"]');
-          await TestHelpers.fillAndWait(page, 'input[placeholder="Enter group name"]', groupName);
-          await page.click('button:has-text("Create")');
-
-          // Verify group appears
-          await TestHelpers.waitForVisible(page, `text=${groupName}`);
-        },
-        page
-      );
-    } finally {
-      // Note: cleanup will handle removing the test group
-      await cleanup();
-    }
-  });
-
-  test('should demonstrate test helpers and error handling', async ({ browser }) => {
+test.describe('Auth Setup Utilities - Essential Tests', () => {
+  test('should demonstrate test helpers and retry functionality', async ({ browser }) => {
     const userData = TestDataFactory.createTestUser('helpers-example');
 
     const { page, cleanup } = await AuthSetup.createAuthenticatedContext({ browser });
 
     try {
-      // Demonstrate enhanced waiting
+      // Verify we're on groups page
       await TestHelpers.waitForVisible(page, '[data-testid="groups-page-header"]');
 
-      // Demonstrate enhanced interactions
-      await TestHelpers.clickAndWait(
-        page,
-        '[data-testid="groups-page-header"] button:has-text("Create Group")'
-      );
-
-      // Demonstrate form filling with validation
-      const groupName = TestDataFactory.createTestGroupName();
-      await TestHelpers.waitForVisible(page, 'input[placeholder="Enter group name"]');
-      await TestHelpers.fillAndWait(page, 'input[placeholder="Enter group name"]', groupName);
-
-      // Demonstrate retry for potentially flaky operations
-      await TestHelpers.retry(
+      // Test enhanced helpers with retry logic
+      await TestHelpers.withTestStep(
+        'Test enhanced interactions',
         async () => {
-          await page.click('button:has-text("Create")');
-          await TestHelpers.waitForVisible(page, `text=${groupName}`, { timeout: 2000 });
-        },
-        2, // max attempts
-        500, // base delay
-        'create group'
-      );
+          // Click create group button
+          await TestHelpers.clickAndWait(
+            page,
+            '[data-testid="groups-page-header"] button:has-text("Create Group")'
+          );
 
-      // Verify the group was created
-      await expect(page.locator(`text=${groupName}`)).toBeVisible();
-    } catch (error) {
-      // Screenshots are automatically taken by TestHelpers on failures
-      console.error('Test failed:', error);
-      throw error;
+          // Wait for dialog to appear
+          await TestHelpers.waitForVisible(page, 'input[placeholder="Enter group name"]');
+
+          // Fill group name
+          const groupName = TestDataFactory.createTestGroupName();
+          await TestHelpers.fillAndWait(page, 'input[placeholder="Enter group name"]', groupName);
+
+          // Use specific selector for Create button inside dialog form
+          await TestHelpers.retry(
+            async () => {
+              // More specific selector to avoid clicking wrong button
+              await page.click('form button[type="submit"]:has-text("Create")');
+              // Wait a bit for the group to be created
+              await page.waitForTimeout(1000);
+            },
+            3, // max attempts
+            1000, // base delay
+            'create group with specific selector'
+          );
+
+          // Verify group was created (give it more time)
+          await TestHelpers.waitForVisible(page, `text=${groupName}`, { timeout: 5000 });
+        },
+        page
+      );
     } finally {
       await DatabaseCleanup.cleanupTestData(userData);
       await cleanup();
     }
   });
 
-  test('should handle authentication failures gracefully', async ({ browser }) => {
-    // Test with invalid credentials to demonstrate error handling
-    const invalidUserData = {
-      email: 'invalid@example.com',
-      password: 'wrongpassword',
-      name: 'Invalid User',
-      testId: 'invalid-test',
-    };
-
-    try {
-      // This should fail gracefully
-      await AuthSetup.createAuthenticatedContext({
-        browser,
-        customCredentials: invalidUserData,
-        skipRegistration: true, // Only try login
-      });
-
-      // If we get here, the test should fail
-      expect(true).toBe(false); // Force failure
-    } catch (error) {
-      // Expected to fail - verify it's the right kind of failure
-      expect(error.message).toContain('Login failed');
-      console.log('✅ Authentication failure handled correctly');
-    }
-  });
-
-  test('should validate cleanup functionality', async ({ browser }) => {
+  test('should validate cleanup functionality properly', async ({ browser }) => {
     const userData = TestDataFactory.createTestUser('cleanup-validation');
 
-    // Create authenticated context
+    // Create authenticated context and test data
     const { page, cleanup } = await AuthSetup.createAuthenticatedContext({ browser });
 
     let createdGroupName = '';
 
     try {
-      // Create some test data
+      // Create test data
       createdGroupName = TestDataFactory.createTestGroupName();
-      await page.click('[data-testid="groups-page-header"] button:has-text("Create Group")');
-      await TestHelpers.waitForVisible(page, 'input[placeholder="Enter group name"]');
-      await TestHelpers.fillAndWait(
-        page,
-        'input[placeholder="Enter group name"]',
-        createdGroupName
-      );
-      await page.click('button:has-text("Create")');
 
-      // Verify data exists
-      await TestHelpers.waitForVisible(page, `text=${createdGroupName}`);
+      await TestHelpers.withTestStep(
+        'Create test group for cleanup validation',
+        async () => {
+          // Open create group dialog
+          await TestHelpers.clickAndWait(
+            page,
+            '[data-testid="groups-page-header"] button:has-text("Create Group")'
+          );
+
+          // Wait for dialog and fill form
+          await TestHelpers.waitForVisible(page, 'input[placeholder="Enter group name"]');
+          await TestHelpers.fillAndWait(
+            page,
+            'input[placeholder="Enter group name"]',
+            createdGroupName
+          );
+
+          // Use specific selector for submit button
+          await page.click('form button[type="submit"]:has-text("Create")');
+
+          // Verify group was created
+          await TestHelpers.waitForVisible(page, `text=${createdGroupName}`, { timeout: 5000 });
+        },
+        page
+      );
     } finally {
       // Clean up
       await DatabaseCleanup.cleanupTestData(userData);
       await cleanup();
     }
 
-    // Validate cleanup (create new context to check)
+    // Validate cleanup worked by creating new context and checking
     const validationContext = await AuthSetup.createAuthenticatedContext({
       browser,
       existingUser: true,
     });
 
     try {
-      // Verify the group is gone
-      const groupExists = await validationContext.page
-        .locator(`text=${createdGroupName}`)
-        .isVisible();
-      expect(groupExists).toBe(false);
+      // Verify group is gone (with timeout)
+      await TestHelpers.withTestStep(
+        'Verify group was cleaned up',
+        async () => {
+          const groupExists = await validationContext.page
+            .locator(`text=${createdGroupName}`)
+            .isVisible({ timeout: 3000 });
+          expect(groupExists).toBe(false);
+        },
+        validationContext.page
+      );
 
       console.log('✅ Cleanup validation passed');
     } finally {
