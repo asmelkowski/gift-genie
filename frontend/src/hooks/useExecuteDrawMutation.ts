@@ -11,7 +11,7 @@ export const useExecuteDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (drawId: string) => {
-      const response = await api.post<ExecuteDrawResponse>(`/api/v1/draws/${drawId}/execute`, {});
+      const response = await api.post<ExecuteDrawResponse>(`/draws/${drawId}/execute`, {});
       return response.data;
     },
     onSuccess: data => {

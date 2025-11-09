@@ -19,7 +19,7 @@ export const useCreateExclusionMutation = (groupId: string) => {
   return useMutation({
     mutationFn: async (data: CreateExclusionRequest) => {
       const response = await api.post<CreateExclusionResponse>(
-        `/api/v1/groups/${groupId}/exclusions`,
+        `/groups/${groupId}/exclusions`,
         data
       );
       return response.data;

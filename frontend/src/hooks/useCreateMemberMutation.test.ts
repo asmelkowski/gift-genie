@@ -48,7 +48,7 @@ describe('useCreateMemberMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/members', memberData);
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/members', memberData);
   });
 
   it('invalidates members query with correct group ID on success', async () => {

@@ -59,7 +59,7 @@ describe('useDrawsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-456/draws', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-456/draws', {
         params: expect.any(Object),
       });
     });
@@ -141,7 +141,7 @@ describe('useDrawsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/draws', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/draws', {
         params: expect.objectContaining({
           status: 'finalized',
         }),
@@ -167,7 +167,7 @@ describe('useDrawsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/draws', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/draws', {
         params: {
           status: undefined,
           page: 1,
@@ -205,7 +205,7 @@ describe('useDrawsQuery', () => {
     );
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/draws', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/draws', {
         params: {
           status: undefined,
           page: 2,

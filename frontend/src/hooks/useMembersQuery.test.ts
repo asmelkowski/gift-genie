@@ -68,7 +68,7 @@ describe('useMembersQuery', () => {
     );
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-123/members', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-123/members', {
         params: {
           is_active: true,
           search: 'john',
@@ -126,7 +126,7 @@ describe('useMembersQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/members', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/members', {
         params: expect.objectContaining({
           is_active: false,
         }),
@@ -152,7 +152,7 @@ describe('useMembersQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/members', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/members', {
         params: {
           is_active: undefined,
           search: undefined,

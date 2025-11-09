@@ -44,7 +44,7 @@ describe('useUpdateMemberMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.patch).toHaveBeenCalledWith('/api/v1/groups/group-1/members/member-1', updateData);
+    expect(api.patch).toHaveBeenCalledWith('/groups/group-1/members/member-1', updateData);
   });
 
   it('invalidates members query on success', async () => {

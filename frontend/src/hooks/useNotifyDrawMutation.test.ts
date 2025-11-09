@@ -38,7 +38,7 @@ describe('useNotifyDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/draws/draw-1/notify', { resend: false });
+    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/notify', { resend: false });
   });
 
   it('invalidates both draws and draw queries on success', async () => {
@@ -86,7 +86,7 @@ describe('useNotifyDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/draws/draw-1/notify', { resend: true });
+    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/notify', { resend: true });
   });
 
   it('returns notification response data', async () => {

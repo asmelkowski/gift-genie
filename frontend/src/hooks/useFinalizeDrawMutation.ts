@@ -13,7 +13,7 @@ export const useFinalizeDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (drawId: string) => {
-      const response = await api.post<DrawResponse>(`/api/v1/draws/${drawId}/finalize`, {});
+      const response = await api.post<DrawResponse>(`/draws/${drawId}/finalize`, {});
       return response.data;
     },
     onSuccess: data => {

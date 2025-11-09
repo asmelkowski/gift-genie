@@ -96,7 +96,7 @@ describe('useDrawQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/draws/draw-123');
+      expect(api.get).toHaveBeenCalledWith('/draws/draw-123');
     });
   });
 

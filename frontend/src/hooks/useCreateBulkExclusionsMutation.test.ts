@@ -49,7 +49,7 @@ describe('useCreateBulkExclusionsMutation', () => {
     result.current.mutate(requestData);
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions/bulk', requestData);
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/exclusions/bulk', requestData);
   });
 
   it('shows success toast with count', async () => {

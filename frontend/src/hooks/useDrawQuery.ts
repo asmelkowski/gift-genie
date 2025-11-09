@@ -8,7 +8,7 @@ export const useDrawQuery = (drawId: string) => {
   return useQuery({
     queryKey: ['draw', drawId],
     queryFn: async () => {
-      const response = await api.get<DrawResponse>(`/api/v1/draws/${drawId}`);
+      const response = await api.get<DrawResponse>(`/draws/${drawId}`);
       return response.data;
     },
     enabled: !!drawId,

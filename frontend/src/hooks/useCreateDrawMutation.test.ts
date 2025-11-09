@@ -43,7 +43,7 @@ describe('useCreateDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/draws', {});
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/draws', {});
   });
 
   it('invalidates draws query on success', async () => {

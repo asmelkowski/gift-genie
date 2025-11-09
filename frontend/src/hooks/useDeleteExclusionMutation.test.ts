@@ -27,7 +27,7 @@ describe('useDeleteExclusionMutation', () => {
     result.current.mutate('exclusion-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.delete).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions/exclusion-1');
+    expect(api.delete).toHaveBeenCalledWith('/groups/group-1/exclusions/exclusion-1');
   });
 
   it('invalidates exclusions query on success', async () => {

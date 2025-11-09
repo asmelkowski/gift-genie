@@ -77,7 +77,7 @@ describe('useGroupsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups', {
+      expect(api.get).toHaveBeenCalledWith('/groups', {
         params: {
           search: 'my-group',
           page: 1,
@@ -106,7 +106,7 @@ describe('useGroupsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups', {
+      expect(api.get).toHaveBeenCalledWith('/groups', {
         params: {
           search: undefined,
           page: 1,
@@ -205,7 +205,7 @@ describe('useGroupsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups', {
+      expect(api.get).toHaveBeenCalledWith('/groups', {
         params: {
           search: undefined,
           page: 1,

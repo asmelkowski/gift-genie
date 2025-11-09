@@ -51,7 +51,7 @@ describe('useCreateGroupMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/groups', groupData);
+    expect(api.post).toHaveBeenCalledWith('/groups', groupData);
   });
 
   it('returns data on successful mutation', async () => {

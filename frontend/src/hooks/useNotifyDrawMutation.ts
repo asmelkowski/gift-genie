@@ -11,7 +11,7 @@ export const useNotifyDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (params: { drawId: string; resend: boolean }) => {
-      const response = await api.post<NotifyDrawResponse>(`/api/v1/draws/${params.drawId}/notify`, {
+      const response = await api.post<NotifyDrawResponse>(`/draws/${params.drawId}/notify`, {
         resend: params.resend,
       });
       return response.data;

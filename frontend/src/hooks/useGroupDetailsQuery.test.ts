@@ -54,7 +54,7 @@ describe('useGroupDetailsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith(`/api/v1/groups/${groupId}`);
+      expect(api.get).toHaveBeenCalledWith(`/groups/${groupId}`);
     });
   });
 

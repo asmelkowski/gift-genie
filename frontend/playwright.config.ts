@@ -9,30 +9,31 @@ export default defineConfig({
   outputDir: 'test-results/',
 
   /**
-   * Test Ordering Strategy:
-   * - Tests run in filename order to ensure proper setup sequence
-   * - 01-auth-setup.spec.ts always runs first to establish authentication state
-   * - Other tests run in alphabetical order after setup
-   * - In CI: tests run serially (workers: 1) for reliability
-   * - Locally: tests run serially (workers: 1) to ensure auth setup completes first
+   * Enhanced Parallel Execution Strategy:
+   * - Tests are now independent and can run in parallel
+   * - Each test creates its own authenticated context with unique data
+   * - Worker-specific test data generation prevents collisions
+   * - Mutex-based cleanup prevents race conditions
+   * - Retry logic handles registration conflicts
+   * - CI: Uses multiple workers for faster execution
+   * - Local: Uses fewer workers to avoid resource contention
    */
-  /* Run tests in files in parallel but maintain filename order */
-  fullyParallel: false, // Changed to false to ensure proper ordering
+  /* Run tests in files in parallel */
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Use single worker for both CI and local to ensure proper test ordering */
-  workers: 1, // Changed to 1 for both CI and local
+  /* Use multiple workers for parallel execution with enhanced isolation */
+  workers: process.env.CI ? 4 : 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? 'list' : 'html',
-  /* Global setup to run before all tests */
+  reporter: process.env.CI
+    ? [['list'], ['junit', { outputFile: 'test-results/junit.xml' }]]
+    : [['html'], ['list']],
+  /* Enhanced global setup for parallel execution */
   globalSetup: './e2e/global-setup.ts',
   /* Timeout for global setup */
-  globalTimeout: process.env.CI ? 180000 : 120000,
-
-  /* Test ordering configuration - ensures tests run in filename order */
-  testOrder: 'filename',
+  globalTimeout: process.env.CI ? 60000 : 30000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Test grep pattern - include all .spec.ts files in e2e directory */
@@ -49,11 +50,11 @@ export default defineConfig({
     actionTimeout: 15000,
     navigationTimeout: 30000,
   },
-  /* Test timeout */
-  timeout: process.env.CI ? 60000 : 60000,
-  /* Expect timeout */
+  /* Test timeout - increased for parallel execution */
+  timeout: process.env.CI ? 90000 : 75000,
+  /* Expect timeout - increased for parallel execution */
   expect: {
-    timeout: 15000,
+    timeout: 20000,
   },
 
   /* Configure projects for major browsers */

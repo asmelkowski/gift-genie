@@ -26,7 +26,9 @@ export function EmptyState({ onCreateClick }: EmptyStateProps) {
       <p className="text-sm text-gray-500 mb-6">
         Create your first gift exchange group to get started.
       </p>
-      <Button onClick={onCreateClick}>Create Group</Button>
+      <Button onClick={onCreateClick} data-testid="empty-state-create-group">
+        Create Group
+      </Button>
     </div>
   );
 }

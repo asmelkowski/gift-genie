@@ -98,7 +98,7 @@ describe('useAssignmentsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/draws/draw-456/assignments', {
+      expect(api.get).toHaveBeenCalledWith('/draws/draw-456/assignments', {
         params: { include: 'names' },
       });
     });
@@ -134,7 +134,7 @@ describe('useAssignmentsQuery', () => {
 
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith(
-        '/api/v1/draws/draw-1/assignments',
+        '/draws/draw-1/assignments',
         expect.objectContaining({
           params: { include: 'names' },
         })

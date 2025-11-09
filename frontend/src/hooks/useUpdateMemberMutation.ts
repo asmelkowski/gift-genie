@@ -13,7 +13,7 @@ export const useUpdateMemberMutation = (groupId: string, onError?: (detail: stri
   return useMutation({
     mutationFn: async (data: { memberId: string; payload: UpdateMemberRequest }) => {
       const response = await api.patch<MemberResponse>(
-        `/api/v1/groups/${groupId}/members/${data.memberId}`,
+        `/groups/${groupId}/members/${data.memberId}`,
         data.payload
       );
       return response.data;

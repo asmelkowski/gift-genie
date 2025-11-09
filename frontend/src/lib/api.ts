@@ -4,8 +4,12 @@ import { queryClient } from './queryClient';
 import { useAuthStore } from '@/hooks/useAuthStore';
 
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: (() => {
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    // Ensure baseURL includes /api/v1 prefix
+    return baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}/api/v1`;
+  })(),
   withCredentials: true,
 });
 
@@ -73,8 +77,8 @@ api.interceptors.response.use(
     // Handle authentication errors
     if (error.response?.status === 401) {
       // Don't redirect if this is the initial auth check or login attempt
-      const isBootstrapCall = error.config?.url === '/api/v1/auth/me';
-      const isLoginCall = error.config?.url === '/api/v1/auth/login';
+      const isBootstrapCall = error.config?.url === '/auth/me';
+      const isLoginCall = error.config?.url === '/auth/login';
 
       queryClient.clear();
       useAuthStore.getState().logout();
@@ -143,7 +147,7 @@ api.interceptors.response.use(
 );
 
 export const logout = async (): Promise<void> => {
-  await api.post('/api/v1/auth/logout');
+  await api.post('/auth/logout');
 };
 
 export default api;
