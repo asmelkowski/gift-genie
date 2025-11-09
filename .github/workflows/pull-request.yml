@@ -403,6 +403,9 @@ jobs:
             -e SECRET_KEY=test-secret-key-for-ci \
             -e ALGORITHM=HS256 \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
+            -e CORS_ORIGINS=http://localhost:5173,http://backend:8000 \
+            -e COOKIE_SAMESITE=none \
+            -e COOKIE_SECURE=false \
             gift-genie-backend:prod
 
       - name: Wait for backend to be healthy
