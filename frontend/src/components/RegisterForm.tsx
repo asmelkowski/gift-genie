@@ -114,7 +114,7 @@ export function RegisterForm() {
   };
 
   const isFormValid =
-    formState.name.trim() !== '' || formState.email.trim() !== '' || formState.password !== '';
+    formState.name.trim() !== '' && formState.email.trim() !== '' && formState.password !== '';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

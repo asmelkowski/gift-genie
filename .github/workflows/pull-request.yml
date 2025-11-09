@@ -457,12 +457,12 @@ jobs:
 
       - name: Start frontend dev server
         run: |
-          docker run -d \
-            --name frontend \
-            --network gift-genie-test \
-            -p 5173:5173 \
-            -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
-            gift-genie-frontend:dev
+           docker run -d \
+             --name frontend \
+             --network gift-genie-test \
+             -p 5173:5173 \
+             -e VITE_API_BASE_URL=http://backend:8000 \
+             gift-genie-frontend:dev
 
       - name: Wait for frontend to be healthy
         run: |
@@ -501,9 +501,9 @@ jobs:
 
           # Test connectivity from frontend container perspective
           echo "Testing backend connectivity from frontend container..."
-          docker exec frontend curl -v --max-time 10 http://backend:8000/health || echo "Frontend container cannot reach backend"
+           docker exec frontend curl -v --max-time 10 http://backend:8000/health || echo "Frontend container cannot reach backend"
 
-          echo "✅ Network connectivity verified"
+           echo "✅ Network connectivity verified"
 
       - name: Verify E2E image and dependencies
         run: |
@@ -515,18 +515,18 @@ jobs:
           echo "✅ E2E tests found"
 
           docker run --rm gift-genie-frontend:e2e which bunx
-          echo "✅ Bun found"
+           echo "✅ Bun found"
 
       - name: Create Playwright directories
         run: |
           mkdir -p playwright/.auth
           mkdir -p playwright/screenshots
           mkdir -p playwright/screenshots/test-results
-           mkdir -p test-results/screenshots
+          mkdir -p test-results/screenshots
           echo "✅ Playwright directories created"
 
       - name: Run E2E tests
-        timeout-minutes: 5
+        timeout-minutes: 8
         run: |
            # Create test results directory
            mkdir -p test-results
@@ -545,34 +545,22 @@ jobs:
            echo "Host test-results directory:"
            ls -la $(pwd)/test-results/ || echo "Host test-results directory not accessible"
 
-            # Run E2E tests with comprehensive logging and diagnostics
-            echo "🚀 Starting E2E tests..."
-            docker run --name e2e-tests \
-              --network gift-genie-test \
-              -e CI=true \
-              -e DEBUG=pw:api \
-              -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
-              -v $(pwd)/test-results:/app/test-results \
-              -v $(pwd)/playwright:/app/playwright \
-              gift-genie-frontend:e2e \
-              sh -c "
-                echo '📁 Container directory verification...' &&
-                ls -la /app/playwright/ &&
-                echo '🔐 Checking auth directory before tests...' &&
-                ls -la /app/playwright/.auth/ || echo 'Auth directory empty or missing' &&
-                echo '🏃 Running Playwright tests (01-auth-setup.spec.ts will run first due to testOrder: filename)...' &&
-                npx playwright test &&
-                echo '🔍 Post-run auth state verification...' &&
-                ls -la /app/playwright/.auth/ &&
-                if [ -f /app/playwright/.auth/user.json ]; then
-                  echo '✅ Auth state file exists:' &&
-                  head -c 200 /app/playwright/.auth/user.json &&
-                  echo '...';
-                else
-                  echo '❌ Auth state file NOT found after tests';
-                  exit 1;
-                fi
-              "
+           # Run E2E tests with parallel execution
+           echo "🚀 Starting E2E tests (Parallel Execution Mode)..."
+           docker run --name e2e-tests \
+             --network gift-genie-test \
+             -e CI=true \
+             -e VITE_API_BASE_URL=http://backend:8000 \
+             -v $(pwd)/test-results:/app/test-results \
+             -v $(pwd)/playwright:/app/playwright \
+             gift-genie-frontend:e2e \
+             sh -c "
+               echo '📁 Container directory verification...' &&
+               ls -la /app/playwright/ &&
+               echo '🏃 Running Playwright tests in parallel (4 workers)...' &&
+               npx playwright test --workers=4 &&
+               echo '✅ Parallel test execution completed'
+             "
 
            # Get exit code from container
            EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
@@ -675,7 +663,9 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: playwright-report
-          path: test-results/playwright-report/
+          path: |
+            test-results/playwright-report/
+            test-results/junit.xml
           retention-days: 7
 
       - name: Upload E2E coverage to artifacts

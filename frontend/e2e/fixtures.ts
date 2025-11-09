@@ -1,6 +1,12 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { test as base, expect, Page } from '@playwright/test';
-import * as path from 'path';
+import {
+  TestDataFactory,
+  AuthSetup,
+  DatabaseCleanup,
+  ParallelExecutionHelpers,
+  TestUserData,
+} from './utils';
 
 /**
  * Base pages and fixtures for e2e tests
@@ -44,7 +50,8 @@ export class HomePage {
 
   async logout() {
     await this.page.click('button[data-testid="user-menu-button"]');
-    await this.page.click('text=Logout');
+    await this.page.waitForSelector('button:has-text("Logout")', { state: 'visible' });
+    await this.page.click('button[role="menuitem"]:has-text("Logout")');
   }
 }
 
@@ -60,12 +67,10 @@ export class GroupsPage {
     await expect(this.page).toHaveURL('/app/groups');
   }
 
-  async createGroup(name: string, description?: string) {
-    await this.page.click('button:has-text("Create Group")');
-    await this.page.fill('input[placeholder*="Group name"]', name);
-    if (description) {
-      await this.page.fill('textarea', description);
-    }
+  async createGroup(name: string) {
+    await this.page.click('[data-testid="groups-page-header"] button:has-text("Create Group")');
+    await this.page.waitForSelector('input[placeholder="Enter group name"]');
+    await this.page.fill('input[placeholder="Enter group name"]', name);
     await this.page.click('button:has-text("Create")');
   }
 
@@ -101,6 +106,21 @@ export class DrawsPage {
 }
 
 /**
+ * New independent auth fixtures using the AuthSetup utility
+ */
+export interface AuthenticatedContextFixture {
+  page: Page;
+  userData: TestUserData;
+  cleanup: () => Promise<void>;
+}
+
+export interface AuthenticatedPageFixture {
+  page: Page;
+  userData: TestUserData;
+  cleanup: () => Promise<void>;
+}
+
+/**
  * Custom test with fixtures
  */
 type TestFixtures = {
@@ -108,8 +128,10 @@ type TestFixtures = {
   homePage: HomePage;
   groupsPage: GroupsPage;
   drawsPage: DrawsPage;
-  authenticatedPage: Page;
   unauthenticatedPage: Page;
+  // New independent auth fixtures
+  authenticatedContext: AuthenticatedContextFixture;
+  authenticatedPage: AuthenticatedPageFixture;
 };
 
 export const test = base.extend<TestFixtures>({
@@ -124,6 +146,7 @@ export const test = base.extend<TestFixtures>({
     // Clean up the context
     await context.close();
   },
+
   loginPage: async ({ page }, use) => {
     const loginPage = new LoginPage(page);
     await use(loginPage);
@@ -155,169 +178,64 @@ export const test = base.extend<TestFixtures>({
     await context.close();
   },
 
+  // New independent authenticated context fixture
+  authenticatedContext: async ({ browser }, use) => {
+    const logPrefix = ParallelExecutionHelpers.getLogPrefix();
+    console.log(`${logPrefix} 🔐 Setting up independent authenticated context fixture...`);
+
+    // Generate unique test user data for this fixture
+    const userData = TestDataFactory.createTestUser('fixture-auth-context');
+
+    // Create authenticated context using the new AuthSetup utility
+    const authContext = await AuthSetup.createAuthenticatedContext({
+      browser,
+      userData, // Use the generated userData
+      existingUser: false, // Register new user for each test
+    });
+
+    // Provide the authenticated context to the test
+    await use({
+      page: authContext.page,
+      userData: authContext.userData,
+      cleanup: async () => {
+        console.log(`${logPrefix} 🧹 Cleaning up authenticated context fixture...`);
+        // Clean up test data and browser context
+        await DatabaseCleanup.cleanupTestData(userData);
+        await authContext.cleanup();
+      },
+    });
+
+    // Note: cleanup is called by the test using the fixture
+  },
+
+  // New authenticated page fixture (simpler version for basic tests)
   authenticatedPage: async ({ browser }, use) => {
-    // Use absolute path consistent with 01-auth-setup.spec.ts
-    const authFile = path.resolve(process.cwd(), 'playwright/.auth/user.json');
-    const authDir = path.dirname(authFile);
-    const isCI = !!process.env.CI;
+    const logPrefix = ParallelExecutionHelpers.getLogPrefix();
+    console.log(`${logPrefix} 📄 Setting up independent authenticated page fixture...`);
 
-    console.log('🔐 Setting up authenticated page fixture...');
-    console.log(`📂 Current working directory: ${process.cwd()}`);
-    console.log(`📂 Auth file path: ${authFile}`);
-    console.log(`📂 Auth directory: ${authDir}`);
-    console.log(`🔍 Environment: ${isCI ? 'CI' : 'Local'}`);
+    // Generate unique test user data for this fixture
+    const userData = TestDataFactory.createTestUser('fixture-auth-page');
 
-    try {
-      // Import fs modules
-      const fs = await import('fs');
-      const fsPromises = await import('fs/promises');
-      const { existsSync, readFileSync } = fs;
-      const { stat } = fsPromises;
+    // Create authenticated page using the AuthSetup utility
+    const page = await AuthSetup.createAuthenticatedPage(browser, userData);
 
-      // Check if auth directory exists
-      if (!existsSync(authDir)) {
-        throw new Error(
-          `Authentication directory not found at ${authDir}. ` +
-            `Please ensure that 01-auth-setup.spec.ts runs first to create the authentication directory.`
-        );
-      }
+    // Create cleanup function
+    const cleanup = async () => {
+      console.log(`${logPrefix} 🧹 Cleaning up authenticated page fixture...`);
+      // Clean up test data
+      await DatabaseCleanup.cleanupTestData(userData);
+      // Close the page context
+      await page.context().close();
+    };
 
-      // Check if auth state file exists
-      if (!existsSync(authFile)) {
-        throw new Error(
-          `Authentication state file not found at ${authFile}. ` +
-            `Please ensure that 01-auth-setup.spec.ts runs first to create the authentication state.`
-        );
-      }
+    // Provide the authenticated page to the test
+    await use({
+      page,
+      userData,
+      cleanup,
+    });
 
-      // Validate auth file content
-      let authStats;
-      try {
-        authStats = await stat(authFile);
-        if (authStats.size === 0) {
-          throw new Error(`Authentication state file is empty (size: 0 bytes)`);
-        }
-
-        // Try to parse the JSON to ensure it's valid
-        const authData = JSON.parse(readFileSync(authFile, 'utf-8'));
-        if (!authData.cookies || !Array.isArray(authData.cookies)) {
-          throw new Error('Authentication state file does not contain valid cookie data');
-        }
-
-        console.log(
-          `✅ Auth file validated: ${authStats.size} bytes, ${authData.cookies.length} cookies`
-        );
-        if (isCI) {
-          console.log(`🔍 CI Debug - Auth file location: ${authFile}`);
-          console.log(`🔍 CI Debug - Auth file exists: ${existsSync(authFile)}`);
-          console.log(`🔍 CI Debug - Auth file size: ${authStats.size} bytes`);
-        }
-      } catch (validationError) {
-        throw new Error(
-          `Authentication state file validation failed: ${validationError instanceof Error ? validationError.message : String(validationError)}. ` +
-            `The file may be corrupted or incomplete. Please re-run 01-auth-setup.spec.ts to recreate the authentication state.`
-        );
-      }
-
-      console.log('📂 Loading saved authentication state...');
-
-      // Create context with saved auth state
-      let context;
-      try {
-        context = await browser.newContext({ storageState: authFile });
-      } catch (contextError) {
-        throw new Error(
-          `Failed to create browser context with authentication state: ${contextError instanceof Error ? contextError.message : String(contextError)}. ` +
-            `The saved state may be corrupted. Please re-run 01-auth-setup.spec.ts to recreate the authentication state.`
-        );
-      }
-
-      // Create a new page from the authenticated context
-      const page = await context.newPage();
-
-      // Verify the auth state is working by checking if we can access a protected route
-      try {
-        console.log('🔍 Verifying authentication state...');
-        await page.goto('/app/groups', { waitUntil: 'domcontentloaded', timeout: 15000 });
-
-        // Additional verification - check for groups page header
-        const headerVisible = await page
-          .locator('[data-testid="groups-page-header"]')
-          .isVisible({ timeout: 5000 });
-        if (!headerVisible) {
-          throw new Error('Groups page header not visible after authentication');
-        }
-
-        console.log('✅ Authentication state loaded and verified successfully');
-        if (isCI) {
-          console.log(`🔍 CI Debug - Authenticated page URL: ${page.url()}`);
-          console.log(`🔍 CI Debug - Groups page header visible: ${headerVisible}`);
-        }
-      } catch (verificationError) {
-        // Clean up the context if auth verification fails
-        await context.close();
-        throw new Error(
-          `Failed to verify authentication state. The saved state may be expired or invalid. ` +
-            `Please re-run 01-auth-setup.spec.ts to refresh the authentication state. ` +
-            `Error: ${verificationError instanceof Error ? verificationError.message : String(verificationError)}`
-        );
-      }
-
-      // Provide the authenticated page to the test
-      await use(page);
-
-      // Clean up
-      await context.close();
-    } catch (error) {
-      // Provide a helpful error message for debugging
-      if (error instanceof Error) {
-        console.error('❌ Authentication fixture failed:', error.message);
-
-        // Add specific guidance for common issues
-        if (
-          error.message.includes('Authentication directory not found') ||
-          error.message.includes('Authentication state file not found')
-        ) {
-          console.error('\n💡 To fix this issue:');
-          console.error('   1. Ensure 01-auth-setup.spec.ts runs before this test');
-          console.error('   2. Check that the auth setup tests complete successfully');
-          console.error('   3. Verify the playwright/.auth directory exists and is writable');
-          console.error(
-            `   4. Check file paths: authFile=${authFile}, authDir=${authDir}, cwd=${process.cwd()}`
-          );
-        } else if (
-          error.message.includes('Failed to verify authentication state') ||
-          error.message.includes('validation failed')
-        ) {
-          console.error('\n💡 To fix this issue:');
-          console.error('   1. Re-run 01-auth-setup.spec.ts to refresh the auth state');
-          console.error('   2. Check if the backend server is running and accessible');
-          console.error('   3. Verify the test user credentials are still valid');
-          console.error('   4. Check network connectivity and backend health');
-        } else if (error.message.includes('Failed to create browser context')) {
-          console.error('\n💡 To fix this issue:');
-          console.error('   1. The authentication state file may be corrupted');
-          console.error('   2. Re-run 01-auth-setup.spec.ts to recreate the auth state');
-          console.error('   3. Check file permissions and disk space');
-        }
-
-        // Additional CI-specific guidance
-        if (isCI) {
-          console.error('\n🔍 CI Environment Debugging:');
-          console.error(`   - CI detected: ${isCI}`);
-          console.error(`   - Auth file path: ${authFile}`);
-          console.error(`   - Auth directory: ${authDir}`);
-          console.error(`   - Current working directory: ${process.cwd()}`);
-          console.error(
-            '   - Check that the auth setup job completed successfully in the CI pipeline'
-          );
-          console.error('   - Verify that artifacts are properly shared between CI jobs');
-        }
-      }
-
-      // Re-throw the error to fail the test
-      throw error;
-    }
+    // Note: cleanup is called by the test using the fixture
   },
 });
 

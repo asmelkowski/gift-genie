@@ -22,7 +22,7 @@ export const useLoginMutation = () => {
 
   return useMutation({
     mutationFn: async (data: LoginRequestDTO) => {
-      const response = await api.post<LoginResponseDTO>('/api/v1/auth/login', data);
+      const response = await api.post<LoginResponseDTO>('/auth/login', data);
       return response;
     },
     onSuccess: response => {

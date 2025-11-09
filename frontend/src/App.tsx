@@ -93,7 +93,7 @@ function AppContent() {
     const checkAuth = async () => {
       try {
         console.log('[Auth] Checking session...');
-        const response = await api.get('/api/v1/auth/me');
+        const response = await api.get('/auth/me');
         console.log('[Auth] Session valid, user:', response.data);
         const csrfToken = response.headers['x-csrf-token'] || '';
         login(response.data, csrfToken);

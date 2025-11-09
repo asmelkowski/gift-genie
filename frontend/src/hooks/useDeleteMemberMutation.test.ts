@@ -30,7 +30,7 @@ describe('useDeleteMemberMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.delete).toHaveBeenCalledWith('/api/v1/groups/group-1/members/member-1');
+    expect(api.delete).toHaveBeenCalledWith('/groups/group-1/members/member-1');
   });
 
   it('invalidates members query with correct group ID on success', async () => {

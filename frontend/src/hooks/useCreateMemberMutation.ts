@@ -12,7 +12,7 @@ export const useCreateMemberMutation = (groupId: string, onError?: (detail: stri
 
   return useMutation({
     mutationFn: async (data: CreateMemberRequest) => {
-      const response = await api.post<MemberResponse>(`/api/v1/groups/${groupId}/members`, data);
+      const response = await api.post<MemberResponse>(`/groups/${groupId}/members`, data);
       return response.data;
     },
     onSuccess: () => {

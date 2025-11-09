@@ -59,7 +59,7 @@ describe('useExclusionsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-123/exclusions', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-123/exclusions', {
         params: expect.any(Object),
       });
     });
@@ -83,7 +83,7 @@ describe('useExclusionsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/exclusions', {
         params: {
           type: undefined,
           giver_member_id: undefined,
@@ -150,7 +150,7 @@ describe('useExclusionsQuery', () => {
     );
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/exclusions', {
         params: {
           type: 'manual',
           giver_member_id: 'member-1',

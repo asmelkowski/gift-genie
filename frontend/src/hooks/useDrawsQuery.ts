@@ -16,17 +16,14 @@ export const useDrawsQuery = (params: UseDrawsQueryParams) => {
   return useQuery({
     queryKey: ['draws', params.groupId, params],
     queryFn: async () => {
-      const response = await api.get<PaginatedDrawsResponse>(
-        `/api/v1/groups/${params.groupId}/draws`,
-        {
-          params: {
-            status: params.status || undefined,
-            page: params.page || 1,
-            page_size: params.page_size || 10,
-            sort: params.sort || '-created_at',
-          },
-        }
-      );
+      const response = await api.get<PaginatedDrawsResponse>(`/groups/${params.groupId}/draws`, {
+        params: {
+          status: params.status || undefined,
+          page: params.page || 1,
+          page_size: params.page_size || 10,
+          sort: params.sort || '-created_at',
+        },
+      });
       return response.data;
     },
     staleTime: 15000,

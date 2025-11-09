@@ -8,7 +8,7 @@ export const useDeleteDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (drawId: string) => {
-      await api.delete(`/api/v1/draws/${drawId}`);
+      await api.delete(`/draws/${drawId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['draws', groupId] });

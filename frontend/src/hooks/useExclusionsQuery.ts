@@ -20,7 +20,7 @@ export const useExclusionsQuery = (params: UseExclusionsQueryParams) => {
     queryKey: ['exclusions', params.groupId, params],
     queryFn: async () => {
       const response = await api.get<PaginatedExclusionsResponse>(
-        `/api/v1/groups/${params.groupId}/exclusions`,
+        `/groups/${params.groupId}/exclusions`,
         {
           params: {
             type: params.type || undefined,

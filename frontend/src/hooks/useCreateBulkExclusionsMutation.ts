@@ -24,7 +24,7 @@ export const useCreateBulkExclusionsMutation = (groupId: string) => {
   return useMutation({
     mutationFn: async (data: CreateExclusionsBulkRequest) => {
       const response = await api.post<CreateExclusionsBulkResponse>(
-        `/api/v1/groups/${groupId}/exclusions/bulk`,
+        `/groups/${groupId}/exclusions/bulk`,
         data
       );
       return response.data;

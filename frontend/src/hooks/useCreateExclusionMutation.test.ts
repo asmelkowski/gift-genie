@@ -56,7 +56,7 @@ describe('useCreateExclusionMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions', exclusionData);
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/exclusions', exclusionData);
   });
 
   it('invalidates exclusions query on success', async () => {

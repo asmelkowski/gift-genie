@@ -44,7 +44,7 @@ describe('useFinalizeDrawMutation', () => {
     result.current.mutate('draw-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.post).toHaveBeenCalledWith('/api/v1/draws/draw-1/finalize', {});
+    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/finalize', {});
   });
 
   it('invalidates draws query on success', async () => {

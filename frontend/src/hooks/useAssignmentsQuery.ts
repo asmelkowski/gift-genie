@@ -8,10 +8,9 @@ export const useAssignmentsQuery = (drawId: string) => {
   return useQuery({
     queryKey: ['assignments', drawId],
     queryFn: async () => {
-      const response = await api.get<ListAssignmentsResponse>(
-        `/api/v1/draws/${drawId}/assignments`,
-        { params: { include: 'names' } }
-      );
+      const response = await api.get<ListAssignmentsResponse>(`/draws/${drawId}/assignments`, {
+        params: { include: 'names' },
+      });
       return response.data;
     },
     enabled: !!drawId,
