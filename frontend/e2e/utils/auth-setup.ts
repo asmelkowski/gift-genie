@@ -34,6 +34,10 @@ export class AuthSetup {
   private static readonly LOGIN_TIMEOUT = 30000;
   private static readonly NAVIGATION_TIMEOUT = 30000;
 
+  private static getApiBaseUrl(): string {
+    return 'http://backend:8000';
+  }
+
   /**
    * Creates an authenticated context for testing
    * Handles both new user registration and existing user login
@@ -172,7 +176,7 @@ export class AuthSetup {
         console.log(`${logPrefix} 🔄 Registration attempt ${attempt}/${maxRetries}`);
 
         // Try API registration first (more reliable than frontend form)
-        const apiSuccess = await this.tryApiRegistration(userData);
+        const apiSuccess = await this.tryApiRegistration(page, userData);
         if (apiSuccess) {
           console.log(`${logPrefix} ✅ API registration successful`);
           break; // Success, exit retry loop
@@ -260,19 +264,18 @@ export class AuthSetup {
   /**
    * Try to register user via API directly (more reliable than frontend form)
    */
-  private static async tryApiRegistration(userData: TestUserData): Promise<boolean> {
+  private static async tryApiRegistration(page: Page, userData: TestUserData): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: userData.name,
-          email: userData.email,
-          password: userData.password,
-        }),
-      });
+      const response = await page.request.post(
+        `${AuthSetup.getApiBaseUrl()}/api/v1/auth/register`,
+        {
+          data: {
+            name: userData.name,
+            email: userData.email,
+            password: userData.password,
+          },
+        }
+      );
 
       if (response.ok) {
         return true;
