@@ -11,6 +11,7 @@ const api = axios.create({
     return baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}/api/v1`;
   })(),
   withCredentials: true,
+  timeout: 30000,
 });
 
 // Request interceptor for logging and CSRF token handling
