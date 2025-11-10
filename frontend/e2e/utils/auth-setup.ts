@@ -312,53 +312,19 @@ export class AuthSetup {
 
   /**
    * Logs in a user (assumes already on login page or will navigate)
+   * In CI/Docker environments, uses API login with token extraction for cross-container auth
    */
   private static async loginUser(page: Page, userData: TestUserData): Promise<void> {
     console.log('🔑 Logging in user...');
 
     try {
-      // Ensure we're on the login page
-      if (!page.url().includes('/login')) {
-        await page.goto('/login', { waitUntil: 'domcontentloaded' });
-      }
-
-      // Fill login form
-      await page.fill('input[type="email"]', userData.email, { timeout: 15000 });
-      await page.fill('input[type="password"]', userData.password, { timeout: 15000 });
-      console.log('✅ Login form filled');
-
-      // Submit login
-      await page.click('button[type="submit"]', { timeout: 15000 });
-      console.log('✅ Login form submitted');
-
-      // Wait for either success (redirect to groups) or failure (error alert or timeout)
-      try {
-        await page.waitForURL('**/app/groups', { timeout: 5000 });
-        console.log(`✅ Successfully logged in and redirected to: ${page.url()}`);
-      } catch {
-        // Check if login failed - look for error alert or if still on login page
-        const currentUrl = page.url();
-        const errorAlertVisible = await page
-          .locator('[role="alert"]')
-          .isVisible()
-          .catch(() => false);
-
-        if (currentUrl.includes('/login') || errorAlertVisible) {
-          // Login failed - get error message if available
-          let errorMessage = 'Login failed';
-          try {
-            const errorText = await page.locator('[role="alert"]').textContent();
-            if (errorText) {
-              errorMessage = `Login failed: ${errorText.trim()}`;
-            }
-          } catch {
-            // Ignore error getting error text
-          }
-          throw new Error(errorMessage);
-        } else {
-          // Unexpected state - re-throw the original timeout error
-          throw new Error('Login timeout - unexpected navigation behavior');
-        }
+      // In CI/Docker, use direct API login to handle cross-container cookie issues
+      if (TestHelpers.isCI()) {
+        console.log('🏭 CI environment detected - using API login for cross-container auth');
+        await this.loginViaApi(page, userData);
+      } else {
+        // Local development - use frontend form login
+        await this.loginViaFrontend(page, userData);
       }
 
       // Additional wait to ensure the page has fully loaded and rendered
@@ -374,6 +340,119 @@ export class AuthSetup {
         throw error;
       } else {
         throw new Error(`Login failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+  }
+
+  /**
+   * Login via API for CI/Docker environments where cookies don't persist across containers
+   */
+  private static async loginViaApi(page: Page, userData: TestUserData): Promise<void> {
+    console.log('🔗 Logging in via API (CI/Docker mode)...');
+
+    // Make API login request
+    const response = await page.request.post(`${this.getApiBaseUrl()}/api/v1/auth/login`, {
+      data: {
+        email: userData.email,
+        password: userData.password,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`API login failed: ${response.status} ${JSON.stringify(errorData)}`);
+    }
+
+    const loginData = await response.json();
+    const accessToken = loginData.access_token;
+
+    if (!accessToken) {
+      throw new Error('No access token received from API login');
+    }
+
+    console.log('✅ API login successful, token received');
+
+    // IMPORTANT: Set up route handler BEFORE any page navigation
+    // This ensures it catches all API requests including the ones during page load
+    // Using page.route with wildcard to intercept all API calls
+    await page.route('**/api/v1/**', async route => {
+      const request = route.request();
+      const headers = {
+        ...request.headers(),
+        Authorization: `Bearer ${accessToken}`,
+      };
+      // Log interception for debugging
+      console.log(
+        `📡 Intercepting ${request.method()} ${request.url()}, adding Authorization header`
+      );
+      route.continue({ headers });
+    });
+
+    console.log('✅ Route handler configured to inject Authorization header');
+
+    // Set up localStorage with token using addInitScript BEFORE any navigation
+    // This runs in the page context before any scripts load, ensuring token is available
+    await page.addInitScript(token => {
+      window.localStorage.setItem('auth_token', token);
+      window.localStorage.setItem('auth_token_stored_at', new Date().toISOString());
+      console.log('✅ Token stored in localStorage');
+    }, accessToken);
+
+    console.log('✅ Init script configured to set token in localStorage');
+
+    // Now navigate to the app - all API requests will have the Authorization header
+    // and localStorage will have the token available to the frontend
+    await page.goto('/app/groups', { waitUntil: 'domcontentloaded' });
+    console.log(`✅ Navigated to app after API login: ${page.url()}`);
+  }
+
+  /**
+   * Login via frontend form for local development
+   */
+  private static async loginViaFrontend(page: Page, userData: TestUserData): Promise<void> {
+    console.log('🌐 Logging in via frontend form...');
+
+    // Ensure we're on the login page
+    if (!page.url().includes('/login')) {
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    }
+
+    // Fill login form
+    await page.fill('input[type="email"]', userData.email, { timeout: 15000 });
+    await page.fill('input[type="password"]', userData.password, { timeout: 15000 });
+    console.log('✅ Login form filled');
+
+    // Submit login
+    await page.click('button[type="submit"]', { timeout: 15000 });
+    console.log('✅ Login form submitted');
+
+    // Wait for either success (redirect to groups) or failure (error alert or timeout)
+    try {
+      await page.waitForURL('**/app/groups', { timeout: 5000 });
+      console.log(`✅ Successfully logged in and redirected to: ${page.url()}`);
+    } catch {
+      // Check if login failed - look for error alert or if still on login page
+      const currentUrl = page.url();
+      const errorAlertVisible = await page
+        .locator('[role="alert"]')
+        .isVisible()
+        .catch(() => false);
+
+      if (currentUrl.includes('/login') || errorAlertVisible) {
+        // Login failed - get error message if available
+        let errorMessage = 'Login failed';
+        try {
+          const errorText = await page.locator('[role="alert"]').textContent();
+          if (errorText) {
+            errorMessage = `Login failed: ${errorText.trim()}`;
+          }
+        } catch {
+          // Ignore error getting error text
+        }
+        throw new Error(errorMessage);
+      } else {
+        // Unexpected state - re-throw the original timeout error
+        throw new Error('Login timeout - unexpected navigation behavior');
       }
     }
   }
