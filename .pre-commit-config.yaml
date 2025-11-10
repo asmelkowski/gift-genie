@@ -30,6 +30,14 @@ repos:
         types_or: [python]
         args: [--fix]
 
+  # Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
+    hooks:
+      - id: mypy
+        files: ^backend/.*\.py$
+        types_or: [python]
+
   # Frontend hooks - use local installations
   - repo: local
     hooks:
