@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     # Application
     APP_NAME: str = "Gift Genie"
     DEBUG: bool = True
+    LOG_LEVEL: str = "INFO"
 
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173"
