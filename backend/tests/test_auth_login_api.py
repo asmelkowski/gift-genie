@@ -1,4 +1,5 @@
 import pytest
+from datetime import UTC, datetime
 from typing import Optional
 
 from httpx import AsyncClient
@@ -47,6 +48,9 @@ class InMemoryUserRepo(UserRepository):
                 return u
         return None
 
+    async def get_by_id(self, user_id: str) -> User | None:
+        return self._users.get(user_id)
+
     async def email_exists_ci(self, email: str) -> bool:
         return email.lower() in self._emails
 
@@ -59,8 +63,8 @@ async def test_login_success(client: AsyncClient, monkeypatch):
         email="alice@example.com",
         password_hash="hashed:Str0ng!Pass1",
         name="Alice",
-        created_at=None,  # Not needed for test
-        updated_at=None,
+        created_at=datetime.now(tz=UTC),
+        updated_at=datetime.now(tz=UTC),
     )
     repo = InMemoryUserRepo(existing_users=[test_user])
 
@@ -71,6 +75,7 @@ async def test_login_success(client: AsyncClient, monkeypatch):
     payload = {"email": "alice@example.com", "password": "Str0ng!Pass1"}
 
     resp = await client.post("/api/v1/auth/login", json=payload)
+
     assert resp.status_code == 200
     body = resp.json()
     assert body["user"]["id"] == "test-user-id"
@@ -113,8 +118,8 @@ async def test_login_wrong_password_returns_401(client: AsyncClient):
         email="bob@example.com",
         password_hash="hashed:correctpassword",
         name="Bob",
-        created_at=None,
-        updated_at=None,
+        created_at=datetime.now(tz=UTC),
+        updated_at=datetime.now(tz=UTC),
     )
     repo = InMemoryUserRepo(existing_users=[test_user])
 
