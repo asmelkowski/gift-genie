@@ -82,6 +82,7 @@ class UserProfile(BaseModel):
 class LoginResponse(BaseModel):
     user: UserProfile
     token_type: str = "Bearer"
+    access_token: str
 
 
 class UserProfileResponse(BaseModel):
@@ -109,7 +110,16 @@ async def get_jwt_service() -> JWTService:
 
 
 async def get_current_user(request: Request) -> str:
-    token = request.cookies.get("access_token")
+    token = None
+
+    # First try to get token from Authorization header (for API requests in tests)
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    else:
+        # Fall back to cookie-based auth (for browser navigation)
+        token = request.cookies.get("access_token")
+
     if not token:
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
@@ -177,7 +187,9 @@ async def login_user(
     # Set CSRF header
     response.headers["X-CSRF-Token"] = csrf_token
 
-    return LoginResponse(user=UserProfile(id=user.id, email=user.email, name=user.name))
+    return LoginResponse(
+        user=UserProfile(id=user.id, email=user.email, name=user.name), access_token=access_token
+    )
 
 
 @router.get("/me", response_model=UserProfileResponse)
