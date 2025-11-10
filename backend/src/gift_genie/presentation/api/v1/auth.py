@@ -32,6 +32,7 @@ from gift_genie.infrastructure.database.repositories.users import UserRepository
 from gift_genie.infrastructure.security.jwt import JWTService
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
 from gift_genie.infrastructure.config.settings import get_settings
+from gift_genie.presentation.api.v1.shared import handle_application_exceptions
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -128,6 +129,7 @@ async def get_current_user(request: Request) -> str:
 
 
 @router.post("/register", response_model=UserCreatedResponse, status_code=201)
+@handle_application_exceptions
 async def register_user(
     payload: RegisterRequest,
     response: Response,
@@ -170,6 +172,7 @@ async def register_user(
 
 
 @router.post("/login", response_model=LoginResponse)
+@handle_application_exceptions
 async def login_user(
     payload: LoginRequest,
     response: Response,
@@ -219,6 +222,7 @@ async def login_user(
 
 
 @router.get("/me", response_model=UserProfileResponse)
+@handle_application_exceptions
 async def get_current_user_profile(
     current_user_id: Annotated[str, Depends(get_current_user)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
@@ -250,6 +254,7 @@ async def get_current_user_profile(
 
 
 @router.post("/logout", status_code=204)
+@handle_application_exceptions
 async def logout(response: Response) -> None:
     try:
         settings = get_settings()
