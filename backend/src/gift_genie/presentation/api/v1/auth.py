@@ -13,7 +13,6 @@ from pydantic import (
     EmailStr,
     Field,
     StringConstraints,
-    ValidationError,
     model_validator,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +20,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from gift_genie.application.dto.get_current_user_query import GetCurrentUserQuery
 from gift_genie.application.dto.login_command import LoginCommand
 from gift_genie.application.dto.register_user_command import RegisterUserCommand
-from gift_genie.application.errors import EmailConflictError, InvalidCredentialsError
 from gift_genie.application.use_cases.get_current_user import GetCurrentUserUseCase
 from gift_genie.application.use_cases.login_user import LoginUserUseCase
 from gift_genie.application.use_cases.register_user import RegisterUserUseCase
@@ -32,7 +30,6 @@ from gift_genie.infrastructure.database.repositories.users import UserRepository
 from gift_genie.infrastructure.security.jwt import JWTService
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
 from gift_genie.infrastructure.config.settings import get_settings
-from gift_genie.presentation.api.v1.shared import handle_application_exceptions
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -129,39 +126,17 @@ async def get_current_user(request: Request) -> str:
 
 
 @router.post("/register", response_model=UserCreatedResponse, status_code=201)
-@handle_application_exceptions
 async def register_user(
     payload: RegisterRequest,
     response: Response,
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
 ) -> UserCreatedResponse:
-    try:
-        cmd = RegisterUserCommand(
-            email=str(payload.email).strip(), password=payload.password, name=payload.name
-        )
-        use_case = RegisterUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
-        user = await use_case.execute(cmd)
-    except EmailConflictError as e:
-        logger.warning("Email conflict during registration", email=payload.email, error=str(e))
-        raise HTTPException(status_code=409, detail={"code": "email_conflict"})
-    except HTTPException:
-        # Re-raise validation HTTPExceptions (e.g., weak password)
-        raise
-    except ValidationError as ve:
-        # Pydantic validation errors (should be auto-handled by FastAPI, but keep for safety)
-        logger.warning(
-            "Validation error during registration", email=payload.email, errors=ve.errors()
-        )
-        raise HTTPException(
-            status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()}
-        )
-    except Exception as e:
-        # Avoid leaking details
-        logger.exception(
-            "Unexpected error during user registration", email=payload.email, error=str(e)
-        )
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    cmd = RegisterUserCommand(
+        email=str(payload.email).strip(), password=payload.password, name=payload.name
+    )
+    use_case = RegisterUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
+    user = await use_case.execute(cmd)
 
     # Optionally set Location header
     _ = response.headers.setdefault("Location", f"/api/v1/users/{user.id}")
@@ -172,7 +147,6 @@ async def register_user(
 
 
 @router.post("/login", response_model=LoginResponse)
-@handle_application_exceptions
 async def login_user(
     payload: LoginRequest,
     response: Response,
@@ -180,24 +154,9 @@ async def login_user(
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
     jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
 ) -> LoginResponse:
-    try:
-        cmd = LoginCommand(email=str(payload.email).strip(), password=payload.password)
-        use_case = LoginUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
-        user = await use_case.execute(cmd)
-    except InvalidCredentialsError as e:
-        logger.warning("Invalid credentials during login", email=payload.email, error=str(e))
-        raise HTTPException(status_code=401, detail={"code": "invalid_credentials"})
-    except HTTPException:
-        raise
-    except ValidationError as ve:
-        logger.warning("Validation error during login", email=payload.email, errors=ve.errors())
-        raise HTTPException(
-            status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()}
-        )
-    except Exception as e:
-        # Avoid leaking details
-        logger.exception("Unexpected error during user login", email=payload.email, error=str(e))
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    cmd = LoginCommand(email=str(payload.email).strip(), password=payload.password)
+    use_case = LoginUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
+    user = await use_case.execute(cmd)
 
     # Generate JWT
     access_token = jwt_service.create_access_token(data={"sub": user.id})
@@ -222,27 +181,13 @@ async def login_user(
 
 
 @router.get("/me", response_model=UserProfileResponse)
-@handle_application_exceptions
 async def get_current_user_profile(
     current_user_id: Annotated[str, Depends(get_current_user)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
 ) -> UserProfileResponse:
-    try:
-        query = GetCurrentUserQuery(user_id=current_user_id)
-        use_case = GetCurrentUserUseCase(user_repository=user_repo)
-        user = await use_case.execute(query)
-    except InvalidCredentialsError as e:
-        logger.warning(
-            "User not found during profile retrieval", user_id=current_user_id, error=str(e)
-        )
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-    except Exception as e:
-        logger.exception(
-            "Unexpected error during get current user profile",
-            user_id=current_user_id,
-            error=str(e),
-        )
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    query = GetCurrentUserQuery(user_id=current_user_id)
+    use_case = GetCurrentUserUseCase(user_repository=user_repo)
+    user = await use_case.execute(query)
 
     return UserProfileResponse(
         id=user.id,
@@ -254,23 +199,18 @@ async def get_current_user_profile(
 
 
 @router.post("/logout", status_code=204)
-@handle_application_exceptions
 async def logout(response: Response) -> None:
-    try:
-        settings = get_settings()
-        response.set_cookie(
-            key="access_token",
-            value="",
-            max_age=0,
-            httponly=True,
-            secure=settings.COOKIE_SECURE,
-            samesite=_get_samesite_value(settings.COOKIE_SAMESITE),
-            path="/",
-        )
-        logger.info("User logged out successfully")
-    except Exception:
-        logger.exception("Unexpected error during logout")
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    settings = get_settings()
+    response.set_cookie(
+        key="access_token",
+        value="",
+        max_age=0,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite=_get_samesite_value(settings.COOKIE_SAMESITE),
+        path="/",
+    )
+    logger.info("User logged out successfully")
 
 
 def _get_samesite_value(samesite_str: str) -> Literal["lax", "strict", "none"] | None:

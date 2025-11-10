@@ -25,6 +25,7 @@ dependencies = [
 dev = [
     "aiosqlite>=0.21.0",
     "httpx>=0.28.1",
+    "ipdb>=0.13.13",
     "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-asyncio>=1.2.0",

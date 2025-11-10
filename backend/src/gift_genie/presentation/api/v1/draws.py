@@ -46,7 +46,7 @@ from gift_genie.infrastructure.database.repositories.exclusions import Exclusion
 from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.services.email_notification_service import EmailNotificationService
-from gift_genie.presentation.api.v1.shared import PaginationMeta, handle_application_exceptions
+from gift_genie.presentation.api.v1.shared import PaginationMeta
 from gift_genie.presentation.api.v1.groups import get_current_user, get_group_repository
 
 router = APIRouter(tags=["draws"])
@@ -257,7 +257,6 @@ async def get_list_assignments_use_case(
 
 
 @router.get("/groups/{group_id}/draws", response_model=PaginatedDrawsResponse)
-@handle_application_exceptions
 async def list_draws(
     group_id: UUID = Path(..., description="Group UUID"),
     status: Literal["pending", "finalized"] | None = Query(None),
@@ -302,7 +301,6 @@ async def list_draws(
 
 
 @router.post("/groups/{group_id}/draws", response_model=DrawResponse, status_code=201)
-@handle_application_exceptions
 async def create_draw(
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateDrawRequest = Depends(),
@@ -334,7 +332,6 @@ async def create_draw(
 
 
 @router.get("/draws/{draw_id}", response_model=DrawResponse)
-@handle_application_exceptions
 async def get_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
@@ -360,7 +357,6 @@ async def get_draw(
 
 
 @router.delete("/draws/{draw_id}", status_code=204)
-@handle_application_exceptions
 async def delete_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
@@ -377,7 +373,6 @@ async def delete_draw(
 
 
 @router.post("/draws/{draw_id}/execute", response_model=ExecuteDrawResponse)
-@handle_application_exceptions
 async def execute_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: ExecuteDrawRequest = Depends(),
@@ -414,7 +409,6 @@ async def execute_draw(
 
 
 @router.post("/draws/{draw_id}/finalize", response_model=DrawResponse)
-@handle_application_exceptions
 async def finalize_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: FinalizeDrawRequest = Depends(),
@@ -441,7 +435,6 @@ async def finalize_draw(
 
 
 @router.post("/draws/{draw_id}/notify", response_model=NotifyDrawResponse, status_code=202)
-@handle_application_exceptions
 async def notify_draw(
     payload: NotifyDrawRequest,
     draw_id: UUID = Path(..., description="Draw UUID"),
@@ -462,7 +455,6 @@ async def notify_draw(
 
 
 @router.get("/draws/{draw_id}/assignments", response_model=ListAssignmentsResponse)
-@handle_application_exceptions
 async def list_assignments(
     draw_id: UUID = Path(..., description="Draw UUID"),
     include: Literal["names", "none"] = Query("none", description="Include member names"),
