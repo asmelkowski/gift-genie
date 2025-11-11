@@ -16,6 +16,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/AppLayout/AppLayout';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import api from '@/lib/api';
+import { BootstrapContext } from '@/contexts/BootstrapContext';
 import './App.css';
 
 function Home() {
@@ -88,6 +89,7 @@ const router = createBrowserRouter([
 function AppContent() {
   const { login } = useAuthStore();
   const [isBootstrapped, setIsBootstrapped] = useState(false);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -101,6 +103,7 @@ function AppContent() {
         console.log('[Auth] Session check failed:', error);
       } finally {
         setIsBootstrapped(true);
+        setIsBootstrapping(false);
       }
     };
 
@@ -118,7 +121,11 @@ function AppContent() {
     );
   }
 
-  return <RouterProvider router={router} />;
+  return (
+    <BootstrapContext.Provider value={{ isBootstrapping }}>
+      <RouterProvider router={router} />
+    </BootstrapContext.Provider>
+  );
 }
 
 function App() {

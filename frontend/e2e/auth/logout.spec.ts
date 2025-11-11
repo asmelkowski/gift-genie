@@ -1,33 +1,44 @@
-// File: frontend/e2e/auth/logout.spec.ts
 import { test, expect } from '@playwright/test';
+import { GroupsPage } from '../page-objects/GroupsPage';
+import { AppLayoutPage } from '../page-objects/AppLayoutPage';
 
 test.describe('Logout', () => {
   test('should logout successfully', async ({ page }) => {
-    await page.goto('/app/groups');
+    const groupsPage = new GroupsPage(page);
+    const appLayout = new AppLayoutPage(page);
 
-    // Verify we're logged in
-    await expect(page.locator('[data-testid="groups-page-header"]')).toBeVisible();
+    // Navigate to groups page and wait for it to load
+    await groupsPage.goto();
+    await groupsPage.waitForLoad();
 
-    // Open user menu and click logout
-    await page.click('button[data-testid="user-menu-button"]');
-    await page.click('button:has-text("Logout")');
+    // Verify we're authenticated
+    await appLayout.expectAuthenticated();
 
-    // Should redirect to login page
+    // Perform logout
+    await appLayout.logout();
+
+    // Verify we're redirected to login
+    await page.waitForURL('/login');
     await expect(page).toHaveURL('/login');
   });
 
   test('should not access protected routes after logout', async ({ page }) => {
-    await page.goto('/app/groups');
+    const groupsPage = new GroupsPage(page);
+    const appLayout = new AppLayoutPage(page);
+
+    // Navigate to groups page
+    await groupsPage.goto();
+    await groupsPage.waitForLoad();
 
     // Logout
-    await page.click('button[data-testid="user-menu-button"]');
-    await page.click('button:has-text("Logout")');
-    await expect(page).toHaveURL('/login');
+    await appLayout.logout();
+    await page.waitForURL('/login');
 
     // Try to access protected route
-    await page.goto('/app/groups');
+    await groupsPage.goto();
 
-    // Should redirect back to login
+    // Should be redirected back to login
+    await page.waitForURL('/login');
     await expect(page).toHaveURL('/login');
   });
 });

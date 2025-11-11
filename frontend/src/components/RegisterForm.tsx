@@ -166,6 +166,7 @@ export function RegisterForm() {
         <Input
           id="name"
           type="text"
+          data-testid="register-name"
           value={formState.name}
           onChange={handleInputChange('name')}
           required
@@ -178,6 +179,7 @@ export function RegisterForm() {
         <Input
           id="email"
           type="email"
+          data-testid="register-email"
           value={formState.email}
           onChange={handleInputChange('email')}
           required
@@ -188,6 +190,7 @@ export function RegisterForm() {
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <PasswordInput
+          data-testid="register-password"
           value={formState.password}
           onChange={handleInputChange('password')}
           showPassword={formState.showPassword}
@@ -199,6 +202,7 @@ export function RegisterForm() {
       <Button
         type="submit"
         className="w-full"
+        data-testid="register-submit"
         disabled={registerMutation.isPending || !isFormValid}
       >
         {registerMutation.isPending ? 'Registering...' : 'Register'}

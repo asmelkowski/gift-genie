@@ -1,36 +1,31 @@
-// File: frontend/e2e/groups/create-group.spec.ts
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { GroupsPage } from '../page-objects/GroupsPage';
 
 test.describe('Group Management', () => {
-  test('should create a new group', async ({ page }) => {
-    await page.goto('/app/groups');
+  let groupsPage: GroupsPage;
 
-    // Generate unique group name
-    const groupName = `Test Group ${Date.now()}`;
-
-    // Click create group button
-    await page.click('[data-testid="groups-page-header"] button:has-text("Create Group")');
-
-    // Wait for dialog to be visible
-    await page.waitForSelector('input[placeholder="Enter group name"]', { state: 'visible' });
-
-    // Fill the form
-    await page.fill('input[placeholder="Enter group name"]', groupName);
-
-    // Submit the form (press Enter or find submit button)
-    await page.press('input[placeholder="Enter group name"]', 'Enter');
-
-    // Verify group appears in list
-    await expect(page.locator(`text=${groupName}`)).toBeVisible({ timeout: 10000 });
+  test.beforeEach(async ({ page }) => {
+    groupsPage = new GroupsPage(page);
+    await groupsPage.goto();
+    await groupsPage.waitForLoad();
   });
 
-  test('should display empty state when no groups exist', async ({ page }) => {
-    await page.goto('/app/groups');
+  test('should create a new group', async ({ page }) => {
+    // Create a group with a unique name
+    const groupName = `Test Group ${Date.now()}`;
+    await groupsPage.createGroup(groupName);
 
-    // If no groups, should show empty state or create prompt
-    // This test assumes groups might exist from previous test user
-    // Just verify the page loads correctly
-    await expect(page.locator('[data-testid="groups-page-header"]')).toContainText('Groups');
-    await expect(page.locator('button:has-text("Create Group")')).toBeVisible();
+    // Wait for the operation to complete
+    await page.waitForLoadState('networkidle');
+
+    // Verify the group appears in the list
+    await groupsPage.expectGroupVisible(groupName);
+  });
+
+  test('should display empty state when no groups exist', async () => {
+    // This test verifies the page loads correctly
+    // (Groups may or may not exist depending on test user state)
+    await groupsPage.expectPageVisible();
+    await groupsPage.expectCreateButtonVisible();
   });
 });
