@@ -404,8 +404,6 @@ jobs:
             -e ALGORITHM=HS256 \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
             -e CORS_ORIGINS=http://localhost:5173,http://frontend:5173,http://backend:8000 \
-            -e COOKIE_SAMESITE=none \
-            -e COOKIE_SECURE=false \
             gift-genie-backend:prod
 
       - name: Wait for backend to be healthy
@@ -418,36 +416,14 @@ jobs:
               success=1
               break
             fi
-            status=$(docker inspect backend --format='{{.State.Status}} (exit={{.State.ExitCode}})' 2>/dev/null || echo 'unknown')
-            echo "Attempt $i/60: not ready (status=$status)"
+            echo "Attempt $i/60: not ready"
             sleep 2
           done
           if [ "$success" -ne 1 ]; then
-            echo "❌ Backend did not become healthy in time"
-            echo "--- docker ps -a ---"
-            docker ps -a || true
-            echo "--- docker inspect backend ---"
-            docker inspect backend || true
-            echo "--- docker logs backend ---"
-            docker logs backend || true
+            echo "❌ Backend did not become healthy"
+            docker logs backend
             exit 1
           fi
-
-      - name: Collect backend logs (on failure)
-        if: failure()
-        run: |
-          docker logs backend > backend-logs.txt 2>&1 || true
-          docker inspect backend > backend-inspect.json 2>&1 || true
-
-      - name: Upload backend logs
-        if: failure()
-        uses: actions/upload-artifact@v5
-        with:
-          name: backend-diagnostics
-          path: |
-            backend-logs.txt
-            backend-inspect.json
-          retention-days: 7
 
       - name: Download frontend e2e image
         uses: actions/download-artifact@v6
@@ -460,236 +436,82 @@ jobs:
 
       - name: Start frontend dev server
         run: |
-           docker run -d \
-             --name frontend \
-             --network gift-genie-test \
-             -p 5173:5173 \
-              -e VITE_API_BASE_URL=http://backend:8000 \
-              -e HOST=0.0.0.0 \
-              -e VITE_HOST=0.0.0.0 \
-              gift-genie-frontend:dev
+          docker run -d \
+            --name frontend \
+            --network gift-genie-test \
+            -p 5173:5173 \
+            -e VITE_API_BASE_URL=http://backend:8000 \
+            -e HOST=0.0.0.0 \
+            gift-genie-frontend:dev
 
       - name: Wait for frontend to be healthy
         run: |
-          echo "Waiting for frontend to be fully loaded..."
+          echo "Waiting for frontend..."
           for i in {1..60}; do
             if curl -sf http://localhost:5173 | grep -q "root"; then
               echo "✅ Frontend is ready"
               break
             fi
-            echo "Attempt $i/60: Frontend not ready yet..."
+            echo "Attempt $i/60: not ready"
             sleep 1
           done
+          sleep 3  # Brief extra time for hydration
 
-          # Give frontend a bit more time to fully hydrate
-          echo "Allowing frontend to fully hydrate..."
-          sleep 5
-
-      - name: Verify E2E network connectivity
+      - name: Verify network connectivity
         run: |
-          echo "🔍 Testing network connectivity from E2E container perspective..."
-
-          # Test backend connectivity
-          echo "Testing backend at http://backend:8000/health..."
+          echo "Testing backend from e2e container..."
           docker run --rm --network gift-genie-test curlimages/curl:latest \
-            curl -v --max-time 10 http://backend:8000/health
+            curl -f http://backend:8000/health
 
-          # Test frontend connectivity
-          echo "Testing frontend at http://frontend:5173..."
+          echo "Testing frontend from e2e container..."
           docker run --rm --network gift-genie-test curlimages/curl:latest \
-            curl -v --max-time 10 http://frontend:5173
+            curl -f http://frontend:5173
 
-          # Test API endpoint that frontend will use
-          echo "Testing API endpoint at http://backend:8000/api/v1/health..."
-          docker run --rm --network gift-genie-test curlimages/curl:latest \
-            curl -v --max-time 10 http://backend:8000/api/v1/health
-
-          # Test connectivity from frontend container perspective
-          echo "Testing backend connectivity from frontend container..."
-           docker exec frontend curl -v --max-time 10 http://backend:8000/health || echo "Frontend container cannot reach backend"
-
-           echo "✅ Network connectivity verified"
-
-      - name: Verify E2E image and dependencies
-        run: |
-          echo "🔍 Checking e2e image..."
-          docker run --rm gift-genie-frontend:e2e ls -la /app/playwright.config.ts
-          echo "✅ Config found"
-
-          docker run --rm gift-genie-frontend:e2e ls -la /app/e2e/
-          echo "✅ E2E tests found"
-
-          docker run --rm gift-genie-frontend:e2e which bunx
-           echo "✅ Bun found"
-
-      - name: Create Playwright directories
-        run: |
-          mkdir -p playwright/.auth
-          mkdir -p playwright/screenshots
-          mkdir -p playwright/screenshots/test-results
-          mkdir -p test-results/screenshots
-          echo "✅ Playwright directories created"
+      - name: Create test results directory
+        run: mkdir -p test-results
 
       - name: Run E2E tests
         timeout-minutes: 8
         run: |
-           # Create test results directory
-           mkdir -p test-results
+          echo "🚀 Running E2E tests..."
+          docker run --name e2e-tests \
+            --network gift-genie-test \
+            -e CI=true \
+            -v $(pwd)/test-results:/app/test-results \
+            gift-genie-frontend:e2e \
+            npx playwright test
 
-           # Ensure playwright directories exist with proper permissions
-           echo "🔧 Setting up Playwright directories..."
-           mkdir -p playwright/.auth
-           mkdir -p playwright/screenshots
-           chmod -R 755 playwright/
-           ls -la playwright/
+          EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
 
-           # Verify volume mounts will work
-           echo "🔍 Pre-run directory verification..."
-           echo "Host playwright directory:"
-           ls -la $(pwd)/playwright/ || echo "Host playwright directory not accessible"
-           echo "Host test-results directory:"
-           ls -la $(pwd)/test-results/ || echo "Host test-results directory not accessible"
+          # Copy any additional artifacts
+          docker cp e2e-tests:/app/playwright-report ./test-results/ 2>/dev/null || true
 
-           # Run E2E tests with parallel execution
-           echo "🚀 Starting E2E tests (Parallel Execution Mode)..."
-           docker run --name e2e-tests \
-             --network gift-genie-test \
-             -e CI=true \
-             -e VITE_API_BASE_URL=http://backend:8000 \
-             -v $(pwd)/test-results:/app/test-results \
-             -v $(pwd)/playwright:/app/playwright \
-             gift-genie-frontend:e2e \
-             sh -c "
-               echo '📁 Container directory verification...' &&
-               ls -la /app/playwright/ &&
-               echo '🏃 Running Playwright tests in parallel (4 workers)...' &&
-               npx playwright test --workers=4 &&
-               echo '✅ Parallel test execution completed'
-             "
+          docker rm -f e2e-tests 2>/dev/null || true
+          exit $EXIT_CODE
 
-           # Get exit code from container
-           EXIT_CODE=$(docker inspect e2e-tests --format='{{.State.ExitCode}}')
-
-           # Verify auth state was created and persisted
-           echo "🔍 Verifying auth state persistence on host..."
-           if [ -f "$(pwd)/playwright/.auth/user.json" ]; then
-             echo "✅ Auth state persisted to host:"
-             ls -la $(pwd)/playwright/.auth/user.json
-             head -c 200 $(pwd)/playwright/.auth/user.json
-           else
-             echo "❌ Auth state NOT persisted to host"
-             EXIT_CODE=1
-           fi
-
-           # Copy test results from container (in case volume mount had issues)
-           docker cp e2e-tests:/app/playwright-report ./test-results/ 2>/dev/null || true
-           docker cp e2e-tests:/app/playwright ./playwright-results 2>/dev/null || true
-           docker cp e2e-tests:/app/coverage ./test-results/ 2>/dev/null || true
-           docker cp e2e-tests:/app/test-results ./test-results/container-results 2>/dev/null || true
-
-           # Copy screenshots from all possible locations
-           echo "📸 Collecting screenshots from container..."
-           docker cp e2e-tests:/app/playwright-report ./test-results/playwright-report-copy 2>/dev/null || true
-           docker cp e2e-tests:/app/playwright/screenshots ./test-results/screenshots-from-container 2>/dev/null || true
-           docker cp e2e-tests:/app/test-results/screenshots ./test-results/screenshots-from-test-results 2>/dev/null || true
-
-           # Copy any screenshots from playwright root directory
-           docker cp e2e-tests:/app/playwright/*.png ./test-results/screenshots/ 2>/dev/null || true
-
-           # Clean up container
-           docker rm -f e2e-tests 2>/dev/null || true
-
-           # Exit with the original test exit code
-           exit $EXIT_CODE
-
-      - name: Upload E2E screenshots
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: e2e-screenshots
-          path: |
-            test-results/screenshots/
-            test-results/playwright-report-copy/
-            test-results/screenshots-from-container/
-            test-results/screenshots-from-test-results/
-            playwright-results/screenshots/
-            playwright/*.png
-          retention-days: 14
-          if-no-files-found: warn
-
-      - name: Collect E2E diagnostics (on failure)
-        if: failure()
-        run: |
-          echo "🔍 Collecting E2E diagnostics..."
-
-          # Collect container logs
-          docker logs frontend > test-results/frontend-logs.txt 2>&1 || true
-          docker logs e2e-tests > test-results/e2e-tests-logs.txt 2>&1 || true
-          docker logs backend > test-results/backend-logs.txt 2>&1 || true
-          docker logs postgres > test-results/postgres-logs.txt 2>&1 || true
-          docker logs redis > test-results/redis-logs.txt 2>&1 || true
-
-          # Collect container inspection
-          docker inspect frontend > test-results/frontend-inspect.json 2>&1 || true
-          docker inspect backend > test-results/backend-inspect.json 2>&1 || true
-
-          # Explicitly collect screenshots for diagnostics
-          echo "📸 Collecting screenshots for diagnostics..."
-          mkdir -p test-results/diagnostics-screenshots
-
-          # Copy screenshots from all possible locations to diagnostics
-          cp -r test-results/screenshots/* test-results/diagnostics-screenshots/ 2>/dev/null || true
-          cp -r test-results/playwright-report-copy/* test-results/diagnostics-screenshots/ 2>/dev/null || true
-          cp -r test-results/screenshots-from-container/* test-results/diagnostics-screenshots/ 2>/dev/null || true
-          cp -r test-results/screenshots-from-test-results/* test-results/diagnostics-screenshots/ 2>/dev/null || true
-          cp -r playwright-results/screenshots/* test-results/diagnostics-screenshots/ 2>/dev/null || true
-          cp playwright/*.png test-results/diagnostics-screenshots/ 2>/dev/null || true
-
-          # Create screenshot inventory
-          echo "📋 Screenshot inventory:" > test-results/screenshot-inventory.txt
-          find test-results/diagnostics-screenshots -name "*.png" -type f 2>/dev/null | while read file; do
-            echo "Found screenshot: $file" >> test-results/screenshot-inventory.txt
-            ls -la "$file" >> test-results/screenshot-inventory.txt
-          done
-
-          # Test network connectivity
-          echo "Testing network connectivity..." > test-results/network-test.txt
-          docker run --rm --network gift-genie-test curl -s -o /dev/null -w "%{http_code}" http://backend:8000/health >> test-results/network-test.txt 2>/dev/null || echo "Backend unreachable" >> test-results/network-test.txt
-          docker run --rm --network gift-genie-test curl -s -o /dev/null -w "%{http_code}" http://frontend:5173 >> test-results/network-test.txt 2>/dev/null || echo "Frontend unreachable" >> test-results/network-test.txt
-
-          # List all containers and networks
-          docker ps -a > test-results/docker-ps.txt 2>&1 || true
-          docker network ls > test-results/docker-networks.txt 2>/dev/null || true
-
-          echo "✅ Diagnostics collected"
-
-      - name: Upload E2E test results
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: playwright-report
-          path: |
-            test-results/playwright-report/
-            test-results/junit.xml
+          path: test-results/
           retention-days: 7
 
-      - name: Upload E2E coverage to artifacts
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: frontend-e2e-coverage
-          path: test-results/coverage/
-          retention-days: 7
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          echo "Collecting diagnostics..."
+          docker logs backend > test-results/backend-logs.txt 2>&1 || true
+          docker logs frontend > test-results/frontend-logs.txt 2>&1 || true
+          docker logs postgres > test-results/postgres-logs.txt 2>&1 || true
+          docker logs redis > test-results/redis-logs.txt 2>&1 || true
 
-      - name: Upload E2E diagnostics
-        if: always()
+      - name: Upload diagnostics
+        if: failure()
         uses: actions/upload-artifact@v5
         with:
           name: e2e-diagnostics
-          path: |
-            test-results/
-            !test-results/playwright-report/
-            !test-results/coverage/
+          path: test-results/
           retention-days: 7
 
       - name: Cleanup containers

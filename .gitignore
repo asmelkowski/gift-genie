@@ -51,3 +51,9 @@ yarn-error.log*
 
 # Direnv
 .envrc
+
+# E2E test artifacts
+e2e-diagnostics/
+playwright-results/
+test-results/
+frontend/.auth/

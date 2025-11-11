@@ -45,7 +45,7 @@ Based on the recommendations provided in the database planning document and user
 
 1. **Timestamp Audit Fields**: All tables should have appropriate timestamp fields (`created_at`, `updated_at`, `finalized_at`, `notification_sent_at`) with auto-update triggers for `updated_at`
 
-2. **Security Implementation**: 
+2. **Security Implementation**:
    - UUID primary keys to prevent enumeration attacks
    - Case-insensitive email handling for authentication and member management using LOWER() indexes
    - Security validation primarily in domain layer rather than database RLS
@@ -140,7 +140,7 @@ The Gift Genie MVP requires a PostgreSQL database supporting a Secret Santa draw
 6. **assignments**: Individual giver-receiver pairings within a draw
    - Fields: id (UUID PK), draw_id (FK → draws), giver_member_id (FK → members), receiver_member_id (FK → members), encrypted_receiver_id (TEXT/BYTEA, nullable, for future anonymous mode), created_at
    - Relationship: One draw has many assignments (ON DELETE CASCADE)
-   - Constraints: 
+   - Constraints:
      - Unique on (draw_id, giver_member_id) - each member gives to exactly one person
      - CHECK (giver_member_id != receiver_member_id) - prevent self-assignment
    - Indexes: On draw_id, giver_member_id, receiver_member_id

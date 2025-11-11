@@ -87,7 +87,7 @@ bun install
 
 # Configure environment
 cat > .env.local << EOF
-VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_API_BASE_URL=http://localhost:8000
 EOF
 ```
 
@@ -190,10 +190,10 @@ async def test_user_registration(client: AsyncClient):
         "email": "test@example.com",
         "password": "09%#3@0#rH3ksOqbL#qg8LAnT8c*35Vfa&5Q"
     }
-    
+
     # Act
     response = await client.post("/auth/register", json=user_data)
-    
+
     # Assert
     assert response.status_code == 201
     assert response.json()["access_token"]
@@ -280,7 +280,7 @@ describe('LoginForm', () => {
   it('should render login form', () => {
     // Arrange
     render(<LoginForm onSubmit={vi.fn()} />);
-    
+
     // Act & Assert
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
@@ -290,13 +290,13 @@ describe('LoginForm', () => {
     // Arrange
     const handleSubmit = vi.fn();
     render(<LoginForm onSubmit={handleSubmit} />);
-    
+
     // Act
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: 'test@example.com' }
     });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
+
     // Assert
     expect(handleSubmit).toHaveBeenCalled();
   });
@@ -332,9 +332,9 @@ describe('UserProfile', () => {
         });
       })
     );
-    
+
     render(<UserProfile />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('test@example.com')).toBeInTheDocument();
     });
@@ -367,8 +367,11 @@ bun run test:coverage
 ```bash
 cd frontend
 
-# Run all e2e tests
+# Run all e2e tests in parallel (recommended)
 bun run e2e
+
+# Run tests serially (for debugging)
+bun run e2e:serial
 
 # Run in UI mode (visual test runner)
 bun run e2e:ui
@@ -376,12 +379,21 @@ bun run e2e:ui
 # Run in debug mode
 bun run e2e:debug
 
+# Show test report
+bun run e2e:report
+
 # Run specific test file
 bun run e2e -- e2e/auth.spec.ts
 
 # Record new test with codegen
 bun run e2e:codegen
 ```
+
+**Parallel Execution Features:**
+- Tests run in parallel by default (2 workers locally, 4 in CI)
+- Each test creates its own authenticated context
+- No shared state between tests
+- Faster execution while maintaining reliability
 
 ### Writing E2E Tests
 
@@ -393,21 +405,21 @@ import { test, expect } from './fixtures';
 test('should complete gift draw cycle', async ({ authenticatedPage, groupsPage, drawsPage }) => {
   // Navigate to groups
   await groupsPage.goto();
-  
+
   // Create a new group
   await groupsPage.createGroup('Test Group', 'A test group');
   await groupsPage.expectGroupVisible('Test Group');
-  
+
   // Navigate to draws
   await drawsPage.goto('group-1');
-  
+
   // Create a draw
   await drawsPage.createDraw('Christmas 2024');
   await drawsPage.expectDrawVisible('Christmas 2024');
-  
+
   // Execute draw
   await drawsPage.executeDraw();
-  
+
   // Verify results
   await expect(page).toHaveScreenshot();
 });
@@ -759,16 +771,16 @@ PWDEBUG=1 bun run e2e          # Enable debug mode
 
 The Gift Genie testing environment is **production-ready** with comprehensive support for:
 
-✅ **Unit Testing** - Backend (pytest) and Frontend (vitest)  
-✅ **Integration Testing** - With mocked APIs and databases  
-✅ **End-to-End Testing** - Playwright with Page Object Model  
-✅ **Coverage Reporting** - HTML reports for both stacks  
-✅ **Developer Tools** - Watch modes, debug modes, visual UIs  
-✅ **Comprehensive Guides** - Setup, best practices, troubleshooting  
+✅ **Unit Testing** - Backend (pytest) and Frontend (vitest)
+✅ **Integration Testing** - With mocked APIs and databases
+✅ **End-to-End Testing** - Playwright with Page Object Model
+✅ **Coverage Reporting** - HTML reports for both stacks
+✅ **Developer Tools** - Watch modes, debug modes, visual UIs
+✅ **Comprehensive Guides** - Setup, best practices, troubleshooting
 
-**Time to First Test**: 5 minutes  
-**Time to Full Setup**: 1-2 hours  
-**Time to Team Adoption**: 1 week  
+**Time to First Test**: 5 minutes
+**Time to Full Setup**: 1-2 hours
+**Time to Team Adoption**: 1 week
 **Time to Full Coverage**: 4-8 weeks recommended
 
 **Next Steps:**

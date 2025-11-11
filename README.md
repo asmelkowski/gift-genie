@@ -137,6 +137,10 @@ Frontend commands are defined in `frontend/package.json` and run with `bun`.
 | `bun lint`    | Lints the codebase using ESLint.                              |
 | `bun test`    | Runs the component and unit tests using Vitest.               |
 | `bun preview` | Serves the production build locally for previewing.           |
+| `bun e2e`     | Runs E2E tests in parallel (2 workers locally).               |
+| `bun e2e:serial` | Runs E2E tests serially for debugging.                     |
+| `bun e2e:debug` | Runs E2E tests in debug mode.                              |
+| `bun e2e:report` | Shows the E2E test report.                                |
 
 
 ## Testing Strategy
@@ -148,7 +152,9 @@ This project follows a comprehensive testing strategy to ensure code quality and
     -   **Frontend**: `Vitest` and `React Testing Library` are used for testing React components, hooks, and utility functions. API requests are mocked using `Mock Service Worker (MSW)`.
 
 -   **End-to-End (E2E) Tests**:
-    -   E2E tests will be implemented using `Playwright` or `Cypress` to simulate full user flows in a browser, ensuring the frontend and backend work together correctly from the user's perspective.
+    -   E2E tests are implemented using `Playwright` to simulate full user flows in a browser, ensuring the frontend and backend work together correctly from the user's perspective.
+    -   Tests run in parallel for faster execution and are completely independent, with each test creating its own authenticated context.
+    -   See the [Parallel E2E Execution Guide](./frontend/e2e/PARALLEL-EXECUTION-GUIDE.md) for detailed information on running tests.
 
 -   **API Tests**:
     -   We use `Hurl` for black-box testing of our API endpoints, verifying contracts, status codes, and error handling independently of the frontend.
