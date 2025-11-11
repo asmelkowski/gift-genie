@@ -57,7 +57,6 @@ export default defineConfig({
       name: 'authenticated',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: '.auth/user.json',
       },
       dependencies: ['setup'],
       testIgnore: [

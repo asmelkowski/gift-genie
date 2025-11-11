@@ -48,6 +48,7 @@ export class GroupsPage {
   }
 
   async expectCreateButtonVisible() {
-    await expect(this.page.getByRole('button', { name: 'Create Group' })).toBeVisible();
+    await expect(this.page.getByText('No groups yet')).toBeVisible();
+    await expect(this.page.getByTestId('empty-state-create-group')).toBeVisible();
   }
 }

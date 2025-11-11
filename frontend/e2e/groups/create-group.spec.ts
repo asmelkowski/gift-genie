@@ -1,10 +1,15 @@
 import { test } from '@playwright/test';
 import { GroupsPage } from '../page-objects/GroupsPage';
+import { generateUser, loginUser, registerUser } from '../helpers';
 
 test.describe('Group Management', () => {
   let groupsPage: GroupsPage;
 
   test.beforeEach(async ({ page }) => {
+    const userData = generateUser();
+    await registerUser(page, userData);
+    await loginUser(page, userData);
+
     groupsPage = new GroupsPage(page);
     await groupsPage.goto();
     await groupsPage.waitForLoad();
@@ -23,8 +28,6 @@ test.describe('Group Management', () => {
   });
 
   test('should display empty state when no groups exist', async () => {
-    // This test verifies the page loads correctly
-    // (Groups may or may not exist depending on test user state)
     await groupsPage.expectPageVisible();
     await groupsPage.expectCreateButtonVisible();
   });
