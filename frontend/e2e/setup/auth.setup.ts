@@ -40,7 +40,7 @@ setup('authenticate', async ({ page, request }) => {
   // CRITICAL: Verify authentication via API, not DOM
   // This works regardless of localStorage origin issues
   const baseURL = process.env.CI ? 'http://backend:8000' : 'http://localhost:8000';
-  const response = await request.get(`${baseURL}/api/auth/me`);
+  const response = await request.get(`${baseURL}/api/v1/auth/me`);
 
   if (!response.ok()) {
     throw new Error(`Auth verification failed: ${response.status()} ${await response.text()}`);
