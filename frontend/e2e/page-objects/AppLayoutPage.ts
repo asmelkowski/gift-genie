@@ -9,7 +9,7 @@ export class AppLayoutPage {
   }
 
   async clickLogoutButton() {
-    await this.page.getByRole('button', { name: 'Logout' }).click();
+    await this.page.getByRole('menuitem', { name: 'Logout' }).click();
   }
 
   async logout() {

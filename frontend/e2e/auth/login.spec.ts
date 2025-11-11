@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../page-objects/LoginPage';
 import { GroupsPage } from '../page-objects/GroupsPage';
+import { generateUser, registerUser, loginUser } from '../helpers';
 
 test.describe('Login', () => {
   let loginPage: LoginPage;
@@ -26,13 +27,14 @@ test.describe('Login', () => {
   });
 
   test('should login successfully with valid credentials', async ({ page }) => {
+    // Register first
+    const userData = generateUser();
+    await registerUser(page, userData);
+
     const groupsPage = new GroupsPage(page);
 
-    // Login with valid credentials (same as setup)
-    await loginPage.login('e2e-test-user@example.com', 'SecurePassword123!');
-
-    // Wait for navigation to groups page
-    await page.waitForURL('/app/groups', { timeout: 15000 });
+    // Login with valid credentials using helper
+    await loginUser(page, userData);
 
     // Verify we're on the groups page
     await expect(page).toHaveURL('/app/groups');
