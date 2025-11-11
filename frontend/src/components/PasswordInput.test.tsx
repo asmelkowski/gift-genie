@@ -27,7 +27,13 @@ describe('PasswordInput', () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
     render(
-      <PasswordInput value="" onChange={mockOnChange} showPassword={false} onToggle={() => {}} />
+      <PasswordInput
+        value=""
+        onChange={mockOnChange}
+        showPassword={false}
+        onToggle={() => {}}
+        data-testid="password-input"
+      />
     );
 
     const input = screen.getByTestId('password-input');
