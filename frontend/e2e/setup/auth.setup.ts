@@ -33,6 +33,12 @@ setup('authenticate', async ({ page, request }) => {
     await page.getByTestId('register-password').fill(testPassword);
     await page.getByTestId('register-submit').click();
 
+    // After registration, page navigates to /login
+    await page.waitForURL('/login');
+    console.log('⚠️  Registration successful, now logging in...');
+    await loginPage.login(testEmail, testPassword);
+
+    // Wait for navigation to groups after login
     await page.waitForURL('/app/groups', { timeout: 15000 });
     console.log('✅ Registered and logged in new user');
   }
