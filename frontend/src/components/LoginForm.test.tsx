@@ -127,7 +127,7 @@ describe('LoginForm', () => {
       onError({ response: { status: 401 } });
     });
 
-    await waitFor(() => expect(screen.getByText('Invalid email or password')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Invalid credentials')).toBeInTheDocument());
   });
 
   it('displays 429 error message', async () => {
@@ -204,12 +204,12 @@ describe('LoginForm', () => {
       onError({ response: { status: 401 } });
     });
 
-    await waitFor(() => expect(screen.getByText('Invalid email or password')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Invalid credentials')).toBeInTheDocument());
 
     // Type new input
     await user.clear(emailInput);
     await user.type(emailInput, 'new@example.com');
 
-    expect(screen.queryByText('Invalid email or password')).not.toBeInTheDocument();
+    expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
   });
 });
