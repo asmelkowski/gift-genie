@@ -104,11 +104,6 @@ function AppContent() {
       } finally {
         setIsBootstrapped(true);
         setIsBootstrapping(false);
-
-        // Signal E2E tests that app is ready
-        if (typeof window !== 'undefined') {
-          window.__app_ready = true;
-        }
       }
     };
 
@@ -117,10 +112,7 @@ function AppContent() {
 
   if (!isBootstrapped) {
     return (
-      <div
-        className="flex items-center justify-center h-screen bg-gray-50"
-        data-testid="app-loading"
-      >
+      <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600">Loading...</p>
