@@ -10,18 +10,20 @@ setup('authenticate', async ({ page }) => {
   const testPassword = 'SecurePassword123!';
 
   // Navigate and attempt login
+  console.log('[Auth Setup] Starting authentication flow...');
   await loginPage.goto();
 
   try {
     console.log('⚠️  Login attempt...');
     await loginPage.login(testEmail, testPassword);
 
-    // Wait for navigation
-    await page.waitForURL('/app/groups', { timeout: 15000 });
+    // Wait for login to complete (navigation + app ready)
+    await loginPage.waitForLoginSuccess(25000);
+
     console.log('✅ Logged in with existing user');
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_) {
+  } catch (error) {
     console.log('⚠️  Login failed, attempting registration...');
 
     // If login fails, try registration
@@ -32,12 +34,16 @@ setup('authenticate', async ({ page }) => {
     await page.getByTestId('register-submit').click();
 
     // After registration, page navigates to /login
-    await page.waitForURL('/login');
+    console.log('⚠️  Waiting for registration to complete...');
+    await page.waitForURL('/login', { timeout: 15000 });
     console.log('⚠️  Registration successful, now logging in...');
+
+    await loginPage.goto();
     await loginPage.login(testEmail, testPassword);
 
-    // Wait for navigation to groups after login
-    await page.waitForURL('/app/groups', { timeout: 15000 });
+    // Wait for login to complete after registration
+    await loginPage.waitForLoginSuccess(25000);
+
     console.log('✅ Registered and logged in new user');
   }
 
