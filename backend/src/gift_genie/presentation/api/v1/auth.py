@@ -173,12 +173,21 @@ async def login_user(
 
     # Set httpOnly cookie
     settings = get_settings()
+
+    # Determine SameSite value based on environment
+    # In dev/CI: SameSite=None allows cross-origin requests (required for frontend:5173 -> backend:8000)
+    # In production: Use configured SameSite value (typically 'lax' for security)
+    if settings.ENV == "dev":
+        samesite_value = None
+    else:
+        samesite_value = _get_samesite_value(settings.COOKIE_SAMESITE)
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         secure=settings.COOKIE_SECURE,
-        samesite=_get_samesite_value(settings.COOKIE_SAMESITE),
+        samesite=samesite_value,
     )
 
     # Generate CSRF token
