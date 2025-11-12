@@ -26,7 +26,7 @@ test.describe('Login', () => {
     await loginPage.expectErrorMessage('Invalid credentials');
   });
 
-  test('should login successfully with valid credentials', async ({ page }) => {
+  test('should login successfully with valid credentials', async ({ page, context }) => {
     // Register first
     const userData = generateUser();
     await registerUser(page, userData);
@@ -34,7 +34,7 @@ test.describe('Login', () => {
     const groupsPage = new GroupsPage(page);
 
     // Login with valid credentials using helper
-    await loginUser(page, userData);
+    await loginUser(page, context, userData);
 
     // Verify we're on the groups page
     await expect(page).toHaveURL('/app/groups');

@@ -1,6 +1,6 @@
 import { LoginPage } from './page-objects/LoginPage';
 import { RegisterPage } from './page-objects/RegisterPage';
-import { type Page } from '@playwright/test';
+import { BrowserContext, type Page } from '@playwright/test';
 
 const generateRandomString = (length: number): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -41,7 +41,7 @@ const registerUser = async function (page: Page, data: UserData) {
   await page.waitForLoadState('networkidle');
 };
 
-const loginUser = async function (page: Page, data: UserData) {
+const loginUser = async function (page: Page, context: BrowserContext, data: UserData) {
   const loginPage = new LoginPage(page);
   await loginPage.goto();
   await loginPage.expectEmailVisible();
@@ -59,6 +59,8 @@ const loginUser = async function (page: Page, data: UserData) {
     },
     { timeout: 5000 }
   );
+  const cookies = await context.cookies();
+  context.addCookies(cookies);
 };
 
 export { registerUser, loginUser, generateRandomString, generateUser, type UserData };

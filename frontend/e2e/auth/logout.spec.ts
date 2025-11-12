@@ -5,11 +5,11 @@ import { generateUser, loginUser, registerUser } from '../helpers';
 import { LoginPage } from '../page-objects/LoginPage';
 
 test.describe('Logout', () => {
-  test('should logout successfully', async ({ page }) => {
+  test('should logout successfully', async ({ page, context }) => {
     // Register and login
     const userData = generateUser();
     await registerUser(page, userData);
-    await loginUser(page, userData);
+    await loginUser(page, context, userData);
 
     const groupsPage = new GroupsPage(page);
     const appLayout = new AppLayoutPage(page);
