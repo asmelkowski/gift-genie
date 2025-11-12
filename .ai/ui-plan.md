@@ -185,5 +185,3 @@ Alternative flows:
 - **RadixPrimitives**: Base building blocks (Dialog, AlertDialog, Tabs, Popover, Tooltip) to ensure consistent accessibility semantics.
 
 This architecture maps PRD user stories to concrete views and components, aligns with the API plan (endpoints identified per view), enforces security and non-disclosure policies, and incorporates session decisions for navigation and feedback patterns.
-
-

@@ -7,14 +7,21 @@ interface PasswordInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   showPassword: boolean;
   onToggle: () => void;
+  'data-testid'?: string;
 }
 
-export function PasswordInput({ value, onChange, showPassword, onToggle }: PasswordInputProps) {
+export function PasswordInput({
+  value,
+  onChange,
+  showPassword,
+  onToggle,
+  'data-testid': dataTestId,
+}: PasswordInputProps) {
   return (
     <div className="relative">
       <Input
         id="password"
-        data-testid="password-input"
+        data-testid={dataTestId}
         type={showPassword ? 'text' : 'password'}
         value={value}
         onChange={onChange}
@@ -28,11 +35,7 @@ export function PasswordInput({ value, onChange, showPassword, onToggle }: Passw
         onClick={onToggle}
         aria-label={showPassword ? 'Hide password' : 'Show password'}
       >
-        {showPassword ? (
-          <EyeOff className="h-4 w-4" />
-        ) : (
-          <Eye className="h-4 w-4" />
-        )}
+        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </Button>
     </div>
   );

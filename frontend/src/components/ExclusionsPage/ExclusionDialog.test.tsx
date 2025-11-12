@@ -11,6 +11,7 @@ describe('ExclusionDialog', () => {
 
   const createMockMember = (overrides?: Partial<MemberResponse>): MemberResponse => ({
     id: 'member-1',
+    group_id: 'group-1',
     name: 'John Doe',
     email: 'john@example.com',
     is_active: true,
@@ -120,9 +121,9 @@ describe('ExclusionDialog', () => {
   });
 
   it('handles local loading state during form submission', async () => {
-    const { default: userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
-    const mockOnSubmitAsync = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    const mockOnSubmitAsync = vi
+      .fn()
+      .mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
 
     render(
       <ExclusionDialog

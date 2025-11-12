@@ -82,9 +82,6 @@ class TestConstraintDrawAlgorithm:
         """Test that results are random without seed."""
         member_ids = [str(uuid4()) for _ in range(4)]
 
-        algorithm1 = ConstraintDrawAlgorithm()
-        result1 = algorithm1.generate_assignments(member_ids, set())
-
         # Run multiple times to check for randomness
         results = []
         for _ in range(10):
@@ -214,11 +211,7 @@ class TestConstraintDrawAlgorithm:
         algorithm = ConstraintDrawAlgorithm(seed="backtrack-test")
 
         ordered_givers = ["A", "B", "C"]
-        constraints = {
-            "A": {"B", "C"},
-            "B": {"A", "C"},
-            "C": {"A", "B"}
-        }
+        constraints = {"A": {"B", "C"}, "B": {"A", "C"}, "C": {"A", "B"}}
         assignment = {}
         used_receivers = set()
 

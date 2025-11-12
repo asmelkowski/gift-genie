@@ -25,10 +25,7 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
     : 'No historical exclusions';
 
   return (
-    <Card
-      onClick={handleClick}
-      className="cursor-pointer hover:shadow-lg transition-shadow"
-    >
+    <Card onClick={handleClick} className="cursor-pointer hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
         <h3 className="font-semibold text-lg truncate">{group.name}</h3>
       </CardHeader>

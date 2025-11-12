@@ -28,7 +28,9 @@ describe('useCreateGroupMutation', () => {
     const mockData: GroupDetailResponse = {
       id: 'group-1',
       name: 'New Group',
-      description: 'Test group',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
     };
@@ -41,7 +43,6 @@ describe('useCreateGroupMutation', () => {
 
     const groupData: CreateGroupRequest = {
       name: 'New Group',
-      description: 'Test group',
     };
 
     result.current.mutate(groupData);
@@ -50,14 +51,16 @@ describe('useCreateGroupMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/groups', groupData);
+    expect(api.post).toHaveBeenCalledWith('/groups', groupData);
   });
 
   it('returns data on successful mutation', async () => {
     const mockData: GroupDetailResponse = {
       id: 'group-1',
       name: 'New Group',
-      description: 'Test group',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
     };
@@ -81,7 +84,9 @@ describe('useCreateGroupMutation', () => {
     const mockData: GroupDetailResponse = {
       id: 'group-1',
       name: 'New Group',
-      description: 'Test group',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
     };
@@ -106,7 +111,9 @@ describe('useCreateGroupMutation', () => {
     const mockData: GroupDetailResponse = {
       id: 'group-1',
       name: 'New Group',
-      description: 'Test group',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
     };
@@ -174,16 +181,15 @@ describe('useCreateGroupMutation', () => {
     const mockData: GroupDetailResponse = {
       id: 'group-1',
       name: 'New Group',
-      description: 'Test group',
+      admin_user_id: 'user-1',
+      historical_exclusions_enabled: false,
+      historical_exclusions_lookback: 1,
       created_at: '2024-10-22T10:00:00Z',
       updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ data: mockData }), 100)
-        )
+      () => new Promise(resolve => setTimeout(() => resolve({ data: mockData }), 100))
     );
 
     const { result } = renderHook(() => useCreateGroupMutation(), {

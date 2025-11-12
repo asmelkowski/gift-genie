@@ -12,13 +12,20 @@ describe('DrawsGrid', () => {
 
   const createMockDraw = (overrides?: Partial<DrawViewModel>): DrawViewModel => ({
     id: 'draw-1',
-    name: 'Christmas Draw',
+    group_id: 'group-1',
+    status: 'pending',
+    created_at: '2024-01-15T10:00:00Z',
+    finalized_at: null,
+    notification_sent_at: null,
+    assignments_count: 0,
     lifecycleStep: 'created',
-    statusLabel: 'Created',
+    statusLabel: 'Pending',
     statusColor: 'yellow',
     formattedCreatedAt: 'Jan 15, 2024',
     formattedFinalizedAt: null,
     formattedNotificationSentAt: null,
+    hasAssignments: false,
+    isNotified: false,
     canExecute: true,
     canFinalize: false,
     canNotify: false,
@@ -27,7 +34,7 @@ describe('DrawsGrid', () => {
     ...overrides,
   });
 
-  const renderGrid = (props: any = {}) => {
+  const renderGrid = (props: Partial<Parameters<typeof DrawsGrid>[0]> = {}) => {
     return render(
       <BrowserRouter>
         <DrawsGrid
@@ -79,10 +86,7 @@ describe('DrawsGrid', () => {
   });
 
   it('applies correct grid layout classes', () => {
-    const draws = [
-      createMockDraw({ id: 'draw-1' }),
-      createMockDraw({ id: 'draw-2' }),
-    ];
+    const draws = [createMockDraw({ id: 'draw-1' }), createMockDraw({ id: 'draw-2' })];
 
     const { container } = renderGrid({ draws });
 

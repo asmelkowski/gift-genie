@@ -51,22 +51,21 @@ class AssignmentRepositorySqlAlchemy(AssignmentRepository):
         return [self._to_domain(model) for model in models]
 
     async def count_by_draw(self, draw_id: str) -> int:
-        stmt = select(func.count()).select_from(AssignmentModel).where(AssignmentModel.draw_id == UUID(draw_id))
+        stmt = (
+            select(func.count())
+            .select_from(AssignmentModel)
+            .where(AssignmentModel.draw_id == UUID(draw_id))
+        )
         res = await self._session.execute(stmt)
         return res.scalar_one() or 0
 
     async def get_historical_exclusions(
-        self,
-        group_id: str,
-        lookback_count: int
+        self, group_id: str, lookback_count: int
     ) -> list[tuple[str, str]]:
         # Get the most recent finalized draws for the group, limited by lookback_count
         subquery = (
             select(DrawModel.id)
-            .where(
-                DrawModel.group_id == UUID(group_id),
-                DrawModel.status == DrawStatus.FINALIZED
-            )
+            .where(DrawModel.group_id == UUID(group_id), DrawModel.status == DrawStatus.FINALIZED)
             .order_by(DrawModel.finalized_at.desc())
             .limit(lookback_count)
         )

@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import type { components } from '@/types/schema';
 
-type PaginatedExclusionsResponse =
-  components['schemas']['PaginatedExclusionsResponse'];
+type PaginatedExclusionsResponse = components['schemas']['PaginatedExclusionsResponse'];
 type ExclusionType = components['schemas']['ExclusionType'];
 
 interface UseExclusionsQueryParams {
@@ -21,7 +20,7 @@ export const useExclusionsQuery = (params: UseExclusionsQueryParams) => {
     queryKey: ['exclusions', params.groupId, params],
     queryFn: async () => {
       const response = await api.get<PaginatedExclusionsResponse>(
-        `/api/v1/groups/${params.groupId}/exclusions`,
+        `/groups/${params.groupId}/exclusions`,
         {
           params: {
             type: params.type || undefined,

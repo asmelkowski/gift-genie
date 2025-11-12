@@ -23,7 +23,9 @@ class DeleteMemberUseCase:
             raise ForbiddenError()
 
         # Verify member exists and belongs to group
-        member = await self.member_repository.get_by_group_and_id(command.group_id, command.member_id)
+        member = await self.member_repository.get_by_group_and_id(
+            command.group_id, command.member_id
+        )
         if not member:
             raise MemberNotFoundError()
 

@@ -26,12 +26,7 @@ class GroupRepository(Protocol):
     async def create(self, group: Group) -> Group: ...
 
     async def list_by_admin_user(
-        self,
-        user_id: str,
-        search: str | None,
-        page: int,
-        page_size: int,
-        sort: str
+        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
     ) -> tuple[list[Group], int]: ...
 
     async def get_by_id(self, group_id: str) -> Group | None: ...
@@ -54,7 +49,7 @@ class MemberRepository(Protocol):
         search: str | None,
         page: int,
         page_size: int,
-        sort: str
+        sort: str,
     ) -> tuple[list[Member], int]: ...
 
     async def get_by_id(self, member_id: str) -> Member | None: ...
@@ -63,9 +58,13 @@ class MemberRepository(Protocol):
 
     async def get_by_group_and_id(self, group_id: str, member_id: str) -> Member | None: ...
 
-    async def name_exists_in_group(self, group_id: str, name: str, exclude_member_id: str | None = None) -> bool: ...
+    async def name_exists_in_group(
+        self, group_id: str, name: str, exclude_member_id: str | None = None
+    ) -> bool: ...
 
-    async def email_exists_in_group(self, group_id: str, email: str, exclude_member_id: str | None = None) -> bool: ...
+    async def email_exists_in_group(
+        self, group_id: str, email: str, exclude_member_id: str | None = None
+    ) -> bool: ...
 
     async def has_pending_draw(self, member_id: str) -> bool: ...
 
@@ -84,7 +83,7 @@ class ExclusionRepository(Protocol):
         receiver_member_id: str | None,
         page: int,
         page_size: int,
-        sort: str
+        sort: str,
     ) -> tuple[list[Exclusion], int]: ...
 
     async def create(self, exclusion: Exclusion) -> Exclusion: ...
@@ -95,9 +94,13 @@ class ExclusionRepository(Protocol):
 
     async def get_by_group_and_id(self, group_id: str, exclusion_id: str) -> Exclusion | None: ...
 
-    async def exists_for_pair(self, group_id: str, giver_member_id: str, receiver_member_id: str) -> bool: ...
+    async def exists_for_pair(
+        self, group_id: str, giver_member_id: str, receiver_member_id: str
+    ) -> bool: ...
 
-    async def check_conflicts_bulk(self, group_id: str, pairs: list[tuple[str, str]]) -> list[dict]: ...
+    async def check_conflicts_bulk(
+        self, group_id: str, pairs: list[tuple[str, str]]
+    ) -> list[dict]: ...
 
     async def delete(self, exclusion_id: str) -> None: ...
 
@@ -111,9 +114,7 @@ class AssignmentRepository(Protocol):
     async def count_by_draw(self, draw_id: str) -> int: ...
 
     async def get_historical_exclusions(
-        self,
-        group_id: str,
-        lookback_count: int
+        self, group_id: str, lookback_count: int
     ) -> list[tuple[str, str]]: ...
 
 
@@ -122,12 +123,7 @@ class DrawRepository(Protocol):
     async def create(self, draw: Draw) -> Draw: ...
 
     async def list_by_group(
-        self,
-        group_id: str,
-        status: DrawStatus | None,
-        page: int,
-        page_size: int,
-        sort: str
+        self, group_id: str, status: DrawStatus | None, page: int, page_size: int, sort: str
     ) -> tuple[list[Draw], int]: ...
 
     async def get_by_id(self, draw_id: str) -> Draw | None: ...

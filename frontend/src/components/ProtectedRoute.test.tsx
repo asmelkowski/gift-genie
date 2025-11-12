@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
 import * as useAuthStoreModule from '@/hooks/useAuthStore';
+import type { AuthState } from '@/hooks/useAuthStore';
+import { BootstrapContext } from '@/contexts/BootstrapContext';
 
 vi.mock('@/hooks/useAuthStore');
 
@@ -14,9 +16,11 @@ describe('ProtectedRoute', () => {
   const renderProtectedRoute = (content: string) => {
     return render(
       <BrowserRouter>
-        <ProtectedRoute>
-          <div>{content}</div>
-        </ProtectedRoute>
+        <BootstrapContext.Provider value={{ isBootstrapping: false }}>
+          <ProtectedRoute>
+            <div>{content}</div>
+          </ProtectedRoute>
+        </BootstrapContext.Provider>
       </BrowserRouter>
     );
   };
@@ -28,7 +32,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => true,
       login: vi.fn(),
       logout: vi.fn(),
-    } as any);
+    } as unknown as AuthState);
 
     renderProtectedRoute('Protected Content');
 
@@ -42,7 +46,7 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => false,
       login: vi.fn(),
       logout: vi.fn(),
-    } as any);
+    } as unknown as AuthState);
 
     renderProtectedRoute('Protected Content');
 
@@ -58,13 +62,15 @@ describe('ProtectedRoute', () => {
       isAuthenticated: () => false,
       login: vi.fn(),
       logout: vi.fn(),
-    } as any);
+    } as unknown as AuthState);
 
     rerender(
       <BrowserRouter>
-        <ProtectedRoute>
-          <div>Protected Content</div>
-        </ProtectedRoute>
+        <BootstrapContext.Provider value={{ isBootstrapping: false }}>
+          <ProtectedRoute>
+            <div>Protected Content</div>
+          </ProtectedRoute>
+        </BootstrapContext.Provider>
       </BrowserRouter>
     );
 

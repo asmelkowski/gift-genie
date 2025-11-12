@@ -12,7 +12,7 @@ export function useAppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
+    setTheme(prev => {
       const newTheme = prev === 'light' ? 'dark' : 'light';
       try {
         localStorage.setItem('app-theme', newTheme);
@@ -24,7 +24,7 @@ export function useAppLayout() {
   }, []);
 
   const toggleSidebar = useCallback(() => {
-    setSidebarOpen((prev) => !prev);
+    setSidebarOpen(prev => !prev);
   }, []);
 
   const closeSidebar = useCallback(() => {

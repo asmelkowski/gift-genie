@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import type { components } from '@/types/schema';
+import type { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
 type ExecuteDrawResponse = components['schemas']['ExecuteDrawResponse'];
@@ -10,20 +11,15 @@ export const useExecuteDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (drawId: string) => {
-      const response = await api.post<ExecuteDrawResponse>(
-        `/api/v1/draws/${drawId}/execute`,
-        {}
-      );
+      const response = await api.post<ExecuteDrawResponse>(`/draws/${drawId}/execute`, {});
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['draws', groupId] });
       queryClient.setQueryData(['draw', data.draw.id], data.draw);
-      toast.success(
-        `Draw executed! ${data.assignments.length} assignments generated.`
-      );
+      toast.success(`Draw executed! ${data.assignments.length} assignments generated.`);
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ detail: string }>) => {
       const detail = error.response?.data?.detail;
       if (error.response?.status === 422) {
         throw error;

@@ -42,7 +42,7 @@ This follows the Clean Architecture principle that not every endpoint requires a
 **Success Response:**
 - **Status Code**: `204 No Content`
 - **Body**: Empty (no response body)
-- **Headers**: 
+- **Headers**:
   - `Set-Cookie: access_token=; Max-Age=0; Path=/; HttpOnly; SameSite=lax`
   - (In production with HTTPS, also include `Secure` flag)
 
@@ -248,7 +248,7 @@ Add the logout endpoint after the `/me` endpoint:
 async def logout(response: Response) -> None:
     """
     Logout user by clearing the access_token cookie.
-    
+
     This endpoint always succeeds (204) regardless of authentication state,
     ensuring idempotency and preventing information leakage.
     """
@@ -292,12 +292,12 @@ async def test_logout_success_with_valid_token(client: AsyncClient):
     """Test logout with authenticated user (valid token in cookie)."""
     # Set a fake access token cookie
     client.cookies.set("access_token", "fake.jwt.token")
-    
+
     resp = await client.post("/api/v1/auth/logout")
-    
+
     assert resp.status_code == 204
     assert resp.text == ""  # No response body
-    
+
     # Verify cookie is cleared (Max-Age=0 or expires in past)
     set_cookie_header = resp.headers.get("set-cookie", "")
     assert "access_token=" in set_cookie_header
@@ -310,10 +310,10 @@ async def test_logout_success_with_valid_token(client: AsyncClient):
 async def test_logout_success_without_token(client: AsyncClient):
     """Test logout without authentication (no cookie) - should still succeed."""
     resp = await client.post("/api/v1/auth/logout")
-    
+
     assert resp.status_code == 204
     assert resp.text == ""
-    
+
     # Should still set cookie with Max-Age=0
     set_cookie_header = resp.headers.get("set-cookie", "")
     assert "access_token=" in set_cookie_header
@@ -323,9 +323,9 @@ async def test_logout_success_without_token(client: AsyncClient):
 async def test_logout_success_with_invalid_token(client: AsyncClient):
     """Test logout with invalid/expired token - should still succeed."""
     client.cookies.set("access_token", "invalid.token.here")
-    
+
     resp = await client.post("/api/v1/auth/logout")
-    
+
     assert resp.status_code == 204
     assert resp.text == ""
 
@@ -336,11 +336,11 @@ async def test_logout_idempotency(client: AsyncClient):
     # First logout
     resp1 = await client.post("/api/v1/auth/logout")
     assert resp1.status_code == 204
-    
+
     # Second logout (already logged out)
     resp2 = await client.post("/api/v1/auth/logout")
     assert resp2.status_code == 204
-    
+
     # Third logout
     resp3 = await client.post("/api/v1/auth/logout")
     assert resp3.status_code == 204
@@ -350,16 +350,16 @@ async def test_logout_idempotency(client: AsyncClient):
 async def test_logout_clears_cookie_properly(client: AsyncClient):
     """Test that cookie is cleared with correct attributes."""
     client.cookies.set("access_token", "some.token.value")
-    
+
     resp = await client.post("/api/v1/auth/logout")
-    
+
     # Parse Set-Cookie header
     set_cookie = resp.headers.get("set-cookie", "")
-    
+
     # Verify cookie is cleared
     assert "access_token=" in set_cookie
     assert "Max-Age=0" in set_cookie or "max-age=0" in set_cookie.lower()
-    
+
     # Verify security attributes match login
     assert "httponly" in set_cookie.lower()
     assert "samesite=lax" in set_cookie.lower()
@@ -373,7 +373,7 @@ async def test_logout_wrong_method_405(client: AsyncClient):
     assert resp.status_code == 405
 
 
-@pytest.mark.anyio 
+@pytest.mark.anyio
 async def test_logout_with_extra_payload_ignored(client: AsyncClient):
     """Test that logout ignores any request body if provided."""
     # Some clients might send body by mistake
@@ -381,7 +381,7 @@ async def test_logout_with_extra_payload_ignored(client: AsyncClient):
         "/api/v1/auth/logout",
         json={"unexpected": "data"}
     )
-    
+
     # Should still succeed (body is ignored)
     assert resp.status_code == 204
 ```
@@ -555,7 +555,7 @@ The OpenAPI schema will automatically update when the endpoint is added. Verify:
    ```typescript
    export const useLogoutMutation = () => {
      const { logout: logoutStore } = useAuthStore();
-     
+
      return useMutation({
        mutationFn: logout,
        onSuccess: () => {
@@ -627,11 +627,11 @@ Before considering implementation complete, verify:
 class TokenBlacklistService:
     def __init__(self, redis_client):
         self.redis = redis_client
-    
+
     async def blacklist_token(self, token: str, expires_in: int):
         """Add token to blacklist with TTL matching token expiration."""
         await self.redis.setex(f"blacklist:{token}", expires_in, "1")
-    
+
     async def is_blacklisted(self, token: str) -> bool:
         """Check if token is blacklisted."""
         return await self.redis.exists(f"blacklist:{token}")
@@ -650,10 +650,10 @@ async def logout(
         payload = jwt_service.verify_token(token)
         exp = payload.get("exp")
         ttl = exp - datetime.now(UTC).timestamp()
-        
+
         # Blacklist token
         await blacklist.blacklist_token(token, int(ttl))
-    
+
     # Clear cookie
     response.set_cookie(...)
 ```
@@ -672,7 +672,7 @@ async def logout(
     # Validate CSRF token from session/cookie
     if not validate_csrf(csrf_token):
         raise HTTPException(status_code=403, detail={"code": "invalid_csrf"})
-    
+
     # Continue with logout...
 ```
 
@@ -688,7 +688,7 @@ async def logout_all_devices(
 ):
     # Invalidate all tokens for user (requires token versioning)
     await user_repo.increment_token_version(current_user_id)
-    
+
     # Clear current cookie
     response.set_cookie(...)
 ```
@@ -710,7 +710,7 @@ async def logout(
         # Extract user ID from token
         payload = jwt_service.verify_token(token)
         user_id = payload.get("sub")
-    
+
     # Log logout event
     await audit_log.log_event(
         event_type="user.logout",
@@ -718,7 +718,7 @@ async def logout(
         ip_address=request.client.host,
         user_agent=request.headers.get("user-agent"),
     )
-    
+
     # Continue with logout...
 ```
 

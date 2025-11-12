@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Text, UniqueConstraint
@@ -8,6 +11,10 @@ from gift_genie.infrastructure.database.models.base import Base
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 
 from gift_genie.libs.utils import utc_datetime_now
+
+if TYPE_CHECKING:
+    from gift_genie.infrastructure.database.models.draw import DrawModel
+    from gift_genie.infrastructure.database.models.member import MemberModel
 
 
 class AssignmentModel(Base):
@@ -24,7 +31,9 @@ class AssignmentModel(Base):
         PostgresUUID(as_uuid=True), ForeignKey("members.id", ondelete="CASCADE"), nullable=False
     )
     encrypted_receiver_id: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_datetime_now)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_datetime_now
+    )
 
     draw: Mapped["DrawModel"] = relationship("DrawModel", back_populates="assignments")
     giver_member: Mapped["MemberModel"] = relationship(

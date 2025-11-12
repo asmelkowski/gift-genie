@@ -25,31 +25,25 @@ describe('useExecuteDrawMutation', () => {
       draw: {
         id: 'draw-1',
         group_id: 'group-1',
-        name: 'Draw',
         status: 'pending',
         assignments_count: 5,
         created_at: '2024-10-22T10:00:00Z',
         finalized_at: null,
         notification_sent_at: null,
-        updated_at: '2024-10-22T10:00:00Z',
       },
-      assignments: [{ id: '1' }],
+      assignments: [{ giver_member_id: 'm1', receiver_member_id: 'm2' }],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/draws/draw-1/execute',
-      {}
-    );
+    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/execute', {});
   });
 
   it('invalidates draws query on success', async () => {
@@ -57,24 +51,21 @@ describe('useExecuteDrawMutation', () => {
       draw: {
         id: 'draw-1',
         group_id: 'group-1',
-        name: 'Draw',
         status: 'pending',
         assignments_count: 5,
         created_at: '2024-10-22T10:00:00Z',
         finalized_at: null,
         notification_sent_at: null,
-        updated_at: '2024-10-22T10:00:00Z',
       },
-      assignments: [{ id: '1' }],
+      assignments: [{ giver_member_id: 'm1', receiver_member_id: 'm2' }],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
@@ -89,30 +80,29 @@ describe('useExecuteDrawMutation', () => {
       draw: {
         id: 'draw-1',
         group_id: 'group-1',
-        name: 'Draw',
         status: 'pending',
         assignments_count: 3,
         created_at: '2024-10-22T10:00:00Z',
         finalized_at: null,
         notification_sent_at: null,
-        updated_at: '2024-10-22T10:00:00Z',
       },
-      assignments: [{ id: '1' }, { id: '2' }, { id: '3' }],
+      assignments: [
+        { giver_member_id: 'm1', receiver_member_id: 'm2' },
+        { giver_member_id: 'm2', receiver_member_id: 'm3' },
+        { giver_member_id: 'm3', receiver_member_id: 'm1' },
+      ],
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(toast.success).toHaveBeenCalledWith(
-      'Draw executed! 3 assignments generated.'
-    );
+    expect(toast.success).toHaveBeenCalledWith('Draw executed! 3 assignments generated.');
   });
 
   it('handles errors', async () => {
@@ -120,10 +110,9 @@ describe('useExecuteDrawMutation', () => {
       response: { data: { detail: 'Insufficient members' } },
     });
 
-    const { result } = renderHook(
-      () => useExecuteDrawMutation('group-1'),
-      { wrapper: createTestWrapper(queryClient) }
-    );
+    const { result } = renderHook(() => useExecuteDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate('draw-1');
 

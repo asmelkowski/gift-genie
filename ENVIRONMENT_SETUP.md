@@ -97,7 +97,7 @@ bun install
 ```bash
 # Create a .env file for frontend
 cat > .env.local << EOF
-VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_API_BASE_URL=http://localhost:8000
 EOF
 ```
 
@@ -134,7 +134,183 @@ bun run dev
 # The dev server proxies /api requests to http://localhost:8000
 ```
 
-## Step 4: Verify Installation
+## Step 4: Pre-commit Hooks Setup
+
+### What are Pre-commit Hooks?
+
+Pre-commit hooks are automated scripts that run before each git commit to ensure code quality and consistency. They automatically:
+- Format code according to project standards
+- Check for common issues and bugs
+- Validate configuration files
+- Run security checks
+- Enforce consistent file formatting
+
+### Installation
+
+```bash
+# Install pre-commit (if not already installed)
+pip install pre-commit
+
+# Or using uv
+uv tool install pre-commit
+
+# Or using homebrew (macOS)
+brew install pre-commit
+```
+
+### Install the Hooks
+
+```bash
+# From the project root directory
+pre-commit install
+
+# This installs the hooks defined in .pre-commit-config.yaml
+# You should see output like:
+# pre-commit installed at .git/hooks/pre-commit
+```
+
+### What Hooks Are Configured?
+
+The project includes hooks for:
+
+#### Backend (Python)
+- **Ruff Format**: Auto-formats Python code
+- **Ruff Linter**: Checks and fixes Python code style issues
+- **Bandit**: Security vulnerability scanner
+
+#### Frontend (JavaScript/TypeScript)
+- **Prettier**: Formats frontend code (TS/JS/JSX/TSX, JSON, CSS, MD)
+- **ESLint**: Lints and fixes frontend code issues
+
+#### General
+- **Trailing Whitespace**: Removes trailing spaces
+- **End-of-file-fixer**: Ensures files end with newline
+- **Mixed-line-ending**: Normalizes line endings to LF
+- **Check YAML/JSON/TOML**: Validates configuration files
+- **Check merge conflicts**: Detects unresolved merge conflicts
+- **Check added large files**: Prevents committing large files (>1MB)
+- **Check case conflicts**: Detects case-insensitive filename conflicts
+- **Check docstring first**: Ensures docstrings come before code
+
+#### Docker
+- **Hadolint**: Lints Dockerfiles for best practices
+
+### Running Hooks Manually
+
+```bash
+# Run all hooks on all files
+pre-commit run --all-files
+
+# Run hooks on specific files
+pre-commit run --files backend/src/gift_genie/main.py
+
+# Run specific hook
+pre-commit run ruff-format --all-files
+
+# Run hooks on staged files only
+pre-commit run
+```
+
+### How Hooks Work During Development
+
+1. **Automatic on Commit**: When you run `git commit`, hooks run on staged files
+2. **Auto-fix**: Many hooks (like ruff, prettier) will automatically fix issues
+3. **Re-stage Fixed Files**: If files are modified, you need to re-stage them:
+   ```bash
+   git add .  # Re-stage all modified files
+   git commit  # Try committing again
+   ```
+
+### Bypassing Hooks (Use with Caution)
+
+```bash
+# Skip all hooks for a single commit (not recommended)
+git commit --no-verify
+
+# Or the shorter form
+git commit -n
+
+# Skip hooks for a specific file (remove from staging)
+git reset HEAD path/to/file
+git commit  # Commit without that file
+```
+
+⚠️ **Warning**: Only bypass hooks when absolutely necessary. They ensure code quality and prevent common issues.
+
+### Updating Hooks
+
+```bash
+# Update to latest versions of all hooks
+pre-commit autoupdate
+
+# Re-install after updating
+pre-commit install
+```
+
+### Troubleshooting Common Issues
+
+#### Hook Installation Fails
+```bash
+# Clean and reinstall
+pre-commit clean
+pre-commit install
+```
+
+#### Hook Fails on Specific File
+```bash
+# Run hooks on specific file to see detailed error
+pre-commit run --files path/to/problematic/file
+
+# Check which hook is failing
+pre-commit run --all-files | grep -E "(FAIL|passed)"
+```
+
+#### Virtual Environment Issues
+```bash
+# Ensure hooks use correct Python version
+pre-commit run --all-files --verbose
+
+# Update default Python version in .pre-commit-config.yaml if needed
+```
+
+#### Frontend Dependencies Missing
+```bash
+# Install frontend dependencies first
+cd frontend
+bun install
+
+# Then run hooks again
+cd ..
+pre-commit run --all-files
+```
+
+#### Performance Issues
+```bash
+# Run hooks on fewer files to speed up
+git add -p  # Interactive staging
+git commit  # Only runs on staged files
+
+# Or exclude certain files temporarily
+# Edit .pre-commit-config.yaml to add exclude patterns
+```
+
+### Hook Configuration
+
+The hook configuration is in `.pre-commit-config.yaml`. Key settings:
+- `fail_fast: false`: Continues running all hooks even if one fails
+- `default_stages: [commit]`: Runs on commit by default
+- Language versions specified for consistency
+
+### Best Practices
+
+1. **Always install hooks** when setting up a new development machine
+2. **Read hook output carefully** - it often provides helpful fix suggestions
+3. **Commit frequently** to run hooks on smaller changesets
+4. **Update hooks regularly** with `pre-commit autoupdate`
+5. **Don't bypass hooks** unless you understand the implications
+6. **Fix issues at the source** rather than just bypassing the check
+
+## Step 5: Verify Installation
 
 ### Quick Smoke Test
 
@@ -329,6 +505,9 @@ bun test
 # Create a new branch
 git checkout -b feat/your-feature
 
+# Install pre-commit hooks (if not already done)
+pre-commit install
+
 # Terminal 1: Run backend
 cd backend && make run
 
@@ -371,8 +550,24 @@ bun run lint -- --fix  # Fix code style
 
 ### 4. Before Commit
 
+**Option 1: Using Pre-commit Hooks (Recommended)**
+
 ```bash
-# Run all checks
+# Stage your changes
+git add .
+
+# Commit - pre-commit hooks will run automatically
+git commit -m "feat: your changes"
+
+# If hooks modify files, re-stage and commit again
+git add .
+git commit -m "feat: your changes"
+```
+
+**Option 2: Manual Checks (If hooks bypassed)**
+
+```bash
+# Run all checks manually
 cd backend
 make lint
 make format
@@ -387,6 +582,17 @@ bun run build  # Check that build succeeds
 ```
 
 ## Useful Commands Reference
+
+### Pre-commit Hooks
+
+| Command | Purpose |
+|---------|---------|
+| `pre-commit install` | Install hooks in git repository |
+| `pre-commit run` | Run hooks on staged files |
+| `pre-commit run --all-files` | Run hooks on all files |
+| `pre-commit autoupdate` | Update hook versions |
+| `pre-commit clean` | Clean hook cache |
+| `git commit --no-verify` | Bypass hooks (use with caution) |
 
 ### Backend
 

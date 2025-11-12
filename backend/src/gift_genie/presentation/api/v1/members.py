@@ -48,12 +48,15 @@ class CreateMemberRequest(BaseModel):
 
 class UpdateMemberRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    name: Annotated[str, StringConstraints(min_length=1, max_length=100, strip_whitespace=True)] | None = None
+    name: (
+        Annotated[str, StringConstraints(min_length=1, max_length=100, strip_whitespace=True)]
+        | None
+    ) = None
     email: EmailStr | None = None
     is_active: bool | None = None
 
-    @model_validator(mode='after')
-    def check_at_least_one_field(self) -> 'UpdateMemberRequest':
+    @model_validator(mode="after")
+    def check_at_least_one_field(self) -> "UpdateMemberRequest":
         if all(v is None for v in [self.name, self.email, self.is_active]):
             raise ValueError("At least one field must be provided")
         return self
@@ -73,7 +76,6 @@ class PaginatedMembersResponse(BaseModel):
     meta: PaginationMeta
 
 
-
 @router.get("/{member_id}", response_model=MemberResponse)
 async def get_member(
     group_id: UUID = Path(..., description="Group UUID"),
@@ -82,7 +84,7 @@ async def get_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> MemberResponse:
     use_case = GetMemberUseCase(group_repo, member_repo)
     query = GetMemberQuery(
         group_id=str(group_id),
@@ -93,16 +95,40 @@ async def get_member(
     try:
         member = await use_case.execute(query)
     except GroupNotFoundError as e:
-        logger.warning("Group not found during member retrieval", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Group not found during member retrieval",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to member", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Forbidden access to member",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except MemberNotFoundError as e:
-        logger.warning("Member not found", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Member not found",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "member_not_found"})
     except Exception as e:
-        logger.exception("Unexpected error during member retrieval", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.exception(
+            "Unexpected error during member retrieval",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     return MemberResponse(
@@ -124,7 +150,7 @@ async def update_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> MemberResponse:
     use_case = UpdateMemberUseCase(group_repo, member_repo)
     command = UpdateMemberCommand(
         group_id=str(group_id),
@@ -138,25 +164,71 @@ async def update_member(
     try:
         member = await use_case.execute(command)
     except GroupNotFoundError as e:
-        logger.warning("Group not found during member update", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Group not found during member update",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to update member", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Forbidden access to update member",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except MemberNotFoundError as e:
-        logger.warning("Member not found during update", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Member not found during update",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "member_not_found"})
     except MemberNameConflictError as e:
-        logger.warning("Member name conflict during update", user_id=current_user_id, group_id=group_id, member_id=member_id, name=request.name, error=str(e))
+        logger.warning(
+            "Member name conflict during update",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            name=request.name,
+            error=str(e),
+        )
         raise HTTPException(status_code=409, detail={"code": "name_conflict_in_group"})
     except MemberEmailConflictError as e:
-        logger.warning("Member email conflict during update", user_id=current_user_id, group_id=group_id, member_id=member_id, email=request.email, error=str(e))
+        logger.warning(
+            "Member email conflict during update",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            email=request.email,
+            error=str(e),
+        )
         raise HTTPException(status_code=409, detail={"code": "email_conflict_in_group"})
     except CannotDeactivateMemberError as e:
-        logger.warning("Cannot deactivate member due to pending draw", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
-        raise HTTPException(status_code=409, detail={"code": "cannot_deactivate_due_to_pending_draw"})
+        logger.warning(
+            "Cannot deactivate member due to pending draw",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=409, detail={"code": "cannot_deactivate_due_to_pending_draw"}
+        )
     except Exception as e:
-        logger.exception("Unexpected error during member update", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.exception(
+            "Unexpected error during member update",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     return MemberResponse(
@@ -177,7 +249,7 @@ async def delete_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> Response:
     from gift_genie.application.dto.delete_member_command import DeleteMemberCommand
 
     use_case = DeleteMemberUseCase(group_repo, member_repo)
@@ -190,19 +262,43 @@ async def delete_member(
     try:
         await use_case.execute(command)
     except GroupNotFoundError as e:
-        logger.warning("Group not found during member deletion", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Group not found during member deletion",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to delete member", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Forbidden access to delete member",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except MemberNotFoundError as e:
-        logger.warning("Member not found during deletion", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.warning(
+            "Member not found during deletion",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "member_not_found"})
     except Exception as e:
-        logger.exception("Unexpected error during member deletion", user_id=current_user_id, group_id=group_id, member_id=member_id, error=str(e))
+        logger.exception(
+            "Unexpected error during member deletion",
+            user_id=current_user_id,
+            group_id=group_id,
+            member_id=member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
-    return None
+    return Response(status_code=204)
 
 
 @router.get("", response_model=PaginatedMembersResponse)
@@ -217,7 +313,7 @@ async def list_members(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> PaginatedMembersResponse:
     use_case = ListMembersUseCase(group_repo, member_repo)
     query = ListMembersQuery(
         group_id=str(group_id),
@@ -232,16 +328,38 @@ async def list_members(
     try:
         members, total = await use_case.execute(query)
     except GroupNotFoundError as e:
-        logger.warning("Group not found during members list", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Group not found during members list",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to list members", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Forbidden access to list members",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except ValueError as e:
-        logger.warning("Invalid query parameters in list members", user_id=current_user_id, group_id=group_id, error=str(e))
-        raise HTTPException(status_code=400, detail={"code": "invalid_query_params", "errors": [str(e)]})
+        logger.warning(
+            "Invalid query parameters in list members",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=400, detail={"code": "invalid_query_params", "errors": [str(e)]}
+        )
     except Exception as e:
-        logger.exception("Unexpected error during members list", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.exception(
+            "Unexpected error during members list",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     total_pages = (total + page_size - 1) // page_size
@@ -277,7 +395,7 @@ async def create_member(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
-):
+) -> MemberResponse:
     use_case = CreateMemberUseCase(group_repo, member_repo)
     command = CreateMemberCommand(
         group_id=str(group_id),
@@ -290,19 +408,49 @@ async def create_member(
     try:
         member = await use_case.execute(command)
     except GroupNotFoundError as e:
-        logger.warning("Group not found during member creation", user_id=current_user_id, group_id=group_id, name=request.name, error=str(e))
+        logger.warning(
+            "Group not found during member creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            name=request.name,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except ForbiddenError as e:
-        logger.warning("Forbidden access to create member", user_id=current_user_id, group_id=group_id, name=request.name, error=str(e))
+        logger.warning(
+            "Forbidden access to create member",
+            user_id=current_user_id,
+            group_id=group_id,
+            name=request.name,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except MemberNameConflictError as e:
-        logger.warning("Member name conflict during creation", user_id=current_user_id, group_id=group_id, name=request.name, error=str(e))
+        logger.warning(
+            "Member name conflict during creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            name=request.name,
+            error=str(e),
+        )
         raise HTTPException(status_code=409, detail={"code": "name_conflict_in_group"})
     except MemberEmailConflictError as e:
-        logger.warning("Member email conflict during creation", user_id=current_user_id, group_id=group_id, email=request.email, error=str(e))
+        logger.warning(
+            "Member email conflict during creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            email=request.email,
+            error=str(e),
+        )
         raise HTTPException(status_code=409, detail={"code": "email_conflict_in_group"})
     except Exception as e:
-        logger.exception("Unexpected error during member creation", user_id=current_user_id, group_id=group_id, name=request.name, error=str(e))
+        logger.exception(
+            "Unexpected error during member creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            name=request.name,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
     member_response = MemberResponse(

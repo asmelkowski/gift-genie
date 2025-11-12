@@ -32,7 +32,7 @@ export default function AssignmentsToolbar({
           type="text"
           placeholder="Search by giver or receiver name..."
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={e => onSearchChange(e.target.value)}
           maxLength={100}
         />
       </div>
@@ -43,10 +43,10 @@ export default function AssignmentsToolbar({
         <select
           id="sort"
           value={sort}
-          onChange={(e) => onSortChange(e.target.value)}
+          onChange={e => onSortChange(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          {SORT_OPTIONS.map((opt) => (
+          {SORT_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>

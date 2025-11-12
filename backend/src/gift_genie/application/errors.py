@@ -11,6 +11,7 @@ class InvalidCredentialsError(Exception):
     def __init__(self, message: str = "Invalid credentials"):
         super().__init__(message)
 
+
 class InvalidGroupNameError(Exception):
     """Raised when group name validation fails."""
 
@@ -20,11 +21,13 @@ class InvalidGroupNameError(Exception):
 
 class GroupNotFoundError(Exception):
     """Raised when a group is not found."""
+
     pass
 
 
 class ForbiddenError(Exception):
     """Raised when user lacks permission for an operation."""
+
     pass
 
 
@@ -62,7 +65,9 @@ class DuplicateExclusionError(Exception):
 
 
 class SelfExclusionNotAllowedError(Exception):
-    def __init__(self, message: str = "Cannot create exclusion where giver and receiver are the same"):
+    def __init__(
+        self, message: str = "Cannot create exclusion where giver and receiver are the same"
+    ):
         super().__init__(message)
 
 
@@ -74,61 +79,72 @@ class ExclusionConflictsError(Exception):
 
 class ValidationError(Exception):
     """Business rule validation failed"""
+
     pass
 
 
 class AuthorizationError(Exception):
     """User not authorized for operation"""
+
     pass
 
 
 class ConflictError(Exception):
     """Operation conflicts with current state"""
+
     pass
 
 
 class DrawNotFoundError(Exception):
     """Raised when a draw is not found."""
+
     pass
 
 
 class CannotDeleteFinalizedDrawError(Exception):
     """Raised when attempting to delete a finalized draw."""
+
     def __init__(self, message: str = "Cannot delete a finalized draw"):
         super().__init__(message)
 
 
 class AssignmentsAlreadyExistError(Exception):
     """Raised when attempting to execute a draw that already has assignments."""
+
     def __init__(self, message: str = "Assignments already exist for this draw"):
         super().__init__(message)
 
 
 class DrawAlreadyFinalizedError(Exception):
     """Raised when attempting to finalize an already finalized draw."""
+
     def __init__(self, message: str = "Draw is already finalized"):
         super().__init__(message)
 
 
 class NoValidDrawConfigurationError(Exception):
     """Raised when no valid draw configuration can be found."""
+
     def __init__(self, message: str = "No valid draw configuration found"):
         super().__init__(message)
 
 
 class NoAssignmentsToFinalizeError(Exception):
     """Raised when attempting to finalize a draw with no assignments."""
+
     def __init__(self, message: str = "No assignments to finalize"):
         super().__init__(message)
 
 
 class DrawNotFinalizedError(Exception):
     """Raised when attempting to notify for a draw that is not finalized."""
+
     def __init__(self, message: str = "Draw is not finalized"):
         super().__init__(message)
 
 
 class DrawImpossibleError(Exception):
     """Raised when the draw algorithm cannot find a valid assignment configuration."""
+
     def __init__(self, message: str = "No valid draw configuration possible"):
         super().__init__(message)

@@ -5,7 +5,10 @@ from datetime import datetime
 
 from gift_genie.application.dto.list_assignments_query import ListAssignmentsQuery
 from gift_genie.application.errors import DrawNotFoundError, ForbiddenError
-from gift_genie.application.use_cases.list_assignments import ListAssignmentsUseCase, AssignmentWithNames
+from gift_genie.application.use_cases.list_assignments import (
+    ListAssignmentsUseCase,
+    AssignmentWithNames,
+)
 from gift_genie.domain.entities.assignment import Assignment
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.entities.enums import DrawStatus

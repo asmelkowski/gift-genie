@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { expect, afterEach, vi, beforeAll, afterAll } from 'vitest';
+import { afterEach, vi, beforeAll, afterAll } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { server } from './mocks/server';
 
@@ -12,10 +12,10 @@ beforeAll(() => {
 afterEach(() => {
   // Clean up React Testing Library DOM - this unmounts components
   cleanup();
-  
+
   // Reset all MSW handlers for next test
   server.resetHandlers();
-  
+
   // Clear all mocks
   vi.clearAllMocks();
 });
@@ -46,5 +46,7 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
-};
-global.localStorage = localStorageMock as any;
+  length: 0,
+  key: vi.fn(),
+} as Storage;
+global.localStorage = localStorageMock;

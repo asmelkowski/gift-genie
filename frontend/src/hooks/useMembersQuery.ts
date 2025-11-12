@@ -16,18 +16,15 @@ export const useMembersQuery = (groupId: string, params: UseMembersQueryParams) 
   return useQuery({
     queryKey: ['members', groupId, params],
     queryFn: async () => {
-      const response = await api.get<PaginatedMembersResponse>(
-        `/api/v1/groups/${groupId}/members`,
-        {
-          params: {
-            is_active: params.is_active ?? undefined,
-            search: params.search || undefined,
-            page: params.page || 1,
-            page_size: params.page_size || 12,
-            sort: params.sort || 'name',
-          },
-        }
-      );
+      const response = await api.get<PaginatedMembersResponse>(`/groups/${groupId}/members`, {
+        params: {
+          is_active: params.is_active ?? undefined,
+          search: params.search || undefined,
+          page: params.page || 1,
+          page_size: params.page_size || 12,
+          sort: params.sort || 'name',
+        },
+      });
       return response.data;
     },
     staleTime: 30000,

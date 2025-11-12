@@ -13,9 +13,7 @@ export function useMembersParams() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const params: MembersQueryParams = {
-    is_active: searchParams.get('is_active')
-      ? searchParams.get('is_active') === 'true'
-      : null,
+    is_active: searchParams.get('is_active') ? searchParams.get('is_active') === 'true' : null,
     search: searchParams.get('search') || undefined,
     page: parseInt(searchParams.get('page') || '1', 10) || 1,
     page_size: parseInt(searchParams.get('page_size') || '12', 10) || 12,

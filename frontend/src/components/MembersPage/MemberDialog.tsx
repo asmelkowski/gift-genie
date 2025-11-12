@@ -41,11 +41,7 @@ export function MemberDialog({ isOpen, onClose, member, groupId }: MemberDialogP
               <div className="text-sm text-red-700 font-medium mb-2">Cannot Deactivate Member</div>
               <div className="text-sm text-red-700">{pendingDrawAlert}</div>
             </Alert>
-            <Button
-              onClick={closePendingDrawAlert}
-              variant="outline"
-              className="w-full"
-            >
+            <Button onClick={closePendingDrawAlert} variant="outline" className="w-full">
               OK
             </Button>
           </div>

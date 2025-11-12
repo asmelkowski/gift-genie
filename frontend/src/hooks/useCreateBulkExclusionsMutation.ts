@@ -4,10 +4,8 @@ import api from '@/lib/api';
 import type { components } from '@/types/schema';
 import type { AxiosError } from 'axios';
 
-type CreateExclusionsBulkRequest =
-  components['schemas']['CreateExclusionsBulkRequest'];
-type CreateExclusionsBulkResponse =
-  components['schemas']['CreateExclusionsBulkResponse'];
+type CreateExclusionsBulkRequest = components['schemas']['CreateExclusionsBulkRequest'];
+type CreateExclusionsBulkResponse = components['schemas']['CreateExclusionsBulkResponse'];
 
 interface ApiErrorResponse {
   code?: string;
@@ -26,12 +24,12 @@ export const useCreateBulkExclusionsMutation = (groupId: string) => {
   return useMutation({
     mutationFn: async (data: CreateExclusionsBulkRequest) => {
       const response = await api.post<CreateExclusionsBulkResponse>(
-        `/api/v1/groups/${groupId}/exclusions/bulk`,
+        `/groups/${groupId}/exclusions/bulk`,
         data
       );
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['exclusions', groupId] });
       toast.success(`${data.created.length} exclusions created successfully`);
     },
@@ -40,7 +38,7 @@ export const useCreateBulkExclusionsMutation = (groupId: string) => {
       if (errorCode === 'conflicts_present') {
         const conflicts = error.response?.data?.details || [];
         const conflictMsg = conflicts
-          .map((c) => `${c.giver_member_id} → ${c.receiver_member_id}`)
+          .map(c => `${c.giver_member_id} → ${c.receiver_member_id}`)
           .join(', ');
         toast.error(`Conflicts detected: ${conflictMsg}`);
       } else {

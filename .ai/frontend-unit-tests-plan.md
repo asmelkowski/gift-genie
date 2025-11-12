@@ -677,7 +677,7 @@ export const mockMutation = () => vi.fn();
 Use this checklist to mark progress:
 
 ### Phase 1 - Foundation ✅ COMPLETE
-- [x] lib/drawUtils.test.ts (26 tests) ✅ 
+- [x] lib/drawUtils.test.ts (26 tests) ✅
 - [x] lib/utils.test.ts (12 tests) ✅
 - [x] hooks/useAuthStore.test.ts (9 tests) ✅
 - [x] hooks/use*Query.test.ts x7 (46 tests) ✅

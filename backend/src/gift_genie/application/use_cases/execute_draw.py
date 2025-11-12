@@ -5,12 +5,24 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 from gift_genie.application.dto.execute_draw_command import ExecuteDrawCommand
-from gift_genie.application.errors import AssignmentsAlreadyExistError, DrawAlreadyFinalizedError, DrawNotFoundError, ForbiddenError, NoValidDrawConfigurationError
+from gift_genie.application.errors import (
+    AssignmentsAlreadyExistError,
+    DrawAlreadyFinalizedError,
+    DrawNotFoundError,
+    ForbiddenError,
+    NoValidDrawConfigurationError,
+)
 from gift_genie.domain.entities.assignment import Assignment
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.entities.enums import ExclusionType
 from gift_genie.domain.interfaces.draw_algorithm import DrawAlgorithm
-from gift_genie.domain.interfaces.repositories import AssignmentRepository, DrawRepository, ExclusionRepository, GroupRepository, MemberRepository
+from gift_genie.domain.interfaces.repositories import (
+    AssignmentRepository,
+    DrawRepository,
+    ExclusionRepository,
+    GroupRepository,
+    MemberRepository,
+)
 
 
 @dataclass(slots=True)
@@ -53,12 +65,14 @@ class ExecuteDrawUseCase:
             search=None,
             page=1,
             page_size=1000,  # Get all active members
-            sort="name"
+            sort="name",
         )
 
         # Validate minimum members
         if len(members) < 3:
-            raise NoValidDrawConfigurationError("Group must have at least 3 active members to execute a draw")
+            raise NoValidDrawConfigurationError(
+                "Group must have at least 3 active members to execute a draw"
+            )
 
         member_ids = [member.id for member in members]
 
@@ -70,7 +84,7 @@ class ExecuteDrawUseCase:
             receiver_member_id=None,
             page=1,
             page_size=1000,  # Get all manual exclusions
-            sort="created_at"
+            sort="created_at",
         )
 
         # Build exclusion set from manual exclusions
@@ -79,8 +93,7 @@ class ExecuteDrawUseCase:
         # Add historical exclusions if enabled
         if group.historical_exclusions_enabled and group.historical_exclusions_lookback > 0:
             historical_exclusions = await self.assignment_repository.get_historical_exclusions(
-                group_id=draw.group_id,
-                lookback_count=group.historical_exclusions_lookback
+                group_id=draw.group_id, lookback_count=group.historical_exclusions_lookback
             )
             exclusions.update(historical_exclusions)
 
@@ -89,7 +102,9 @@ class ExecuteDrawUseCase:
             assignment_map = self.draw_algorithm.generate_assignments(member_ids, exclusions)
         except Exception as e:
             # Re-raise as application error
-            raise NoValidDrawConfigurationError(f"Unable to generate valid assignments: {str(e)}") from e
+            raise NoValidDrawConfigurationError(
+                f"Unable to generate valid assignments: {str(e)}"
+            ) from e
 
         # Create Assignment entities
         now = datetime.now(tz=UTC)

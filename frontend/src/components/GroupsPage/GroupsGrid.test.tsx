@@ -18,10 +18,8 @@ describe('GroupsGrid', () => {
   });
 
   it('renders empty state when no groups provided', () => {
-    const { container } = render(
-      <GroupsGrid groups={[]} onGroupClick={mockOnGroupClick} />
-    );
-    
+    const { container } = render(<GroupsGrid groups={[]} onGroupClick={mockOnGroupClick} />);
+
     const grid = container.querySelector('.grid');
     expect(grid?.children.length).toBe(0);
   });
@@ -33,9 +31,7 @@ describe('GroupsGrid', () => {
       createMockGroup({ id: 'group-3', name: 'Group 3' }),
     ];
 
-    render(
-      <GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />
-    );
+    render(<GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />);
 
     expect(screen.getByText('Group 1')).toBeInTheDocument();
     expect(screen.getByText('Group 2')).toBeInTheDocument();
@@ -50,9 +46,7 @@ describe('GroupsGrid', () => {
       createMockGroup({ id: 'group-2', name: 'Group 2' }),
     ];
 
-    render(
-      <GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />
-    );
+    render(<GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />);
 
     const group1Card = screen.getByText('Group 1').closest('div[class*="cursor-pointer"]');
     await user.click(group1Card!);
@@ -63,9 +57,7 @@ describe('GroupsGrid', () => {
   it('renders correct CSS grid classes for responsive layout', () => {
     const groups = [createMockGroup()];
 
-    const { container } = render(
-      <GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />
-    );
+    const { container } = render(<GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />);
 
     const gridContainer = container.querySelector('div[class*="grid"]');
     expect(gridContainer?.className).toMatch(/grid-cols-1/);
@@ -74,14 +66,9 @@ describe('GroupsGrid', () => {
   });
 
   it('applies correct gap between grid items', () => {
-    const groups = [
-      createMockGroup({ id: 'group-1' }),
-      createMockGroup({ id: 'group-2' }),
-    ];
+    const groups = [createMockGroup({ id: 'group-1' }), createMockGroup({ id: 'group-2' })];
 
-    const { container } = render(
-      <GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />
-    );
+    const { container } = render(<GroupsGrid groups={groups} onGroupClick={mockOnGroupClick} />);
 
     const gridContainer = container.querySelector('div[class*="grid"]');
     expect(gridContainer?.className).toMatch(/gap-4/);

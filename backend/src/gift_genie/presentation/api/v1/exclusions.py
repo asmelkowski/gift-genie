@@ -104,9 +104,9 @@ async def get_current_user(request: Request) -> str:
     try:
         payload = jwt_service.verify_token(token)
         user_id = payload.get("sub")
-        if not user_id:
+        if not user_id or not isinstance(user_id, str):
             raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-        return user_id
+        return str(user_id)
     except ValueError:
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
@@ -142,7 +142,7 @@ async def list_exclusions(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> PaginatedExclusionsResponse:
     try:
         query = ListExclusionsQuery(
             group_id=str(group_id),
@@ -173,23 +173,41 @@ async def list_exclusions(
             for e in exclusions
         ]
         total_pages = (total + page_size - 1) // page_size
-        meta = PaginationMeta(
-            total=total, page=page, page_size=page_size, total_pages=total_pages
-        )
+        meta = PaginationMeta(total=total, page=page, page_size=page_size, total_pages=total_pages)
         return PaginatedExclusionsResponse(data=data, meta=meta)
     except ValueError as e:
-        logger.exception("Invalid query parameters in exclusions list", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.exception(
+            "Invalid query parameters in exclusions list",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(
             status_code=400, detail={"code": "invalid_query_params", "errors": [str(e)]}
         )
     except ForbiddenError as e:
-        logger.warning("Forbidden access to exclusions list", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Forbidden access to exclusions list",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except GroupNotFoundError as e:
-        logger.warning("Group not found during exclusions list", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Group not found during exclusions list",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_not_found"})
     except Exception as e:
-        logger.exception("Unexpected error during exclusions list", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.exception(
+            "Unexpected error during exclusions list",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -202,7 +220,7 @@ async def create_exclusion(
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> CreateExclusionResponse:
     try:
         command = CreateExclusionCommand(
             group_id=str(group_id),
@@ -233,24 +251,64 @@ async def create_exclusion(
         ]
         return CreateExclusionResponse(created=data, mutual=payload.is_mutual)
     except ForbiddenError as e:
-        logger.warning("Forbidden access to create exclusion", user_id=current_user_id, group_id=group_id, giver_member_id=payload.giver_member_id, receiver_member_id=payload.receiver_member_id, error=str(e))
+        logger.warning(
+            "Forbidden access to create exclusion",
+            user_id=current_user_id,
+            group_id=group_id,
+            giver_member_id=payload.giver_member_id,
+            receiver_member_id=payload.receiver_member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except (GroupNotFoundError, MemberNotFoundError) as e:
-        logger.warning("Group or member not found during exclusion creation", user_id=current_user_id, group_id=group_id, giver_member_id=payload.giver_member_id, receiver_member_id=payload.receiver_member_id, error=str(e))
+        logger.warning(
+            "Group or member not found during exclusion creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            giver_member_id=payload.giver_member_id,
+            receiver_member_id=payload.receiver_member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_or_member_not_found"})
     except DuplicateExclusionError as e:
-        logger.warning("Duplicate exclusion during creation", user_id=current_user_id, group_id=group_id, giver_member_id=payload.giver_member_id, receiver_member_id=payload.receiver_member_id, error=str(e))
+        logger.warning(
+            "Duplicate exclusion during creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            giver_member_id=payload.giver_member_id,
+            receiver_member_id=payload.receiver_member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=409, detail={"code": "duplicate_exclusion"})
     except SelfExclusionNotAllowedError as e:
-        logger.warning("Self exclusion not allowed", user_id=current_user_id, group_id=group_id, giver_member_id=payload.giver_member_id, receiver_member_id=payload.receiver_member_id, error=str(e))
+        logger.warning(
+            "Self exclusion not allowed",
+            user_id=current_user_id,
+            group_id=group_id,
+            giver_member_id=payload.giver_member_id,
+            receiver_member_id=payload.receiver_member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=409, detail={"code": "self_exclusion_not_allowed"})
     except ValueError as e:
-        logger.warning("Validation error during exclusion creation", user_id=current_user_id, group_id=group_id, giver_member_id=payload.giver_member_id, receiver_member_id=payload.receiver_member_id, error=str(e))
-        raise HTTPException(
-            status_code=400, detail={"code": "invalid_payload", "message": str(e)}
+        logger.warning(
+            "Validation error during exclusion creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            giver_member_id=payload.giver_member_id,
+            receiver_member_id=payload.receiver_member_id,
+            error=str(e),
         )
+        raise HTTPException(status_code=400, detail={"code": "invalid_payload", "message": str(e)})
     except Exception as e:
-        logger.exception("Unexpected error during exclusion creation", user_id=current_user_id, group_id=group_id, giver_member_id=payload.giver_member_id, receiver_member_id=payload.receiver_member_id, error=str(e))
+        logger.exception(
+            "Unexpected error during exclusion creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            giver_member_id=payload.giver_member_id,
+            receiver_member_id=payload.receiver_member_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -263,7 +321,7 @@ async def create_exclusions_bulk(
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> CreateExclusionsBulkResponse:
     try:
         items = [
             ExclusionItem(
@@ -300,21 +358,47 @@ async def create_exclusions_bulk(
         ]
         return CreateExclusionsBulkResponse(created=data)
     except ForbiddenError as e:
-        logger.warning("Forbidden access to bulk create exclusions", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Forbidden access to bulk create exclusions",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except (GroupNotFoundError, MemberNotFoundError) as e:
-        logger.warning("Group or member not found during bulk exclusion creation", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.warning(
+            "Group or member not found during bulk exclusion creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "group_or_member_not_found"})
     except ExclusionConflictsError as e:
-        logger.warning("Exclusion conflicts during bulk creation", user_id=current_user_id, group_id=group_id, conflicts=e.conflicts, error=str(e))
-        raise HTTPException(status_code=409, detail={"code": "conflicts_present", "details": e.conflicts})
-    except ValueError as e:
-        logger.warning("Validation error during bulk exclusion creation", user_id=current_user_id, group_id=group_id, error=str(e))
-        raise HTTPException(
-            status_code=400, detail={"code": "invalid_payload", "message": str(e)}
+        logger.warning(
+            "Exclusion conflicts during bulk creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            conflicts=e.conflicts,
+            error=str(e),
         )
+        raise HTTPException(
+            status_code=409, detail={"code": "conflicts_present", "details": e.conflicts}
+        )
+    except ValueError as e:
+        logger.warning(
+            "Validation error during bulk exclusion creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
+        raise HTTPException(status_code=400, detail={"code": "invalid_payload", "message": str(e)})
     except Exception as e:
-        logger.exception("Unexpected error during bulk exclusion creation", user_id=current_user_id, group_id=group_id, error=str(e))
+        logger.exception(
+            "Unexpected error during bulk exclusion creation",
+            user_id=current_user_id,
+            group_id=group_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 
 
@@ -326,7 +410,7 @@ async def delete_exclusion(
     current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
-):
+) -> Response:
     try:
         command = DeleteExclusionCommand(
             group_id=str(group_id),
@@ -339,11 +423,29 @@ async def delete_exclusion(
         await use_case.execute(command)
         return Response(status_code=204)
     except ForbiddenError as e:
-        logger.warning("Forbidden access to delete exclusion", user_id=current_user_id, group_id=group_id, exclusion_id=exclusion_id, error=str(e))
+        logger.warning(
+            "Forbidden access to delete exclusion",
+            user_id=current_user_id,
+            group_id=group_id,
+            exclusion_id=exclusion_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=403, detail={"code": "forbidden"})
     except ExclusionNotFoundError as e:
-        logger.warning("Exclusion not found during deletion", user_id=current_user_id, group_id=group_id, exclusion_id=exclusion_id, error=str(e))
+        logger.warning(
+            "Exclusion not found during deletion",
+            user_id=current_user_id,
+            group_id=group_id,
+            exclusion_id=exclusion_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail={"code": "exclusion_not_found"})
     except Exception as e:
-        logger.exception("Unexpected error during exclusion deletion", user_id=current_user_id, group_id=group_id, exclusion_id=exclusion_id, error=str(e))
+        logger.exception(
+            "Unexpected error during exclusion deletion",
+            user_id=current_user_id,
+            group_id=group_id,
+            exclusion_id=exclusion_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail={"code": "server_error"})

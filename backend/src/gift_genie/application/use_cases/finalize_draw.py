@@ -4,10 +4,19 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from gift_genie.application.dto.finalize_draw_command import FinalizeDrawCommand
-from gift_genie.application.errors import DrawAlreadyFinalizedError, DrawNotFoundError, ForbiddenError, NoAssignmentsToFinalizeError
+from gift_genie.application.errors import (
+    DrawAlreadyFinalizedError,
+    DrawNotFoundError,
+    ForbiddenError,
+    NoAssignmentsToFinalizeError,
+)
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.entities.enums import DrawStatus
-from gift_genie.domain.interfaces.repositories import AssignmentRepository, DrawRepository, GroupRepository
+from gift_genie.domain.interfaces.repositories import (
+    AssignmentRepository,
+    DrawRepository,
+    GroupRepository,
+)
 
 
 @dataclass(slots=True)

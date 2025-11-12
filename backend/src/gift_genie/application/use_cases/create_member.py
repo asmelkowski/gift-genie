@@ -35,7 +35,9 @@ class CreateMemberUseCase:
             raise MemberNameConflictError()
 
         # Check email uniqueness if provided
-        if command.email and await self.member_repository.email_exists_in_group(command.group_id, command.email):
+        if command.email and await self.member_repository.email_exists_in_group(
+            command.group_id, command.email
+        ):
             raise MemberEmailConflictError()
 
         # Generate member ID and timestamp

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import Select, func, select
 from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,12 +39,7 @@ class DrawRepositorySqlAlchemy(DrawRepository):
         return self._to_domain_with_count(model, draw.assignments_count)
 
     async def list_by_group(
-        self,
-        group_id: str,
-        status: DrawStatus | None,
-        page: int,
-        page_size: int,
-        sort: str
+        self, group_id: str, status: DrawStatus | None, page: int, page_size: int, sort: str
     ) -> tuple[list[Draw], int]:
         from gift_genie.infrastructure.database.models.assignment import AssignmentModel
 
@@ -87,7 +82,9 @@ class DrawRepositorySqlAlchemy(DrawRepository):
             .scalar_subquery()
         )
 
-        stmt = select(DrawModel, assignments_count.label("assignments_count")).where(DrawModel.id == UUID(draw_id))
+        stmt = select(DrawModel, assignments_count.label("assignments_count")).where(
+            DrawModel.id == UUID(draw_id)
+        )
         res = await self._session.execute(stmt)
         row = res.first()
         return self._to_domain_with_count(row[0], row[1]) if row else None
@@ -103,8 +100,7 @@ class DrawRepositorySqlAlchemy(DrawRepository):
         )
 
         stmt = select(DrawModel, assignments_count.label("assignments_count")).where(
-            DrawModel.id == UUID(draw_id),
-            DrawModel.group_id == UUID(group_id)
+            DrawModel.id == UUID(draw_id), DrawModel.group_id == UUID(group_id)
         )
         res = await self._session.execute(stmt)
         row = res.first()
@@ -135,7 +131,9 @@ class DrawRepositorySqlAlchemy(DrawRepository):
         await self._session.refresh(model)
 
         # Get current assignments count
-        count_stmt = select(func.count(AssignmentModel.id)).where(AssignmentModel.draw_id == model.id)
+        count_stmt = select(func.count(AssignmentModel.id)).where(
+            AssignmentModel.draw_id == model.id
+        )
         count_res = await self._session.execute(count_stmt)
         assignments_count = count_res.scalar_one() or 0
 
@@ -150,7 +148,7 @@ class DrawRepositorySqlAlchemy(DrawRepository):
             await self._session.rollback()
             raise ValueError("Failed to delete draw") from e
 
-    def _apply_sort(self, query, sort: str):
+    def _apply_sort(self, query: Select, sort: str) -> Select:
         if sort.startswith("-"):
             field = sort[1:]
             desc = True

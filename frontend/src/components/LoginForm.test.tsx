@@ -1,9 +1,9 @@
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { LoginForm } from './LoginForm';
-import { vi } from 'vitest';
 
 // Mock the hook
 const mockMutate = vi.fn();
@@ -25,9 +25,7 @@ const createWrapper = () => {
 
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {children}
-      </BrowserRouter>
+      <BrowserRouter>{children}</BrowserRouter>
     </QueryClientProvider>
   );
 };
@@ -100,10 +98,13 @@ describe('LoginForm', () => {
     const submitButton = screen.getByRole('button', { name: /login/i });
     await user.click(submitButton);
 
-    expect(mockMutate).toHaveBeenCalledWith({
-      email: 'test@example.com',
-      password: 'password123',
-    }, expect.any(Object));
+    expect(mockMutate).toHaveBeenCalledWith(
+      {
+        email: 'test@example.com',
+        password: 'password123',
+      },
+      expect.any(Object)
+    );
   });
 
   it('displays 401 error message', async () => {
@@ -126,7 +127,7 @@ describe('LoginForm', () => {
       onError({ response: { status: 401 } });
     });
 
-    await waitFor(() => expect(screen.getByText('Invalid email or password')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Invalid credentials')).toBeInTheDocument());
   });
 
   it('displays 429 error message', async () => {
@@ -149,7 +150,11 @@ describe('LoginForm', () => {
       onError({ response: { status: 429 } });
     });
 
-    await waitFor(() => expect(screen.getByText('Too many login attempts. Please try again in a moment.')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText('Too many login attempts. Please try again in a moment.')
+      ).toBeInTheDocument()
+    );
   });
 
   it('displays generic error message', async () => {
@@ -172,7 +177,11 @@ describe('LoginForm', () => {
       onError({ response: { status: 500 } });
     });
 
-    await waitFor(() => expect(screen.getByText('An unexpected error occurred. Please try again later.')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText('An unexpected error occurred. Please try again later.')
+      ).toBeInTheDocument()
+    );
   });
 
   it('clears error on new input', async () => {
@@ -195,12 +204,12 @@ describe('LoginForm', () => {
       onError({ response: { status: 401 } });
     });
 
-    await waitFor(() => expect(screen.getByText('Invalid email or password')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Invalid credentials')).toBeInTheDocument());
 
     // Type new input
     await user.clear(emailInput);
     await user.type(emailInput, 'new@example.com');
 
-    expect(screen.queryByText('Invalid email or password')).not.toBeInTheDocument();
+    expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
   });
 });

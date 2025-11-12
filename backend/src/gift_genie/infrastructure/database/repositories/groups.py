@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Optional
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import Select, func, select
 from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -42,12 +42,7 @@ class GroupRepositorySqlAlchemy(GroupRepository):
         return self._to_domain(model)
 
     async def list_by_admin_user(
-        self,
-        user_id: str,
-        search: str | None,
-        page: int,
-        page_size: int,
-        sort: str
+        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
     ) -> tuple[list[Group], int]:
         # Build base where clause
         base_where = GroupModel.admin_user_id == UUID(user_id)
@@ -81,14 +76,17 @@ class GroupRepositorySqlAlchemy(GroupRepository):
         group_uuid = UUID(group_id)
 
         # Total member count
-        total_stmt = select(func.count()).select_from(MemberModel).where(MemberModel.group_id == group_uuid)
+        total_stmt = (
+            select(func.count()).select_from(MemberModel).where(MemberModel.group_id == group_uuid)
+        )
         total_res = await self._session.execute(total_stmt)
         total_count = total_res.scalar_one() or 0
 
         # Active member count
-        active_stmt = select(func.count()).select_from(MemberModel).where(
-            MemberModel.group_id == group_uuid,
-            MemberModel.is_active
+        active_stmt = (
+            select(func.count())
+            .select_from(MemberModel)
+            .where(MemberModel.group_id == group_uuid, MemberModel.is_active)
         )
         active_res = await self._session.execute(active_stmt)
         active_count = active_res.scalar_one() or 0
@@ -128,7 +126,7 @@ class GroupRepositorySqlAlchemy(GroupRepository):
             await self._session.rollback()
             raise ValueError("Failed to delete group") from e
 
-    def _apply_sort(self, query, sort: str):
+    def _apply_sort(self, query: Select, sort: str) -> Select:
         if sort.startswith("-"):
             field = sort[1:]
             desc = True

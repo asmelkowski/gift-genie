@@ -60,53 +60,44 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
     [formData.historical_exclusions_enabled]
   );
 
-  const handleNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setFormData((prev) => ({ ...prev, name: value }));
-    },
-    []
-  );
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData(prev => ({ ...prev, name: value }));
+  }, []);
 
   const handleNameBlur = useCallback(() => {
     const error = validateField('name', formData.name);
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
       name: error,
     }));
   }, [formData.name, validateField]);
 
-  const handleExclusionsChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const checked = e.target.checked;
-      setFormData((prev) => ({
-        ...prev,
-        historical_exclusions_enabled: checked,
-      }));
-      setErrors((prev) => ({ ...prev, historical_exclusions_lookback: undefined }));
-    },
-    []
-  );
+  const handleExclusionsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setFormData(prev => ({
+      ...prev,
+      historical_exclusions_enabled: checked,
+    }));
+    setErrors(prev => ({ ...prev, historical_exclusions_lookback: undefined }));
+  }, []);
 
-  const handleLookbackChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = parseInt(e.target.value, 10);
-      if (!isNaN(value)) {
-        setFormData((prev) => ({
-          ...prev,
-          historical_exclusions_lookback: value,
-        }));
-      }
-    },
-    []
-  );
+  const handleLookbackChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value)) {
+      setFormData(prev => ({
+        ...prev,
+        historical_exclusions_lookback: value,
+      }));
+    }
+  }, []);
 
   const handleLookbackBlur = useCallback(() => {
     const error = validateField(
       'historical_exclusions_lookback',
       formData.historical_exclusions_lookback
     );
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
       historical_exclusions_lookback: error,
     }));
@@ -204,9 +195,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
               className={errors.historical_exclusions_lookback ? 'border-red-500' : ''}
             />
             {errors.historical_exclusions_lookback && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.historical_exclusions_lookback}
-              </p>
+              <p className="text-sm text-red-500 mt-1">{errors.historical_exclusions_lookback}</p>
             )}
           </div>
         )}

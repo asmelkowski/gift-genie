@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import type { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
 export const useDeleteDrawMutation = (groupId: string) => {
@@ -7,13 +8,13 @@ export const useDeleteDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (drawId: string) => {
-      await api.delete(`/api/v1/draws/${drawId}`);
+      await api.delete(`/draws/${drawId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['draws', groupId] });
       toast.success('Draw deleted successfully');
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ detail: string }>) => {
       const message = error.response?.data?.detail || 'Failed to delete draw';
       toast.error(message);
     },

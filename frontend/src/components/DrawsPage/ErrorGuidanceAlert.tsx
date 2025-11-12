@@ -8,10 +8,7 @@ interface ErrorGuidanceAlertProps {
   groupId: string;
 }
 
-export default function ErrorGuidanceAlert({
-  error,
-  groupId,
-}: ErrorGuidanceAlertProps) {
+export default function ErrorGuidanceAlert({ error, groupId }: ErrorGuidanceAlertProps) {
   const [dismissed, setDismissed] = useState(false);
   const navigate = useNavigate();
 
@@ -26,8 +23,7 @@ export default function ErrorGuidanceAlert({
         <div className="flex-1">
           <h3 className="font-semibold text-yellow-900">{error}</h3>
           <p className="text-sm text-yellow-800 mt-1">
-            This usually means there are too many exclusions or not enough members.
-            Try:
+            This usually means there are too many exclusions or not enough members. Try:
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
             <Button

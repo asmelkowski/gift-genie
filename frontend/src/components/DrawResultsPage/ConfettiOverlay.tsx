@@ -37,14 +37,10 @@ export default function ConfettiOverlay({ show, onDismiss }: ConfettiOverlayProp
       }}
     >
       <div className="pointer-events-auto flex flex-col items-center gap-4">
-        <div
-          className={`text-6xl ${!prefersReducedMotion ? 'animate-bounce' : ''}`}
-        >
+        <div className={`text-6xl ${!prefersReducedMotion ? 'animate-bounce' : ''}`}>
           <Sparkles className="w-16 h-16 text-yellow-400 drop-shadow-lg" />
         </div>
-        <h2 className="text-3xl font-bold text-white drop-shadow-lg">
-          Draw Finalized!
-        </h2>
+        <h2 className="text-3xl font-bold text-white drop-shadow-lg">Draw Finalized!</h2>
       </div>
 
       {!prefersReducedMotion && (
@@ -67,7 +63,7 @@ function Confetti() {
 
   return (
     <div className="fixed inset-0">
-      {pieces.map((piece) => (
+      {pieces.map(piece => (
         <div
           key={piece.id}
           className="absolute animate-pulse"

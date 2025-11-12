@@ -22,7 +22,7 @@ export const useRegisterMutation = () => {
 
   return useMutation({
     mutationFn: async (data: RegisterRequestDTO) => {
-      const response = await api.post<UserCreatedResponseDTO>('/api/v1/auth/register', data);
+      const response = await api.post<UserCreatedResponseDTO>('/auth/register', data);
       return response;
     },
     onSuccess: () => {

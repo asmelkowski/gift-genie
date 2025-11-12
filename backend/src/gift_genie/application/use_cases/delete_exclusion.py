@@ -14,13 +14,15 @@ class DeleteExclusionUseCase:
 
     async def execute(self, command: DeleteExclusionCommand) -> None:
         # Validate exclusion exists and belongs to group
-        exclusion = await self.exclusion_repository.get_by_group_and_id(command.group_id, command.exclusion_id)
+        exclusion = await self.exclusion_repository.get_by_group_and_id(
+            command.group_id, command.exclusion_id
+        )
         if not exclusion:
             raise ExclusionNotFoundError()
 
         # Check user is admin of the group
         group = await self.group_repository.get_by_id(command.group_id)
-        if group.admin_user_id != command.requesting_user_id:
+        if not group or group.admin_user_id != command.requesting_user_id:
             raise ForbiddenError()
 
         # Delete exclusion

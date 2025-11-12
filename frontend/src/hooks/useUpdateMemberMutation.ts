@@ -7,16 +7,13 @@ import type { AxiosError } from 'axios';
 type UpdateMemberRequest = components['schemas']['UpdateMemberRequest'];
 type MemberResponse = components['schemas']['MemberResponse'];
 
-export const useUpdateMemberMutation = (
-  groupId: string,
-  onError?: (detail: string) => void
-) => {
+export const useUpdateMemberMutation = (groupId: string, onError?: (detail: string) => void) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: { memberId: string; payload: UpdateMemberRequest }) => {
       const response = await api.patch<MemberResponse>(
-        `/api/v1/groups/${groupId}/members/${data.memberId}`,
+        `/groups/${groupId}/members/${data.memberId}`,
         data.payload
       );
       return response.data;

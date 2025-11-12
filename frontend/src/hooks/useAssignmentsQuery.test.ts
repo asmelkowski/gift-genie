@@ -5,6 +5,7 @@ import { useAssignmentsQuery } from './useAssignmentsQuery';
 import { createTestQueryClient, createTestWrapper } from '@/test/test-utils';
 import api from '@/lib/api';
 import type { components } from '@/types/schema';
+import type { AssignmentWithNames } from '@/lib/drawUtils';
 
 vi.mock('@/lib/api');
 
@@ -20,7 +21,8 @@ describe('useAssignmentsQuery', () => {
 
   it('constructs correct query key with draw ID', async () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -52,7 +54,8 @@ describe('useAssignmentsQuery', () => {
       },
     ];
     const mockData: ListAssignmentsResponse = {
-      items: mockAssignments as any,
+      data: mockAssignments as AssignmentWithNames[],
+      meta: { total: 2, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -65,7 +68,7 @@ describe('useAssignmentsQuery', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.items).toHaveLength(2);
+    expect(result.current.data?.data).toHaveLength(2);
   });
 
   it('returns error state when API fails', async () => {
@@ -84,7 +87,8 @@ describe('useAssignmentsQuery', () => {
 
   it('calls API with correct draw ID', async () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -94,7 +98,7 @@ describe('useAssignmentsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/draws/draw-456/assignments', {
+      expect(api.get).toHaveBeenCalledWith('/draws/draw-456/assignments', {
         params: { include: 'names' },
       });
     });
@@ -102,7 +106,8 @@ describe('useAssignmentsQuery', () => {
 
   it('does not execute query when draw ID is empty', () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -117,7 +122,8 @@ describe('useAssignmentsQuery', () => {
 
   it('passes include=names parameter to API', async () => {
     const mockData: ListAssignmentsResponse = {
-      items: [],
+      data: [],
+      meta: { total: 0, page: 1, page_size: 10, has_next: false },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -128,7 +134,7 @@ describe('useAssignmentsQuery', () => {
 
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith(
-        '/api/v1/draws/draw-1/assignments',
+        '/draws/draw-1/assignments',
         expect.objectContaining({
           params: { include: 'names' },
         })

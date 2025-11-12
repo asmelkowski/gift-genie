@@ -6,6 +6,7 @@ import {
   copyToClipboard,
   shouldShowConfetti,
   clearConfettiFlag,
+  type AssignmentWithNames,
 } from './drawUtils';
 import type { components } from '@/types/schema';
 
@@ -15,13 +16,11 @@ type DrawResponse = components['schemas']['DrawResponse'];
 const createMockDraw = (overrides: Partial<DrawResponse> = {}): DrawResponse => ({
   id: 'draw-1',
   group_id: 'group-1',
-  name: 'Test Draw',
   status: 'pending',
   assignments_count: 0,
   created_at: '2024-10-22T10:00:00Z',
   finalized_at: null,
   notification_sent_at: null,
-  updated_at: '2024-10-22T10:00:00Z',
   ...overrides,
 });
 
@@ -47,13 +46,9 @@ describe('drawUtils', () => {
     });
 
     it('handles different time formats', () => {
-      const timestamps = [
-        '2024-01-01T00:00:00Z',
-        '2024-06-15T12:30:00Z',
-        '2024-12-25T23:59:59Z',
-      ];
+      const timestamps = ['2024-01-01T00:00:00Z', '2024-06-15T12:30:00Z', '2024-12-25T23:59:59Z'];
 
-      timestamps.forEach((ts) => {
+      timestamps.forEach(ts => {
         const result = formatDrawTimestamp(ts);
         expect(result).toBeTruthy();
         expect(typeof result).toBe('string');
@@ -206,21 +201,24 @@ describe('drawUtils', () => {
   });
 
   describe('exportToCSV', () => {
-    let mockCreateElement: any;
-    let mockAppendChild: any;
-    let mockRemoveChild: any;
-    let mockLink: any;
+    let mockAppendChild: unknown;
+    let mockRemoveChild: unknown;
+    let mockLink: HTMLElement;
 
     beforeEach(() => {
       mockLink = {
         setAttribute: vi.fn(),
         click: vi.fn(),
-        style: {},
-      };
+        style: {} as CSSStyleDeclaration,
+      } as unknown as HTMLElement;
 
-      mockCreateElement = vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
-      mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => {});
-      mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
+      mockAppendChild = vi
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockLink as Node);
+      mockRemoveChild = vi
+        .spyOn(document.body, 'removeChild')
+        .mockImplementation(() => mockLink as Node);
       vi.stubGlobal('URL', {
         createObjectURL: vi.fn(() => 'blob:mock-url'),
       });
@@ -269,7 +267,7 @@ describe('drawUtils', () => {
     });
 
     it('handles empty assignments list', () => {
-      const assignments: any[] = [];
+      const assignments: AssignmentWithNames[] = [];
 
       exportToCSV(assignments, 'draw-1');
 
@@ -292,7 +290,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as any);
+      } as unknown as Navigator);
 
       const assignments = [
         {
@@ -317,7 +315,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as any);
+      } as unknown as Navigator);
 
       const assignments = [
         {
@@ -333,7 +331,9 @@ describe('drawUtils', () => {
 
       await copyToClipboard(assignments, 'My Group');
 
-      expect(mockWriteText).toHaveBeenCalledWith(expect.stringContaining('Draw Results - My Group'));
+      expect(mockWriteText).toHaveBeenCalledWith(
+        expect.stringContaining('Draw Results - My Group')
+      );
     });
 
     it('formats clipboard text correctly with multiple assignments', async () => {
@@ -342,7 +342,7 @@ describe('drawUtils', () => {
         clipboard: {
           writeText: mockWriteText,
         },
-      } as any);
+      } as unknown as Navigator);
 
       const assignments = [
         {
@@ -391,7 +391,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as unknown as () => MediaQueryList,
       });
 
       const result = shouldShowConfetti('draw-1');
@@ -411,7 +411,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as unknown as () => MediaQueryList,
       });
 
       sessionStorage.setItem('draw-draw-1-just-finalized', 'true');
@@ -433,7 +433,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as unknown as () => MediaQueryList,
       });
 
       const result = shouldShowConfetti('draw-1');
@@ -453,7 +453,7 @@ describe('drawUtils', () => {
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
           dispatchEvent: vi.fn(),
-        })) as any,
+        })) as unknown as () => MediaQueryList,
       });
 
       sessionStorage.setItem('draw-draw-1-just-finalized', 'false');

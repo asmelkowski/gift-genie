@@ -24,6 +24,7 @@ describe('useUpdateMemberMutation', () => {
   it('calls API with PATCH and correct endpoint', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: true,
@@ -32,12 +33,9 @@ describe('useUpdateMemberMutation', () => {
 
     vi.mocked(api.patch).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useUpdateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useUpdateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     const updateData: UpdateMemberRequest = { name: 'John Updated' };
     result.current.mutate({ memberId: 'member-1', payload: updateData });
@@ -46,15 +44,13 @@ describe('useUpdateMemberMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.patch).toHaveBeenCalledWith(
-      '/api/v1/groups/group-1/members/member-1',
-      updateData
-    );
+    expect(api.patch).toHaveBeenCalledWith('/groups/group-1/members/member-1', updateData);
   });
 
   it('invalidates members query on success', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: true,
@@ -64,12 +60,9 @@ describe('useUpdateMemberMutation', () => {
     vi.mocked(api.patch).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useUpdateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useUpdateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ memberId: 'member-1', payload: { name: 'Updated' } });
 
@@ -85,6 +78,7 @@ describe('useUpdateMemberMutation', () => {
   it('shows success toast', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: true,
@@ -93,12 +87,9 @@ describe('useUpdateMemberMutation', () => {
 
     vi.mocked(api.patch).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useUpdateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useUpdateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ memberId: 'member-1', payload: { name: 'Updated' } });
 
@@ -119,12 +110,9 @@ describe('useUpdateMemberMutation', () => {
     vi.mocked(api.patch).mockRejectedValue(errorResponse);
     const onError = vi.fn();
 
-    const { result } = renderHook(
-      () => useUpdateMemberMutation('group-1', onError),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useUpdateMemberMutation('group-1', onError), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ memberId: 'member-1', payload: { name: 'Updated' } });
 
@@ -138,6 +126,7 @@ describe('useUpdateMemberMutation', () => {
   it('returns updated member data', async () => {
     const mockData: MemberResponse = {
       id: 'member-1',
+      group_id: 'group-1',
       name: 'John Updated',
       email: 'john@example.com',
       is_active: false,
@@ -146,12 +135,9 @@ describe('useUpdateMemberMutation', () => {
 
     vi.mocked(api.patch).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useUpdateMemberMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useUpdateMemberMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ memberId: 'member-1', payload: { name: 'Updated' } });
 

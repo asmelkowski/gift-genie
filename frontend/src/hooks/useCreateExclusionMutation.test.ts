@@ -23,24 +23,31 @@ describe('useCreateExclusionMutation', () => {
 
   it('calls API with correct endpoint', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'unidirectional',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: false,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: false,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     const exclusionData: CreateExclusionRequest = {
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     };
 
     result.current.mutate(exclusionData);
@@ -49,33 +56,37 @@ describe('useCreateExclusionMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/groups/group-1/exclusions',
-      exclusionData
-    );
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/exclusions', exclusionData);
   });
 
   it('invalidates exclusions query on success', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'unidirectional',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: false,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: false,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     });
 
     await waitFor(() => {
@@ -89,24 +100,31 @@ describe('useCreateExclusionMutation', () => {
 
   it('shows success toast', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'unidirectional',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: false,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: false,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     });
 
     await waitFor(() => {
@@ -125,16 +143,14 @@ describe('useCreateExclusionMutation', () => {
 
     vi.mocked(api.post).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: false,
     });
 
     await waitFor(() => {
@@ -146,24 +162,31 @@ describe('useCreateExclusionMutation', () => {
 
   it('returns exclusion data on success', async () => {
     const mockData: CreateExclusionResponse = {
-      id: 'exclusion-1',
-      giver_member_id: 'member-1',
-      receiver_member_id: 'member-2',
-      exclusion_type: 'mutual',
+      created: [
+        {
+          id: 'exclusion-1',
+          group_id: 'group-1',
+          giver_member_id: 'member-1',
+          receiver_member_id: 'member-2',
+          exclusion_type: 'manual',
+          is_mutual: true,
+          created_at: '2024-10-22T10:00:00Z',
+          created_by_user_id: null,
+        },
+      ],
+      mutual: true,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useCreateExclusionMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useCreateExclusionMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({
       giver_member_id: 'member-1',
       receiver_member_id: 'member-2',
+      is_mutual: true,
     });
 
     await waitFor(() => {

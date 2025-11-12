@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemberForm } from './MemberForm';
+import { MemberForm, type MemberFormProps } from './MemberForm';
 import * as useCreateMemberMutationModule from '@/hooks/useCreateMemberMutation';
 import * as useUpdateMemberMutationModule from '@/hooks/useUpdateMemberMutation';
 import type { components } from '@/types/schema';
@@ -20,6 +20,7 @@ describe('MemberForm', () => {
 
   const createMockMember = (overrides?: Partial<MemberResponse>): MemberResponse => ({
     id: 'member-1',
+    group_id: 'group-1',
     name: 'John Doe',
     email: 'john@example.com',
     is_active: true,
@@ -37,7 +38,7 @@ describe('MemberForm', () => {
     vi.clearAllMocks();
   });
 
-  const renderForm = (props: any = {}) => {
+  const renderForm = (props: Partial<MemberFormProps> = {}) => {
     return render(
       <QueryClientProvider client={queryClient}>
         <MemberForm
@@ -64,7 +65,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockReturnValue({
         mutate: vi.fn(),
@@ -76,7 +77,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -98,7 +99,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       const member = createMockMember({ name: 'Jane Smith', email: 'jane@example.com' });
 
@@ -124,7 +125,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
     });
 
     it('shows error when name is empty', async () => {
@@ -142,20 +143,20 @@ describe('MemberForm', () => {
       renderForm();
 
       const nameInput = screen.getByLabelText(/Name/) as HTMLInputElement;
-      
+
       // The input has maxlength=100, so we need to bypass it for testing validation logic
       // We'll simulate what would happen if validation received > 100 chars
       await user.click(nameInput);
-      
+
       // Type exactly 100 characters (which is the limit)
       await user.type(nameInput, 'a'.repeat(100));
-      
+
       // The input value should be 100 chars, which is valid
       expect(nameInput.value.length).toBe(100);
-      
+
       const submitButton = screen.getByRole('button', { name: /Add Member/i });
       await user.click(submitButton);
-      
+
       // Should not show an error since 100 chars is exactly at the limit
       expect(screen.queryByText('Name must be 100 characters or less')).not.toBeInTheDocument();
     });
@@ -190,7 +191,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -218,7 +219,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -251,7 +252,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm();
 
@@ -286,7 +287,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm({ member });
 
@@ -323,7 +324,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
 
       renderForm({ member });
 
@@ -348,27 +349,29 @@ describe('MemberForm', () => {
     it('displays name_conflict_in_group error', async () => {
       const user = userEvent.setup();
       let capturedOnError: ((detail: string) => void) | undefined;
-      
+
       // Capture the onError callback passed to the hook
-      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((groupId, onError) => {
-        capturedOnError = onError;
-        return {
-          mutate: vi.fn((data, options) => {
-            // Simulate error by calling the captured onError
-            if (capturedOnError) {
-              capturedOnError('name_conflict_in_group');
-            }
-          }),
-          mutateAsync: vi.fn(),
-          isPending: false,
-          isSuccess: false,
-          isError: false,
-          data: null,
-          error: null,
-          reset: vi.fn(),
-          status: 'idle',
-        } as any;
-      });
+      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation(
+        (_groupId, onError) => {
+          capturedOnError = onError;
+          return {
+            mutate: vi.fn(() => {
+              // Simulate error by calling the captured onError
+              if (capturedOnError) {
+                capturedOnError('name_conflict_in_group');
+              }
+            }),
+            mutateAsync: vi.fn(),
+            isPending: false,
+            isSuccess: false,
+            isError: false,
+            data: null,
+            error: null,
+            reset: vi.fn(),
+            status: 'idle',
+          } as never;
+        }
+      );
 
       renderForm();
 
@@ -386,25 +389,27 @@ describe('MemberForm', () => {
     it('displays email_conflict_in_group error', async () => {
       const user = userEvent.setup();
       let capturedOnError: ((detail: string) => void) | undefined;
-      
-      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation((groupId, onError) => {
-        capturedOnError = onError;
-        return {
-          mutate: vi.fn((data, options) => {
-            if (capturedOnError) {
-              capturedOnError('email_conflict_in_group');
-            }
-          }),
-          mutateAsync: vi.fn(),
-          isPending: false,
-          isSuccess: false,
-          isError: false,
-          data: null,
-          error: null,
-          reset: vi.fn(),
-          status: 'idle',
-        } as any;
-      });
+
+      vi.mocked(useCreateMemberMutationModule.useCreateMemberMutation).mockImplementation(
+        (_groupId, onError) => {
+          capturedOnError = onError;
+          return {
+            mutate: vi.fn(() => {
+              if (capturedOnError) {
+                capturedOnError('email_conflict_in_group');
+              }
+            }),
+            mutateAsync: vi.fn(),
+            isPending: false,
+            isSuccess: false,
+            isError: false,
+            data: null,
+            error: null,
+            reset: vi.fn(),
+            status: 'idle',
+          } as never;
+        }
+      );
 
       renderForm();
 
@@ -415,7 +420,9 @@ describe('MemberForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('This email is already used by another member')).toBeInTheDocument();
+        expect(
+          screen.getByText('This email is already used by another member')
+        ).toBeInTheDocument();
       });
     });
 
@@ -424,24 +431,26 @@ describe('MemberForm', () => {
       let capturedOnError: ((detail: string) => void) | undefined;
       const member = createMockMember({ is_active: true });
 
-      vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockImplementation((groupId, onError) => {
-        capturedOnError = onError;
-        return {
-          mutate: vi.fn((data, options) => {
-            if (capturedOnError) {
-              capturedOnError('cannot_deactivate_due_to_pending_draw');
-            }
-          }),
-          mutateAsync: vi.fn(),
-          isPending: false,
-          isSuccess: false,
-          isError: false,
-          data: null,
-          error: null,
-          reset: vi.fn(),
-          status: 'idle',
-        } as any;
-      });
+      vi.mocked(useUpdateMemberMutationModule.useUpdateMemberMutation).mockImplementation(
+        (_groupId, onError) => {
+          capturedOnError = onError;
+          return {
+            mutate: vi.fn(() => {
+              if (capturedOnError) {
+                capturedOnError('cannot_deactivate_due_to_pending_draw');
+              }
+            }),
+            mutateAsync: vi.fn(),
+            isPending: false,
+            isSuccess: false,
+            isError: false,
+            data: null,
+            error: null,
+            reset: vi.fn(),
+            status: 'idle',
+          } as never;
+        }
+      );
 
       renderForm({ member });
 
@@ -471,7 +480,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'idle',
-      } as any);
+      } as never);
     });
 
     it('disables form while loading', () => {
@@ -485,7 +494,7 @@ describe('MemberForm', () => {
         error: null,
         reset: vi.fn(),
         status: 'pending',
-      } as any);
+      } as never);
 
       renderForm();
 

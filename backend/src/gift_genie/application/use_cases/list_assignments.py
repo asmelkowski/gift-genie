@@ -18,6 +18,7 @@ from loguru import logger
 @dataclass(slots=True)
 class AssignmentWithNames:
     """Assignment enriched with member names"""
+
     id: str
     draw_id: str
     giver_member_id: str

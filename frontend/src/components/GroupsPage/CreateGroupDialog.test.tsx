@@ -40,7 +40,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -61,7 +61,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -80,7 +80,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -102,7 +102,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -126,7 +126,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -148,7 +148,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -182,7 +182,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -219,7 +219,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -254,7 +254,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     const { rerender } = renderDialog(true);
 
@@ -293,7 +293,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'pending',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -315,7 +315,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -337,7 +337,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 
@@ -368,7 +368,7 @@ describe('CreateGroupDialog', () => {
       mutate: vi.fn(),
       reset: vi.fn(),
       status: 'idle',
-    } as any);
+    } as never);
 
     renderDialog(true);
 

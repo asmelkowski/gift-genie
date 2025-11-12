@@ -28,18 +28,10 @@ export function PaginationControls({ meta, onPageChange }: PaginationControlsPro
         Page {meta.page} of {meta.total_pages} ({meta.total} total)
       </p>
       <div className="flex gap-2">
-        <Button
-          onClick={handlePrevious}
-          disabled={meta.page === 1}
-          variant="outline"
-        >
+        <Button onClick={handlePrevious} disabled={meta.page === 1} variant="outline">
           Previous
         </Button>
-        <Button
-          onClick={handleNext}
-          disabled={meta.page >= meta.total_pages}
-          variant="outline"
-        >
+        <Button onClick={handleNext} disabled={meta.page >= meta.total_pages} variant="outline">
           Next
         </Button>
       </div>

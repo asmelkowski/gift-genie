@@ -24,7 +24,9 @@ class Assignment:
 
     def is_valid_pairing(self, exclusions: list[Exclusion]) -> bool:
         for exclusion in exclusions:
-            if (exclusion.giver_member_id == self.giver_member_id and
-                exclusion.receiver_member_id == self.receiver_member_id):
+            if (
+                exclusion.giver_member_id == self.giver_member_id
+                and exclusion.receiver_member_id == self.receiver_member_id
+            ):
                 return False
         return True

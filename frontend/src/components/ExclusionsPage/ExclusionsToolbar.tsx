@@ -68,7 +68,7 @@ export function ExclusionsToolbar({
           <select
             id="sort"
             value={sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
+            onChange={e => onSortChange(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="exclusion_type,name">Type & Name</option>

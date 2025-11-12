@@ -10,11 +10,7 @@ interface PageHeaderProps {
   groupName?: string;
 }
 
-export default function PageHeader({
-  draw,
-  assignments,
-  groupName,
-}: PageHeaderProps) {
+export default function PageHeader({ draw, assignments, groupName }: PageHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
       <div>
@@ -23,11 +19,7 @@ export default function PageHeader({
           {groupName || 'Group'} - Draw #{draw.id.slice(0, 8)}
         </p>
       </div>
-      <ExportActions
-        assignments={assignments}
-        drawId={draw.id}
-        groupName={groupName}
-      />
+      <ExportActions assignments={assignments} drawId={draw.id} groupName={groupName} />
     </div>
   );
 }

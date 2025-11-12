@@ -8,6 +8,7 @@ import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 
+type MemberResponse = components['schemas']['MemberResponse'];
 type PaginatedMembersResponse = components['schemas']['PaginatedMembersResponse'];
 
 describe('useMembersQuery', () => {
@@ -20,10 +21,13 @@ describe('useMembersQuery', () => {
 
   it('constructs correct query key with group ID and params', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -39,10 +43,13 @@ describe('useMembersQuery', () => {
 
   it('calls API with correct parameters', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 20,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 20,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -61,7 +68,7 @@ describe('useMembersQuery', () => {
     );
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-123/members', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-123/members', {
         params: {
           is_active: true,
           search: 'john',
@@ -79,47 +86,47 @@ describe('useMembersQuery', () => {
       { id: '2', name: 'Jane Smith', email: 'jane@example.com', is_active: true },
     ];
     const mockData: PaginatedMembersResponse = {
-      items: mockMembers as any,
-      total: 2,
-      page: 1,
-      page_size: 12,
+      data: mockMembers as MemberResponse[],
+      meta: {
+        total: 2,
+        page: 1,
+        page_size: 12,
+        total_pages: 1,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useMembersQuery('group-1', {}),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useMembersQuery('group-1', {}), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.items).toHaveLength(2);
+    expect(result.current.data?.data).toHaveLength(2);
   });
 
   it('handles is_active filter correctly', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    renderHook(
-      () => useMembersQuery('group-1', { is_active: false }),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    renderHook(() => useMembersQuery('group-1', { is_active: false }), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/members', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/members', {
         params: expect.objectContaining({
           is_active: false,
         }),
@@ -129,10 +136,13 @@ describe('useMembersQuery', () => {
 
   it('uses default parameters when not provided', async () => {
     const mockData: PaginatedMembersResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 12,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 12,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -142,7 +152,7 @@ describe('useMembersQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/members', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/members', {
         params: {
           is_active: undefined,
           search: undefined,
@@ -157,12 +167,9 @@ describe('useMembersQuery', () => {
   it('handles API errors correctly', async () => {
     vi.mocked(api.get).mockRejectedValue(new Error('API Error'));
 
-    const { result } = renderHook(
-      () => useMembersQuery('group-1', {}),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useMembersQuery('group-1', {}), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);

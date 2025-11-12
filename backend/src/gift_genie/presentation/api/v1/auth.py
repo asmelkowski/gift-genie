@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 from collections.abc import AsyncGenerator
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from loguru import logger
@@ -13,7 +13,6 @@ from pydantic import (
     EmailStr,
     Field,
     StringConstraints,
-    ValidationError,
     model_validator,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +20,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from gift_genie.application.dto.get_current_user_query import GetCurrentUserQuery
 from gift_genie.application.dto.login_command import LoginCommand
 from gift_genie.application.dto.register_user_command import RegisterUserCommand
-from gift_genie.application.errors import EmailConflictError, InvalidCredentialsError
 from gift_genie.application.use_cases.get_current_user import GetCurrentUserUseCase
 from gift_genie.application.use_cases.login_user import LoginUserUseCase
 from gift_genie.application.use_cases.register_user import RegisterUserUseCase
@@ -84,6 +82,7 @@ class UserProfile(BaseModel):
 class LoginResponse(BaseModel):
     user: UserProfile
     token_type: str = "Bearer"
+    access_token: str
 
 
 class UserProfileResponse(BaseModel):
@@ -111,7 +110,16 @@ async def get_jwt_service() -> JWTService:
 
 
 async def get_current_user(request: Request) -> str:
-    token = request.cookies.get("access_token")
+    token = None
+
+    # First try to get token from Authorization header (for API requests in tests)
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    else:
+        # Fall back to cookie-based auth (for browser navigation)
+        token = request.cookies.get("access_token")
+
     if not token:
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
@@ -120,9 +128,9 @@ async def get_current_user(request: Request) -> str:
     try:
         payload = jwt_service.verify_token(token)
         user_id = payload.get("sub")
-        if not user_id:
+        if not user_id or not isinstance(user_id, str):
             raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-        return user_id
+        return str(user_id)
     except ValueError:
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
@@ -134,32 +142,11 @@ async def register_user(
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
 ) -> UserCreatedResponse:
-    try:
-        cmd = RegisterUserCommand(
-            email=str(payload.email).strip(), password=payload.password, name=payload.name
-        )
-        use_case = RegisterUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
-        user = await use_case.execute(cmd)
-    except EmailConflictError as e:
-        logger.warning("Email conflict during registration", email=payload.email, error=str(e))
-        raise HTTPException(status_code=409, detail={"code": "email_conflict"})
-    except HTTPException:
-        # Re-raise validation HTTPExceptions (e.g., weak password)
-        raise
-    except ValidationError as ve:
-        # Pydantic validation errors (should be auto-handled by FastAPI, but keep for safety)
-        logger.warning(
-            "Validation error during registration", email=payload.email, errors=ve.errors()
-        )
-        raise HTTPException(
-            status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()}
-        )
-    except Exception as e:
-        # Avoid leaking details
-        logger.exception(
-            "Unexpected error during user registration", email=payload.email, error=str(e)
-        )
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    cmd = RegisterUserCommand(
+        email=str(payload.email).strip(), password=payload.password, name=payload.name
+    )
+    use_case = RegisterUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
+    user = await use_case.execute(cmd)
 
     # Optionally set Location header
     _ = response.headers.setdefault("Location", f"/api/v1/users/{user.id}")
@@ -177,35 +164,30 @@ async def login_user(
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
     jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
 ) -> LoginResponse:
-    try:
-        cmd = LoginCommand(email=str(payload.email).strip(), password=payload.password)
-        use_case = LoginUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
-        user = await use_case.execute(cmd)
-    except InvalidCredentialsError as e:
-        logger.warning("Invalid credentials during login", email=payload.email, error=str(e))
-        raise HTTPException(status_code=401, detail={"code": "invalid_credentials"})
-    except HTTPException:
-        raise
-    except ValidationError as ve:
-        logger.warning("Validation error during login", email=payload.email, errors=ve.errors())
-        raise HTTPException(
-            status_code=400, detail={"code": "invalid_payload", "errors": ve.errors()}
-        )
-    except Exception as e:
-        # Avoid leaking details
-        logger.exception("Unexpected error during user login", email=payload.email, error=str(e))
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    cmd = LoginCommand(email=str(payload.email).strip(), password=payload.password)
+    use_case = LoginUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
+    user = await use_case.execute(cmd)
 
     # Generate JWT
     access_token = jwt_service.create_access_token(data={"sub": user.id})
 
     # Set httpOnly cookie
+    settings = get_settings()
+
+    # Determine SameSite value based on environment
+    # In dev/CI: SameSite=None allows cross-origin requests (required for frontend:5173 -> backend:8000)
+    # In production: Use configured SameSite value (typically 'lax' for security)
+    if settings.ENV == "dev":
+        samesite_value = None
+    else:
+        samesite_value = _get_samesite_value(settings.COOKIE_SAMESITE)
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
+        secure=settings.COOKIE_SECURE,
+        samesite=samesite_value,
     )
 
     # Generate CSRF token
@@ -214,7 +196,9 @@ async def login_user(
     # Set CSRF header
     response.headers["X-CSRF-Token"] = csrf_token
 
-    return LoginResponse(user=UserProfile(id=user.id, email=user.email, name=user.name))
+    return LoginResponse(
+        user=UserProfile(id=user.id, email=user.email, name=user.name), access_token=access_token
+    )
 
 
 @router.get("/me", response_model=UserProfileResponse)
@@ -222,22 +206,9 @@ async def get_current_user_profile(
     current_user_id: Annotated[str, Depends(get_current_user)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
 ) -> UserProfileResponse:
-    try:
-        query = GetCurrentUserQuery(user_id=current_user_id)
-        use_case = GetCurrentUserUseCase(user_repository=user_repo)
-        user = await use_case.execute(query)
-    except InvalidCredentialsError as e:
-        logger.warning(
-            "User not found during profile retrieval", user_id=current_user_id, error=str(e)
-        )
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-    except Exception as e:
-        logger.exception(
-            "Unexpected error during get current user profile",
-            user_id=current_user_id,
-            error=str(e),
-        )
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    query = GetCurrentUserQuery(user_id=current_user_id)
+    use_case = GetCurrentUserUseCase(user_repository=user_repo)
+    user = await use_case.execute(query)
 
     return UserProfileResponse(
         id=user.id,
@@ -250,20 +221,39 @@ async def get_current_user_profile(
 
 @router.post("/logout", status_code=204)
 async def logout(response: Response) -> None:
-    try:
-        response.set_cookie(
-            key="access_token",
-            value="",
-            max_age=0,
-            httponly=True,
-            secure=False,
-            samesite="lax",
-            path="/",
-        )
-        logger.info("User logged out successfully")
-    except Exception:
-        logger.exception("Unexpected error during logout")
-        raise HTTPException(status_code=500, detail={"code": "server_error"})
+    settings = get_settings()
+    response.set_cookie(
+        key="access_token",
+        value="",
+        max_age=0,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite=_get_samesite_value(settings.COOKIE_SAMESITE),
+        path="/",
+    )
+    logger.info("User logged out successfully")
+
+
+def _get_samesite_value(samesite_str: str) -> Literal["lax", "strict", "none"] | None:
+    """Convert string samesite value to the literal type expected by FastAPI.
+
+    Args:
+        samesite_str: The samesite value from settings (case insensitive)
+
+    Returns:
+        The validated samesite literal or None if invalid
+
+    Raises:
+        ValueError: If the samesite value is not one of the allowed values
+    """
+    if not samesite_str:
+        return None
+
+    normalized = samesite_str.lower().strip()
+    if normalized in ("lax", "strict", "none"):
+        return normalized  # type: ignore[return-value]
+
+    raise ValueError(f"Invalid samesite value: {samesite_str}. Must be 'lax', 'strict', or 'none'")
 
 
 def _is_strong_password(pwd: str, email_local: str, name_norm: str) -> bool:

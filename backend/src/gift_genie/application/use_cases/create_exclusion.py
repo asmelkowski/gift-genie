@@ -37,11 +37,15 @@ class CreateExclusionUseCase:
             raise ForbiddenError()
 
         # Validate both members exist in group
-        giver = await self.member_repository.get_by_group_and_id(command.group_id, command.giver_member_id)
+        giver = await self.member_repository.get_by_group_and_id(
+            command.group_id, command.giver_member_id
+        )
         if not giver:
             raise MemberNotFoundError()
 
-        receiver = await self.member_repository.get_by_group_and_id(command.group_id, command.receiver_member_id)
+        receiver = await self.member_repository.get_by_group_and_id(
+            command.group_id, command.receiver_member_id
+        )
         if not receiver:
             raise MemberNotFoundError()
 

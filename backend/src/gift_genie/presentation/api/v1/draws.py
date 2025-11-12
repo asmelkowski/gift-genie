@@ -3,8 +3,7 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
-from loguru import logger
+from fastapi import APIRouter, Depends, Path, Query, Response
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,16 +29,24 @@ from gift_genie.application.use_cases.notify_draw import NotifyDrawUseCase
 from gift_genie.domain.entities.enums import DrawStatus
 from gift_genie.domain.interfaces.draw_algorithm import DrawAlgorithm
 from gift_genie.domain.interfaces.notification_service import NotificationService
-from gift_genie.domain.interfaces.repositories import AssignmentRepository, DrawRepository, ExclusionRepository, GroupRepository, MemberRepository
+from gift_genie.domain.interfaces.repositories import (
+    AssignmentRepository,
+    DrawRepository,
+    ExclusionRepository,
+    GroupRepository,
+    MemberRepository,
+)
 from gift_genie.infrastructure.algorithms.constraint_draw_algorithm import ConstraintDrawAlgorithm
-from gift_genie.infrastructure.database.repositories.assignments import AssignmentRepositorySqlAlchemy
+from gift_genie.infrastructure.database.repositories.assignments import (
+    AssignmentRepositorySqlAlchemy,
+)
 from gift_genie.infrastructure.database.repositories.draws import DrawRepositorySqlAlchemy
 from gift_genie.infrastructure.database.repositories.exclusions import ExclusionRepositorySqlAlchemy
 
 from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.services.email_notification_service import EmailNotificationService
-from gift_genie.presentation.api.v1.shared import PaginationMeta, handle_application_exceptions
+from gift_genie.presentation.api.v1.shared import PaginationMeta
 from gift_genie.presentation.api.v1.groups import get_current_user, get_group_repository
 
 router = APIRouter(tags=["draws"])
@@ -248,8 +255,8 @@ async def get_list_assignments_use_case(
 
 # API Endpoints
 
+
 @router.get("/groups/{group_id}/draws", response_model=PaginatedDrawsResponse)
-@handle_application_exceptions
 async def list_draws(
     group_id: UUID = Path(..., description="Group UUID"),
     status: Literal["pending", "finalized"] | None = Query(None),
@@ -259,7 +266,7 @@ async def list_draws(
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[ListDrawsUseCase, Depends(get_list_draws_use_case)],
-):
+) -> PaginatedDrawsResponse:
     query = ListDrawsQuery(
         group_id=str(group_id),
         requesting_user_id=current_user_id,
@@ -294,7 +301,6 @@ async def list_draws(
 
 
 @router.post("/groups/{group_id}/draws", response_model=DrawResponse, status_code=201)
-@handle_application_exceptions
 async def create_draw(
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateDrawRequest = Depends(),
@@ -302,7 +308,7 @@ async def create_draw(
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[CreateDrawUseCase, Depends(get_create_draw_use_case)],
     response: Response,
-):
+) -> DrawResponse:
     command = CreateDrawCommand(
         group_id=str(group_id),
         requesting_user_id=current_user_id,
@@ -326,13 +332,12 @@ async def create_draw(
 
 
 @router.get("/draws/{draw_id}", response_model=DrawResponse)
-@handle_application_exceptions
 async def get_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[GetDrawUseCase, Depends(get_get_draw_use_case)],
-):
+) -> DrawResponse:
     query = GetDrawQuery(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
@@ -352,30 +357,29 @@ async def get_draw(
 
 
 @router.delete("/draws/{draw_id}", status_code=204)
-@handle_application_exceptions
 async def delete_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[DeleteDrawUseCase, Depends(get_delete_draw_use_case)],
-):
+) -> Response:
     command = DeleteDrawCommand(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
     )
 
     await use_case.execute(command)
+    return Response(status_code=204)
 
 
 @router.post("/draws/{draw_id}/execute", response_model=ExecuteDrawResponse)
-@handle_application_exceptions
 async def execute_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: ExecuteDrawRequest = Depends(),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[ExecuteDrawUseCase, Depends(get_execute_draw_use_case)],
-):
+) -> ExecuteDrawResponse:
     command = ExecuteDrawCommand(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
@@ -405,14 +409,13 @@ async def execute_draw(
 
 
 @router.post("/draws/{draw_id}/finalize", response_model=DrawResponse)
-@handle_application_exceptions
 async def finalize_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: FinalizeDrawRequest = Depends(),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[FinalizeDrawUseCase, Depends(get_finalize_draw_use_case)],
-):
+) -> DrawResponse:
     command = FinalizeDrawCommand(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,
@@ -432,14 +435,13 @@ async def finalize_draw(
 
 
 @router.post("/draws/{draw_id}/notify", response_model=NotifyDrawResponse, status_code=202)
-@handle_application_exceptions
 async def notify_draw(
     payload: NotifyDrawRequest,
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[NotifyDrawUseCase, Depends(get_notify_draw_use_case)],
-):
+) -> NotifyDrawResponse:
     print(payload)
     command = NotifyDrawCommand(
         draw_id=str(draw_id),
@@ -453,14 +455,13 @@ async def notify_draw(
 
 
 @router.get("/draws/{draw_id}/assignments", response_model=ListAssignmentsResponse)
-@handle_application_exceptions
 async def list_assignments(
     draw_id: UUID = Path(..., description="Draw UUID"),
     include: Literal["names", "none"] = Query("none", description="Include member names"),
     *,
     current_user_id: Annotated[str, Depends(get_current_user)],
     use_case: Annotated[ListAssignmentsUseCase, Depends(get_list_assignments_use_case)],
-):
+) -> ListAssignmentsResponse:
     query = ListAssignmentsQuery(
         draw_id=str(draw_id),
         requesting_user_id=current_user_id,

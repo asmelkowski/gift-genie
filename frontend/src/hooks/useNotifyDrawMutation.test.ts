@@ -22,18 +22,15 @@ describe('useNotifyDrawMutation', () => {
 
   it('calls API with correct endpoint and resend parameter', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications sent to 5 recipients',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useNotifyDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useNotifyDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ drawId: 'draw-1', resend: false });
 
@@ -41,27 +38,21 @@ describe('useNotifyDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/draws/draw-1/notify',
-      { resend: false }
-    );
+    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/notify', { resend: false });
   });
 
   it('invalidates both draws and draw queries on success', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications sent',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(
-      () => useNotifyDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useNotifyDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ drawId: 'draw-1', resend: false });
 
@@ -79,18 +70,15 @@ describe('useNotifyDrawMutation', () => {
 
   it('handles resend parameter correctly', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications resent',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useNotifyDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useNotifyDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ drawId: 'draw-1', resend: true });
 
@@ -98,26 +86,20 @@ describe('useNotifyDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith(
-      '/api/v1/draws/draw-1/notify',
-      { resend: true }
-    );
+    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/notify', { resend: true });
   });
 
   it('returns notification response data', async () => {
     const mockData: NotifyDrawResponse = {
-      message: 'Notifications sent to 5 recipients',
-      recipients_count: 5,
+      sent: 5,
+      skipped: 0,
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(
-      () => useNotifyDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useNotifyDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ drawId: 'draw-1', resend: false });
 
@@ -137,12 +119,9 @@ describe('useNotifyDrawMutation', () => {
 
     vi.mocked(api.post).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useNotifyDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useNotifyDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ drawId: 'draw-1', resend: false });
 
@@ -162,12 +141,9 @@ describe('useNotifyDrawMutation', () => {
 
     vi.mocked(api.post).mockRejectedValue(errorResponse);
 
-    const { result } = renderHook(
-      () => useNotifyDrawMutation('group-1'),
-      {
-        wrapper: createTestWrapper(queryClient),
-      }
-    );
+    const { result } = renderHook(() => useNotifyDrawMutation('group-1'), {
+      wrapper: createTestWrapper(queryClient),
+    });
 
     result.current.mutate({ drawId: 'draw-1', resend: false });
 

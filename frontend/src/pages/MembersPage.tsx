@@ -44,9 +44,12 @@ export function MembersPage() {
     setEditingMember(null);
   }, []);
 
-  const handleDeleteClick = useCallback((memberId: string) => {
-    deleteMutation.mutate(memberId);
-  }, [deleteMutation]);
+  const handleDeleteClick = useCallback(
+    (memberId: string) => {
+      deleteMutation.mutate(memberId);
+    },
+    [deleteMutation]
+  );
 
   const handleActiveFilterChange = useCallback(
     (value: boolean | null) => {

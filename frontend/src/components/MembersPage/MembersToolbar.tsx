@@ -75,7 +75,7 @@ export function MembersToolbar({
             <Input
               placeholder="Search by name or email..."
               value={searchInput}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              onChange={e => handleSearchChange(e.target.value)}
               className="pr-10"
               aria-label="Search members"
             />
@@ -94,7 +94,7 @@ export function MembersToolbar({
 
         <select
           value={sort}
-          onChange={(e) => onSortChange(e.target.value)}
+          onChange={e => onSortChange(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label="Sort members"
         >

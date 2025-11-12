@@ -24,13 +24,11 @@ describe('useCreateDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -45,20 +43,18 @@ describe('useCreateDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/api/v1/groups/group-1/draws', {});
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/draws', {});
   });
 
   it('invalidates draws query on success', async () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -83,13 +79,11 @@ describe('useCreateDrawMutation', () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });
@@ -126,22 +120,18 @@ describe('useCreateDrawMutation', () => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect(toast.error).toHaveBeenCalledWith(
-      'Group must have at least 2 members'
-    );
+    expect(toast.error).toHaveBeenCalledWith('Group must have at least 2 members');
   });
 
   it('returns draw data on success', async () => {
     const mockData: DrawResponse = {
       id: 'draw-1',
       group_id: 'group-1',
-      name: 'New Draw',
       status: 'pending',
       assignments_count: 0,
       created_at: '2024-10-22T10:00:00Z',
       finalized_at: null,
       notification_sent_at: null,
-      updated_at: '2024-10-22T10:00:00Z',
     };
 
     vi.mocked(api.post).mockResolvedValue({ data: mockData });

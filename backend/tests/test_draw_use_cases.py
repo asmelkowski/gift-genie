@@ -11,7 +11,6 @@ from gift_genie.application.dto.get_draw_query import GetDrawQuery
 from gift_genie.application.dto.list_draws_query import ListDrawsQuery
 from gift_genie.application.dto.notify_draw_command import NotifyDrawCommand
 from gift_genie.application.errors import (
-    AssignmentsAlreadyExistError,
     CannotDeleteFinalizedDrawError,
     DrawAlreadyFinalizedError,
     DrawNotFoundError,
@@ -283,7 +282,14 @@ async def test_execute_draw_success():
     draw_repo.get_by_id.return_value = draw
 
     members = [
-        Member(id=mid, group_id=group_id, name=f"Member {i}", email=f"member{i}@example.com", is_active=True, created_at=None)
+        Member(
+            id=mid,
+            group_id=group_id,
+            name=f"Member {i}",
+            email=f"member{i}@example.com",
+            is_active=True,
+            created_at=None,
+        )
         for i, mid in enumerate(member_ids)
     ]
     member_repo.list_by_group.return_value = (members, len(members))
@@ -316,7 +322,11 @@ async def test_execute_draw_success():
             created_at=datetime.now(tz=UTC),
         ),
     ]
-    draw_algorithm.generate_assignments.return_value = {member_ids[0]: member_ids[1], member_ids[1]: member_ids[2], member_ids[2]: member_ids[0]}
+    draw_algorithm.generate_assignments.return_value = {
+        member_ids[0]: member_ids[1],
+        member_ids[1]: member_ids[2],
+        member_ids[2]: member_ids[0],
+    }
     assignment_repo.create_many.return_value = assignments
     assignment_repo.count_by_draw = AsyncMock(return_value=0)
 
@@ -378,8 +388,22 @@ async def test_execute_draw_insufficient_members():
 
     # Only 2 members - insufficient
     members = [
-        Member(id=str(uuid4()), group_id=group_id, name="Member 1", email="member1@example.com", is_active=True, created_at=None),
-        Member(id=str(uuid4()), group_id=group_id, name="Member 2", email="member2@example.com", is_active=True, created_at=None),
+        Member(
+            id=str(uuid4()),
+            group_id=group_id,
+            name="Member 1",
+            email="member1@example.com",
+            is_active=True,
+            created_at=None,
+        ),
+        Member(
+            id=str(uuid4()),
+            group_id=group_id,
+            name="Member 2",
+            email="member2@example.com",
+            is_active=True,
+            created_at=None,
+        ),
     ]
     member_repo.list_by_group.return_value = (members, len(members))
     assignment_repo.count_by_draw = AsyncMock(return_value=0)
@@ -670,7 +694,14 @@ async def test_notify_draw_success():
     draw_repo.get_by_id.return_value = draw
 
     members = [
-        Member(id=mid, group_id=group_id, name=f"Member {i}", email=f"member{i}@example.com", is_active=True, created_at=None)
+        Member(
+            id=mid,
+            group_id=group_id,
+            name=f"Member {i}",
+            email=f"member{i}@example.com",
+            is_active=True,
+            created_at=None,
+        )
         for i, mid in enumerate(member_ids)
     ]
     # Mock get_by_id for each member

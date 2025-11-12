@@ -11,6 +11,7 @@ describe('MemberCard', () => {
 
   const createMockMember = (overrides?: Partial<MemberResponse>): MemberResponse => ({
     id: 'member-1',
+    group_id: 'group-1',
     name: 'John Doe',
     email: 'john@example.com',
     is_active: true,

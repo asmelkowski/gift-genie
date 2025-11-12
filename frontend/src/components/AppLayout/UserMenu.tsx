@@ -16,7 +16,7 @@ function getInitials(name: string): string {
   return name
     .split(' ')
     .slice(0, 2)
-    .map((part) => part[0])
+    .map(part => part[0])
     .join('')
     .toUpperCase();
 }
@@ -27,7 +27,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
   const navigate = useNavigate();
 
   const handleToggle = useCallback(() => {
-    setIsOpen((prev) => !prev);
+    setIsOpen(prev => !prev);
   }, []);
 
   const handleSettings = useCallback(() => {

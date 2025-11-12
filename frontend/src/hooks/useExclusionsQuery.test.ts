@@ -8,6 +8,7 @@ import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 
+type ExclusionResponse = components['schemas']['ExclusionResponse'];
 type PaginatedExclusionsResponse = components['schemas']['PaginatedExclusionsResponse'];
 
 describe('useExclusionsQuery', () => {
@@ -20,10 +21,13 @@ describe('useExclusionsQuery', () => {
 
   it('constructs correct query key with group ID', async () => {
     const mockData: PaginatedExclusionsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -39,10 +43,13 @@ describe('useExclusionsQuery', () => {
 
   it('calls API with correct group ID', async () => {
     const mockData: PaginatedExclusionsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -52,7 +59,7 @@ describe('useExclusionsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-123/exclusions', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-123/exclusions', {
         params: expect.any(Object),
       });
     });
@@ -60,10 +67,13 @@ describe('useExclusionsQuery', () => {
 
   it('uses default parameters when not provided', async () => {
     const mockData: PaginatedExclusionsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -73,7 +83,7 @@ describe('useExclusionsQuery', () => {
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/exclusions', {
         params: {
           type: undefined,
           giver_member_id: undefined,
@@ -91,10 +101,13 @@ describe('useExclusionsQuery', () => {
       { id: '1', giver_member_id: 'member-1', receiver_member_id: 'member-2' },
     ];
     const mockData: PaginatedExclusionsResponse = {
-      items: mockExclusions as any,
-      total: 1,
-      page: 1,
-      page_size: 10,
+      data: mockExclusions as ExclusionResponse[],
+      meta: {
+        total: 1,
+        page: 1,
+        page_size: 10,
+        total_pages: 1,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -107,15 +120,18 @@ describe('useExclusionsQuery', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.items).toHaveLength(1);
+    expect(result.current.data?.data).toHaveLength(1);
   });
 
   it('passes filter parameters correctly', async () => {
     const mockData: PaginatedExclusionsResponse = {
-      items: [],
-      total: 0,
-      page: 1,
-      page_size: 10,
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+      },
     };
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
@@ -124,7 +140,7 @@ describe('useExclusionsQuery', () => {
       () =>
         useExclusionsQuery({
           groupId: 'group-1',
-          type: 'mutual',
+          type: 'manual',
           giver_member_id: 'member-1',
           page: 2,
         }),
@@ -134,9 +150,9 @@ describe('useExclusionsQuery', () => {
     );
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/v1/groups/group-1/exclusions', {
+      expect(api.get).toHaveBeenCalledWith('/groups/group-1/exclusions', {
         params: {
-          type: 'mutual',
+          type: 'manual',
           giver_member_id: 'member-1',
           receiver_member_id: undefined,
           page: 2,

@@ -15,7 +15,7 @@ export const useGroupsQuery = (params: UseGroupsQueryParams) => {
   return useQuery({
     queryKey: ['groups', params],
     queryFn: async () => {
-      const response = await api.get<PaginatedGroupsResponse>('/api/v1/groups', {
+      const response = await api.get<PaginatedGroupsResponse>('/groups', {
         params: {
           search: params.search || undefined,
           page: params.page || 1,

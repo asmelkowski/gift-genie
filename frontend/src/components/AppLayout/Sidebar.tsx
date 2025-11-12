@@ -19,7 +19,7 @@ export function Sidebar({ items, activeRoute }: SidebarProps) {
   return (
     <nav className="hidden lg:flex lg:flex-col w-64 bg-gray-50 border-r border-gray-200 p-6 overflow-y-auto flex-shrink-0">
       <ul className="space-y-2 list-none m-0 p-0">
-        {items.map((item) => {
+        {items.map(item => {
           const isActive = currentPath === item.path || currentPath.startsWith(`${item.path}/`);
 
           return (

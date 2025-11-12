@@ -116,8 +116,17 @@ async def test_create_exclusion_mutual():
     )
     group_repo.get_by_id.return_value = group
 
-    giver = Member(id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None)
-    receiver = Member(id=receiver_id, group_id=group_id, name="Receiver", email=None, is_active=True, created_at=None)
+    giver = Member(
+        id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None
+    )
+    receiver = Member(
+        id=receiver_id,
+        group_id=group_id,
+        name="Receiver",
+        email=None,
+        is_active=True,
+        created_at=None,
+    )
     member_repo.get_by_group_and_id.side_effect = [giver, receiver]
 
     exclusion_repo.exists_for_pair.return_value = False
@@ -286,7 +295,9 @@ async def test_create_exclusion_self_exclusion():
     )
     group_repo.get_by_id.return_value = group
 
-    member = Member(id=member_id, group_id=group_id, name="Member", email=None, is_active=True, created_at=None)
+    member = Member(
+        id=member_id, group_id=group_id, name="Member", email=None, is_active=True, created_at=None
+    )
     member_repo.get_by_group_and_id.return_value = member
 
     use_case = CreateExclusionUseCase(
@@ -328,8 +339,17 @@ async def test_create_exclusion_duplicate():
     )
     group_repo.get_by_id.return_value = group
 
-    giver = Member(id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None)
-    receiver = Member(id=receiver_id, group_id=group_id, name="Receiver", email=None, is_active=True, created_at=None)
+    giver = Member(
+        id=giver_id, group_id=group_id, name="Giver", email=None, is_active=True, created_at=None
+    )
+    receiver = Member(
+        id=receiver_id,
+        group_id=group_id,
+        name="Receiver",
+        email=None,
+        is_active=True,
+        created_at=None,
+    )
     member_repo.get_by_group_and_id.side_effect = [giver, receiver]
 
     exclusion_repo.exists_for_pair.return_value = True  # Duplicate exists

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ExclusionsToolbar } from './ExclusionsToolbar';
 
 describe('ExclusionsToolbar', () => {
@@ -141,7 +141,6 @@ describe('ExclusionsToolbar', () => {
   });
 
   it('calls onSortChange when sort option is changed', async () => {
-    const user = userEvent.setup();
     const onSortChange = vi.fn();
 
     render(

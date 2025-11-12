@@ -9,7 +9,11 @@ interface ExclusionDialogProps {
   onClose: () => void;
   members: MemberResponse[];
   groupId: string;
-  onSubmit: (giver_member_id: string, receiver_member_id: string, is_mutual: boolean) => Promise<void>;
+  onSubmit: (
+    giver_member_id: string,
+    receiver_member_id: string,
+    is_mutual: boolean
+  ) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -22,7 +26,11 @@ export function ExclusionDialog({
 }: ExclusionDialogProps) {
   const [localLoading, setLocalLoading] = useState(false);
 
-  const handleSubmit = async (giver_member_id: string, receiver_member_id: string, is_mutual: boolean) => {
+  const handleSubmit = async (
+    giver_member_id: string,
+    receiver_member_id: string,
+    is_mutual: boolean
+  ) => {
     setLocalLoading(true);
     try {
       await onSubmit(giver_member_id, receiver_member_id, is_mutual);

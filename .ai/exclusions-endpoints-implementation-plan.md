@@ -508,13 +508,13 @@ In use cases, raise appropriate application errors:
    - Add to `__init__.py`
 
 4. **Create Use Cases** (`backend/src/gift_genie/application/use_cases/`)
-   
+
    - **list_exclusions.py**: `ListExclusionsUseCase`
      - Validate group exists
      - Check user authorization (admin)
      - Query exclusions with filters
      - Return paginated results
-   
+
    - **create_exclusion.py**: `CreateExclusionUseCase`
      - Validate group exists and user is admin
      - Validate both members exist in group
@@ -522,7 +522,7 @@ In use cases, raise appropriate application errors:
      - Check no duplicate exclusion
      - Create 1 or 2 exclusions based on is_mutual
      - Return created exclusions
-   
+
    - **create_exclusions_bulk.py**: `CreateExclusionsBulkUseCase`
      - Validate group exists and user is admin
      - Validate all members exist in group
@@ -531,12 +531,12 @@ In use cases, raise appropriate application errors:
      - If conflicts, raise ExclusionConflictsError with details
      - Create all exclusions in transaction
      - Return created exclusions
-   
+
    - **delete_exclusion.py**: `DeleteExclusionUseCase`
      - Validate exclusion exists and belongs to group
      - Check user is admin of group
      - Delete exclusion
-   
+
    - Add to `__init__.py`
 
 ### Phase 2: Infrastructure Layer
@@ -557,17 +557,17 @@ In use cases, raise appropriate application errors:
 ### Phase 3: Presentation Layer
 
 7. **Create API Router** (`backend/src/gift_genie/presentation/api/v1/exclusions.py`)
-   
+
    - Import dependencies and models
    - Reuse `get_current_user` dependency
    - Create `get_exclusion_repository` dependency
-   
+
    - **GET /api/v1/groups/{groupId}/exclusions**
      - Define query parameters with validation
      - Call `ListExclusionsUseCase`
      - Map to `PaginatedExclusionsResponse`
      - Handle errors with appropriate status codes
-   
+
    - **POST /api/v1/groups/{groupId}/exclusions**
      - Define `CreateExclusionRequest` Pydantic model
      - Validate request body
@@ -575,7 +575,7 @@ In use cases, raise appropriate application errors:
      - Map to `CreateExclusionResponse`
      - Return 201 status
      - Handle errors
-   
+
    - **POST /api/v1/groups/{groupId}/exclusions/bulk**
      - Define `CreateExclusionsBulkRequest` Pydantic model
      - Validate request body
@@ -583,7 +583,7 @@ In use cases, raise appropriate application errors:
      - Map to `CreateExclusionsBulkResponse`
      - Return 201 status
      - Handle conflicts error specially with details
-   
+
    - **DELETE /api/v1/groups/{groupId}/exclusions/{exclusionId}**
      - Extract path parameters
      - Call `DeleteExclusionUseCase`
