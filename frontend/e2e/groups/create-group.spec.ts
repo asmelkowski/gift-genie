@@ -5,10 +5,10 @@ import { generateUser, loginUser, registerUser } from '../helpers';
 test.describe('Group Management', () => {
   let groupsPage: GroupsPage;
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, context }) => {
     const userData = generateUser();
     await registerUser(page, userData);
-    await loginUser(page, userData);
+    await loginUser(page, context, userData);
 
     groupsPage = new GroupsPage(page);
     await groupsPage.goto();
