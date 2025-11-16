@@ -374,15 +374,15 @@ jobs:
 
       - name: Wait for services to be healthy
         run: |
-          echo "Waiting for PostgreSQL..."
-          for i in {1..30}; do
-            docker exec postgres pg_isready -U postgres && break || sleep 1
-          done
+           echo "Waiting for PostgreSQL..."
+           for i in {1..30}; do
+             docker exec postgres pg_isready -U postgres && break || sleep 1
+           done
 
-          echo "Waiting for Redis..."
-          for i in {1..30}; do
-            docker exec redis redis-cli ping | grep -q PONG && break || sleep 1
-          done
+           echo "Waiting for Redis..."
+           for i in {1..30}; do
+             docker exec redis redis-cli ping | grep -q PONG && break || sleep 1
+           done
 
       - name: Run database migrations
         run: |
@@ -403,6 +403,7 @@ jobs:
             -e SECRET_KEY=test-secret-key-for-ci \
             -e ALGORITHM=HS256 \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
+            -e ENV=dev \
             -e CORS_ORIGINS=http://localhost:5173,http://frontend:5173,http://backend:8000 \
             gift-genie-backend:prod
 

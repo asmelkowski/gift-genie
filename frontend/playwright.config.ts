@@ -46,25 +46,13 @@ export default defineConfig({
 
   // Projects define different test contexts
   projects: [
-    // Setup project - creates authentication state
-    {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/,
-    },
-
     // Authenticated project - tests that require login
     {
       name: 'authenticated',
       use: {
         ...devices['Desktop Chrome'],
       },
-      dependencies: ['setup'],
-      testIgnore: [
-        '**/setup/**',
-        '**/*.setup.ts',
-        '**/auth/login.spec.ts',
-        '**/auth/register.spec.ts',
-      ],
+      testIgnore: ['**/auth/login.spec.ts', '**/auth/register.spec.ts'],
     },
 
     // Unauthenticated project - login/register tests
