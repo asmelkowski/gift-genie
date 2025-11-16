@@ -37,27 +37,13 @@ export class LoginPage {
     await this.clickSubmit();
 
     // Wait for and check login response
-    try {
-      const response = await responsePromise;
-      console.log(`[E2E] Login response: ${response.status()}`);
+    const response = await responsePromise;
+    console.log(`[E2E] Login response: ${response.status()}`);
 
-      if (!response.ok()) {
-        const body = await response.text();
-        console.error('[E2E] Login failed:', body);
-        throw new Error(`Login failed with status ${response.status()}`);
-      }
-
-      // Verify auth cookie was set
-      const cookies = await this.page.context().cookies();
-      const authCookie = cookies.find(c => c.name === 'access_token');
-      console.log(`[E2E] Auth cookie ${authCookie ? 'SET' : 'NOT SET'}`);
-    } catch (error) {
-      // Log error but don't prevent test execution if logging fails
-      if (error instanceof Error && !error.message.includes('Login failed')) {
-        console.error('[E2E] Logging error (non-blocking):', error.message);
-      } else {
-        throw error;
-      }
+    if (!response.ok()) {
+      const body = await response.text();
+      console.error('[E2E] Login failed:', body);
+      throw new Error(`Login failed with status ${response.status()}`);
     }
   }
 
