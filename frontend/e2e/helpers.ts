@@ -42,9 +42,12 @@ const registerUser = async function (page: Page, data: UserData) {
 };
 
 const loginUserViaAPI = async function (page: Page, context: BrowserContext, data: UserData) {
+  console.log('[E2E] Starting API-based login for CI environment');
   const apiBaseUrl = process.env.CI ? 'http://backend:8000' : 'http://localhost:8000';
+  const frontendBaseUrl = process.env.CI ? 'http://frontend:5173' : 'http://localhost:5173';
 
   // Make direct API call to login
+  console.log('[E2E] Calling login API...');
   const response = await page.request.post(`${apiBaseUrl}/api/v1/auth/login`, {
     data: {
       email: data.email,
@@ -59,40 +62,69 @@ const loginUserViaAPI = async function (page: Page, context: BrowserContext, dat
 
   const loginData = await response.json();
   const accessToken = loginData.access_token;
+  const userData = loginData.user;
+  console.log('[E2E] Login successful, got access token and user data');
+
+  // CRITICAL: Navigate to a page first to establish the context
+  // This ensures we can set localStorage BEFORE the app initializes
+  console.log('[E2E] Navigating to blank page to establish context...');
+  await page.goto(frontendBaseUrl);
+  await page.waitForLoadState('domcontentloaded');
+
+  // Now set localStorage SYNCHRONOUSLY before the app bootstraps
+  console.log('[E2E] Setting localStorage with auth state...');
+  await page.evaluate(
+    ({ token, user }) => {
+      // Set auth token (if frontend uses it separately)
+      localStorage.setItem('auth_token', token);
+
+      // Set up Zustand auth store with the actual user data from login response
+      localStorage.setItem(
+        'auth-storage',
+        JSON.stringify({
+          state: {
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+            },
+            csrfToken: null, // Will be set by /auth/me call if needed
+          },
+          version: 0,
+        })
+      );
+      console.log(
+        '[E2E] localStorage auth state initialized:',
+        localStorage.getItem('auth-storage')
+      );
+    },
+    { token: accessToken, user: userData }
+  );
 
   // Set up route interception to inject Authorization header on all API requests
+  console.log('[E2E] Setting up route interception for Bearer token...');
   await page.route('**/api/v1/**', async route => {
     const headers = {
       ...route.request().headers(),
       Authorization: `Bearer ${accessToken}`,
     };
+    console.log(`[E2E] Intercepting ${route.request().method()} ${route.request().url()}`);
     await route.continue({ headers });
   });
 
-  // Store token in localStorage for the frontend app to use
-  await page.addInitScript(token => {
-    localStorage.setItem('auth_token', token);
-    // Set up Zustand auth store with minimal valid state
-    // The user object will be fetched by the app on load via /api/v1/auth/me
-    localStorage.setItem(
-      'auth-storage',
-      JSON.stringify({
-        state: {
-          user: {
-            id: 'temp',
-            email: 'temp@example.com',
-            name: 'Temp User',
-          },
-          csrfToken: null,
-        },
-        version: 0,
-      })
-    );
-  }, accessToken);
-
-  // Navigate to the groups page
-  await page.goto('/app/groups');
+  // NOW navigate to the target page - localStorage is already set!
+  console.log('[E2E] Navigating to /app/groups...');
+  await page.goto(`${frontendBaseUrl}/app/groups`);
   await page.waitForLoadState('networkidle');
+
+  // Verify we didn't get redirected to login
+  const currentUrl = page.url();
+  console.log('[E2E] Final URL:', currentUrl);
+  if (currentUrl.includes('/login')) {
+    throw new Error('[E2E] Authentication failed: redirected to login page');
+  }
+
+  console.log('[E2E] API-based login complete');
 };
 
 const loginUser = async function (page: Page, context: BrowserContext, data: UserData) {
