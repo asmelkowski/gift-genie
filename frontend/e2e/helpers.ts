@@ -49,6 +49,16 @@ const loginUser = async function (page: Page, context: BrowserContext, data: Use
   await loginPage.expectSubmitVisible();
   await loginPage.login(data.email, data.password);
 
+  // Allow browser to process the Set-Cookie header
+  await page.waitForTimeout(500);
+
+  // Verify that the access_token cookie was set
+  const cookies = await context.cookies();
+  const authCookie = cookies.find(c => c.name === 'access_token');
+  if (!authCookie) {
+    throw new Error('Login succeeded but auth cookie was not set');
+  }
+
   // Wait for navigation to groups page
   await page.waitForURL('/app/groups', { timeout: 15000 });
 
@@ -59,8 +69,6 @@ const loginUser = async function (page: Page, context: BrowserContext, data: Use
     },
     { timeout: 5000 }
   );
-  const cookies = await context.cookies();
-  context.addCookies(cookies);
 };
 
 export { registerUser, loginUser, generateRandomString, generateUser, type UserData };
