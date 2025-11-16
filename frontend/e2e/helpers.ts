@@ -72,12 +72,17 @@ const loginUserViaAPI = async function (page: Page, context: BrowserContext, dat
   // Store token in localStorage for the frontend app to use
   await page.addInitScript(token => {
     localStorage.setItem('auth_token', token);
+    // Set up Zustand auth store with minimal valid state
+    // The user object will be fetched by the app on load via /api/v1/auth/me
     localStorage.setItem(
       'auth-storage',
       JSON.stringify({
         state: {
-          user: null, // Will be populated by frontend
-          isAuthenticated: true,
+          user: {
+            id: 'temp',
+            email: 'temp@example.com',
+            name: 'Temp User',
+          },
           csrfToken: null,
         },
         version: 0,
