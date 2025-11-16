@@ -403,7 +403,6 @@ jobs:
             -e SECRET_KEY=test-secret-key-for-ci \
             -e ALGORITHM=HS256 \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
-            -e ENV=dev \
             -e CORS_ORIGINS=http://localhost:5173,http://frontend:5173,http://backend:8000 \
             gift-genie-backend:prod
 
