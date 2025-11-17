@@ -5,7 +5,7 @@ from collections.abc import AsyncGenerator
 from datetime import datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from loguru import logger
 from pydantic import (
     BaseModel,
@@ -30,6 +30,7 @@ from gift_genie.infrastructure.database.repositories.users import UserRepository
 from gift_genie.infrastructure.security.jwt import JWTService
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
 from gift_genie.infrastructure.config.settings import get_settings
+from gift_genie.presentation.api.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -107,32 +108,6 @@ async def get_password_hasher() -> PasswordHasher:
 async def get_jwt_service() -> JWTService:
     settings = get_settings()
     return JWTService(settings.SECRET_KEY, settings.ALGORITHM)
-
-
-async def get_current_user(request: Request) -> str:
-    token = None
-
-    # First try to get token from Authorization header (for API requests in tests)
-    auth_header = request.headers.get("Authorization")
-    if auth_header and auth_header.startswith("Bearer "):
-        token = auth_header.split(" ")[1]
-    else:
-        # Fall back to cookie-based auth (for browser navigation)
-        token = request.cookies.get("access_token")
-
-    if not token:
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-
-    settings = get_settings()
-    jwt_service = JWTService(settings.SECRET_KEY, settings.ALGORITHM)
-    try:
-        payload = jwt_service.verify_token(token)
-        user_id = payload.get("sub")
-        if not user_id or not isinstance(user_id, str):
-            raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-        return str(user_id)
-    except ValueError:
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
 
 @router.post("/register", response_model=UserCreatedResponse, status_code=201)

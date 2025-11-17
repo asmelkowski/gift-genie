@@ -47,7 +47,8 @@ from gift_genie.infrastructure.database.repositories.members import MemberReposi
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.services.email_notification_service import EmailNotificationService
 from gift_genie.presentation.api.v1.shared import PaginationMeta
-from gift_genie.presentation.api.v1.groups import get_current_user, get_group_repository
+from gift_genie.presentation.api.dependencies import get_current_user
+from gift_genie.presentation.api.v1.groups import get_group_repository
 
 router = APIRouter(tags=["draws"])
 
