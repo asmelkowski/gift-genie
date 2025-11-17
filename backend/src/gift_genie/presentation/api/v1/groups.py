@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from loguru import logger
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,10 +26,9 @@ from gift_genie.application.use_cases.delete_group import DeleteGroupUseCase
 from gift_genie.application.use_cases.get_group_details import GetGroupDetailsUseCase
 from gift_genie.application.use_cases.update_group import UpdateGroupUseCase
 from gift_genie.domain.interfaces.repositories import GroupRepository
-from gift_genie.infrastructure.config.settings import get_settings
 from gift_genie.infrastructure.database.repositories.groups import GroupRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
-from gift_genie.infrastructure.security.jwt import JWTService
+from gift_genie.presentation.api.dependencies import get_current_user
 
 router = APIRouter(prefix="/groups", tags=["groups"])
 
@@ -113,23 +112,6 @@ class GroupUpdateResponse(BaseModel):
 
 
 # Dependencies
-async def get_current_user(request: Request) -> str:
-    token = request.cookies.get("access_token")
-    if not token:
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-
-    settings = get_settings()
-    jwt_service = JWTService(settings.SECRET_KEY, settings.ALGORITHM)
-    try:
-        payload = jwt_service.verify_token(token)
-        user_id = payload.get("sub")
-        if not user_id or not isinstance(user_id, str):
-            raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-        return str(user_id)
-    except ValueError:
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-
-
 async def get_group_repository(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> AsyncGenerator[GroupRepository, None]:

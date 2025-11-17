@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger
@@ -41,6 +41,7 @@ from gift_genie.infrastructure.database.repositories.groups import GroupReposito
 from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.presentation.api.v1.shared import PaginationMeta
+from gift_genie.presentation.api.dependencies import get_current_user
 
 
 router = APIRouter(prefix="/groups/{group_id}/exclusions", tags=["exclusions"])
@@ -91,26 +92,6 @@ class CreateExclusionsBulkResponse(BaseModel):
 
 
 # Dependencies
-async def get_current_user(request: Request) -> str:
-    token = request.cookies.get("access_token")
-    if not token:
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-
-    from gift_genie.infrastructure.config.settings import get_settings
-    from gift_genie.infrastructure.security.jwt import JWTService
-
-    settings = get_settings()
-    jwt_service = JWTService(settings.SECRET_KEY, settings.ALGORITHM)
-    try:
-        payload = jwt_service.verify_token(token)
-        user_id = payload.get("sub")
-        if not user_id or not isinstance(user_id, str):
-            raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-        return str(user_id)
-    except ValueError:
-        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
-
-
 async def get_group_repository(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> AsyncGenerator[GroupRepository, None]:

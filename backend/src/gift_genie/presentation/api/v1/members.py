@@ -26,7 +26,7 @@ from gift_genie.application.use_cases.update_member import UpdateMemberUseCase
 from gift_genie.domain.interfaces.repositories import GroupRepository, MemberRepository
 from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
-from gift_genie.presentation.api.v1.groups import get_current_user
+from gift_genie.presentation.api.dependencies import get_current_user
 from gift_genie.presentation.api.v1.groups import get_group_repository
 from gift_genie.presentation.api.v1.shared import PaginationMeta
 
