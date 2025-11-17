@@ -398,6 +398,7 @@ jobs:
             --name backend \
             --network gift-genie-test \
             -p 8000:8000 \
+            -e ENV=dev \
             -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie_test \
             -e REDIS_URL=redis://redis:6379 \
             -e SECRET_KEY=test-secret-key-for-ci \
