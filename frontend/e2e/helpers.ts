@@ -37,7 +37,15 @@ const registerUser = async function (page: Page, data: UserData) {
   await registerPage.expectEmailVisible();
   await registerPage.expectPasswordVisible();
   await registerPage.expectSubmitVisible();
+
+  // Wait for the registration request to complete successfully
+  const registerPromise = page.waitForResponse(
+    resp => resp.url().includes('/auth/register') && resp.status() === 201
+  );
+
   await registerPage.register(data.name, data.email, data.password);
+
+  await registerPromise;
   await page.waitForLoadState('networkidle');
 };
 
