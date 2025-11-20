@@ -20,7 +20,7 @@ test.describe('Login', () => {
 
   test('should show error with invalid credentials', async () => {
     // Try to login with invalid credentials
-    await loginPage.login('invalid@example.com', 'wrongpassword');
+    await loginPage.login('invalid@example.com', 'wrongpassword', { expectSuccess: false });
 
     // Expect error message
     await loginPage.expectErrorMessage('Invalid credentials');
