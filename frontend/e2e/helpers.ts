@@ -72,7 +72,6 @@ const loginUserViaAPI = async function (page: Page, context: BrowserContext, dat
   const accessToken = loginData.access_token;
   const userData = loginData.user;
   console.log('[E2E] Login successful, got access token and user data');
-  console.log(`[E2E] Access Token (first 10 chars): ${accessToken?.substring(0, 10)}...`);
 
   // CRITICAL: Navigate to a page first to establish the context
   // This ensures we can set localStorage BEFORE the app initializes

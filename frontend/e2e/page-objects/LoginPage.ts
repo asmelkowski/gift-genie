@@ -21,7 +21,8 @@ export class LoginPage {
     await this.page.getByTestId('login-submit').click();
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, options: { expectSuccess?: boolean } = {}) {
+    const { expectSuccess = true } = options;
     console.log(`[E2E] Logging in as ${email}...`);
 
     // Fill form fields
@@ -40,7 +41,7 @@ export class LoginPage {
     const response = await responsePromise;
     console.log(`[E2E] Login response: ${response.status()}`);
 
-    if (!response.ok()) {
+    if (expectSuccess && !response.ok()) {
       const body = await response.text();
       console.error('[E2E] Login failed:', body);
       throw new Error(`Login failed with status ${response.status()}`);
