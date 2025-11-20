@@ -37,6 +37,11 @@ async def get_current_user(request: Request) -> str:
         token = request.cookies.get("access_token")
 
     if not token:
+        from loguru import logger
+
+        logger.warning("Authentication failed: No token found in header or cookie")
+        logger.debug(f"Headers: {request.headers}")
+        logger.debug(f"Cookies: {request.cookies}")
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
     settings = get_settings()
@@ -45,9 +50,15 @@ async def get_current_user(request: Request) -> str:
         payload = jwt_service.verify_token(token)
         user_id = payload.get("sub")
         if not user_id or not isinstance(user_id, str):
+            from loguru import logger
+
+            logger.warning(f"Authentication failed: Invalid user_id in token payload: {payload}")
             raise HTTPException(status_code=401, detail={"code": "unauthorized"})
         return str(user_id)
-    except ValueError:
+    except ValueError as e:
+        from loguru import logger
+
+        logger.warning(f"Authentication failed: Token verification error: {str(e)}")
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
 
