@@ -7,7 +7,7 @@ output "frontend_url" {
 }
 
 output "db_host" {
-  value = scaleway_rdb_instance.main.endpoint_ip
+  value = scaleway_rdb_instance.main.load_balancer[0].ip
 }
 
 output "frontend_cname_target" {
