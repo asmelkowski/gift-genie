@@ -38,3 +38,9 @@ variable "redis_password" {
   type        = string
   sensitive   = true
 }
+
+variable "default_username" {
+  description = "Default username for managed services (Redis, databases, etc.)"
+  type        = string
+  default     = "gift_genie"
+}
