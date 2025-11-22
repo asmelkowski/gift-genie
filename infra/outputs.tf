@@ -9,3 +9,8 @@ output "frontend_url" {
 output "db_host" {
   value = scaleway_rdb_instance.main.endpoint_ip
 }
+
+output "frontend_cname_target" {
+  description = "Target domain for the CNAME record"
+  value       = "${scaleway_container.frontend.domain_name}."
+}
