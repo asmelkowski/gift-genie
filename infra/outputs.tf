@@ -1,0 +1,11 @@
+output "backend_url" {
+  value = "https://${scaleway_container.backend.domain_name}"
+}
+
+output "frontend_url" {
+  value = "https://${scaleway_container.frontend.domain_name}"
+}
+
+output "db_host" {
+  value = scaleway_rdb_instance.main.endpoint_ip
+}
