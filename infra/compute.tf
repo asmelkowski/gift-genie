@@ -10,7 +10,7 @@ resource "scaleway_container" "backend" {
   registry_image  = "${scaleway_registry_namespace.main.endpoint}/gift-genie-backend:latest"
   port            = 8000
   cpu_limit       = 560
-  memory_limit    = 512
+  memory_limit    = 560
   min_scale       = 1
   max_scale       = 5
   timeout         = 600
@@ -35,7 +35,7 @@ resource "scaleway_container" "frontend" {
   registry_image  = "${scaleway_registry_namespace.main.endpoint}/gift-genie-frontend:latest"
   port            = 80
   cpu_limit       = 560
-  memory_limit    = 512
+  memory_limit    = 560
   min_scale       = 1
   max_scale       = 5
   deploy          = true
