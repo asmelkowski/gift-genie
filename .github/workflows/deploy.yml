@@ -15,6 +15,7 @@ env:
   AWS_REGION: "pl-waw"
   TF_VAR_project_id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
   TF_VAR_db_password: ${{ secrets.DATABASE_PASSWORD }}
+  TF_VAR_redis_password: ${{ secrets.REDIS_PASSWORD }}
   TF_VAR_region: "pl-waw"
   TF_VAR_zone: "pl-waw-1"
 
@@ -60,9 +61,9 @@ jobs:
           docker build -t ${{ steps.registry.outputs.endpoint }}/gift-genie-backend:latest ./backend
           docker push ${{ steps.registry.outputs.endpoint }}/gift-genie-backend:latest
 
-      - name: Deploy Backend & DB
+      - name: Deploy Backend, DB & Redis
         working-directory: ./infra
-        run: tofu apply -target=scaleway_container.backend -target=scaleway_rdb_instance.main -target=scaleway_rdb_database.main -auto-approve
+        run: tofu apply -target=scaleway_container.backend -target=scaleway_rdb_instance.main -target=scaleway_rdb_database.main -target=scaleway_redis_cluster.main -auto-approve
 
       - name: Get Backend URL
         working-directory: ./infra

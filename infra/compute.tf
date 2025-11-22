@@ -26,6 +26,7 @@ resource "scaleway_container" "backend" {
   secret_environment_variables = {
     "DATABASE_URL" = "postgresql+asyncpg://gift_genie:${var.db_password}@${scaleway_rdb_instance.main.load_balancer[0].ip}:${scaleway_rdb_instance.main.load_balancer[0].port}/${scaleway_rdb_database.main.name}"
     "SECRET_KEY"   = var.db_password # Reusing for now
+    "REDIS_URL"    = "${scaleway_redis_cluster.main.public_network[0].ips[0]}:${scaleway_redis_cluster.main.public_network[0].port}"
   }
 }
 
