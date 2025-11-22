@@ -26,3 +26,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "custom_domain" {
+  description = "Custom domain for the frontend (e.g. gift-genie.eu)"
+  type        = string
+  default     = null
+}

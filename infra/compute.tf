@@ -44,3 +44,9 @@ resource "scaleway_container" "frontend" {
     "VITE_API_URL" = "https://${scaleway_container.backend.domain_name}"
   }
 }
+
+resource "scaleway_container_domain" "frontend" {
+  count        = var.custom_domain != null ? 1 : 0
+  container_id = scaleway_container.frontend.id
+  hostname     = var.custom_domain
+}
