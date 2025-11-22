@@ -30,6 +30,10 @@ export SCW_ACCESS_KEY="$SCALEWAY_ACCESS_KEY"
 export SCW_SECRET_KEY="$SCALEWAY_SECRET_KEY"
 export SCW_DEFAULT_PROJECT_ID="$SCALEWAY_DEFAULT_PROJECT_ID"
 
+# Export Terraform variables from environment
+export TF_VAR_project_id="$SCALEWAY_DEFAULT_PROJECT_ID"
+# TF_VAR_db_password should be set separately by the user
+
 # Map Scaleway credentials to AWS environment variables for Terraform S3 backend
 export AWS_ACCESS_KEY_ID="$SCALEWAY_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$SCALEWAY_SECRET_KEY"

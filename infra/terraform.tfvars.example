@@ -1,0 +1,11 @@
+# Terraform Variables for Gift Genie Infrastructure
+# Copy this file to terraform.tfvars and fill in your values
+
+# Scaleway Project ID
+project_id = "your-project-id-here"
+
+# Database password (use a strong password)
+db_password = "your-secure-db-password-here"
+
+# Optional: Custom domain for frontend
+# custom_domain = "gift-genie.eu"
