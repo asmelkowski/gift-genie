@@ -1,24 +1,12 @@
-resource "scaleway_rdb_instance" "main" {
-  name           = "gift-genie-db-${var.env}"
-  node_type      = "DB-DEV-S" # Smallest for dev/testing, can be upgraded
-  engine         = "PostgreSQL-15"
-  is_ha_cluster  = false
-  disable_backup = false
-  user_name      = "gift_genie"
-  password       = var.db_password
-  region         = var.region
-  tags           = ["gift-genie", var.env]
-
-  load_balancer {}
-}
-
-resource "scaleway_rdb_database" "main" {
-  instance_id = scaleway_rdb_instance.main.id
-  name        = "gift_genie"
+resource "scaleway_sdb_sql_database" "main" {
+  name       = "gift-genie-db-${var.env}"
+  min_cpu    = 0  # Auto-scales to zero when idle
+  max_cpu    = 2  # Max 2 vCPU for burst capacity
+  region     = var.region
 }
 
 output "db_endpoint" {
-  value = "${scaleway_rdb_instance.main.load_balancer[0].ip}:${scaleway_rdb_instance.main.load_balancer[0].port}"
+  value = scaleway_sdb_sql_database.main.endpoint
 }
 
 resource "scaleway_redis_cluster" "main" {
@@ -26,7 +14,7 @@ resource "scaleway_redis_cluster" "main" {
   version      = "7.2.11"
   node_type    = "RED1-MICRO"
   cluster_size = 1
-  user_name    = "gift_genie"
+  user_name    = var.default_username
   password     = var.redis_password
   zone         = var.zone
   tags         = ["gift-genie", var.env]
