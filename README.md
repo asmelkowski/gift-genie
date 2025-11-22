@@ -192,7 +192,7 @@ The project is configured for automated deployment to Scaleway using GitHub Acti
 ### Prerequisites
 
 1.  **Scaleway Account**: You need a Scaleway account and API keys.
-2.  **Terraform State Bucket**: Create an Object Storage bucket named `gift-genie-tf-state` in the `pl-waw` (Warsaw) region.
+2.  **Terraform State Bucket**: Create an Object Storage bucket named `gift-genie-tf-state` in the `fr-par` (Paris) region.
     - Ensure the bucket policy grants access to both the bucket and objects (`gift-genie-tf-state/*`)
 
 ### Local Terraform Setup
@@ -208,7 +208,7 @@ export SCW_DEFAULT_PROJECT_ID="your-project-id"
 # S3 backend credentials (uses same Scaleway credentials)
 export AWS_ACCESS_KEY_ID="$SCW_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$SCW_SECRET_KEY"
-export AWS_REGION="pl-waw"
+export AWS_REGION="fr-par"
 
 # Terraform variables
 export TF_VAR_project_id="$SCW_DEFAULT_PROJECT_ID"

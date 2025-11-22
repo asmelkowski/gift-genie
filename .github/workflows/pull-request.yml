@@ -555,7 +555,7 @@ jobs:
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
-          AWS_REGION: "pl-waw"
+          AWS_REGION: "fr-par"
         run: tofu init
 
       - name: OpenTofu Validate
@@ -570,7 +570,7 @@ jobs:
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
-          AWS_REGION: "pl-waw"
+          AWS_REGION: "fr-par"
           TF_VAR_project_id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           TF_VAR_db_password: ${{ secrets.DATABASE_PASSWORD }}
           TF_VAR_redis_password: ${{ secrets.redis_PASSWORD }}

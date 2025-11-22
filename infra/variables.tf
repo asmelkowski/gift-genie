@@ -6,13 +6,13 @@ variable "project_id" {
 variable "region" {
   description = "Scaleway Region"
   type        = string
-  default     = "pl-waw"
+  default     = "fr-par"
 }
 
 variable "zone" {
   description = "Scaleway Zone"
   type        = string
-  default     = "pl-waw-1"
+  default     = "fr-par-1"
 }
 
 variable "env" {
