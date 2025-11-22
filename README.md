@@ -185,6 +185,30 @@ Gift Genie aims to simplify gift exchanges with a focus on fairness and custom r
 
 This project is currently **in active development**. The core features are being implemented, and the application is not yet production-ready.
 
+## Deployment
+
+The project is configured for automated deployment to Scaleway using GitHub Actions and Terraform.
+
+### Prerequisites
+
+1.  **Scaleway Account**: You need a Scaleway account and API keys.
+2.  **Terraform State Bucket**: Create an Object Storage bucket named `gift-genie-tf-state` in the `fr-par` region (or update `infra/versions.tf`).
+
+### GitHub Secrets
+
+Configure the following secrets in your GitHub repository settings:
+
+| Secret Name | Description |
+|-------------|-------------|
+| `SCW_ACCESS_KEY` | Scaleway Access Key ID |
+| `SCW_SECRET_KEY` | Scaleway Secret Key |
+| `SCW_DEFAULT_PROJECT_ID` | Scaleway Project ID |
+| `DB_PASSWORD` | Password for the managed PostgreSQL database |
+
+### Triggering Deployment
+
+The deployment pipeline runs automatically on pushes to the `main` or `master` branches. You can also trigger it manually via the "Actions" tab in GitHub.
+
 ## License
 
 This project is licensed under the MIT License - see the `LICENSE` file for details.
