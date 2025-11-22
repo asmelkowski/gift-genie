@@ -23,7 +23,7 @@ output "db_endpoint" {
 
 resource "scaleway_redis_cluster" "main" {
   name         = "gift-genie-redis-${var.env}"
-  version      = "7.2.4"
+  version      = "7.2.11"
   node_type    = "RED1-MICRO"
   cluster_size = 1
   user_name    = "gift_genie"
