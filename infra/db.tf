@@ -1,8 +1,8 @@
 resource "scaleway_sdb_sql_database" "main" {
   name       = "gift-genie-db-${var.env}"
-  min_cpu    = 0  # Auto-scales to zero when idle
-  max_cpu    = 2  # Max 2 vCPU for burst capacity
   region     = var.region
+  cpu_min    = 0
+  cpu_max    = 5
 }
 
 output "db_endpoint" {

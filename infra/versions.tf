@@ -10,9 +10,9 @@ terraform {
   backend "s3" {
     bucket                      = "gift-genie-tf-state"
     key                         = "prod/terraform.tfstate"
-    region                      = "pl-waw"
+    region                      = "fr-par"
     endpoints = {
-      s3 = "https://s3.pl-waw.scw.cloud"
+      s3 = "https://s3.fr-par.scw.cloud"
     }
     skip_credentials_validation = true
     skip_region_validation      = true
