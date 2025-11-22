@@ -24,22 +24,32 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.6.0
 
-      - name: Terraform Init
+      - name: Verify Environment Variables
+        run: |
+          echo "Checking AWS credentials are set..."
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then echo "ERROR: AWS_ACCESS_KEY_ID not set"; exit 1; fi
+          if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then echo "ERROR: AWS_SECRET_ACCESS_KEY not set"; exit 1; fi
+          if [ -z "$AWS_REGION" ]; then echo "ERROR: AWS_REGION not set"; exit 1; fi
+          echo "All required environment variables are set"
+
+      - name: OpenTofu Init
         working-directory: ./infra
-        run: terraform init
+        run: tofu init
 
       - name: Create Registry
         working-directory: ./infra
-        run: terraform apply -target=scaleway_registry_namespace.main -auto-approve
+        run: tofu apply -target=scaleway_registry_namespace.main -auto-approve
 
       - name: Get Registry Endpoint
         working-directory: ./infra
         id: registry
         run: |
-          ENDPOINT=$(terraform output -raw registry_endpoint)
+          ENDPOINT=$(tofu output -raw registry_endpoint)
           echo "endpoint=$ENDPOINT" >> $GITHUB_OUTPUT
 
       - name: Login to Scaleway Registry
@@ -52,13 +62,13 @@ jobs:
 
       - name: Deploy Backend & DB
         working-directory: ./infra
-        run: terraform apply -target=scaleway_container.backend -target=scaleway_rdb_instance.main -target=scaleway_rdb_database.main -auto-approve
+        run: tofu apply -target=scaleway_container.backend -target=scaleway_rdb_instance.main -target=scaleway_rdb_database.main -auto-approve
 
       - name: Get Backend URL
         working-directory: ./infra
         id: backend
         run: |
-          URL=$(terraform output -raw backend_url)
+          URL=$(tofu output -raw backend_url)
           echo "url=$URL" >> $GITHUB_OUTPUT
 
       - name: Build and Push Frontend
@@ -68,4 +78,4 @@ jobs:
 
       - name: Full Deploy
         working-directory: ./infra
-        run: terraform apply -auto-approve
+        run: tofu apply -auto-approve
