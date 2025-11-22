@@ -20,3 +20,19 @@ resource "scaleway_rdb_database" "main" {
 output "db_endpoint" {
   value = "${scaleway_rdb_instance.main.load_balancer[0].ip}:${scaleway_rdb_instance.main.load_balancer[0].port}"
 }
+
+resource "scaleway_redis_cluster" "main" {
+  name         = "gift-genie-redis-${var.env}"
+  version      = "7.2.4"
+  node_type    = "RED1-MICRO"
+  cluster_size = 1
+  user_name    = "gift_genie"
+  password     = var.redis_password
+  zone         = var.zone
+  tags         = ["gift-genie", var.env]
+}
+
+output "redis_endpoint" {
+  value     = "${scaleway_redis_cluster.main.public_network[0].ips[0]}:${scaleway_redis_cluster.main.public_network[0].port}"
+  sensitive = false
+}

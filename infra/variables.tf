@@ -32,3 +32,9 @@ variable "custom_domain" {
   type        = string
   default     = null
 }
+
+variable "redis_password" {
+  description = "Password for the managed Redis cluster"
+  type        = string
+  sensitive   = true
+}

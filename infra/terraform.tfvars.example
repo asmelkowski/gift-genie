@@ -7,5 +7,8 @@ project_id = "your-project-id-here"
 # Database password (use a strong password)
 db_password = "your-secure-db-password-here"
 
+# Redis password (use a strong password)
+redis_password = "your-secure-redis-password-here"
+
 # Optional: Custom domain for frontend
 # custom_domain = "gift-genie.eu"
