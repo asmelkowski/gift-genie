@@ -541,33 +541,40 @@ jobs:
             infra:
               - 'infra/**'
 
-      - name: Setup Terraform
+      - name: Setup OpenTofu
         if: steps.changes.outputs.infra == 'true'
-        uses: hashicorp/setup-terraform@v3
+        uses: opentofu/setup-opentofu@v1
         with:
-          terraform_wrapper: false
+          tofu_version: 1.6.0
 
-      - name: Terraform Init
+      - name: OpenTofu Init
         if: steps.changes.outputs.infra == 'true'
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
-        run: terraform init
+          AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          AWS_REGION: "pl-waw"
+        run: tofu init
 
-      - name: Terraform Validate
+      - name: OpenTofu Validate
         if: steps.changes.outputs.infra == 'true'
-        run: terraform validate
+        run: tofu validate
 
-      - name: Terraform Plan
+      - name: OpenTofu Plan
         if: steps.changes.outputs.infra == 'true'
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          AWS_REGION: "pl-waw"
           TF_VAR_project_id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
-        run: terraform plan -input=false
+          TF_VAR_db_password: ${{ secrets.DATABASE_PASSWORD }}
+        run: tofu plan -input=false
+
 
 
   status-comment:
