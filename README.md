@@ -192,7 +192,34 @@ The project is configured for automated deployment to Scaleway using GitHub Acti
 ### Prerequisites
 
 1.  **Scaleway Account**: You need a Scaleway account and API keys.
-2.  **Terraform State Bucket**: Create an Object Storage bucket named `gift-genie-tf-state` in the `fr-par` region (or update `infra/versions.tf`).
+2.  **Terraform State Bucket**: Create an Object Storage bucket named `gift-genie-tf-state` in the `pl-waw` (Warsaw) region.
+    - Ensure the bucket policy grants access to both the bucket and objects (`gift-genie-tf-state/*`)
+
+### Local Terraform Setup
+
+To run Terraform locally, export the required environment variables:
+
+```bash
+# Scaleway provider credentials
+export SCW_ACCESS_KEY="your-access-key"
+export SCW_SECRET_KEY="your-secret-key"
+export SCW_DEFAULT_PROJECT_ID="your-project-id"
+
+# S3 backend credentials (uses same Scaleway credentials)
+export AWS_ACCESS_KEY_ID="$SCW_ACCESS_KEY"
+export AWS_SECRET_ACCESS_KEY="$SCW_SECRET_KEY"
+export AWS_REGION="pl-waw"
+
+# Terraform variables
+export TF_VAR_project_id="$SCW_DEFAULT_PROJECT_ID"
+export TF_VAR_db_password="your-secure-db-password"
+
+# Run Terraform
+cd infra
+tofu init
+tofu plan
+tofu apply
+```
 
 ### GitHub Secrets
 
