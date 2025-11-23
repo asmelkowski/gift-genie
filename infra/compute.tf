@@ -25,7 +25,9 @@ resource "scaleway_container" "backend" {
   }
 
   secret_environment_variables = {
-    "DATABASE_URL"     = "postgresql+asyncpg://${var.default_username}:${var.db_password}@${scaleway_sdb_sql_database.main.endpoint}/${scaleway_sdb_sql_database.main.name}?sslmode=require"
+    # Construct DATABASE_URL with explicit port 5432 (PostgreSQL default)
+    # Scaleway Serverless SQL endpoint format may not include port
+    "DATABASE_URL"     = "postgresql+asyncpg://${var.default_username}:${var.db_password}@${scaleway_sdb_sql_database.main.endpoint}:5432/${scaleway_sdb_sql_database.main.name}?sslmode=require"
     "SECRET_KEY"       = var.db_password # Reusing for now
     "REDIS_URL"        = "${one(scaleway_redis_cluster.main.private_network).ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
     "REDIS_USERNAME"   = var.default_username
