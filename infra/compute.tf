@@ -46,6 +46,7 @@ resource "scaleway_container" "frontend" {
 
   environment_variables = {
     "VITE_API_URL" = "https://${scaleway_container.backend.domain_name}"
+    "BACKEND_URL"  = "https://${scaleway_container.backend.domain_name}"
   }
 }
 
