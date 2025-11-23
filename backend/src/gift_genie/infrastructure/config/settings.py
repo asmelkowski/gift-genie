@@ -145,9 +145,15 @@ class Settings(BaseSettings):
         if self.DB_ENDPOINT:
             # Check if it's a full connection string (e.g. from Scaleway Serverless SQL)
             if self.DB_ENDPOINT.startswith(("postgres://", "postgresql://")):
-                # SQLAlchemy 1.4+ requires postgresql:// scheme
+                # Ensure we use the asyncpg driver
                 if self.DB_ENDPOINT.startswith("postgres://"):
-                    self.DATABASE_URL = self.DB_ENDPOINT.replace("postgres://", "postgresql://", 1)
+                    self.DATABASE_URL = self.DB_ENDPOINT.replace(
+                        "postgres://", "postgresql+asyncpg://", 1
+                    )
+                elif self.DB_ENDPOINT.startswith("postgresql://"):
+                    self.DATABASE_URL = self.DB_ENDPOINT.replace(
+                        "postgresql://", "postgresql+asyncpg://", 1
+                    )
                 else:
                     self.DATABASE_URL = self.DB_ENDPOINT
 
