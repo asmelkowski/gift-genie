@@ -18,9 +18,19 @@ resource "scaleway_redis_cluster" "main" {
   password     = var.redis_password
   zone         = var.zone
   tags         = ["gift-genie", var.env]
+
+  private_network {
+    id = scaleway_vpc_private_network.main.id
+  }
 }
 
 output "redis_endpoint" {
-  value     = "${scaleway_redis_cluster.main.public_network[0].ips[0]}:${scaleway_redis_cluster.main.public_network[0].port}"
+  value     = "${scaleway_redis_cluster.main.private_network[0].endpoint_ips[0]}:${scaleway_redis_cluster.main.private_network[0].port}"
   sensitive = false
+}
+
+output "redis_private_endpoint" {
+  value       = "${scaleway_redis_cluster.main.private_network[0].endpoint_ips[0]}:${scaleway_redis_cluster.main.private_network[0].port}"
+  description = "Redis private network endpoint for container connections"
+  sensitive   = false
 }

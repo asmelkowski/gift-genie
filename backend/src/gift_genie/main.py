@@ -82,9 +82,24 @@ app.add_middleware(
 # Setup exception logging middleware
 setup_exception_logging_middleware(app)
 
-# Initialize rate limiter
+# Initialize rate limiter with production-grade configuration
+# Configuration includes connection pooling, timeouts, and health checks
+# to ensure reliability under concurrent load and handle transient failures gracefully
 redis_client = redis.from_url(
-    f"redis://{settings.REDIS_URL}", encoding="utf-8", decode_responses=True
+    f"redis://{settings.REDIS_URL}",
+    encoding="utf-8",
+    decode_responses=True,
+    max_connections=50,
+    socket_connect_timeout=5,
+    socket_timeout=5,
+    socket_keepalive=True,
+    socket_keepalive_options={
+        1: 1,  # TCP_KEEPIDLE: seconds before sending keepalive probe
+        2: 1,  # TCP_KEEPINTVL: interval between keepalive probes
+        3: 3,  # TCP_KEEPCNT: failed probe attempts before timeout
+    },
+    retry_on_timeout=True,
+    health_check_interval=30,
 )
 
 # Setup exception handlers
@@ -100,8 +115,20 @@ app.include_router(draws.router, prefix="/api/v1")
 
 class HealthResponse(BaseModel):
     status: Literal["healthy", "unhealthy"]
+    redis_status: str | None = None
 
 
 @app.get("/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
-    return HealthResponse(status="healthy")
+    redis_status = "disconnected"
+    overall_status: Literal["healthy", "unhealthy"] = "healthy"
+
+    try:
+        await redis_client.ping()
+        redis_status = "connected"
+    except Exception as e:
+        redis_status = "disconnected"
+        overall_status = "unhealthy"
+        logger.error(f"Redis health check failed: {e}")
+
+    return HealthResponse(status=overall_status, redis_status=redis_status)
