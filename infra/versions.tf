@@ -8,8 +8,8 @@ terraform {
   required_version = ">= 0.13"
 
   backend "s3" {
-    bucket                      = "gift-genie-tf-state"
-    key                         = "prod/terraform.tfstate"
+    bucket                      = "gift-genie-tofu-state"
+    key                         = "prod/tofu.tfstate"
     region                      = "fr-par"
     endpoints = {
       s3 = "https://s3.fr-par.scw.cloud"
