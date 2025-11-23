@@ -31,3 +31,14 @@ output "redis_connection_info" {
     note             = "Accessible only from containers in the private network"
   }
 }
+
+output "dns_cname_record" {
+  description = "DNS CNAME record configuration (automated via OVH provider)"
+  value = var.custom_domain != null ? {
+    zone      = var.ovh_zone_name
+    subdomain = ""
+    type      = "CNAME"
+    target    = "${scaleway_container.frontend.domain_name}."
+    status    = "Managed by Terraform"
+  } : null
+}

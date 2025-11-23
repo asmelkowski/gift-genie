@@ -20,7 +20,7 @@ resource "scaleway_container" "backend" {
   environment_variables = {
     "ENV"           = var.env
     "DEBUG"         = "false"
-    "CORS_ORIGINS"  = "*"
+    "CORS_ORIGINS"  = var.custom_domain != null ? "https://${var.custom_domain}" : "*"
     "COOKIE_SECURE" = "true"
   }
 
