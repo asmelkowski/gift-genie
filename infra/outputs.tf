@@ -27,7 +27,7 @@ output "private_network_details" {
 output "redis_connection_info" {
   description = "Redis connection information for application configuration"
   value = {
-    private_endpoint = scaleway_redis_cluster.main.private_endpoint
+    private_endpoint = "${one(scaleway_redis_cluster.main.private_network).endpoint_ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
     note             = "Accessible only from containers in the private network"
   }
 }
