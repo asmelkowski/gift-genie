@@ -1,7 +1,9 @@
 import json
+import os
 from functools import lru_cache
 from typing import Any
 
+from loguru import logger
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine.url import URL
@@ -14,6 +16,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra="ignore",
     )
 
     # Environment
@@ -55,6 +58,37 @@ class Settings(BaseSettings):
     # Email (to be configured)
     EMAIL_ENABLED: bool = False
     EMAIL_FROM: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def log_env_vars(cls, data: Any) -> Any:
+        """Log environment variables before validation to debug issues."""
+        # Only log if we are in a context where we expect env vars to be populated
+        # or if we are specifically debugging.
+
+        # We can check os.environ directly or the data passed in if it's a dict
+        logger.info("--- DEBUGGING SETTINGS INITIALIZATION ---")
+
+        # Log specific keys we suspect are causing issues
+        keys_to_log = [
+            "DB_PORT",
+            "DB_HOST",
+            "DB_USER",
+            "DB_NAME",
+            "DB_ENDPOINT",
+            "REDIS_URL",
+            "ENV",
+            "PORT",
+        ]
+
+        for key in keys_to_log:
+            # Check both data dict and os.environ
+            val_data = data.get(key) if isinstance(data, dict) else None
+            val_env = os.getenv(key)
+
+            logger.info(f"Env var {key}: env='{val_env}', data='{val_data}'")
+
+        return data
 
     @field_validator("CORS_ORIGINS", mode="after")
     @classmethod
