@@ -132,7 +132,7 @@ class Settings(BaseSettings):
 
     @field_validator("DB_PORT", mode="before")
     @classmethod
-    def parse_db_port(cls, v: Any) -> int | None:
+    def parse_db_port(cls, v: Any) -> Any:
         """Handle empty string for DB_PORT."""
         if v == "":
             return None
