@@ -192,8 +192,8 @@ The project is configured for automated deployment to Scaleway using GitHub Acti
 ### Prerequisites
 
 1.  **Scaleway Account**: You need a Scaleway account and API keys.
-2.  **Terraform State Bucket**: Create an Object Storage bucket named `gift-genie-tf-state` in the `fr-par` (Paris) region.
-    - Ensure the bucket policy grants access to both the bucket and objects (`gift-genie-tf-state/*`)
+2.  **Terraform State Bucket**: Create an Object Storage bucket named `gift-genie-tofu-state` in the `fr-par` (Paris) region.
+    - Ensure the bucket policy grants access to both the bucket and objects (`gift-genie-tofu-state/*`)
 
 ### Local Terraform Setup
 
