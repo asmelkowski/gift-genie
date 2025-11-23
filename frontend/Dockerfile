@@ -121,7 +121,7 @@ RUN bun run build
 FROM nginx:alpine AS production
 
 # Copy custom nginx configuration
-COPY <<EOF /etc/nginx/conf.d/default.conf
+COPY <<EOF /etc/nginx/templates/default.conf.template
 server {
     listen 80;
     server_name _;
@@ -141,7 +141,7 @@ server {
 
     # API proxy (if needed)
     location /api {
-        proxy_pass http://backend:8000;
+        proxy_pass \${BACKEND_URL};
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
