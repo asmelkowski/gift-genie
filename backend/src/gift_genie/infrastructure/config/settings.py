@@ -99,37 +99,19 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def assemble_db_url(self) -> "Settings":
         """Construct DATABASE_URL from components if provided."""
-        # If DB_ENDPOINT is provided (e.g. from Terraform), parse it
+        # If DB_ENDPOINT is provided, extract hostname (ignore any port)
+        # Scaleway Serverless SQL endpoints are just hostnames, sometimes with trailing ':'
         if self.DB_ENDPOINT:
-            if ":" in self.DB_ENDPOINT:
-                host, port_str = self.DB_ENDPOINT.rsplit(":", 1)
-                self.DB_HOST = host
-                # Only parse port if we have a non-empty string
-                if port_str.strip():
-                    try:
-                        self.DB_PORT = int(port_str)
-                    except ValueError:
-                        # Invalid port format, default to PostgreSQL port
-                        self.DB_PORT = 5432
-                else:
-                    # If port_str is empty, default to PostgreSQL port for Scaleway
-                    self.DB_PORT = 5432
-            else:
-                self.DB_HOST = self.DB_ENDPOINT
-                # Default to PostgreSQL port for Scaleway Serverless SQL
-                self.DB_PORT = 5432
+            self.DB_HOST = self.DB_ENDPOINT.rstrip(":").split(":")[0]
 
-        # If we have the necessary components, construct the URL
+        # Build connection string if we have all required components
         if self.DB_USER and self.DB_PASSWORD and self.DB_HOST and self.DB_NAME:
-            # Use DB_PORT if set, otherwise default to PostgreSQL port
-            db_port = self.DB_PORT if self.DB_PORT is not None else 5432
-
             url = URL.create(
                 drivername="postgresql+asyncpg",
                 username=self.DB_USER,
                 password=self.DB_PASSWORD,
                 host=self.DB_HOST,
-                port=db_port,
+                port=5432,  # Scaleway Serverless SQL always uses standard PostgreSQL port
                 database=self.DB_NAME,
                 query={"sslmode": "require"},
             )
