@@ -1,3 +1,5 @@
+import os
+from unittest import mock
 from gift_genie.infrastructure.config.settings import Settings
 
 
@@ -59,7 +61,10 @@ def test_database_url_construction_with_special_chars_in_password():
 
 def test_database_url_default():
     """Test that default DATABASE_URL is used if components are missing."""
-    settings = Settings(SECRET_KEY="test")
-    assert (
-        settings.DATABASE_URL == "postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie"
-    )
+    # Ensure no environment variables interfere with the default
+    with mock.patch.dict(os.environ, {}, clear=True):
+        settings = Settings(SECRET_KEY="test")
+        assert (
+            settings.DATABASE_URL
+            == "postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie"
+        )
