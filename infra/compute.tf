@@ -1,7 +1,8 @@
 resource "scaleway_container_namespace" "main" {
-  name        = "gift-genie-ns-${var.env}"
-  description = "Namespace for Gift Genie ${var.env}"
-  region      = var.region
+  name                = "gift-genie-ns-${var.env}"
+  description         = "Namespace for Gift Genie ${var.env}"
+  region              = var.region
+  private_network_id  = scaleway_vpc_private_network.main.id
 }
 
 resource "scaleway_container" "backend" {
@@ -26,7 +27,7 @@ resource "scaleway_container" "backend" {
   secret_environment_variables = {
     "DATABASE_URL" = "postgresql+asyncpg://${scaleway_sdb_sql_database.main.endpoint}?sslmode=require"
     "SECRET_KEY"   = var.db_password # Reusing for now
-    "REDIS_URL"    = "${var.default_username}:${var.redis_password}@${scaleway_redis_cluster.main.public_network[0].ips[0]}:${scaleway_redis_cluster.main.public_network[0].port}"
+    "REDIS_URL"    = "${var.default_username}:${var.redis_password}@${scaleway_redis_cluster.main.private_network[0].endpoint_ips[0]}:${scaleway_redis_cluster.main.private_network[0].port}"
   }
 }
 
