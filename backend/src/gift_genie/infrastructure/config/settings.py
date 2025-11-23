@@ -104,23 +104,28 @@ class Settings(BaseSettings):
             if ":" in self.DB_ENDPOINT:
                 host, port_str = self.DB_ENDPOINT.rsplit(":", 1)
                 self.DB_HOST = host
-                if port_str:
+                # Only parse port if we have a non-empty string
+                if port_str.strip():
                     try:
                         self.DB_PORT = int(port_str)
                     except ValueError:
-                        # If port is not an integer, ignore it or handle error
+                        # Invalid port format, leave as None (will use default)
                         pass
+                # If port_str is empty, leave DB_PORT as None
             else:
                 self.DB_HOST = self.DB_ENDPOINT
 
         # If we have the necessary components, construct the URL
         if self.DB_USER and self.DB_PASSWORD and self.DB_HOST and self.DB_NAME:
+            # Use default PostgreSQL port if not specified
+            db_port = self.DB_PORT if self.DB_PORT is not None else 5432
+
             url = URL.create(
                 drivername="postgresql+asyncpg",
                 username=self.DB_USER,
                 password=self.DB_PASSWORD,
                 host=self.DB_HOST,
-                port=self.DB_PORT,
+                port=db_port,  # Always provide a valid port
                 database=self.DB_NAME,
                 query={"sslmode": "require"},
             )
