@@ -4,7 +4,11 @@ from gift_genie.infrastructure.config.settings import Settings
 
 
 def test_database_url_construction_with_endpoint():
-    """Test that DATABASE_URL is correctly constructed when DB_ENDPOINT is provided."""
+    """Test that DATABASE_URL is correctly constructed when DB_ENDPOINT is provided.
+
+    The port in the endpoint is ignored - we always use port 5432 for Scaleway
+    Serverless SQL, which uses the standard PostgreSQL port.
+    """
     settings = Settings(
         DB_USER="user",
         DB_PASSWORD="password",
@@ -18,14 +22,14 @@ def test_database_url_construction_with_endpoint():
     expected_url = "postgresql+asyncpg://user:password@host:5432/db?sslmode=require"
     assert settings.DATABASE_URL == expected_url
     assert settings.DB_HOST == "host"
-    assert settings.DB_PORT == 5432
+    assert settings.DB_PORT is None  # Port is not parsed from endpoint
 
 
 def test_database_url_construction_with_empty_port():
-    """Test that DATABASE_URL defaults to port 5432 when DB_ENDPOINT has empty port (host:).
+    """Test that DATABASE_URL uses port 5432 when DB_ENDPOINT has empty port (host:).
 
-    This handles the Scaleway Serverless SQL Databases case where the endpoint is provided
-    as "host:" with an empty port - we default to the standard PostgreSQL port 5432.
+    Scaleway Serverless SQL Databases sometimes provide endpoints as "host:" with a trailing
+    colon. We strip the trailing colon and always use port 5432.
     """
     settings = Settings(
         DB_USER="user",
@@ -38,14 +42,14 @@ def test_database_url_construction_with_empty_port():
     expected_url = "postgresql+asyncpg://user:password@host:5432/db?sslmode=require"
     assert settings.DATABASE_URL == expected_url
     assert settings.DB_HOST == "host"
-    assert settings.DB_PORT == 5432
+    assert settings.DB_PORT is None  # Port is not set - always use 5432
 
 
 def test_database_url_construction_with_no_port():
-    """Test that DATABASE_URL defaults to port 5432 when DB_ENDPOINT has no colon (host).
+    """Test that DATABASE_URL uses port 5432 when DB_ENDPOINT has no colon (host).
 
-    This handles the Scaleway Serverless SQL Databases case where the endpoint is provided
-    as "host" without a colon or port - we default to the standard PostgreSQL port 5432.
+    Scaleway Serverless SQL Databases may provide endpoints as just "host" without a colon.
+    We always use port 5432 in the connection string.
     """
     settings = Settings(
         DB_USER="user",
@@ -58,7 +62,7 @@ def test_database_url_construction_with_no_port():
     expected_url = "postgresql+asyncpg://user:password@host:5432/db?sslmode=require"
     assert settings.DATABASE_URL == expected_url
     assert settings.DB_HOST == "host"
-    assert settings.DB_PORT == 5432
+    assert settings.DB_PORT is None  # Port is not set - always use 5432
 
 
 def test_database_url_construction_with_special_chars_in_password():
