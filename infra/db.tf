@@ -26,12 +26,12 @@ resource "scaleway_redis_cluster" "main" {
 }
 
 output "redis_endpoint" {
-  value     = "${one(scaleway_redis_cluster.main.private_network).endpoint_ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
+  value     = "${one(scaleway_redis_cluster.main.private_network).ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
   sensitive = false
 }
 
 output "redis_private_endpoint" {
-  value       = "${one(scaleway_redis_cluster.main.private_network).endpoint_ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
+  value       = "${one(scaleway_redis_cluster.main.private_network).ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
   description = "Redis private network endpoint for container connections"
   sensitive   = false
 }
