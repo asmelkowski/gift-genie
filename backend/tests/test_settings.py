@@ -22,7 +22,11 @@ def test_database_url_construction_with_endpoint():
 
 
 def test_database_url_construction_with_empty_port():
-    """Test that DATABASE_URL is correctly constructed when DB_ENDPOINT has empty port (host:)."""
+    """Test that DATABASE_URL defaults to port 5432 when DB_ENDPOINT has empty port (host:).
+
+    This handles the Scaleway Serverless SQL Databases case where the endpoint is provided
+    as "host:" with an empty port - we default to the standard PostgreSQL port 5432.
+    """
     settings = Settings(
         DB_USER="user",
         DB_PASSWORD="password",
@@ -31,15 +35,30 @@ def test_database_url_construction_with_empty_port():
         SECRET_KEY="test",
     )
 
-    # SQLAlchemy URL.create handles None port by omitting it, which is what we want or default port?
-    # If port is None, it won't be in the rendered string usually.
-    # Let's see what happens.
-    # If port is None, it renders as host/db
-
-    expected_url = "postgresql+asyncpg://user:password@host/db?sslmode=require"
+    expected_url = "postgresql+asyncpg://user:password@host:5432/db?sslmode=require"
     assert settings.DATABASE_URL == expected_url
     assert settings.DB_HOST == "host"
-    assert settings.DB_PORT is None
+    assert settings.DB_PORT == 5432
+
+
+def test_database_url_construction_with_no_port():
+    """Test that DATABASE_URL defaults to port 5432 when DB_ENDPOINT has no colon (host).
+
+    This handles the Scaleway Serverless SQL Databases case where the endpoint is provided
+    as "host" without a colon or port - we default to the standard PostgreSQL port 5432.
+    """
+    settings = Settings(
+        DB_USER="user",
+        DB_PASSWORD="password",
+        DB_ENDPOINT="host",
+        DB_NAME="db",
+        SECRET_KEY="test",
+    )
+
+    expected_url = "postgresql+asyncpg://user:password@host:5432/db?sslmode=require"
+    assert settings.DATABASE_URL == expected_url
+    assert settings.DB_HOST == "host"
+    assert settings.DB_PORT == 5432
 
 
 def test_database_url_construction_with_special_chars_in_password():

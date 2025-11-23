@@ -109,15 +109,19 @@ class Settings(BaseSettings):
                     try:
                         self.DB_PORT = int(port_str)
                     except ValueError:
-                        # Invalid port format, leave as None (will use default)
-                        pass
-                # If port_str is empty, leave DB_PORT as None
+                        # Invalid port format, default to PostgreSQL port
+                        self.DB_PORT = 5432
+                else:
+                    # If port_str is empty, default to PostgreSQL port for Scaleway
+                    self.DB_PORT = 5432
             else:
                 self.DB_HOST = self.DB_ENDPOINT
+                # Default to PostgreSQL port for Scaleway Serverless SQL
+                self.DB_PORT = 5432
 
         # If we have the necessary components, construct the URL
         if self.DB_USER and self.DB_PASSWORD and self.DB_HOST and self.DB_NAME:
-            # Use default PostgreSQL port if not specified
+            # Use DB_PORT if set, otherwise default to PostgreSQL port
             db_port = self.DB_PORT if self.DB_PORT is not None else 5432
 
             url = URL.create(
@@ -125,7 +129,7 @@ class Settings(BaseSettings):
                 username=self.DB_USER,
                 password=self.DB_PASSWORD,
                 host=self.DB_HOST,
-                port=db_port,  # Always provide a valid port
+                port=db_port,
                 database=self.DB_NAME,
                 query={"sslmode": "require"},
             )
