@@ -44,3 +44,27 @@ variable "default_username" {
   type        = string
   default     = "gift_genie"
 }
+
+variable "ovh_application_key" {
+  description = "OVH API application key"
+  type        = string
+  sensitive   = true
+}
+
+variable "ovh_application_secret" {
+  description = "OVH API application secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "ovh_consumer_key" {
+  description = "OVH API consumer key"
+  type        = string
+  sensitive   = true
+}
+
+variable "ovh_zone_name" {
+  description = "OVH DNS zone name (e.g., gift-genie.eu)"
+  type        = string
+  default     = "gift-genie.eu"
+}

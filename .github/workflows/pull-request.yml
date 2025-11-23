@@ -615,6 +615,11 @@ jobs:
           TF_VAR_project_id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           TF_VAR_db_password: ${{ secrets.DATABASE_PASSWORD }}
           TF_VAR_redis_password: ${{ secrets.redis_PASSWORD }}
+          TF_VAR_custom_domain: "gift-genie.eu"
+          TF_VAR_ovh_zone_name: "gift-genie.eu"
+          TF_VAR_ovh_application_key: ${{ secrets.OVH_APPLICATION_KEY }}
+          TF_VAR_ovh_application_secret: ${{ secrets.OVH_APPLICATION_SECRET }}
+          TF_VAR_ovh_consumer_key: ${{ secrets.OVH_CONSUMER_KEY }}
         run: tofu plan -input=false
 
 
