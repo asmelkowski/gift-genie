@@ -11,6 +11,7 @@ from loguru import logger
 from pydantic import BaseModel
 
 from gift_genie.infrastructure.config.settings import get_settings
+from gift_genie.infrastructure.database.migrations import run_migrations
 from gift_genie.infrastructure.logging import get_request_context
 from gift_genie.presentation.api.v1 import auth, draws, exclusions, groups, members
 from gift_genie.presentation.api.exception_handlers import setup_exception_handlers
@@ -55,11 +56,19 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    # Run database migrations first (before any other initialization)
+    logger.info("Starting database migrations...")
+    run_migrations()
+    logger.info("Database migrations completed")
+
+    # Initialize FastAPILimiter with Redis
+    logger.info("Initializing FastAPILimiter...")
     await FastAPILimiter.init(redis_client)
+    logger.info("FastAPILimiter initialized")
+
     yield
 
 
-print(settings.DEBUG)
 app = FastAPI(
     title="Gift Genie API",
     description="API for organizing gift exchanges within groups",

@@ -37,6 +37,16 @@ repos:
       - id: mypy
         files: ^backend/.*\.py$
         types_or: [python]
+        additional_dependencies:
+          - types-redis
+          - sqlalchemy>=2.0.43
+          - alembic>=1.16.5
+          - fastapi>=0.118.0
+          - pydantic>=2.11.9
+          - pydantic-settings>=2.11.0
+          - bcrypt>=4.2.0
+          - PyJWT>=2.8.0
+          - loguru>=0.7.0
 
   # Frontend hooks - use local installations
   - repo: local

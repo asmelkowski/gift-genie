@@ -44,6 +44,9 @@ services:
     container_name: gift-genie-backend
     environment:
       PROD: true
+      REDIS_URL: $REDIS_URL
+      DATABASE_URL: $DATABASE_URL
+      CORS_ORIGINS: http://localhost:80,http://localhost
     ports:
       - 8000:8000
     depends_on:
@@ -72,6 +75,7 @@ services:
     container_name: gift-genie-frontend
     environment:
       VITE_API_BASE_URL: http://backend:8000
+      BACKEND_URL: http://backend:8000
     ports:
       - 80:80
     depends_on:
