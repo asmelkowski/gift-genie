@@ -93,11 +93,6 @@ redis_client = redis.from_url(
     socket_connect_timeout=5,
     socket_timeout=5,
     socket_keepalive=True,
-    socket_keepalive_options={
-        1: 1,  # TCP_KEEPIDLE: seconds before sending keepalive probe
-        2: 1,  # TCP_KEEPINTVL: interval between keepalive probes
-        3: 3,  # TCP_KEEPCNT: failed probe attempts before timeout
-    },
     retry_on_timeout=True,
     health_check_interval=30,
 )
