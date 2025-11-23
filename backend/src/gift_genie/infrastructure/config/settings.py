@@ -31,6 +31,8 @@ class Settings(BaseSettings):
 
     # Redis
     REDIS_URL: str = "localhost:6379"
+    REDIS_USERNAME: str = ""  # Empty for local dev (no auth)
+    REDIS_PASSWORD: str = ""  # Empty for local dev (no auth)
 
     # Security
     SECRET_KEY: str = "your-secret-key-here-change-in-production"

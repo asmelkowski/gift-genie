@@ -82,10 +82,13 @@ app.add_middleware(
 # Setup exception logging middleware
 setup_exception_logging_middleware(app)
 
-# Initialize rate limiter with stable, well-tested configuration
-# Core parameters: connection pooling, UTF-8 encoding, response decoding, and socket timeouts
+# Initialize Redis client with explicit ACL credentials for Scaleway Managed Redis
+# Production: Authenticates with username+password from environment variables
+# Local dev: Credentials are empty strings, passes None for no authentication
 redis_client = redis.from_url(
     f"redis://{settings.REDIS_URL}",
+    username=settings.REDIS_USERNAME if settings.REDIS_USERNAME else None,
+    password=settings.REDIS_PASSWORD if settings.REDIS_PASSWORD else None,
     encoding="utf-8",
     decode_responses=True,
     max_connections=50,
