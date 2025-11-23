@@ -22,7 +22,22 @@ def test_database_url_construction_with_endpoint():
     expected_url = "postgresql+asyncpg://user:password@host:5432/db?sslmode=require"
     assert settings.DATABASE_URL == expected_url
     assert settings.DB_HOST == "host"
-    assert settings.DB_PORT is None  # Port is not parsed from endpoint
+    assert settings.DB_PORT == 5432  # Port is parsed from endpoint
+
+
+def test_database_url_construction_with_full_url_endpoint():
+    """Test that DATABASE_URL is used directly when DB_ENDPOINT is a full URL."""
+    endpoint = "postgres://user:pass@host:5432/db?sslmode=require"
+    settings = Settings(
+        DB_ENDPOINT=endpoint,
+        # These should be ignored if endpoint is a full URL
+        DB_USER="ignored",
+        DB_PASSWORD="ignored",
+        DB_NAME="ignored",
+        SECRET_KEY="test",
+    )
+
+    assert settings.DATABASE_URL == endpoint
 
 
 def test_database_url_construction_with_empty_port():
