@@ -20,8 +20,8 @@ resource "scaleway_redis_cluster" "main" {
   tags         = ["gift-genie", var.env]
 
   private_network {
-    id           = scaleway_vpc_private_network.main.id
-    service_ips  = ["172.16.0.10/22"]
+    id          = scaleway_vpc_private_network.main.id
+    service_ips = ["172.16.0.10/22"]
   }
 }
 

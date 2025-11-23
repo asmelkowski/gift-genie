@@ -5,16 +5,16 @@ resource "scaleway_container_namespace" "main" {
 }
 
 resource "scaleway_container" "backend" {
-  name            = "gift-genie-backend"
-  namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "${scaleway_registry_namespace.main.endpoint}/gift-genie-backend:latest"
-  port            = 8000
-  cpu_limit       = 560
-  memory_limit    = 560
-  min_scale       = 1
-  max_scale       = 5
-  timeout         = 600
-  deploy          = true
+  name               = "gift-genie-backend"
+  namespace_id       = scaleway_container_namespace.main.id
+  registry_image     = "${scaleway_registry_namespace.main.endpoint}/gift-genie-backend:latest"
+  port               = 8000
+  cpu_limit          = 560
+  memory_limit       = 560
+  min_scale          = 1
+  max_scale          = 5
+  timeout            = 600
+  deploy             = true
   private_network_id = scaleway_vpc_private_network.main.id
 
   environment_variables = {
@@ -32,15 +32,15 @@ resource "scaleway_container" "backend" {
 }
 
 resource "scaleway_container" "frontend" {
-  name            = "gift-genie-frontend"
-  namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "${scaleway_registry_namespace.main.endpoint}/gift-genie-frontend:latest"
-  port            = 80
-  cpu_limit       = 560
-  memory_limit    = 560
-  min_scale       = 1
-  max_scale       = 5
-  deploy          = true
+  name           = "gift-genie-frontend"
+  namespace_id   = scaleway_container_namespace.main.id
+  registry_image = "${scaleway_registry_namespace.main.endpoint}/gift-genie-frontend:latest"
+  port           = 80
+  cpu_limit      = 560
+  memory_limit   = 560
+  min_scale      = 1
+  max_scale      = 5
+  deploy         = true
 
   environment_variables = {
     "VITE_API_URL" = "https://${scaleway_container.backend.domain_name}"
