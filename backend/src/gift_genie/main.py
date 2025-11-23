@@ -82,9 +82,8 @@ app.add_middleware(
 # Setup exception logging middleware
 setup_exception_logging_middleware(app)
 
-# Initialize rate limiter with production-grade configuration
-# Configuration includes connection pooling, timeouts, and health checks
-# to ensure reliability under concurrent load and handle transient failures gracefully
+# Initialize rate limiter with stable, well-tested configuration
+# Core parameters: connection pooling, UTF-8 encoding, response decoding, and socket timeouts
 redis_client = redis.from_url(
     f"redis://{settings.REDIS_URL}",
     encoding="utf-8",
@@ -92,9 +91,6 @@ redis_client = redis.from_url(
     max_connections=50,
     socket_connect_timeout=5,
     socket_timeout=5,
-    socket_keepalive=True,
-    retry_on_timeout=True,
-    health_check_interval=30,
 )
 
 # Setup exception handlers
