@@ -25,11 +25,7 @@ resource "scaleway_container" "backend" {
   }
 
   secret_environment_variables = {
-    "DB_USER"          = var.default_username
-    "DB_PASSWORD"      = var.db_password
-    "DB_ENDPOINT"      = scaleway_sdb_sql_database.main.endpoint
-    "DB_NAME"          = scaleway_sdb_sql_database.main.name
-    # "DATABASE_URL"     = "postgresql+asyncpg://${var.default_username}:${var.db_password}@${scaleway_sdb_sql_database.main.endpoint}/${scaleway_sdb_sql_database.main.name}?sslmode=require"
+    "DATABASE_URL"     = "postgresql+asyncpg://${var.default_username}:${var.db_password}@${scaleway_sdb_sql_database.main.endpoint}/${scaleway_sdb_sql_database.main.name}?sslmode=require"
     "SECRET_KEY"       = var.db_password # Reusing for now
     "REDIS_URL"        = "${one(scaleway_redis_cluster.main.private_network).ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
     "REDIS_USERNAME"   = var.default_username

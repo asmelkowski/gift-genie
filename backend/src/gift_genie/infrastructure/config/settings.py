@@ -1,10 +1,13 @@
 import json
+import logging
 from functools import lru_cache
 from typing import Any
 
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine.url import URL
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -98,33 +101,77 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def assemble_db_url(self) -> "Settings":
-        """Construct DATABASE_URL from components if provided."""
+        """Construct DATABASE_URL from components if provided.
+
+        Handles malformed DB_ENDPOINT values defensively:
+        - Strips trailing colons
+        - Defaults to PostgreSQL port 5432 when no port is provided
+        - Logs configuration for debugging
+        """
         # If DB_ENDPOINT is provided (e.g. from Terraform), parse it
         if self.DB_ENDPOINT:
-            if ":" in self.DB_ENDPOINT:
-                host, port_str = self.DB_ENDPOINT.rsplit(":", 1)
-                self.DB_HOST = host
-                if port_str:
+            logger.info(f"Parsing DB_ENDPOINT: '{self.DB_ENDPOINT}'")
+
+            # Strip whitespace and trailing colons
+            endpoint = self.DB_ENDPOINT.strip().rstrip(":")
+
+            if not endpoint:
+                logger.warning("DB_ENDPOINT is empty after stripping")
+            elif ":" in endpoint:
+                # Split on the last colon to separate host and port
+                host, port_str = endpoint.rsplit(":", 1)
+                self.DB_HOST = host.strip() if host else None
+
+                if port_str and port_str.strip():
+                    # Try to parse port as integer
                     try:
-                        self.DB_PORT = int(port_str)
+                        self.DB_PORT = int(port_str.strip())
+                        logger.info(
+                            f"Parsed DB_ENDPOINT - Host: {self.DB_HOST}, " f"Port: {self.DB_PORT}"
+                        )
                     except ValueError:
-                        # If port is not an integer, ignore it or handle error
-                        pass
+                        # Port is not a valid integer, default to PostgreSQL port
+                        logger.warning(
+                            f"Invalid port '{port_str}' in DB_ENDPOINT, " f"defaulting to 5432"
+                        )
+                        self.DB_PORT = 5432
+                else:
+                    # Empty port string after stripping, default to PostgreSQL port
+                    logger.warning("Empty port in DB_ENDPOINT, defaulting to 5432")
+                    self.DB_PORT = 5432
             else:
-                self.DB_HOST = self.DB_ENDPOINT
+                # No port separator, use entire endpoint as host
+                self.DB_HOST = endpoint
+                self.DB_PORT = 5432
+                logger.info(
+                    f"No port found in DB_ENDPOINT, defaulting to 5432. " f"Host: {self.DB_HOST}"
+                )
 
         # If we have the necessary components, construct the URL
         if self.DB_USER and self.DB_PASSWORD and self.DB_HOST and self.DB_NAME:
-            url = URL.create(
-                drivername="postgresql+asyncpg",
-                username=self.DB_USER,
-                password=self.DB_PASSWORD,
-                host=self.DB_HOST,
-                port=self.DB_PORT,
-                database=self.DB_NAME,
-                query={"sslmode": "require"},
+            # Ensure DB_PORT is a valid integer, not None or empty string
+            port = self.DB_PORT if self.DB_PORT else 5432
+
+            logger.info(
+                f"Constructing DATABASE_URL with: "
+                f"user={self.DB_USER}, host={self.DB_HOST}, "
+                f"port={port}, database={self.DB_NAME}"
             )
-            self.DATABASE_URL = url.render_as_string(hide_password=False)
+
+            try:
+                url = URL.create(
+                    drivername="postgresql+asyncpg",
+                    username=self.DB_USER,
+                    password=self.DB_PASSWORD,
+                    host=self.DB_HOST,
+                    port=port,
+                    database=self.DB_NAME,
+                    query={"sslmode": "require"},
+                )
+                self.DATABASE_URL = url.render_as_string(hide_password=False)
+                logger.info("Successfully constructed DATABASE_URL from components")
+            except Exception as e:
+                logger.error(f"Failed to construct DATABASE_URL from components: {e}")
 
         return self
 
