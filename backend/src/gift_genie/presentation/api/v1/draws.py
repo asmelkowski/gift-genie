@@ -50,7 +50,7 @@ from gift_genie.presentation.api.v1.shared import PaginationMeta
 from gift_genie.presentation.api.dependencies import get_current_user
 from gift_genie.presentation.api.v1.groups import get_group_repository
 
-router = APIRouter(tags=["draws"])
+router: APIRouter = APIRouter(tags=["draws"])
 
 
 # Pydantic Request Models
