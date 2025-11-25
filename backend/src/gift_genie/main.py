@@ -1,14 +1,15 @@
 from contextlib import asynccontextmanager
-import redis.asyncio as redis
 import sys
 from collections.abc import AsyncGenerator
 from typing import Literal
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_limiter import FastAPILimiter
 from loguru import logger
 from pydantic import BaseModel
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from gift_genie.infrastructure.config.settings import get_settings
 from gift_genie.infrastructure.database.migrations import run_migrations
@@ -53,6 +54,10 @@ def setup_logging() -> None:
 # Setup logging early
 setup_logging()
 
+# Initialize SlowAPI with in-memory storage (default)
+# This provides rate limiting without requiring external dependencies like Redis
+limiter = Limiter(key_func=get_remote_address)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
@@ -61,10 +66,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     run_migrations()
     logger.info("Database migrations completed")
 
-    # Initialize FastAPILimiter with Redis
-    logger.info("Initializing FastAPILimiter...")
-    await FastAPILimiter.init(redis_client)
-    logger.info("FastAPILimiter initialized")
+    # Initialize SlowAPI rate limiter
+    logger.info("Rate limiting initialized with in-memory storage")
 
     yield
 
@@ -79,6 +82,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Add SlowAPI to app state and register exception handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -90,20 +97,6 @@ app.add_middleware(
 
 # Setup exception logging middleware
 setup_exception_logging_middleware(app)
-
-# Initialize Redis client with explicit ACL credentials for Scaleway Managed Redis
-# Production: Authenticates with username+password from environment variables
-# Local dev: Credentials are empty strings, passes None for no authentication
-redis_client = redis.from_url(
-    f"redis://{settings.REDIS_URL}",
-    username=settings.REDIS_USERNAME if settings.REDIS_USERNAME else None,
-    password=settings.REDIS_PASSWORD if settings.REDIS_PASSWORD else None,
-    encoding="utf-8",
-    decode_responses=True,
-    max_connections=50,
-    socket_connect_timeout=5,
-    socket_timeout=5,
-)
 
 # Setup exception handlers
 setup_exception_handlers(app)
@@ -117,21 +110,9 @@ app.include_router(draws.router, prefix="/api/v1")
 
 
 class HealthResponse(BaseModel):
-    status: Literal["healthy", "unhealthy"]
-    redis_status: str | None = None
+    status: Literal["healthy"]
 
 
 @app.get("/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
-    redis_status = "disconnected"
-    overall_status: Literal["healthy", "unhealthy"] = "healthy"
-
-    try:
-        await redis_client.ping()
-        redis_status = "connected"
-    except Exception as e:
-        redis_status = "disconnected"
-        overall_status = "unhealthy"
-        logger.error(f"Redis health check failed: {e}")
-
-    return HealthResponse(status=overall_status, redis_status=redis_status)
+    return HealthResponse(status="healthy")
