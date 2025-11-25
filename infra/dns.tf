@@ -5,7 +5,7 @@ resource "ovh_domain_zone_record" "frontend_cname" {
   zone      = var.ovh_zone_name
   subdomain = "www"
   fieldtype = "CNAME"
-  ttl       = 300  # 5 minutes TTL for faster updates during testing
+  ttl       = 300 # 5 minutes TTL for faster updates during testing
   target    = "${scaleway_container.frontend.domain_name}."
 }
 
