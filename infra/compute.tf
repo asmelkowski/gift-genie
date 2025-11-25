@@ -27,11 +27,8 @@ resource "scaleway_container" "backend" {
   secret_environment_variables = {
     # Strip postgres:// prefix and inject credentials
     # Apps add their own driver/scheme (e.g., postgresql+asyncpg://)
-    "DATABASE_URL"   = "${var.default_username}:${var.db_password}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
-    "SECRET_KEY"     = var.db_password # Reusing for now
-    "REDIS_URL"      = "${one(scaleway_redis_cluster.main.private_network).ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
-    "REDIS_USERNAME" = var.default_username
-    "REDIS_PASSWORD" = var.redis_password
+    "DATABASE_URL" = "${var.default_username}:${var.db_password}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
+    "SECRET_KEY"   = var.db_password # Reusing for now
   }
 }
 

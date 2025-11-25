@@ -24,13 +24,7 @@ output "private_network_details" {
   }
 }
 
-output "redis_connection_info" {
-  description = "Redis connection information for application configuration"
-  value = {
-    private_endpoint = "${one(scaleway_redis_cluster.main.private_network).ips[0]}:${one(scaleway_redis_cluster.main.private_network).port}"
-    note             = "Accessible only from containers in the private network"
-  }
-}
+
 
 output "dns_cname_record" {
   description = "DNS CNAME record configuration (automated via OVH provider)"
