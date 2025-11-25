@@ -3,10 +3,19 @@ resource "ovh_domain_zone_record" "frontend_cname" {
   count = var.custom_domain != null ? 1 : 0
 
   zone      = var.ovh_zone_name
-  subdomain = ""  # Empty string for root domain
+  subdomain = "www"
   fieldtype = "CNAME"
   ttl       = 300  # 5 minutes TTL for faster updates during testing
   target    = "${scaleway_container.frontend.domain_name}."
+}
+
+resource "ovh_domain_zone_redirection" "root_to_www" {
+  count = var.custom_domain != null ? 1 : 0
+
+  zone      = var.ovh_zone_name
+  subdomain = ""
+  type      = "visible_permanent"
+  target    = "https://www.${var.custom_domain}"
 }
 
 # Optional: Add TXT record for domain verification if needed
