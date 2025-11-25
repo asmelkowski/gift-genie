@@ -17,7 +17,7 @@ from pydantic import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_genie.main import limiter
+from gift_genie.infrastructure.rate_limiting import limiter
 from gift_genie.application.dto.get_current_user_query import GetCurrentUserQuery
 from gift_genie.application.dto.login_command import LoginCommand
 from gift_genie.application.dto.register_user_command import RegisterUserCommand
@@ -111,8 +111,8 @@ async def get_jwt_service() -> JWTService:
     return JWTService(settings.SECRET_KEY, settings.ALGORITHM)
 
 
-@router.post("/register", response_model=UserCreatedResponse, status_code=201)
 @limiter.limit("5/minute")
+@router.post("/register", response_model=UserCreatedResponse, status_code=201)
 async def register_user(
     request: Request,
     payload: RegisterRequest,
@@ -134,8 +134,8 @@ async def register_user(
     )
 
 
-@router.post("/login", response_model=LoginResponse)
 @limiter.limit("5/minute")
+@router.post("/login", response_model=LoginResponse)
 async def login_user(
     request: Request,
     payload: LoginRequest,
@@ -181,8 +181,8 @@ async def login_user(
     )
 
 
-@router.get("/me", response_model=UserProfileResponse)
 @limiter.limit("100/minute")
+@router.get("/me", response_model=UserProfileResponse)
 async def get_current_user_profile(
     request: Request,
     current_user_id: Annotated[str, Depends(get_current_user)],
@@ -201,8 +201,8 @@ async def get_current_user_profile(
     )
 
 
-@router.post("/logout", status_code=204)
 @limiter.limit("10/minute")
+@router.post("/logout", status_code=204)
 async def logout(request: Request, response: Response) -> None:
     settings = get_settings()
     response.set_cookie(

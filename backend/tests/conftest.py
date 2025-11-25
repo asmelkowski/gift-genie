@@ -1,6 +1,7 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
-from gift_genie.main import app, limiter
+from gift_genie.main import app
+from gift_genie.infrastructure.rate_limiting import limiter
 
 
 @pytest.fixture
