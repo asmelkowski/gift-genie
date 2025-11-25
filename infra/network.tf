@@ -15,6 +15,6 @@ resource "scaleway_vpc_private_network" "main" {
 }
 
 output "private_network_id" {
-  description = "Private network ID for container and Redis communication"
+  description = "Private network ID for container communication"
   value       = scaleway_vpc_private_network.main.id
 }

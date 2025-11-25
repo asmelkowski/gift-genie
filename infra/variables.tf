@@ -34,9 +34,10 @@ variable "custom_domain" {
 }
 
 variable "redis_password" {
-  description = "Password for the managed Redis cluster"
+  description = "DEPRECATED: No longer used. Kept for backward compatibility during migration."
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "default_username" {
