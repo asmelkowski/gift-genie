@@ -14,7 +14,7 @@ resource "ovh_domain_zone_redirection" "root_to_www" {
 
   zone      = var.ovh_zone_name
   subdomain = ""
-  type      = "visible_permanent"
+  type      = "visiblePermanent"
   target    = "https://www.${var.custom_domain}"
 }
 
