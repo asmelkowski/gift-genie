@@ -7,13 +7,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from pydantic import BaseModel
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 
 from gift_genie.infrastructure.config.settings import get_settings
 from gift_genie.infrastructure.database.migrations import run_migrations
 from gift_genie.infrastructure.logging import get_request_context
+from gift_genie.infrastructure.rate_limiting import limiter
 from gift_genie.presentation.api.v1 import auth, draws, exclusions, groups, members
 from gift_genie.presentation.api.exception_handlers import setup_exception_handlers
 from gift_genie.presentation.middleware import setup_exception_logging_middleware
@@ -53,10 +53,6 @@ def setup_logging() -> None:
 
 # Setup logging early
 setup_logging()
-
-# Initialize SlowAPI with in-memory storage (default)
-# This provides rate limiting without requiring external dependencies like Redis
-limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager

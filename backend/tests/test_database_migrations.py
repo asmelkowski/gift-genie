@@ -98,39 +98,3 @@ class TestRunMigrations:
                 assert db_url.startswith(
                     "postgresql://"
                 ), f"Expected postgresql:// scheme, got: {db_url}"
-
-
-class TestLifecycleIntegration:
-    """Test suite for lifespan integration."""
-
-    @pytest.mark.asyncio
-    async def test_lifespan_calls_migrations_before_fastapi_limiter(self) -> None:
-        """Test that migrations are called before FastAPILimiter initialization."""
-        from gift_genie.main import lifespan
-
-        call_order = []
-
-        with (
-            mock.patch("gift_genie.main.run_migrations") as mock_migrations,
-            mock.patch("gift_genie.main.FastAPILimiter.init") as mock_limiter_init,
-        ):
-
-            def track_migrations() -> None:
-                call_order.append("migrations")
-
-            async def track_limiter(redis: object) -> None:
-                call_order.append("limiter")
-
-            mock_migrations.side_effect = track_migrations
-            mock_limiter_init.side_effect = track_limiter
-
-            mock_app = mock.MagicMock()
-
-            async with lifespan(mock_app):
-                pass
-
-            # Verify migrations were called first
-            assert call_order == ["migrations", "limiter"]
-            # Verify both were called
-            mock_migrations.assert_called_once()
-            mock_limiter_init.assert_called_once()
