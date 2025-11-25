@@ -30,7 +30,7 @@ from gift_genie.presentation.api.dependencies import get_current_user
 from gift_genie.presentation.api.v1.groups import get_group_repository
 from gift_genie.presentation.api.v1.shared import PaginationMeta
 
-router = APIRouter(prefix="/groups/{group_id}/members", tags=["members"])
+router: APIRouter = APIRouter(prefix="/groups/{group_id}/members", tags=["members"])
 
 
 async def get_member_repository(

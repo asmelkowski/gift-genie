@@ -30,7 +30,7 @@ from gift_genie.infrastructure.database.repositories.groups import GroupReposito
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.presentation.api.dependencies import get_current_user
 
-router = APIRouter(prefix="/groups", tags=["groups"])
+router: APIRouter = APIRouter(prefix="/groups", tags=["groups"])
 
 
 # Pydantic Models

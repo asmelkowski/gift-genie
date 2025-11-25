@@ -5,7 +5,7 @@ from collections.abc import AsyncGenerator
 from datetime import datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from loguru import logger
 from pydantic import (
     BaseModel,
@@ -17,6 +17,7 @@ from pydantic import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from gift_genie.main import limiter
 from gift_genie.application.dto.get_current_user_query import GetCurrentUserQuery
 from gift_genie.application.dto.login_command import LoginCommand
 from gift_genie.application.dto.register_user_command import RegisterUserCommand
@@ -32,7 +33,7 @@ from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
 from gift_genie.infrastructure.config.settings import get_settings
 from gift_genie.presentation.api.dependencies import get_current_user
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router: APIRouter = APIRouter(prefix="/auth", tags=["auth"])
 
 
 PasswordStr = Annotated[str, StringConstraints(min_length=8)]
@@ -111,7 +112,9 @@ async def get_jwt_service() -> JWTService:
 
 
 @router.post("/register", response_model=UserCreatedResponse, status_code=201)
+@limiter.limit("5/minute")
 async def register_user(
+    request: Request,
     payload: RegisterRequest,
     response: Response,
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
@@ -132,7 +135,9 @@ async def register_user(
 
 
 @router.post("/login", response_model=LoginResponse)
+@limiter.limit("5/minute")
 async def login_user(
+    request: Request,
     payload: LoginRequest,
     response: Response,
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
@@ -177,7 +182,9 @@ async def login_user(
 
 
 @router.get("/me", response_model=UserProfileResponse)
+@limiter.limit("100/minute")
 async def get_current_user_profile(
+    request: Request,
     current_user_id: Annotated[str, Depends(get_current_user)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
 ) -> UserProfileResponse:
@@ -195,7 +202,8 @@ async def get_current_user_profile(
 
 
 @router.post("/logout", status_code=204)
-async def logout(response: Response) -> None:
+@limiter.limit("10/minute")
+async def logout(request: Request, response: Response) -> None:
     settings = get_settings()
     response.set_cookie(
         key="access_token",

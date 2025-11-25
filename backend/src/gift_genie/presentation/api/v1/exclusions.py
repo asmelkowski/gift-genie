@@ -44,7 +44,7 @@ from gift_genie.presentation.api.v1.shared import PaginationMeta
 from gift_genie.presentation.api.dependencies import get_current_user
 
 
-router = APIRouter(prefix="/groups/{group_id}/exclusions", tags=["exclusions"])
+router: APIRouter = APIRouter(prefix="/groups/{group_id}/exclusions", tags=["exclusions"])
 
 
 # Pydantic Models
