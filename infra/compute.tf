@@ -7,7 +7,7 @@ resource "scaleway_container_namespace" "main" {
 resource "scaleway_container" "backend" {
   name               = "gift-genie-backend"
   namespace_id       = scaleway_container_namespace.main.id
-  registry_image     = "${scaleway_registry_namespace.main.endpoint}/gift-genie-backend:latest"
+  registry_image     = "${scaleway_registry_namespace.main.endpoint}/gift-genie-backend:${var.backend_image_tag}"
   port               = 8000
   cpu_limit          = 560
   memory_limit       = 560
@@ -35,7 +35,7 @@ resource "scaleway_container" "backend" {
 resource "scaleway_container" "frontend" {
   name           = "gift-genie-frontend"
   namespace_id   = scaleway_container_namespace.main.id
-  registry_image = "${scaleway_registry_namespace.main.endpoint}/gift-genie-frontend:latest"
+  registry_image = "${scaleway_registry_namespace.main.endpoint}/gift-genie-frontend:${var.frontend_image_tag}"
   port           = 80
   cpu_limit      = 560
   memory_limit   = 560

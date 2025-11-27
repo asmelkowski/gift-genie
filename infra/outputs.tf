@@ -36,3 +36,13 @@ output "dns_cname_record" {
     status    = "Managed by Terraform"
   } : null
 }
+
+output "deployed_backend_image_tag" {
+  description = "Currently deployed backend image tag"
+  value       = var.backend_image_tag
+}
+
+output "deployed_frontend_image_tag" {
+  description = "Currently deployed frontend image tag"
+  value       = var.frontend_image_tag
+}

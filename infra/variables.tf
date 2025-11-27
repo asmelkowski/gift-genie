@@ -69,3 +69,15 @@ variable "ovh_zone_name" {
   type        = string
   default     = "gift-genie.eu"
 }
+
+variable "backend_image_tag" {
+  description = "Docker image tag for backend (typically git commit SHA)"
+  type        = string
+  default     = "latest"
+}
+
+variable "frontend_image_tag" {
+  description = "Docker image tag for frontend (typically git commit SHA)"
+  type        = string
+  default     = "latest"
+}
