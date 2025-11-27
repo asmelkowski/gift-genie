@@ -25,9 +25,9 @@ resource "scaleway_container" "backend" {
   }
 
   secret_environment_variables = {
-    # Strip postgres:// prefix and inject credentials
+    # Strip postgres:// prefix and inject credentials with URL-encoded password
     # Apps add their own driver/scheme (e.g., postgresql+asyncpg://)
-    "DATABASE_URL" = "${var.default_username}:${var.db_password}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
+    "DATABASE_URL" = "${var.default_username}:${urlencode(var.db_password)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
     "SECRET_KEY"   = var.db_password # Reusing for now
   }
 }
