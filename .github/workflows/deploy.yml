@@ -30,6 +30,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set Image Tag
+        id: image_tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short=7 HEAD)
+          echo "tag=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "Using image tag: $SHORT_SHA"
+
       - name: Set up OpenTofu
         uses: opentofu/setup-opentofu@v1
         with:
@@ -63,11 +70,17 @@ jobs:
 
       - name: Build and Push Backend
         run: |
-          docker build -t ${{ steps.registry.outputs.endpoint }}/gift-genie-backend:latest ./backend
+          docker build -t ${{ steps.registry.outputs.endpoint }}/gift-genie-backend:${{ steps.image_tag.outputs.tag }} \
+                       -t ${{ steps.registry.outputs.endpoint }}/gift-genie-backend:latest \
+                       ./backend
+          docker push ${{ steps.registry.outputs.endpoint }}/gift-genie-backend:${{ steps.image_tag.outputs.tag }}
           docker push ${{ steps.registry.outputs.endpoint }}/gift-genie-backend:latest
 
       - name: Deploy Backend, DB & Redis
         working-directory: ./infra
+        env:
+          TF_VAR_backend_image_tag: ${{ steps.image_tag.outputs.tag }}
+          TF_VAR_frontend_image_tag: ${{ steps.image_tag.outputs.tag }}
         run: tofu apply -target=scaleway_container.backend -target=scaleway_sdb_sql_database.main -target=scaleway_redis_cluster.main -auto-approve
 
       - name: Get Backend URL
@@ -79,9 +92,16 @@ jobs:
 
       - name: Build and Push Frontend
         run: |
-          docker build --build-arg VITE_API_URL=${{ steps.backend.outputs.url }} -t ${{ steps.registry.outputs.endpoint }}/gift-genie-frontend:latest ./frontend
+          docker build --build-arg VITE_API_URL=${{ steps.backend.outputs.url }} \
+                       -t ${{ steps.registry.outputs.endpoint }}/gift-genie-frontend:${{ steps.image_tag.outputs.tag }} \
+                       -t ${{ steps.registry.outputs.endpoint }}/gift-genie-frontend:latest \
+                       ./frontend
+          docker push ${{ steps.registry.outputs.endpoint }}/gift-genie-frontend:${{ steps.image_tag.outputs.tag }}
           docker push ${{ steps.registry.outputs.endpoint }}/gift-genie-frontend:latest
 
       - name: Full Deploy
         working-directory: ./infra
+        env:
+          TF_VAR_backend_image_tag: ${{ steps.image_tag.outputs.tag }}
+          TF_VAR_frontend_image_tag: ${{ steps.image_tag.outputs.tag }}
         run: tofu apply -auto-approve
