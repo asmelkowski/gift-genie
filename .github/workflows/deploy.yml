@@ -92,7 +92,7 @@ jobs:
 
       - name: Build and Push Frontend
         run: |
-          docker build --build-arg VITE_API_URL=${{ steps.backend.outputs.url }} \
+          docker build --build-arg VITE_API_URL=https://api.gift-genie.eu \
                        -t ${{ steps.registry.outputs.endpoint }}/gift-genie-frontend:${{ steps.image_tag.outputs.tag }} \
                        -t ${{ steps.registry.outputs.endpoint }}/gift-genie-frontend:latest \
                        ./frontend
