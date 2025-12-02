@@ -50,8 +50,8 @@ resource "scaleway_container" "frontend" {
   deploy         = true
 
   environment_variables = {
-    "VITE_API_URL" = "https://${scaleway_container.backend.domain_name}"
-    "BACKEND_URL"  = "https://${scaleway_container.backend.domain_name}"
+    "VITE_API_URL" = var.custom_domain != null ? "https://api.${var.custom_domain}" : "https://${scaleway_container.backend.domain_name}"
+    "BACKEND_URL"  = var.custom_domain != null ? "https://api.${var.custom_domain}" : "https://${scaleway_container.backend.domain_name}"
   }
 }
 
@@ -59,4 +59,10 @@ resource "scaleway_container_domain" "frontend" {
   count        = var.custom_domain != null ? 1 : 0
   container_id = scaleway_container.frontend.id
   hostname     = var.custom_domain
+}
+
+resource "scaleway_container_domain" "backend" {
+  count        = var.custom_domain != null ? 1 : 0
+  container_id = scaleway_container.backend.id
+  hostname     = "api.${var.custom_domain}"
 }
