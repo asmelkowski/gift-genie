@@ -9,22 +9,28 @@ resource "scaleway_container" "backend" {
   namespace_id       = scaleway_container_namespace.main.id
   registry_image     = "${scaleway_registry_namespace.main.endpoint}/gift-genie-backend:${var.backend_image_tag}"
   port               = 8000
-  cpu_limit          = 560
-  memory_limit       = 560
-  min_scale          = 1
-  max_scale          = 5
-  timeout            = 600
+  cpu_limit          = 280 # Reduced from 560 - sufficient for most workloads
+  memory_limit       = 280 # Reduced from 560 - sufficient for most workloads
+  min_scale          = 0   # Scale to zero when idle - MAJOR COST SAVINGS
+  max_scale          = 3   # Reduced from 5 - sufficient for traffic spikes
+  timeout            = 300 # Reduced from 600 - 5 minutes is plenty
   deploy             = true
   private_network_id = scaleway_vpc_private_network.main.id
 
   environment_variables = {
-    "ENV"           = var.env
-    "DEBUG"         = "false"
-    "CORS_ORIGINS"  = var.custom_domain != null ? "https://${var.custom_domain}" : "*"
+    "ENV"   = var.env
+    "DEBUG" = "false"
+    # Fixed CORS: Allow custom domain and www subdomain
+    # Note: Scaleway container domains are added dynamically via wildcard or explicit allow
+    "CORS_ORIGINS" = var.custom_domain != null ? join(",", [
+      "https://${var.custom_domain}",
+      "https://www.${var.custom_domain}"
+    ]) : "*"
     "COOKIE_SECURE" = "true"
   }
 
   secret_environment_variables = {
+    # Database uses public endpoint (SDB doesn't support private networks)
     # Strip postgres:// prefix and inject credentials with URL-encoded password
     # Apps add their own driver/scheme (e.g., postgresql+asyncpg://)
     "DATABASE_URL" = "${var.default_username}:${urlencode(var.db_password)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
@@ -37,10 +43,10 @@ resource "scaleway_container" "frontend" {
   namespace_id   = scaleway_container_namespace.main.id
   registry_image = "${scaleway_registry_namespace.main.endpoint}/gift-genie-frontend:${var.frontend_image_tag}"
   port           = 80
-  cpu_limit      = 560
-  memory_limit   = 560
-  min_scale      = 1
-  max_scale      = 5
+  cpu_limit      = 280 # Reduced from 560 - serving static files needs less
+  memory_limit   = 280 # Reduced from 560 - sufficient for nginx
+  min_scale      = 0   # Scale to zero when idle - MAJOR COST SAVINGS
+  max_scale      = 3   # Reduced from 5 - sufficient for traffic spikes
   deploy         = true
 
   environment_variables = {
