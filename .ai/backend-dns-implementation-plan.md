@@ -292,3 +292,171 @@ None - all requirements are clear and approach is straightforward.
 **Plan Status**: Ready for Implementation ✅
 **Approval Required**: Yes
 **Breaking Changes**: No (Scaleway domains remain accessible)
+
+---
+
+## Implementation Status: ✅ COMPLETED
+
+**Completion Date**: December 2, 2025
+**Commit**: `90046f2` - feat(infra): add custom domain support for backend API at api.gift-genie.eu
+
+### Changes Merged to Main:
+
+#### 1. DNS Configuration (`infra/dns.tf`)
+✅ Removed trailing dot from frontend CNAME target (line 9)
+✅ Added backend CNAME record for `api` subdomain (lines 12-20)
+
+#### 2. Scaleway Backend Custom Domain (`infra/compute.tf`)
+✅ Added `scaleway_container_domain` resource for backend (lines 64-68)
+✅ Updated frontend environment variables to use custom API domain (lines 53-54)
+
+#### 3. CI/CD Pipeline (`.github/workflows/deploy.yml`)
+✅ Updated frontend build to use `https://api.gift-genie.eu`
+
+### Files Modified:
+- `.ai/backend-dns-implementation-plan.md` (new file, 294 additions)
+- `.github/workflows/deploy.yml` (2 changes)
+- `infra/compute.tf` (10 changes)
+- `infra/dns.tf` (12 changes)
+
+### Next Actions Required:
+
+1. **Monitor CI/CD Deployment**:
+   - GitHub Actions will automatically deploy these changes
+   - Watch for successful deployment to Scaleway
+   - Typical deployment time: 10-15 minutes
+
+2. **DNS Propagation** (after deployment):
+   - Wait 5-10 minutes for DNS records to propagate
+   - Verify with: `dig api.gift-genie.eu CNAME`
+   - Expected result: Points to Scaleway backend container domain
+
+3. **SSL Certificate Provisioning**:
+   - Scaleway automatically provisions Let's Encrypt certificates
+   - May take 5-10 minutes after DNS propagation
+   - Verify with: `curl -v https://api.gift-genie.eu/health`
+
+4. **End-to-End Verification**:
+   - Access `https://www.gift-genie.eu`
+   - Open browser DevTools → Network tab
+   - Verify API requests go to `https://api.gift-genie.eu`
+   - Test authentication flow (login/register)
+   - Check for CORS errors in console
+
+5. **Post-Deployment Checks**:
+   ```bash
+   # Check DNS
+   dig api.gift-genie.eu CNAME
+   dig www.gift-genie.eu CNAME
+
+   # Check SSL certificate
+   curl -v https://api.gift-genie.eu/health
+   openssl s_client -connect api.gift-genie.eu:443 -servername api.gift-genie.eu
+
+   # Check CORS
+   curl -H "Origin: https://www.gift-genie.eu" \
+        -H "Access-Control-Request-Method: POST" \
+        -H "Access-Control-Request-Headers: Content-Type" \
+        -X OPTIONS \
+        https://api.gift-genie.eu/api/v1/auth/login
+   ```
+
+### Success Metrics:
+- ✅ Code changes merged to main branch
+- ⏳ CI/CD deployment in progress
+- ⏳ DNS records created (pending deployment)
+- ⏳ Backend accessible at `https://api.gift-genie.eu` (pending deployment)
+- ⏳ SSL certificate provisioned (pending deployment)
+- ⏳ Frontend communicates with backend via custom domain (pending deployment)
+
+---
+
+**Implementation Phase**: ✅ COMPLETE
+**Deployment Phase**: ⏳ IN PROGRESS
+**Verification Phase**: ⏳ PENDING
+
+---
+
+## 🐛 DNS Configuration Bug Discovery & Fix
+
+**Discovery Date**: December 3, 2025 at 10:07 CET
+**Issue**: DNS CNAME records created with incorrect target format
+
+### Problem Analysis
+
+After deployment verification with `dig`, discovered that DNS CNAME records had **extra domain suffix appended**:
+
+**Actual DNS Records (Incorrect):**
+```
+api.gift-genie.eu → giftgeniensprodamhlzxpa-gift-genie-backend.functions.fnc.fr-par.scw.cloud.gift-genie.eu.
+www.gift-genie.eu → giftgeniensprodamhlzxpa-gift-genie-frontend.functions.fnc.fr-par.scw.cloud.gift-genie.eu.
+                                                                                                  ^^^^^^^^^^^^^^^
+                                                                                                  WRONG!
+```
+
+**Should be:**
+```
+api.gift-genie.eu → giftgeniensprodamhlzxpa-gift-genie-backend.functions.fnc.fr-par.scw.cloud.
+www.gift-genie.eu → giftgeniensprodamhlzxpa-gift-genie-frontend.functions.fnc.fr-par.scw.cloud.
+```
+
+### Root Cause
+
+The OVH Terraform provider **follows DNS zone file conventions**:
+- **Without trailing dot**: Treated as relative name → Provider appends zone name
+- **With trailing dot**: Treated as FQDN → Provider uses as-is
+
+**We were initially correct** about needing the trailing dot, but removed it based on incorrect assumption. The OVH provider DOES require it for CNAME targets that point outside the zone.
+
+### Fix Applied
+
+**File: `infra/dns.tf`**
+
+**Lines 9 and 19 - Add trailing dot to CNAME targets:**
+```diff
+- target    = scaleway_container.frontend.domain_name
++ target    = "${scaleway_container.frontend.domain_name}."
+
+- target    = scaleway_container.backend.domain_name
++ target    = "${scaleway_container.backend.domain_name}."
+```
+
+### Lesson Learned
+
+**DNS Zone File Convention in Terraform Providers:**
+- OVH provider follows standard DNS zone file format
+- Trailing dot indicates FQDN (Fully Qualified Domain Name)
+- Without trailing dot, zone name is appended
+- This is NOT redundant - it's required for external CNAMEs
+
+**Documentation:**
+- OVH provider documentation should be checked for CNAME formatting requirements
+- Different providers may handle this differently (e.g., AWS Route53 has `records` format)
+- Always verify DNS records after deployment with `dig` or similar tools
+
+### Impact
+
+**Current Status:**
+- ❌ DNS records exist but point to non-existent domains
+- ❌ API not accessible at `api.gift-genie.eu`
+- ❌ Frontend may have connectivity issues
+- ✅ Direct Scaleway URLs still work as fallback
+
+**After Fix:**
+- ✅ DNS will correctly resolve to Scaleway containers
+- ✅ API will be accessible at `https://api.gift-genie.eu`
+- ✅ Frontend will work correctly
+- ✅ SSL certificates will validate properly
+
+### Next Steps
+
+1. Commit the DNS configuration fix
+2. Deploy via CI/CD or manual Terraform apply
+3. Wait for DNS propagation (~5 minutes with TTL=300)
+4. Verify with `dig api.gift-genie.eu CNAME`
+5. Test API endpoint `https://api.gift-genie.eu/health`
+6. Verify frontend integration
+
+---
+
+**Fix Status**: ✅ Code updated, ready to deploy

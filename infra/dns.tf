@@ -6,7 +6,7 @@ resource "ovh_domain_zone_record" "frontend_cname" {
   subdomain = "www"
   fieldtype = "CNAME"
   ttl       = 300 # 5 minutes TTL for faster updates during testing
-  target    = scaleway_container.frontend.domain_name
+  target    = "${scaleway_container.frontend.domain_name}."
 }
 
 resource "ovh_domain_zone_record" "backend_cname" {
@@ -16,7 +16,7 @@ resource "ovh_domain_zone_record" "backend_cname" {
   subdomain = "api"
   fieldtype = "CNAME"
   ttl       = 300
-  target    = scaleway_container.backend.domain_name
+  target    = "${scaleway_container.backend.domain_name}."
 }
 
 resource "ovh_domain_zone_redirection" "root_to_www" {
