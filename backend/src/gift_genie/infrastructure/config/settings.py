@@ -94,13 +94,17 @@ class Settings(BaseSettings):
 
         Terraform provides: username:password@host:port/db?params
         We convert to: postgresql+asyncpg://username:password@host:port/db?params
+
+        Note: Uses string concatenation (not f-strings) to avoid issues with
+        URL-encoded special characters like %26, %40, etc. being interpreted
+        as format specifiers.
         """
-        logger.info(f"ensure_database_scheme called with: {self.DATABASE_URL}")
+        logger.info("ensure_database_scheme called with: " + self.DATABASE_URL)
         # Check if URL already has a scheme (contains ://)
         if "://" not in self.DATABASE_URL:
             # Credentials@host format from Terraform - add our driver scheme
             logger.info("Adding postgresql+asyncpg:// scheme")
-            self.DATABASE_URL = f"postgresql+asyncpg://{self.DATABASE_URL}"
+            self.DATABASE_URL = "postgresql+asyncpg://" + self.DATABASE_URL
         else:
             logger.info("Scheme already present, no change needed")
         return self

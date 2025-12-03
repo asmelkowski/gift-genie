@@ -1,134 +1,199 @@
-# Database URL Encoding Fix Plan
+# Database URL Encoding Fix - Implementation Plan
 
 ## Problem Statement
 
-The backend deployment is failing with:
+**Severity**: CRITICAL - Backend container failing to start in production
+
+**Error**: `invalid interpolation syntax in 'postgresql://...' at position 25`
+
+**Root Cause**: URL-encoded special characters in database password (`%26`, `%40`, `%23`, `%24`) are being interpreted as Python f-string format specifiers instead of literal characters.
+
+**Current Flow**:
+1. Terraform: `urlencode(var.db_password)` → `n%2695dc2IbmzUv0GF%40jSl2tHTW6%24%26%268%2396h%24Y`
+2. Env var: `DATABASE_URL=username:encoded_password@host:port/db`
+3. Settings validator: `f"postgresql+asyncpg://{self.DATABASE_URL}"` ← **BREAKS HERE**
+
+## Technical Analysis
+
+### Why URL Encoding?
+- Special characters in passwords (`@`, `$`, `&`, `%`, etc.) break URL parsing
+- Must be encoded for proper URL construction
+- Example: `password@123` → `password%40123`
+
+### Why F-String Breaks?
+- F-strings interpret `%` as format specifier
+- `%26` looks like format width specifier to Python
+- F-string evaluation happens BEFORE URL parsing
+
+### Valid Solutions
+1. **Use string concatenation** instead of f-strings
+2. **Double-escape** the URL (complicated, error-prone)
+3. **Raw strings** (doesn't work with f-strings)
+
+## Proposed Solution
+
+**Use simple string concatenation** - Safe, explicit, no interpretation.
+
+### Changes Required
+
+#### File: `backend/src/gift_genie/infrastructure/config/settings.py`
+
+**Current (lines 91-106)**:
+```python
+@model_validator(mode="after")
+def ensure_database_scheme(self) -> "Settings":
+    """Add PostgreSQL async driver scheme to DATABASE_URL if not present.
+
+    Terraform provides: username:password@host:port/db?params
+    We convert to: postgresql+asyncpg://username:password@host:port/db?params
+    """
+    logger.info(f"ensure_database_scheme called with: {self.DATABASE_URL}")
+    # Check if URL already has a scheme (contains ://)
+    if "://" not in self.DATABASE_URL:
+        # Credentials@host format from Terraform - add our driver scheme
+        logger.info("Adding postgresql+asyncpg:// scheme")
+        self.DATABASE_URL = f"postgresql+asyncpg://{self.DATABASE_URL}"
+    else:
+        logger.info("Scheme already present, no change needed")
+    return self
 ```
-RuntimeError: Failed to run database migrations: (psycopg2.OperationalError) could not translate host name "jSl2tHTW6$&&8#96h$Y@88b921e6-..." to address: Name or service not known
+
+**Fixed**:
+```python
+@model_validator(mode="after")
+def ensure_database_scheme(self) -> "Settings":
+    """Add PostgreSQL async driver scheme to DATABASE_URL if not present.
+
+    Terraform provides: username:password@host:port/db?params
+    We convert to: postgresql+asyncpg://username:password@host:port/db?params
+
+    Note: Uses string concatenation (not f-strings) to avoid issues with
+    URL-encoded special characters like %26, %40, etc. being interpreted
+    as format specifiers.
+    """
+    logger.info("ensure_database_scheme called with: " + self.DATABASE_URL)
+    # Check if URL already has a scheme (contains ://)
+    if "://" not in self.DATABASE_URL:
+        # Credentials@host format from Terraform - add our driver scheme
+        logger.info("Adding postgresql+asyncpg:// scheme")
+        self.DATABASE_URL = "postgresql+asyncpg://" + self.DATABASE_URL
+    else:
+        logger.info("Scheme already present, no change needed")
+    return self
 ```
 
-**Root Cause:** The database password contains special URL characters (`$`, `&`, `@`) that are not being URL-encoded when constructing the DATABASE_URL connection string. This causes the URL parser to misinterpret the connection string structure.
+**Key Changes**:
+1. Line 98: `logger.info(f"... {self.DATABASE_URL}")` → `logger.info("... " + self.DATABASE_URL)`
+2. Line 103: `f"postgresql+asyncpg://{self.DATABASE_URL}"` → `"postgresql+asyncpg://" + self.DATABASE_URL`
+3. Added docstring note explaining why concatenation is used
 
-### Current Flow
+## Testing Strategy
 
-1. Scaleway provides endpoint: `postgres://88b921e6-xxx.pg.sdb.fr-par.scw.cloud:5432/rdb?sslmode=require`
-2. Terraform strips `postgres://` prefix
-3. Terraform prepends credentials: `gift_genie:jSl2tHTW6$&&8#96h$Y@...`
-4. Backend's `ensure_database_scheme()` adds `postgresql+asyncpg://`
-5. **Problem:** Password's `@` symbol confuses URL parser
+### Unit Tests
+- Test with URL-encoded passwords containing: `%`, `@`, `$`, `&`, `#`
+- Test scheme detection logic (with/without `://`)
+- Test both local format and Terraform format
 
-### Expected Format
+### Integration Tests
+- Verify database connection with encoded password
+- Verify migrations run successfully
+- Test in Docker environment (mimics production)
 
-```
-postgresql+asyncpg://username:url_encoded_password@host:port/database?params
-```
-
-## Solution
-
-Use Terraform's `urlencode()` function to properly encode the password before embedding it in the connection string.
-
-## Implementation Steps
-
-### 1. Update Terraform Configuration
-
-**File:** `infra/compute.tf`
-
-**Current (line 30):**
-```hcl
-"DATABASE_URL" = "${var.default_username}:${var.db_password}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
-```
-
-**Updated:**
-```hcl
-"DATABASE_URL" = "${var.default_username}:${urlencode(var.db_password)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
-```
-
-**Why:** The `urlencode()` function will convert:
-- `$` → `%24`
-- `&` → `%26`
-- `@` → `%40`
-- etc.
-
-This ensures the password is safely embedded in the URL without breaking parsing.
-
-### 2. Verify Backend Handles URL-Encoded Passwords
-
-**File:** `backend/src/gift_genie/infrastructure/config/settings.py`
-
-The existing `ensure_database_scheme()` validator (lines 91-106) only adds the scheme prefix - it doesn't modify the credentials portion. This is correct behavior.
-
-**No changes needed** - SQLAlchemy and psycopg2 automatically decode URL-encoded components.
-
-### 3. Add Test Coverage
-
-**File:** `backend/tests/test_settings.py`
-
-Add test case to verify URL-encoded passwords are handled correctly:
+### Test Cases
 
 ```python
-def test_database_url_with_special_characters_in_password():
-    """Test that passwords with special characters work when URL-encoded."""
-    # Simulate what Terraform does: urlencode the password
-    url = "user:p%40ss%24w%26rd@host:5432/db?sslmode=require"
+def test_database_url_with_encoded_special_chars():
+    """Test that URL-encoded passwords don't break f-string parsing."""
+    # Password: p@ss$word&123 → p%40ss%24word%2616123
+    encoded_url = "user:p%40ss%24word%26123@localhost:5432/db"
+    settings = Settings(DATABASE_URL=encoded_url)
+    assert settings.DATABASE_URL == f"postgresql+asyncpg://{encoded_url}"
+    assert "%" in settings.DATABASE_URL  # Verify encoding preserved
 
-    settings = Settings(DATABASE_URL=url)
-
-    expected_url = "postgresql+asyncpg://user:p%40ss%24w%26rd@host:5432/db?sslmode=require"
-    assert settings.DATABASE_URL == expected_url
+def test_database_url_with_scheme_already_present():
+    """Test that URLs with schemes are not modified."""
+    full_url = "postgresql+asyncpg://user:pass@localhost:5432/db"
+    settings = Settings(DATABASE_URL=full_url)
+    assert settings.DATABASE_URL == full_url
 ```
 
-**Note:** Test already exists (line 71-77) - verify it covers the scenario.
+## Deployment Strategy
 
-## Deployment Steps
+### Pre-Deployment
+1. **Create fix branch**: `fix/database-url-encoding`
+2. **Update settings.py**: Apply string concatenation fix
+3. **Add/update tests**: Ensure coverage for encoded passwords
+4. **Run tests locally**: `make test` (backend/)
+5. **Commit changes**: Clear commit message explaining fix
 
-1. **Update Terraform:**
-   - Modify `infra/compute.tf` line 30
-   - Commit change
+### Deployment Steps
+1. **Push branch** to GitHub
+2. **Merge to main** (or manual workflow trigger)
+3. **CI builds new backend image** with fix
+4. **Scaleway deploys** updated container
+5. **Monitor logs**: Watch for successful startup and migration
 
-2. **Deploy:**
-   - Push to main branch
-   - GitHub Actions will trigger deployment
-   - Terraform will update the backend container's environment variables
-   - Container will restart with corrected DATABASE_URL
+### Verification
+```bash
+# Check container logs
+# Expected: "Database migrations completed successfully"
 
-3. **Verify:**
-   - Check deployment logs for successful migration
-   - Test backend API endpoints
-   - Confirm database connectivity
+# Test health endpoint
+curl https://api.gift-genie.eu/health
 
-## Risk Assessment
+# Test authenticated endpoint
+curl https://api.gift-genie.eu/api/v1/auth/me
+```
 
-**Risk Level:** Low
+### Rollback Plan
+If deployment fails:
+1. Revert commit in main branch
+2. CI automatically deploys previous working version
+3. Container should return to last known good state
 
-**Considerations:**
-- URL encoding is standard practice for connection strings
-- No application code changes required
-- SQLAlchemy automatically handles URL decoding
-- Existing tests verify behavior with encoded passwords
-- Change is isolated to infrastructure configuration
-- Rollback is simple: revert the Terraform change
+## Impact Assessment
 
-## Alternative Approaches Considered
+### Risk Level: LOW
+- Single-line change (string concatenation)
+- Maintains exact same functionality
+- No changes to Terraform config
+- No database schema changes
+- Backward compatible with local development
 
-### Alternative 1: Use Kubernetes-style separate credential fields
-**Rejected:** Scaleway Serverless Containers don't support this pattern; they require a full connection string.
+### Testing Confidence: HIGH
+- Logic is simple and explicit
+- Easy to add comprehensive tests
+- Can verify locally before deployment
 
-### Alternative 2: Generate passwords without special characters
-**Rejected:** Reduces security; proper URL encoding is the standard solution.
-
-### Alternative 3: Use database IAM authentication
-**Rejected:** Scaleway Serverless SQL Database doesn't support IAM auth yet.
+### Downtime: ~5-10 minutes
+- CI build + deploy time
+- No database downtime (migrations will succeed this time)
 
 ## Success Criteria
 
-- [ ] Backend container starts successfully
-- [ ] Database migrations run without errors
-- [ ] Backend API responds to health check
-- [ ] Frontend can communicate with backend
-- [ ] No connection string parsing errors in logs
+✅ Backend container starts successfully
+✅ Database migrations run without errors
+✅ Health endpoint returns 200 OK
+✅ Can create/login users (auth endpoints work)
+✅ No errors in container logs
+✅ Then proceed with DNS custom domain fix
 
-## References
+## Follow-Up Actions
 
-- [RFC 3986 - URL Encoding](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1)
-- [SQLAlchemy Database URLs](https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls)
-- [Terraform urlencode function](https://opentofu.org/docs/language/functions/urlencode/)
+After this fix is deployed and verified:
+1. Resume DNS custom domain deployment (original task)
+2. Force recreate Scaleway container domains
+3. Verify SSL certificates provision correctly
+4. Test full application flow
+
+## Timeline
+
+- **Fix implementation**: 10 minutes
+- **Testing**: 10 minutes
+- **CI deployment**: 10-15 minutes
+- **Verification**: 5 minutes
+- **Total**: ~40 minutes
+
+Then proceed with DNS fix deployment (~30 minutes)
+
+**Total time to full resolution**: ~70 minutes
