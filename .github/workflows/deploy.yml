@@ -105,3 +105,9 @@ jobs:
           TF_VAR_backend_image_tag: ${{ steps.image_tag.outputs.tag }}
           TF_VAR_frontend_image_tag: ${{ steps.image_tag.outputs.tag }}
         run: tofu apply -auto-approve
+
+      - name: Force Recreate Custom Domains (DNS Fix)
+        working-directory: ./infra
+        run: |
+          echo "Forcing recreation of custom domain resources to trigger DNS reverification..."
+          tofu apply -replace='scaleway_container_domain.backend[0]' -replace='scaleway_container_domain.frontend[0]' -auto-approve
