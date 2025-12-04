@@ -14,7 +14,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
   AWS_REGION: "fr-par"
   TF_VAR_project_id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
-  TF_VAR_db_password: ${{ secrets.DATABASE_PASSWORD }}
+  TF_VAR_secret_key: ${{ secrets.SECRET_KEY }}
   TF_VAR_redis_password: ${{ secrets.REDIS_PASSWORD }}
   TF_VAR_region: "fr-par"
   TF_VAR_zone: "fr-par-1"
