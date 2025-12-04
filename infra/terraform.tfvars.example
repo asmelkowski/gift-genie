@@ -4,8 +4,8 @@
 # Scaleway Project ID
 project_id = "your-project-id-here"
 
-# Database password (use a strong password)
-db_password = "your-secure-db-password-here"
+# Secret key for JWT signing (use a strong secret, minimum 32 characters)
+secret_key = "your-secure-secret-key-here-minimum-32-chars"
 
 # Redis password (use a strong password)
 redis_password = "your-secure-redis-password-here"

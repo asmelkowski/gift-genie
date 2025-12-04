@@ -212,7 +212,7 @@ export AWS_REGION="fr-par"
 
 # Terraform variables
 export TF_VAR_project_id="$SCW_DEFAULT_PROJECT_ID"
-export TF_VAR_db_password="your-secure-db-password"
+export TF_VAR_secret_key="your-secure-secret-key-minimum-32-chars"
 
 # Run Terraform
 cd infra
@@ -230,7 +230,7 @@ Configure the following secrets in your GitHub repository settings:
 | `SCW_ACCESS_KEY` | Scaleway Access Key ID |
 | `SCW_SECRET_KEY` | Scaleway Secret Key |
 | `SCW_DEFAULT_PROJECT_ID` | Scaleway Project ID |
-| `DB_PASSWORD` | Password for the managed PostgreSQL database |
+| `SECRET_KEY` | Secret key for JWT signing (minimum 32 characters) |
 
 ### Triggering Deployment
 

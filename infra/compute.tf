@@ -36,8 +36,8 @@ resource "scaleway_container" "backend" {
     # Password is already URL-encoded by Scaleway
     "DATABASE_URL" = replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")
 
-    # SECRET_KEY for JWT signing (keep using var.db_password for now)
-    "SECRET_KEY" = var.db_password
+    # SECRET_KEY for JWT signing
+    "SECRET_KEY" = var.secret_key
   }
 }
 
