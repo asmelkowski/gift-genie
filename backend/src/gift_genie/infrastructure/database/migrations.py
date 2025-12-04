@@ -1,6 +1,7 @@
 """Database migration utilities for automatic schema updates on startup."""
 
 import time
+from configparser import RawConfigParser
 from pathlib import Path
 
 from alembic import command
@@ -34,12 +35,18 @@ def run_migrations() -> None:
             alembic_dir = Path(__file__).resolve().parent.parent.parent.parent.parent / "alembic"
 
             # Create Alembic config without loading alembic.ini
+            # Use RawConfigParser to avoid interpolation validation issues with
+            # URL-encoded passwords (e.g., passwords containing % characters)
             config = Config()
+            config.file_config = RawConfigParser()
+            config.file_config.add_section(config.config_ini_section)
 
             # Set script location (where env.py and versions/ directory are located)
             config.set_main_option("script_location", str(alembic_dir))
 
             # Set the database URL, removing +asyncpg driver for synchronous operations
+            # RawConfigParser allows % characters in URLs without interpolation
+            # validation, which prevents errors with URL-encoded passwords
             sync_db_url = settings.DATABASE_URL.replace("+asyncpg", "")
             config.set_main_option("sqlalchemy.url", sync_db_url)
 
