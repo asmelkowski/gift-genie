@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from pathlib import Path
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
@@ -35,11 +35,13 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    # Create engine directly with URL to avoid ConfigParser interpolation issues
+    # with URL-encoded passwords (e.g., %26, %40, %24).
+    # ConfigParser treats % as interpolation syntax, causing errors like:
+    # "invalid interpolation syntax in 'postgresql://...' at position 25"
+    url = config.get_main_option("sqlalchemy.url")
+    assert url is not None, "sqlalchemy.url not configured in alembic config"
+    connectable = create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
