@@ -30,11 +30,14 @@ resource "scaleway_container" "backend" {
   }
 
   secret_environment_variables = {
-    # Database uses public endpoint (SDB doesn't support private networks)
-    # Strip postgres:// prefix and inject credentials with URL-encoded password
-    # Apps add their own driver/scheme (e.g., postgresql+asyncpg://)
-    "DATABASE_URL" = "${var.default_username}:${urlencode(var.db_password)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}"
-    "SECRET_KEY"   = var.db_password # Reusing for now
+    # Scaleway SDB auto-generates credentials embedded in endpoint
+    # Format: postgres://user:password@host:port/db
+    # Strip only postgres:// scheme - backend adds driver (postgresql+asyncpg://)
+    # Password is already URL-encoded by Scaleway
+    "DATABASE_URL" = replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")
+
+    # SECRET_KEY for JWT signing (keep using var.db_password for now)
+    "SECRET_KEY" = var.db_password
   }
 }
 
