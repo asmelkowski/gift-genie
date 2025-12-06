@@ -30,11 +30,13 @@ resource "scaleway_container" "backend" {
   }
 
   secret_environment_variables = {
-    # Scaleway SDB auto-generates credentials embedded in endpoint
-    # Format: postgres://user:password@host:port/db
-    # Strip only postgres:// scheme - backend adds driver (postgresql+asyncpg://)
-    # Password is already URL-encoded by Scaleway
-    "DATABASE_URL" = replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")
+    # Scaleway SDB with IAM-based authentication
+    # Username: IAM Application ID (from scaleway_iam_application)
+    # Password: IAM API Key secret (from scaleway_iam_api_key)
+    # Endpoint: Database endpoint with postgres:// prefix stripped
+    # Backend adds postgresql+asyncpg:// scheme in settings.py
+    # Password is URL-encoded to handle special characters in API key
+    "DATABASE_URL" = "${scaleway_iam_application.db_app.id}:${urlencode(scaleway_iam_api_key.db_key.secret_key)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}?sslmode=require"
 
     # SECRET_KEY for JWT signing
     "SECRET_KEY" = var.secret_key
