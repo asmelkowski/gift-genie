@@ -1,9 +1,8 @@
 import json
+import re
 from functools import lru_cache
 from typing import Any
-from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
-from loguru import logger
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -92,52 +91,27 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def ensure_database_scheme(self) -> "Settings":
-        """Add PostgreSQL async driver scheme to DATABASE_URL if not present.
-
-        Also extracts sslmode parameter and removes it from the URL since asyncpg
-        doesn't accept sslmode as a connection parameter (it's psycopg2-specific).
+        """Add PostgreSQL driver scheme and remove sslmode parameter.
 
         Terraform provides: username:password@host:port/db?sslmode=require
         We convert to: postgresql+asyncpg://username:password@host:port/db
-        And set DATABASE_SSL_MODE to "require"
-
-        Note: Uses string concatenation (not f-strings) to avoid issues with
-        URL-encoded special characters like %26, %40, etc. being interpreted
-        as format specifiers.
+        SSL is configured via connect_args in session.py, not via URL parameter.
         """
-        logger.info("ensure_database_scheme called with: " + self.DATABASE_URL)
+        # Extract sslmode parameter if present
+        sslmode_match = re.search(r"[?&]sslmode=([^&]+)", self.DATABASE_URL)
+        if sslmode_match:
+            self.DATABASE_SSL_MODE = sslmode_match.group(1)
+            # Remove sslmode parameter while preserving other query params
+            # Case 1: ?sslmode=X& (first param with others following)
+            self.DATABASE_URL = re.sub(r"\?sslmode=[^&]*&", "?", self.DATABASE_URL)
+            # Case 2: ?sslmode=X$ (only param)
+            self.DATABASE_URL = re.sub(r"\?sslmode=[^&]*$", "", self.DATABASE_URL)
+            # Case 3: &sslmode=X (not the first param)
+            self.DATABASE_URL = re.sub(r"&sslmode=[^&]*", "", self.DATABASE_URL)
 
-        # Check if URL already has a scheme (contains ://)
+        # Add scheme if not present (for local development)
         if "://" not in self.DATABASE_URL:
-            # Credentials@host format from Terraform - add our driver scheme
-            logger.info("Adding postgresql+asyncpg:// scheme")
-            self.DATABASE_URL = "postgresql+asyncpg://" + self.DATABASE_URL
-        else:
-            logger.info("Scheme already present, no change needed")
-
-        # Extract and remove sslmode parameter if present
-        # asyncpg doesn't accept sslmode - we'll configure SSL via connect_args instead
-        if "sslmode=" in self.DATABASE_URL:
-            logger.info("Extracting sslmode parameter from DATABASE_URL")
-            parsed = urlparse(self.DATABASE_URL)
-            query_params = parse_qs(parsed.query)
-
-            # Extract sslmode value
-            if "sslmode" in query_params:
-                self.DATABASE_SSL_MODE = query_params["sslmode"][0]
-                logger.info(f"Extracted DATABASE_SSL_MODE: {self.DATABASE_SSL_MODE}")
-
-                # Remove sslmode from query parameters
-                del query_params["sslmode"]
-
-                # Reconstruct URL without sslmode
-                # parse_qs returns lists, so we need to flatten for urlencode
-                flat_params = {k: v[0] if len(v) == 1 else v for k, v in query_params.items()}
-                new_query = urlencode(flat_params, doseq=True)
-                new_parsed = parsed._replace(query=new_query)
-                self.DATABASE_URL = urlunparse(new_parsed)
-
-                logger.info("Removed sslmode from DATABASE_URL")
+            self.DATABASE_URL = f"postgresql+asyncpg://{self.DATABASE_URL}"
 
         return self
 
