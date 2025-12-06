@@ -1,199 +1,192 @@
-# Database URL Encoding Fix - Implementation Plan
+# Database Credentials Fix - Implementation Complete ✅
 
-## Problem Statement
+## Problem Solved
 
-**Severity**: CRITICAL - Backend container failing to start in production
+**Issue**: Backend deployment failing with `fe_sendauth: no password supplied`
 
-**Error**: `invalid interpolation syntax in 'postgresql://...' at position 25`
+**Root Cause**: Scaleway SDB `endpoint` attribute doesn't include database credentials - they must be configured manually via Terraform variables.
 
-**Root Cause**: URL-encoded special characters in database password (`%26`, `%40`, `%23`, `%24`) are being interpreted as Python f-string format specifiers instead of literal characters.
+**Solution**: Configure database credentials as Terraform variables and construct the DATABASE_URL properly.
 
-**Current Flow**:
-1. Terraform: `urlencode(var.db_password)` → `n%2695dc2IbmzUv0GF%40jSl2tHTW6%24%26%268%2396h%24Y`
-2. Env var: `DATABASE_URL=username:encoded_password@host:port/db`
-3. Settings validator: `f"postgresql+asyncpg://{self.DATABASE_URL}"` ← **BREAKS HERE**
+---
 
-## Technical Analysis
+## ✅ Code Changes Completed
 
-### Why URL Encoding?
-- Special characters in passwords (`@`, `$`, `&`, `%`, etc.) break URL parsing
-- Must be encoded for proper URL construction
-- Example: `password@123` → `password%40123`
+All necessary code changes have been implemented and are ready to commit.
 
-### Why F-String Breaks?
-- F-strings interpret `%` as format specifier
-- `%26` looks like format width specifier to Python
-- F-string evaluation happens BEFORE URL parsing
+### 1. Added Database Credential Variables
+**File**: `infra/variables.tf`
 
-### Valid Solutions
-1. **Use string concatenation** instead of f-strings
-2. **Double-escape** the URL (complicated, error-prone)
-3. **Raw strings** (doesn't work with f-strings)
+Added 5 new variables:
+- `db_user` - Database username (sensitive)
+- `db_password` - Database password (sensitive)
+- `db_host` - Database hostname (sensitive)
+- `db_port` - Database port (default: "5432")
+- `db_name` - Database name (sensitive)
 
-## Proposed Solution
+### 2. Updated DATABASE_URL Construction
+**File**: `infra/compute.tf`
 
-**Use simple string concatenation** - Safe, explicit, no interpretation.
-
-### Changes Required
-
-#### File: `backend/src/gift_genie/infrastructure/config/settings.py`
-
-**Current (lines 91-106)**:
-```python
-@model_validator(mode="after")
-def ensure_database_scheme(self) -> "Settings":
-    """Add PostgreSQL async driver scheme to DATABASE_URL if not present.
-
-    Terraform provides: username:password@host:port/db?params
-    We convert to: postgresql+asyncpg://username:password@host:port/db?params
-    """
-    logger.info(f"ensure_database_scheme called with: {self.DATABASE_URL}")
-    # Check if URL already has a scheme (contains ://)
-    if "://" not in self.DATABASE_URL:
-        # Credentials@host format from Terraform - add our driver scheme
-        logger.info("Adding postgresql+asyncpg:// scheme")
-        self.DATABASE_URL = f"postgresql+asyncpg://{self.DATABASE_URL}"
-    else:
-        logger.info("Scheme already present, no change needed")
-    return self
+**Before**:
+```terraform
+"DATABASE_URL" = replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")
 ```
 
-**Fixed**:
-```python
-@model_validator(mode="after")
-def ensure_database_scheme(self) -> "Settings":
-    """Add PostgreSQL async driver scheme to DATABASE_URL if not present.
-
-    Terraform provides: username:password@host:port/db?params
-    We convert to: postgresql+asyncpg://username:password@host:port/db?params
-
-    Note: Uses string concatenation (not f-strings) to avoid issues with
-    URL-encoded special characters like %26, %40, etc. being interpreted
-    as format specifiers.
-    """
-    logger.info("ensure_database_scheme called with: " + self.DATABASE_URL)
-    # Check if URL already has a scheme (contains ://)
-    if "://" not in self.DATABASE_URL:
-        # Credentials@host format from Terraform - add our driver scheme
-        logger.info("Adding postgresql+asyncpg:// scheme")
-        self.DATABASE_URL = "postgresql+asyncpg://" + self.DATABASE_URL
-    else:
-        logger.info("Scheme already present, no change needed")
-    return self
+**After**:
+```terraform
+"DATABASE_URL" = "${var.db_user}:${urlencode(var.db_password)}@${var.db_host}:${var.db_port}/${var.db_name}?sslmode=require"
 ```
 
-**Key Changes**:
-1. Line 98: `logger.info(f"... {self.DATABASE_URL}")` → `logger.info("... " + self.DATABASE_URL)`
-2. Line 103: `f"postgresql+asyncpg://{self.DATABASE_URL}"` → `"postgresql+asyncpg://" + self.DATABASE_URL`
-3. Added docstring note explaining why concatenation is used
+Key improvements:
+- Uses individual credential variables instead of assuming embedded credentials
+- Applies `urlencode()` to password for special character handling
+- Includes `?sslmode=require` for SSL encryption
+- Properly documented comments
 
-## Testing Strategy
+### 3. Updated Database Resource Comments
+**File**: `infra/db.tf`
 
-### Unit Tests
-- Test with URL-encoded passwords containing: `%`, `@`, `$`, `&`, `#`
-- Test scheme detection logic (with/without `://`)
-- Test both local format and Terraform format
+- Added credential management documentation
+- Added description to `db_endpoint` output clarifying it's hostname-only
 
-### Integration Tests
-- Verify database connection with encoded password
-- Verify migrations run successfully
-- Test in Docker environment (mimics production)
+### 4. Added GitHub Actions Environment Variables
+**File**: `.github/workflows/deploy.yml`
 
-### Test Cases
+Added 5 new TF_VAR mappings:
+- `TF_VAR_db_user: ${{ secrets.DB_USER }}`
+- `TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}`
+- `TF_VAR_db_host: ${{ secrets.DB_HOST }}`
+- `TF_VAR_db_port: ${{ secrets.DB_PORT }}`
+- `TF_VAR_db_name: ${{ secrets.DB_NAME }}`
 
-```python
-def test_database_url_with_encoded_special_chars():
-    """Test that URL-encoded passwords don't break f-string parsing."""
-    # Password: p@ss$word&123 → p%40ss%24word%2616123
-    encoded_url = "user:p%40ss%24word%26123@localhost:5432/db"
-    settings = Settings(DATABASE_URL=encoded_url)
-    assert settings.DATABASE_URL == f"postgresql+asyncpg://{encoded_url}"
-    assert "%" in settings.DATABASE_URL  # Verify encoding preserved
+---
 
-def test_database_url_with_scheme_already_present():
-    """Test that URLs with schemes are not modified."""
-    full_url = "postgresql+asyncpg://user:pass@localhost:5432/db"
-    settings = Settings(DATABASE_URL=full_url)
-    assert settings.DATABASE_URL == full_url
-```
+## ⚠️ REQUIRED: Add GitHub Secrets
 
-## Deployment Strategy
+**BEFORE DEPLOYING**, you must add 5 secrets to your GitHub repository.
 
-### Pre-Deployment
-1. **Create fix branch**: `fix/database-url-encoding`
-2. **Update settings.py**: Apply string concatenation fix
-3. **Add/update tests**: Ensure coverage for encoded passwords
-4. **Run tests locally**: `make test` (backend/)
-5. **Commit changes**: Clear commit message explaining fix
+See detailed instructions in: **`.ai/GITHUB_SECRETS_SETUP.md`**
 
-### Deployment Steps
-1. **Push branch** to GitHub
-2. **Merge to main** (or manual workflow trigger)
-3. **CI builds new backend image** with fix
-4. **Scaleway deploys** updated container
-5. **Monitor logs**: Watch for successful startup and migration
+### Quick Reference:
 
-### Verification
+1. Go to: **GitHub Repo → Settings → Secrets and variables → Actions**
+2. Click **New repository secret** for each:
+
+| Secret Name | Value Source | Example |
+|------------|--------------|---------|
+| `DB_USER` | Scaleway PGUSER | `gift_genie_admin` |
+| `DB_PASSWORD` | Scaleway PGPASSWORD | (sensitive) |
+| `DB_HOST` | Scaleway PGHOST | `88b921e6-e7d4-4f50-93b9-a0ec7a91d66c.pg.sdb.fr-par.scw.cloud` |
+| `DB_PORT` | Scaleway PGPORT | `5432` |
+| `DB_NAME` | Scaleway PGDATABASE | `gift_genie_db` |
+
+---
+
+## 📋 Deployment Steps
+
+### Step 1: Add GitHub Secrets
+Follow the guide in `.ai/GITHUB_SECRETS_SETUP.md` to add all 5 database secrets.
+
+### Step 2: Review Changes
 ```bash
-# Check container logs
-# Expected: "Database migrations completed successfully"
+cd /home/adam/dev/gift-genie
+git status
+git diff
+```
 
-# Test health endpoint
+### Step 3: Commit and Push
+```bash
+git add infra/variables.tf infra/compute.tf infra/db.tf .github/workflows/deploy.yml .ai/
+git commit -m "fix(infra): configure Scaleway SDB credentials via Terraform variables"
+git push origin main
+```
+
+### Step 4: Monitor Deployment
+- Watch GitHub Actions workflow: https://github.com/yourusername/gift-genie/actions
+- Check for successful database migration in logs
+- Verify backend container starts successfully
+
+### Step 5: Verify
+```bash
+# Test backend API
 curl https://api.gift-genie.eu/health
 
-# Test authenticated endpoint
-curl https://api.gift-genie.eu/api/v1/auth/me
+# Should return successful response without database errors
 ```
 
-### Rollback Plan
-If deployment fails:
-1. Revert commit in main branch
-2. CI automatically deploys previous working version
-3. Container should return to last known good state
+---
 
-## Impact Assessment
+## 🔒 Security Notes
 
-### Risk Level: LOW
-- Single-line change (string concatenation)
-- Maintains exact same functionality
-- No changes to Terraform config
-- No database schema changes
-- Backward compatible with local development
+✅ **URL Encoding**: `urlencode()` safely handles special characters in password
 
-### Testing Confidence: HIGH
-- Logic is simple and explicit
-- Easy to add comprehensive tests
-- Can verify locally before deployment
+✅ **Sensitive Variables**: All credentials marked `sensitive = true` in Terraform
 
-### Downtime: ~5-10 minutes
-- CI build + deploy time
-- No database downtime (migrations will succeed this time)
+✅ **GitHub Secrets**: Encrypted storage, masked in logs
 
-## Success Criteria
+✅ **SSL Encryption**: `sslmode=require` enforces encrypted database connections
 
-✅ Backend container starts successfully
-✅ Database migrations run without errors
-✅ Health endpoint returns 200 OK
-✅ Can create/login users (auth endpoints work)
-✅ No errors in container logs
-✅ Then proceed with DNS custom domain fix
+✅ **No Hardcoding**: Credentials never appear in code or git history
 
-## Follow-Up Actions
+---
 
-After this fix is deployed and verified:
-1. Resume DNS custom domain deployment (original task)
-2. Force recreate Scaleway container domains
-3. Verify SSL certificates provision correctly
-4. Test full application flow
+## 📊 Files Modified
 
-## Timeline
+| File | Lines Changed | Purpose |
+|------|---------------|---------|
+| `infra/variables.tf` | +30 | Added 5 credential variables |
+| `infra/compute.tf` | ~10 | Fixed DATABASE_URL construction |
+| `infra/db.tf` | +3 | Updated documentation |
+| `.github/workflows/deploy.yml` | +5 | Added secret mappings |
+| `.ai/GITHUB_SECRETS_SETUP.md` | New | Setup instructions |
 
-- **Fix implementation**: 10 minutes
-- **Testing**: 10 minutes
-- **CI deployment**: 10-15 minutes
-- **Verification**: 5 minutes
-- **Total**: ~40 minutes
+---
 
-Then proceed with DNS fix deployment (~30 minutes)
+## ✅ Expected Outcome
 
-**Total time to full resolution**: ~70 minutes
+After successful deployment:
+
+1. ✅ Backend container starts without authentication errors
+2. ✅ Database migrations complete successfully
+3. ✅ Application connects to Scaleway SDB with proper credentials
+4. ✅ API endpoints respond correctly at https://api.gift-genie.eu
+5. ✅ Frontend can communicate with backend
+
+---
+
+## 🆘 Troubleshooting
+
+### If deployment still fails:
+
+1. **Verify GitHub Secrets**:
+   - All 5 secrets present and correctly named
+   - No typos in secret values
+   - PGHOST includes full domain name
+
+2. **Check Container Logs**:
+   - Go to Scaleway Console → Containers → gift-genie-backend
+   - View logs for specific error messages
+
+3. **Verify Credentials**:
+   - Test connection locally with the same credentials
+   - Ensure password doesn't contain characters that need special handling
+
+4. **Common Issues**:
+   - Secret name typo (e.g., `DB_PASSWORD` vs `DATABASE_PASSWORD`)
+   - Missing `?sslmode=require` parameter
+   - Incorrect PGHOST format
+   - Wrong database name
+
+---
+
+## 📝 Summary
+
+**What was wrong**: Terraform assumed SDB endpoint included credentials - it doesn't
+
+**What was fixed**: Manual credential configuration via Terraform variables
+
+**What you need to do**: Add 5 GitHub secrets before deploying
+
+**Time to deploy**: ~5-10 minutes after secrets are added
+
+**Estimated total time**: ~15-20 minutes (including secret setup)
