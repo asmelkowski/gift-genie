@@ -22,34 +22,12 @@ def _get_engine() -> AsyncEngine:
     if _engine is None:
         settings = get_settings()
 
-        # Configure SSL based on extracted DATABASE_SSL_MODE
-        connect_args = {}
-        if settings.DATABASE_SSL_MODE:
-            logger.info(f"Configuring SSL for mode: {settings.DATABASE_SSL_MODE}")
-
-            if settings.DATABASE_SSL_MODE == "disable":
-                # Explicitly disable SSL
-                logger.info("SSL disabled")
-                pass  # No connect_args needed for disable
-
-            elif settings.DATABASE_SSL_MODE == "require":
-                # SSL required but no certificate verification
-                # This is equivalent to asyncpg's sslmode=require
-                ssl_context = ssl.create_default_context()
-                ssl_context.check_hostname = False
-                ssl_context.verify_mode = ssl.CERT_NONE
-                connect_args["ssl"] = ssl_context
-                logger.info("SSL enabled without certificate verification")
-
-            elif settings.DATABASE_SSL_MODE in ("verify-ca", "verify-full"):
-                # Full SSL verification with certificate checking
-                connect_args["ssl"] = ssl.create_default_context()
-                logger.info("SSL enabled with full certificate verification")
-
-            elif settings.DATABASE_SSL_MODE in ("allow", "prefer"):
-                # For allow/prefer modes, let asyncpg handle it (no explicit config)
-                logger.info(f"SSL mode {settings.DATABASE_SSL_MODE} - using asyncpg defaults")
-                pass
+        # Configure SSL for Scaleway SDB (requires SSL without certificate verification)
+        # Local PostgreSQL works without SSL configuration
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        connect_args = {"ssl": ssl_context}
 
         _engine = create_async_engine(
             settings.DATABASE_URL,

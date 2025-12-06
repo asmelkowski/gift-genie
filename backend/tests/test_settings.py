@@ -19,10 +19,10 @@ def test_database_url_adds_scheme_when_missing():
 
 
 def test_database_url_extracts_and_removes_sslmode():
-    """Test that sslmode parameter is extracted and removed from DATABASE_URL.
+    """Test that sslmode parameter is removed from DATABASE_URL.
 
-    asyncpg doesn't accept sslmode as a connection parameter, so we extract it
-    to DATABASE_SSL_MODE and remove it from the URL.
+    asyncpg doesn't accept sslmode as a connection parameter, so we remove it
+    from the URL.
     """
     settings = Settings(
         DATABASE_URL="user:password@host:5432/db?sslmode=require",
@@ -33,12 +33,9 @@ def test_database_url_extracts_and_removes_sslmode():
     expected_url = "postgresql+asyncpg://user:password@host:5432/db"
     assert settings.DATABASE_URL == expected_url
 
-    # sslmode should be extracted to DATABASE_SSL_MODE
-    assert settings.DATABASE_SSL_MODE == "require"
-
 
 def test_database_url_extracts_sslmode_with_other_params():
-    """Test that sslmode is extracted while preserving other query parameters."""
+    """Test that sslmode is removed while preserving other query parameters."""
     settings = Settings(
         DATABASE_URL="user:password@host:5432/db?sslmode=require&application_name=gift_genie",
         SECRET_KEY="test",
@@ -47,38 +44,26 @@ def test_database_url_extracts_sslmode_with_other_params():
     # sslmode should be removed but application_name preserved
     expected_url = "postgresql+asyncpg://user:password@host:5432/db?application_name=gift_genie"
     assert settings.DATABASE_URL == expected_url
-    assert settings.DATABASE_SSL_MODE == "require"
 
 
 def test_database_url_handles_different_sslmode_values():
-    """Test that different sslmode values are extracted correctly."""
+    """Test that different sslmode values are removed correctly."""
     test_cases = [
-        ("disable", "disable"),
-        ("allow", "allow"),
-        ("prefer", "prefer"),
-        ("require", "require"),
-        ("verify-ca", "verify-ca"),
-        ("verify-full", "verify-full"),
+        "disable",
+        "allow",
+        "prefer",
+        "require",
+        "verify-ca",
+        "verify-full",
     ]
 
-    for sslmode_value, expected_mode in test_cases:
+    for sslmode_value in test_cases:
         settings = Settings(
             DATABASE_URL=f"user:password@host:5432/db?sslmode={sslmode_value}",
             SECRET_KEY="test",
         )
 
-        assert settings.DATABASE_SSL_MODE == expected_mode
         assert "sslmode" not in settings.DATABASE_URL
-
-
-def test_database_url_no_sslmode_leaves_ssl_mode_none():
-    """Test that DATABASE_SSL_MODE is None when no sslmode parameter is present."""
-    settings = Settings(
-        DATABASE_URL="user:password@host:5432/db",
-        SECRET_KEY="test",
-    )
-
-    assert settings.DATABASE_SSL_MODE is None
 
 
 def test_database_url_preserves_scheme_when_present():
@@ -96,7 +81,7 @@ def test_database_url_preserves_scheme_when_present():
 
 
 def test_database_url_extracts_sslmode_from_full_url():
-    """Test that sslmode is extracted even when URL already has a scheme."""
+    """Test that sslmode is removed even when URL already has a scheme."""
     settings = Settings(
         DATABASE_URL="postgresql+asyncpg://user:password@host:5432/db?sslmode=require",
         SECRET_KEY="test",
@@ -104,7 +89,6 @@ def test_database_url_extracts_sslmode_from_full_url():
 
     expected_url = "postgresql+asyncpg://user:password@host:5432/db"
     assert settings.DATABASE_URL == expected_url
-    assert settings.DATABASE_SSL_MODE == "require"
 
 
 def test_database_url_preserves_postgres_scheme():
@@ -150,7 +134,6 @@ def test_database_url_with_special_chars_in_password():
     # Already encoded in input, scheme should be added, sslmode removed
     expected_url = "postgresql+asyncpg://user:p%40ss%3Aword@host:5432/db"
     assert settings.DATABASE_URL == expected_url
-    assert settings.DATABASE_SSL_MODE == "require"
 
 
 def test_database_url_default():
@@ -186,7 +169,6 @@ def test_database_url_with_percent_encoded_special_chars():
     # Should add scheme and remove sslmode
     expected_url = f"postgresql+asyncpg://gift_genie:{encoded_password}@88b921e6-e7d4-4f50-93b9-a0ec7a91d66c.pg.sdb.fr-par.scw.cloud:5432/gift-genie-db-prod"
     assert settings.DATABASE_URL == expected_url
-    assert settings.DATABASE_SSL_MODE == "require"
 
     # Verify encoded characters are preserved
     assert "%26" in settings.DATABASE_URL  # &
