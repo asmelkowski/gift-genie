@@ -197,9 +197,9 @@ The project is configured for automated deployment to Scaleway using GitHub Acti
 
 ### Local Terraform Setup
 
-To run Terraform locally, you need to:
-1. Set up IAM credentials for database access (one-time setup - see [IAM Setup Guide](./infra/IAM_SETUP.md))
-2. Export the required environment variables
+To run Terraform locally, export the required environment variables:
+
+> **Note**: Your Scaleway IAM application must have `ServerlessSQLDatabaseFullAccess` permissions. The same credentials are used for both Terraform operations and database authentication.
 
 ```bash
 # Scaleway provider credentials
@@ -214,9 +214,9 @@ export AWS_REGION="fr-par"
 
 # Terraform variables
 export TF_VAR_project_id="$SCW_DEFAULT_PROJECT_ID"
+export TF_VAR_scw_access_key="$SCW_ACCESS_KEY"
+export TF_VAR_scw_secret_key="$SCW_SECRET_KEY"
 export TF_VAR_secret_key="your-secure-secret-key-minimum-32-chars"
-export TF_VAR_db_iam_application_id="your-iam-application-id"
-export TF_VAR_db_iam_secret_key="your-iam-secret-key"
 
 # Run Terraform
 cd infra
@@ -231,12 +231,12 @@ Configure the following secrets in your GitHub repository settings:
 
 | Secret Name | Description |
 |-------------|-------------|
-| `SCW_ACCESS_KEY` | Scaleway Access Key ID (project-scoped) |
-| `SCW_SECRET_KEY` | Scaleway Secret Key (project-scoped) |
+| `SCW_ACCESS_KEY` | Scaleway Access Key ID (used for Terraform and database auth) |
+| `SCW_SECRET_KEY` | Scaleway Secret Key (used for Terraform and database auth) |
 | `SCW_DEFAULT_PROJECT_ID` | Scaleway Project ID |
-| `DB_IAM_APPLICATION_ID` | IAM Application ID for database access (see [IAM Setup](./infra/IAM_SETUP.md)) |
-| `DB_IAM_SECRET_KEY` | IAM API Key secret for database access |
 | `SECRET_KEY` | Secret key for JWT signing (minimum 32 characters) |
+
+> **Note**: The `SCW_ACCESS_KEY` and `SCW_SECRET_KEY` are used for both infrastructure management and database authentication. Ensure your IAM application has `ServerlessSQLDatabaseFullAccess` permissions.
 
 ### Triggering Deployment
 

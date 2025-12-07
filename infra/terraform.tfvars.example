@@ -4,9 +4,10 @@
 # Scaleway Project ID
 project_id = "your-project-id-here"
 
-# IAM credentials for database access (created manually - see README.md)
-db_iam_application_id = "your-iam-application-id-here"
-db_iam_secret_key     = "your-iam-secret-key-here"
+# Scaleway credentials (same as provider configuration)
+# These are also used for database authentication
+scw_access_key = "your-scaleway-access-key"
+scw_secret_key = "your-scaleway-secret-key"
 
 # Secret key for JWT signing (use a strong secret, minimum 32 characters)
 secret_key = "your-secure-secret-key-here-minimum-32-chars"

@@ -29,19 +29,20 @@ resource "scaleway_container" "backend" {
     "COOKIE_SECURE" = "true"
   }
 
-   secret_environment_variables = {
-     # Scaleway SDB with IAM-based authentication
-     # IAM credentials are created manually (see README.md)
-     # Username: IAM Application ID (passed as variable)
-     # Password: IAM API Key secret (passed as variable)
-     # Endpoint: Database endpoint with postgres:// prefix stripped
-     # Backend adds postgresql+asyncpg:// scheme in settings.py
-     # Password is URL-encoded to handle special characters in API key
-     "DATABASE_URL" = "${var.db_iam_application_id}:${urlencode(var.db_iam_secret_key)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}?sslmode=require"
+    secret_environment_variables = {
+      # Scaleway SDB with IAM-based authentication
+      # Reuses the same Scaleway credentials that Terraform uses for infrastructure management
+      # The gift-genie IAM application has ServerlessSQLDatabaseFullAccess permissions
+      # Username: Scaleway Access Key (SCW_ACCESS_KEY)
+      # Password: Scaleway Secret Key (SCW_SECRET_KEY)
+      # Endpoint: Database endpoint with postgres:// prefix stripped
+      # Backend adds postgresql+asyncpg:// scheme in settings.py
+      # Password is URL-encoded to handle special characters in API key
+      "DATABASE_URL" = "${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}?sslmode=require"
 
-     # SECRET_KEY for JWT signing
-     "SECRET_KEY" = var.secret_key
-   }
+      # SECRET_KEY for JWT signing
+      "SECRET_KEY" = var.secret_key
+    }
 }
 
 resource "scaleway_container" "frontend" {
