@@ -1,3 +1,15 @@
+# Extract database ID (UUID) from Scaleway SDB endpoint for SNI requirement
+# Endpoint format: postgres://UUID.pg.sdb.fr-par.scw.cloud:5432/rdb
+# Scaleway SDB requires "options=databaseid={uuid}" parameter for TLS SNI
+locals {
+  # Extract host:port/db part from endpoint (remove postgres:// prefix)
+  db_connection_string = replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")
+
+  # Extract database ID (UUID before first dot in hostname)
+  # Example: "88b921e6-e7d4-4f50-93b9-a0ec7a91d66c" from "88b921e6-e7d4-4f50-93b9-a0ec7a91d66c.pg.sdb.fr-par.scw.cloud:5432/rdb"
+  database_id = regex("^([^.]+)\\.", local.db_connection_string)[0]
+}
+
 resource "scaleway_container_namespace" "main" {
   name        = "gift-genie-ns-${var.env}"
   description = "Namespace for Gift Genie ${var.env}"
@@ -38,7 +50,8 @@ resource "scaleway_container" "backend" {
       # Endpoint: Database endpoint with postgres:// prefix stripped
       # Backend adds postgresql+asyncpg:// scheme in settings.py
       # Password is URL-encoded to handle special characters in API key
-      "DATABASE_URL" = "${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")}?sslmode=require"
+      # Database ID is required for Scaleway SDB TLS SNI (Server Name Indication)
+      "DATABASE_URL" = "${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string}?options=databaseid%3D${local.database_id}&sslmode=require"
 
       # SECRET_KEY for JWT signing
       "SECRET_KEY" = var.secret_key
