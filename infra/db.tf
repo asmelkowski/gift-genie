@@ -10,8 +10,9 @@ resource "scaleway_sdb_sql_database" "main" {
 # IAM Application - acts as the database "user"
 # This application identity is used to authenticate to the database
 resource "scaleway_iam_application" "db_app" {
-  name        = "gift-genie-db-app-${var.env}"
-  description = "IAM application for Gift Genie database access"
+  name            = "gift-genie-db-app-${var.env}"
+  organization_id = var.organization_id
+  description     = "IAM application for Gift Genie database access"
 }
 
 # IAM API Key - acts as the database "password"

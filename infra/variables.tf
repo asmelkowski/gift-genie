@@ -3,6 +3,11 @@ variable "project_id" {
   type        = string
 }
 
+variable "organization_id" {
+  description = "Scaleway Organization ID (find with: scw account organization list)"
+  type        = string
+}
+
 variable "region" {
   description = "Scaleway Region"
   type        = string
