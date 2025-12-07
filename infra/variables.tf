@@ -3,14 +3,14 @@ variable "project_id" {
   type        = string
 }
 
-variable "db_iam_application_id" {
-  description = "IAM Application ID for database authentication (created manually)"
+variable "scw_access_key" {
+  description = "Scaleway Access Key (same as used for Terraform provider)"
   type        = string
   sensitive   = true
 }
 
-variable "db_iam_secret_key" {
-  description = "IAM API Key secret for database authentication (created manually)"
+variable "scw_secret_key" {
+  description = "Scaleway Secret Key (same as used for Terraform provider)"
   type        = string
   sensitive   = true
 }
