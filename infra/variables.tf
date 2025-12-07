@@ -3,9 +3,16 @@ variable "project_id" {
   type        = string
 }
 
-variable "organization_id" {
-  description = "Scaleway Organization ID (find with: scw account organization list)"
+variable "db_iam_application_id" {
+  description = "IAM Application ID for database authentication (created manually)"
   type        = string
+  sensitive   = true
+}
+
+variable "db_iam_secret_key" {
+  description = "IAM API Key secret for database authentication (created manually)"
+  type        = string
+  sensitive   = true
 }
 
 variable "region" {

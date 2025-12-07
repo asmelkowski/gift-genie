@@ -594,7 +594,6 @@ jobs:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
-          SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
           AWS_REGION: "fr-par"
@@ -610,12 +609,12 @@ jobs:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
-          SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
           AWS_REGION: "fr-par"
           TF_VAR_project_id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
-          TF_VAR_organization_id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
+          TF_VAR_db_iam_application_id: ${{ secrets.DB_IAM_APPLICATION_ID }}
+          TF_VAR_db_iam_secret_key: ${{ secrets.DB_IAM_SECRET_KEY }}
           TF_VAR_secret_key: ${{ secrets.SECRET_KEY }}
           TF_VAR_redis_password: ${{ secrets.redis_PASSWORD }}
           TF_VAR_custom_domain: "gift-genie.eu"
