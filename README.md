@@ -199,11 +199,14 @@ The project is configured for automated deployment to Scaleway using GitHub Acti
 
 To run Terraform locally, export the required environment variables:
 
+> **Note**: You can find your organization ID with: `scw account organization list`
+
 ```bash
 # Scaleway provider credentials
 export SCW_ACCESS_KEY="your-access-key"
 export SCW_SECRET_KEY="your-secret-key"
 export SCW_DEFAULT_PROJECT_ID="your-project-id"
+export SCW_DEFAULT_ORGANIZATION_ID="your-organization-id"
 
 # S3 backend credentials (uses same Scaleway credentials)
 export AWS_ACCESS_KEY_ID="$SCW_ACCESS_KEY"
@@ -212,6 +215,7 @@ export AWS_REGION="fr-par"
 
 # Terraform variables
 export TF_VAR_project_id="$SCW_DEFAULT_PROJECT_ID"
+export TF_VAR_organization_id="$SCW_DEFAULT_ORGANIZATION_ID"
 export TF_VAR_secret_key="your-secure-secret-key-minimum-32-chars"
 
 # Run Terraform
@@ -230,6 +234,7 @@ Configure the following secrets in your GitHub repository settings:
 | `SCW_ACCESS_KEY` | Scaleway Access Key ID |
 | `SCW_SECRET_KEY` | Scaleway Secret Key |
 | `SCW_DEFAULT_PROJECT_ID` | Scaleway Project ID |
+| `SCW_DEFAULT_ORGANIZATION_ID` | Scaleway Organization ID |
 | `SECRET_KEY` | Secret key for JWT signing (minimum 32 characters) |
 
 ### Triggering Deployment

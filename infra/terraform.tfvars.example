@@ -4,6 +4,9 @@
 # Scaleway Project ID
 project_id = "your-project-id-here"
 
+# Scaleway Organization ID (get it with: scw account organization list)
+organization_id = "your-organization-id-here"
+
 # Secret key for JWT signing (use a strong secret, minimum 32 characters)
 secret_key = "your-secure-secret-key-here-minimum-32-chars"
 
