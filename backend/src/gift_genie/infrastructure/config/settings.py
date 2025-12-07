@@ -3,7 +3,7 @@ import re
 from functools import lru_cache
 from typing import Any
 
-from pydantic import field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie"
     DATABASE_SSL_MODE: str | None = None  # Extracted from DATABASE_URL sslmode parameter
+    DATABASE_SSL_REQUIRED: bool = Field(
+        default=False,
+        description="Whether to require SSL for database connections. "
+        "Auto-detected if not explicitly set based on DATABASE_URL patterns.",
+    )
 
     # Redis
     REDIS_URL: str = "localhost:6379"
@@ -90,12 +95,15 @@ class Settings(BaseSettings):
         return default_origins
 
     @model_validator(mode="after")
-    def ensure_database_scheme(self) -> "Settings":
-        """Add PostgreSQL driver scheme and remove sslmode parameter.
+    def ensure_database_scheme_and_auto_detect_ssl(self) -> "Settings":
+        """Add PostgreSQL driver scheme, remove sslmode parameter, and auto-detect SSL.
 
         Terraform provides: username:password@host:port/db?sslmode=require
         We convert to: postgresql+asyncpg://username:password@host:port/db
         SSL is configured via connect_args in session.py, not via URL parameter.
+
+        Auto-detects if SSL is required based on cloud provider patterns in DATABASE_URL
+        if DATABASE_SSL_REQUIRED was not explicitly set.
         """
         # Extract sslmode parameter if present
         sslmode_match = re.search(r"[?&]sslmode=([^&]+)", self.DATABASE_URL)
@@ -112,6 +120,21 @@ class Settings(BaseSettings):
         # Add scheme if not present (for local development)
         if "://" not in self.DATABASE_URL:
             self.DATABASE_URL = f"postgresql+asyncpg://{self.DATABASE_URL}"
+
+        # Auto-detect SSL requirement if not explicitly set
+        # Check if DATABASE_SSL_REQUIRED was NOT explicitly provided by user
+        # (either via env var or constructor argument)
+        if "DATABASE_SSL_REQUIRED" not in self.__pydantic_fields_set__:
+            # Check if any cloud provider pattern is in the DATABASE_URL
+            cloud_patterns = [
+                "scaleway",
+                "rds.amazonaws",
+                "database.azure",
+                "cloudsql",
+            ]
+            self.DATABASE_SSL_REQUIRED = any(
+                pattern in self.DATABASE_URL.lower() for pattern in cloud_patterns
+            )
 
         return self
 

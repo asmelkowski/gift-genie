@@ -194,3 +194,94 @@ def test_database_url_with_all_url_encoded_chars():
     expected_url = f"postgresql+asyncpg://{encoded_url}"
     assert settings.DATABASE_URL == expected_url
     assert "%" in settings.DATABASE_URL  # Encoding preserved
+
+
+def test_database_ssl_required_auto_detect_scaleway():
+    """Test that SSL is auto-detected as required for Scaleway databases."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@scaleway.com:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is True
+
+
+def test_database_ssl_required_auto_detect_aws_rds():
+    """Test that SSL is auto-detected as required for AWS RDS databases."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@mydb.rds.amazonaws.com:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is True
+
+
+def test_database_ssl_required_auto_detect_azure():
+    """Test that SSL is auto-detected as required for Azure databases."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@mydb.database.azure.com:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is True
+
+
+def test_database_ssl_required_auto_detect_google_cloud_sql():
+    """Test that SSL is auto-detected as required for Google Cloud SQL."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@cloudsql.com:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is True
+
+
+def test_database_ssl_required_no_ssl_for_localhost():
+    """Test that SSL is not required for localhost."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@localhost:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is False
+
+
+def test_database_ssl_required_no_ssl_for_docker_hostname():
+    """Test that SSL is not required for Docker container hostnames."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@postgres:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is False
+
+
+def test_database_ssl_required_explicit_true_overrides_localhost():
+    """Test that explicit DATABASE_SSL_REQUIRED=true overrides auto-detection."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://localhost:5432/db",
+        DATABASE_SSL_REQUIRED=True,
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is True
+
+
+def test_database_ssl_required_explicit_false_overrides_scaleway():
+    """Test that explicit DATABASE_SSL_REQUIRED=false overrides auto-detection."""
+    settings = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@scaleway.com:5432/db",
+        DATABASE_SSL_REQUIRED=False,
+        SECRET_KEY="test",
+    )
+    assert settings.DATABASE_SSL_REQUIRED is False
+
+
+def test_database_ssl_required_case_insensitive_detection():
+    """Test that SSL detection is case-insensitive for cloud provider patterns."""
+    # Test uppercase
+    settings_upper = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@SCALEWAY.COM:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings_upper.DATABASE_SSL_REQUIRED is True
+
+    # Test mixed case
+    settings_mixed = Settings(
+        DATABASE_URL="postgresql+asyncpg://user:pass@ScaleWay.com:5432/db",
+        SECRET_KEY="test",
+    )
+    assert settings_mixed.DATABASE_SSL_REQUIRED is True

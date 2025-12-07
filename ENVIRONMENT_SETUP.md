@@ -30,6 +30,43 @@ cp backend/.envrc.example backend/.envrc  # if available
 
 ## Step 2: Backend Setup
 
+### Configure Environment Variables
+
+Before setting up the database, configure the necessary environment variables for your deployment environment:
+
+```bash
+# Create a .env file (optional - defaults work for local development)
+cat > backend/.env << EOF
+# Local development (no SSL)
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie
+DATABASE_SSL_REQUIRED=false
+
+# Or for production with Scaleway SDB (auto-detected, but you can be explicit)
+# DATABASE_URL=postgresql+asyncpg://user:pass@your-scaleway-db.com:5432/gift_genie
+# DATABASE_SSL_REQUIRED=true
+EOF
+```
+
+**Database SSL Configuration**:
+
+- `DATABASE_SSL_REQUIRED`: Controls whether SSL is required for database connections
+  - `false` (default): Uses plain connection (for local development and Docker containers)
+  - `true`: Requires SSL with certificate verification disabled (for cloud databases like Scaleway SDB)
+  - If not explicitly set, auto-detected based on DATABASE_URL patterns:
+    - Automatically `true` if URL contains: `scaleway`, `rds.amazonaws`, `database.azure`, or `cloudsql`
+    - Otherwise defaults to `false`
+
+**Examples**:
+
+| Environment | DATABASE_URL | DATABASE_SSL_REQUIRED | Notes |
+|------------|--------------|----------------------|-------|
+| Local Dev | `localhost:5432/gift_genie` | `false` | Plain connection, no SSL |
+| Docker Compose | `postgres:5432/gift_genie` | `false` | Docker internal network, no SSL |
+| E2E Tests | `localhost:5432/test_gift_genie` | `false` | Test database, no SSL |
+| Scaleway Cloud | `xyz.scaleway.com:5432/gift_genie` | `true` or auto-detected | SSL required, cert verification disabled |
+| AWS RDS | `xyz.rds.amazonaws.com:5432/gift_genie` | `true` or auto-detected | SSL required |
+| Azure Database | `xyz.database.azure.com:5432/gift_genie` | `true` or auto-detected | SSL required |
+
 ### Install Backend Dependencies
 
 ```bash

@@ -22,12 +22,16 @@ def _get_engine() -> AsyncEngine:
     if _engine is None:
         settings = get_settings()
 
-        # Configure SSL for Scaleway SDB (requires SSL without certificate verification)
-        # Local PostgreSQL works without SSL configuration
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        connect_args = {"ssl": ssl_context}
+        # Configure SSL based on settings
+        connect_args: dict[str, object] = {}
+        if settings.DATABASE_SSL_REQUIRED:
+            logger.info("Database SSL required - configuring SSL context for secure connection")
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            connect_args = {"ssl": ssl_context}
+        else:
+            logger.info("Database SSL not required - using plain connection")
 
         _engine = create_async_engine(
             settings.DATABASE_URL,
