@@ -1,6 +1,8 @@
+import ssl
 import sys
 from logging.config import fileConfig
 from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlparse
 
 from alembic import context
 from sqlalchemy import create_engine, pool
@@ -41,7 +43,28 @@ def run_migrations_online() -> None:
     # "invalid interpolation syntax in 'postgresql://...' at position 25"
     url = config.get_main_option("sqlalchemy.url")
     assert url is not None, "sqlalchemy.url not configured in alembic config"
-    connectable = create_engine(url, poolclass=pool.NullPool)
+
+    # Build connect_args for database-specific requirements
+    connect_args: dict[str, object] = {}
+
+    # Extract and format options parameter for Scaleway Serverless SQL Database
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+
+    if "options" in query_params:
+        # URL decode the options value (e.g., "databaseid%3Duuid" -> "databaseid=uuid")
+        options_value = unquote(query_params["options"][0])
+        # Format for libpq: "-c databaseid=uuid"
+        connect_args["options"] = f"-c {options_value}"
+
+    # Add SSL configuration if required
+    if settings.DATABASE_SSL_REQUIRED:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        connect_args["ssl_context"] = ssl_context
+
+    connectable = create_engine(url, poolclass=pool.NullPool, connect_args=connect_args)
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
