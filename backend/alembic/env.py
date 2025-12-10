@@ -2,7 +2,7 @@ import ssl
 import sys
 from logging.config import fileConfig
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, urlparse
 
 from alembic import context
 from sqlalchemy import create_engine, pool
@@ -52,10 +52,10 @@ def run_migrations_online() -> None:
     query_params = parse_qs(parsed_url.query)
 
     if "options" in query_params:
-        # URL decode the options value (e.g., "databaseid%3Duuid" -> "databaseid=uuid")
-        options_value = unquote(query_params["options"][0])
-        # Format for libpq: "-c databaseid=uuid"
-        connect_args["options"] = f"-c {options_value}"
+        # parse_qs automatically URL-decodes values, so query_params["options"][0] is already decoded
+        # Scaleway expects: options=databaseid={uuid} (no -c prefix needed)
+        options_value = query_params["options"][0]
+        connect_args["options"] = options_value
 
     # Add SSL configuration if required
     if settings.DATABASE_SSL_REQUIRED:
