@@ -27,9 +27,11 @@ terraform {
 }
 
 provider "scaleway" {
-  zone   = var.zone
-  region = var.region
-  # Credentials will be picked up from env vars SCW_ACCESS_KEY, SCW_SECRET_KEY, SCW_DEFAULT_PROJECT_ID
+  zone       = var.zone
+  region     = var.region
+  access_key = var.scw_access_key
+  secret_key = var.scw_secret_key
+  project_id = var.project_id
 }
 
 provider "ovh" {

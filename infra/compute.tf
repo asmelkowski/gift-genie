@@ -60,11 +60,11 @@ resource "scaleway_container" "backend" {
 
     # Async runtime database URL (FastAPI with asyncpg)
     # Note: We use the clean connection string to avoid auto-included params like sslmode
-    "DATABASE_URL" = "postgresql+asyncpg://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string_clean}"
+    "DATABASE_URL" = "postgresql+asyncpg://${var.db_iam_principal_id}:${urlencode(var.scw_secret_key)}@${local.db_connection_string_clean}"
 
     # Sync database URL (Alembic migrations with psycopg2)
     # Note: We append parameters with ? since we stripped any existing ones
-    "DATABASE_URL_SYNC" = "postgresql://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string_clean}?sslmode=require&options=databaseid%3D${local.database_id}"
+    "DATABASE_URL_SYNC" = "postgresql://${var.db_iam_principal_id}:${urlencode(var.scw_secret_key)}@${local.db_connection_string_clean}?sslmode=require&options=databaseid%3D${local.database_id}"
 
     # SECRET_KEY for JWT signing
     "SECRET_KEY" = var.secret_key
