@@ -128,6 +128,8 @@ class Settings(BaseSettings):
             # Check if any cloud provider pattern is in the DATABASE_URL
             cloud_patterns = [
                 "scaleway",
+                "scw.cloud",  # Scaleway container/serverless domains
+                "sdb.",  # Scaleway Serverless Database
                 "rds.amazonaws",
                 "database.azure",
                 "cloudsql",
