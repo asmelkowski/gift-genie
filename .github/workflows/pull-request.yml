@@ -238,6 +238,7 @@ jobs:
           docker run --name backend-test-container \
             --network host \
             -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/gift_genie_test \
+            -e DATABASE_URL_SYNC=postgresql://postgres:postgres@localhost:5432/gift_genie_test \
             -e REDIS_URL=redis://localhost:6379 \
             -e SECRET_KEY=test-secret-key-for-ci \
             -e ALGORITHM=HS256 \
@@ -430,6 +431,7 @@ jobs:
           docker run --rm \
             --network gift-genie-test \
             -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie_test \
+            -e DATABASE_URL_SYNC=postgresql://postgres:postgres@postgres:5432/gift_genie_test \
             gift-genie-backend:prod \
             alembic upgrade head
 
@@ -441,6 +443,7 @@ jobs:
             -p 8000:8000 \
             -e ENV=dev \
             -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie_test \
+            -e DATABASE_URL_SYNC=postgresql://postgres:postgres@postgres:5432/gift_genie_test \
             -e REDIS_URL=redis://redis:6379 \
             -e SECRET_KEY=test-secret-key-for-ci \
             -e ALGORITHM=HS256 \

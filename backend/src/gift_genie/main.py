@@ -11,7 +11,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from gift_genie.infrastructure.config.settings import get_settings
-from gift_genie.infrastructure.database.migrations import run_migrations
+from gift_genie.infrastructure.database.session import close_db
 from gift_genie.infrastructure.logging import get_request_context
 from gift_genie.infrastructure.rate_limiting import limiter
 from gift_genie.presentation.api.v1 import auth, draws, exclusions, groups, members
@@ -57,15 +57,15 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    # Run database migrations first (before any other initialization)
-    logger.info("Starting database migrations...")
-    run_migrations()
-    logger.info("Database migrations completed")
-
-    # Initialize SlowAPI rate limiter
+    # Startup
+    logger.info("Application starting up")
     logger.info("Rate limiting initialized with in-memory storage")
 
     yield
+
+    # Shutdown
+    logger.info("Application shutting down")
+    await close_db()
 
 
 app = FastAPI(
