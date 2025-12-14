@@ -3,11 +3,15 @@
 # Scaleway SDB requires "options=databaseid={uuid}" parameter for TLS SNI
 locals {
   # Extract host:port/db part from endpoint (remove postgres:// prefix)
-  db_connection_string = replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")
+  db_connection_string_raw = replace(scaleway_sdb_sql_database.main.endpoint, "postgres://", "")
+
+  # Split to remove any existing query parameters (e.g., ?sslmode=require)
+  # This prevents duplication when we manually add parameters below
+  db_connection_string_parts = split("?", local.db_connection_string_raw)
+  db_connection_string_clean = local.db_connection_string_parts[0]
 
   # Extract database ID (UUID before first dot in hostname)
-  # Example: "88b921e6-e7d4-4f50-93b9-a0ec7a91d66c" from "88b921e6-e7d4-4f50-93b9-a0ec7a91d66c.pg.sdb.fr-par.scw.cloud:5432/rdb"
-  database_id = regex("^([^.]+)\\.", local.db_connection_string)[0]
+  database_id = regex("^([^.]+)\\.", local.db_connection_string_clean)[0]
 }
 
 resource "scaleway_container_namespace" "main" {
@@ -46,7 +50,7 @@ resource "scaleway_container" "backend" {
     # Scaleway SDB with IAM-based authentication using two separate database URLs:
     # 1. DATABASE_URL: For async FastAPI runtime (asyncpg driver)
     #    - Uses postgresql+asyncpg:// scheme
-    #    - No query parameters (SSL handled via Python ssl module)
+    #    - No query parameters (SSL handled via Python ssl module based on DATABASE_SSL_REQUIRED)
     #    - Credentials: Scaleway Access Key (username) + Secret Key (password)
     # 2. DATABASE_URL_SYNC: For Alembic migrations (psycopg2 driver)
     #    - Uses postgresql:// scheme
@@ -55,10 +59,12 @@ resource "scaleway_container" "backend" {
     # Password is URL-encoded to handle special characters in API key
 
     # Async runtime database URL (FastAPI with asyncpg)
-    "DATABASE_URL" = "postgresql+asyncpg://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string}"
+    # Note: We use the clean connection string to avoid auto-included params like sslmode
+    "DATABASE_URL" = "postgresql+asyncpg://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string_clean}"
 
     # Sync database URL (Alembic migrations with psycopg2)
-    "DATABASE_URL_SYNC" = "postgresql://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string}?sslmode=require&options=databaseid%3D${local.database_id}"
+    # Note: We append parameters with ? since we stripped any existing ones
+    "DATABASE_URL_SYNC" = "postgresql://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string_clean}?sslmode=require&options=databaseid%3D${local.database_id}"
 
     # SECRET_KEY for JWT signing
     "SECRET_KEY" = var.secret_key
