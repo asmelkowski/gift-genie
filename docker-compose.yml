@@ -26,10 +26,8 @@ services:
       target: production
     container_name: gift-genie-backend
     environment:
-      ENV: prod
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie
-      DATABASE_URL_SYNC: postgresql://postgres:postgres@postgres:5432/gift_genie
-      DATABASE_SSL_REQUIRED: "false"
+      PROD: true
+      DATABASE_URL: $DATABASE_URL
       CORS_ORIGINS: http://localhost:80,http://localhost
     ports:
       - 8000:8000

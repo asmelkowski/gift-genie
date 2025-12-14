@@ -1,39 +1,32 @@
-"""Alembic migration environment configuration."""
-
+import ssl
 import sys
 from logging.config import fileConfig
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-# Add src directory to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from gift_genie.infrastructure.database.models import Base
 from gift_genie.infrastructure.config.settings import get_settings
 
-# Alembic Config object
 config = context.config
 
-# Setup Python logging from config file
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# SQLAlchemy metadata for autogenerate support
 target_metadata = Base.metadata
 
-# Get settings and set the database URL
 settings = get_settings()
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("+asyncpg", ""))
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-
-    Generates SQL script without connecting to database.
-    """
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=settings.DATABASE_URL_SYNC,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -44,21 +37,37 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    # Create engine directly with URL to avoid ConfigParser interpolation issues
+    # with URL-encoded passwords (e.g., %26, %40, %24).
+    # ConfigParser treats % as interpolation syntax, causing errors like:
+    # "invalid interpolation syntax in 'postgresql://...' at position 25"
+    url = config.get_main_option("sqlalchemy.url")
+    assert url is not None, "sqlalchemy.url not configured in alembic config"
 
-    Creates connection and runs migrations directly against the database.
-    DATABASE_URL_SYNC already includes sslmode and options parameters.
-    """
-    connectable = create_engine(
-        settings.DATABASE_URL_SYNC,
-        poolclass=pool.NullPool,
-    )
+    # Build connect_args for database-specific requirements
+    connect_args: dict[str, object] = {}
+
+    # Extract and format options parameter for Scaleway Serverless SQL Database
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+
+    if "options" in query_params:
+        # parse_qs automatically URL-decodes values, so query_params["options"][0] is already decoded
+        # Scaleway expects: options=databaseid={uuid} (no -c prefix needed)
+        options_value = query_params["options"][0]
+        connect_args["options"] = options_value
+
+    # Add SSL configuration if required
+    if settings.DATABASE_SSL_REQUIRED:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        connect_args["ssl_context"] = ssl_context
+
+    connectable = create_engine(url, poolclass=pool.NullPool, connect_args=connect_args)
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

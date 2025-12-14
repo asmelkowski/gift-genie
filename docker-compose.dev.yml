@@ -7,11 +7,10 @@ services:
     build:
       target: development
     environment:
-      ENV: dev
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie
-      DATABASE_URL_SYNC: postgresql://postgres:postgres@postgres:5432/gift_genie
-      DATABASE_SSL_REQUIRED: "false"
-      CORS_ORIGINS: http://localhost:80,http://localhost,http://localhost:5173
+      PROD: false
+      REDIS_URL: $REDIS_URL
+      DATABASE_URL: $DATABASE_URL
+      CORS_ORIGINS: http://localhost:80,http://localhost
     volumes:
       - ./backend/src:/app/src:ro
       - ./backend/alembic:/app/alembic:ro
