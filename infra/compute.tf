@@ -38,24 +38,31 @@ resource "scaleway_container" "backend" {
       "https://${var.custom_domain}",
       "https://www.${var.custom_domain}"
     ]) : "*"
-    "COOKIE_SECURE" = "true"
+    "COOKIE_SECURE"         = "true"
+    "DATABASE_SSL_REQUIRED" = "true"
   }
 
-    secret_environment_variables = {
-      # Scaleway SDB with IAM-based authentication
-      # Reuses the same Scaleway credentials that Terraform uses for infrastructure management
-      # The gift-genie IAM application has ServerlessSQLDatabaseFullAccess permissions
-      # Username: Scaleway Access Key (SCW_ACCESS_KEY)
-      # Password: Scaleway Secret Key (SCW_SECRET_KEY)
-      # Endpoint: Database endpoint with postgres:// prefix stripped
-      # Backend adds postgresql+asyncpg:// scheme in settings.py
-      # Password is URL-encoded to handle special characters in API key
-      # Database ID is required for Scaleway SDB TLS SNI (Server Name Indication)
-      "DATABASE_URL" = "${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string}?options=databaseid%3D${local.database_id}&sslmode=require"
+  secret_environment_variables = {
+    # Scaleway SDB with IAM-based authentication using two separate database URLs:
+    # 1. DATABASE_URL: For async FastAPI runtime (asyncpg driver)
+    #    - Uses postgresql+asyncpg:// scheme
+    #    - No query parameters (SSL handled via Python ssl module)
+    #    - Credentials: Scaleway Access Key (username) + Secret Key (password)
+    # 2. DATABASE_URL_SYNC: For Alembic migrations (psycopg2 driver)
+    #    - Uses postgresql:// scheme
+    #    - Includes ?sslmode=require&options=databaseid=... (libpq handles SSL/SNI)
+    #    - Database ID from Scaleway SDB endpoint UUID for TLS SNI
+    # Password is URL-encoded to handle special characters in API key
 
-      # SECRET_KEY for JWT signing
-      "SECRET_KEY" = var.secret_key
-    }
+    # Async runtime database URL (FastAPI with asyncpg)
+    "DATABASE_URL" = "postgresql+asyncpg://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string}"
+
+    # Sync database URL (Alembic migrations with psycopg2)
+    "DATABASE_URL_SYNC" = "postgresql://${var.scw_access_key}:${urlencode(var.scw_secret_key)}@${local.db_connection_string}?sslmode=require&options=databaseid%3D${local.database_id}"
+
+    # SECRET_KEY for JWT signing
+    "SECRET_KEY" = var.secret_key
+  }
 }
 
 resource "scaleway_container" "frontend" {
