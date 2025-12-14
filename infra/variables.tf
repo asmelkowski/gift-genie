@@ -88,8 +88,12 @@ variable "backend_image_tag" {
   default     = "latest"
 }
 
-variable "frontend_image_tag" {
   description = "Docker image tag for frontend (typically git commit SHA)"
   type        = string
   default     = "latest"
+}
+
+variable "db_iam_principal_id" {
+  description = "IAM Principal ID (User or Application UUID) for database authentication"
+  type        = string
 }
