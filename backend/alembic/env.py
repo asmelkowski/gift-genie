@@ -1,4 +1,3 @@
-import ssl
 import sys
 from logging.config import fileConfig
 from pathlib import Path
@@ -53,16 +52,20 @@ def run_migrations_online() -> None:
 
     if "options" in query_params:
         # parse_qs automatically URL-decodes values, so query_params["options"][0] is already decoded
-        # Scaleway expects: options=databaseid={uuid} (no -c prefix needed)
+        # Scaleway SDB requires: options=databaseid={uuid}
         options_value = query_params["options"][0]
         connect_args["options"] = options_value
 
     # Add SSL configuration if required
     if settings.DATABASE_SSL_REQUIRED:
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        connect_args["ssl_context"] = ssl_context
+        # Use sslmode=require to enable SSL/TLS connections.
+        # This lets libpq handle SSL configuration automatically, including:
+        # - Server Name Indication (SNI) during TLS handshake (required for Scaleway SDB)
+        # - Certificate validation
+        # For Scaleway Serverless SQL Database, 'require' mode is sufficient as they
+        # manage certificates internally. This fixes the issue where psycopg2 was
+        # not sending the hostname via SNI, causing "Database hostname wasn't sent to server" error.
+        connect_args["sslmode"] = "require"
 
     connectable = create_engine(url, poolclass=pool.NullPool, connect_args=connect_args)
 
