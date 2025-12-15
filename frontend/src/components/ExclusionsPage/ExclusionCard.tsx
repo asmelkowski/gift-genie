@@ -45,7 +45,7 @@ export function ExclusionCard({
   const truncateUuid = (uuid: string) => uuid.slice(0, 8) + '...';
 
   return (
-    <div className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+    <div className="border rounded-lg p-4 bg-card hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">

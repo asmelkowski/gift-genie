@@ -34,7 +34,7 @@ export default function DrawCard({
   }, [groupId, draw.id, navigate]);
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="font-semibold text-foreground">Draw #{draw.id.slice(0, 8)}</h3>
@@ -125,7 +125,7 @@ function DrawLifecycleStepper({ draw }: { draw: DrawViewModel }) {
   ];
 
   return (
-    <div className="flex items-center justify-between mb-4 px-2 py-2 bg-gray-50 rounded">
+    <div className="flex items-center justify-between mb-4 px-2 py-2 bg-muted/50 rounded">
       {steps.map((step, idx) => (
         <div key={idx} className="flex items-center flex-1">
           <div

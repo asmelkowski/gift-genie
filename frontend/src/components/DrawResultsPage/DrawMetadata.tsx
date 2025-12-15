@@ -17,7 +17,7 @@ export default function DrawMetadata({ draw, assignmentCount, groupName }: DrawM
   const statusText = draw.status === 'finalized' ? 'Finalized' : 'Pending Finalization';
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="bg-card border border-gray-200 rounded-lg p-6">
       {draw.status !== 'finalized' && (
         <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <p className="text-sm text-yellow-800">

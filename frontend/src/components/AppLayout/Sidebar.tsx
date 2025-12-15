@@ -17,7 +17,7 @@ export function Sidebar({ items, activeRoute }: SidebarProps) {
   const currentPath = activeRoute || location.pathname;
 
   return (
-    <nav className="hidden lg:flex lg:flex-col w-64 bg-gray-50 border-r border-gray-200 p-6 overflow-y-auto flex-shrink-0">
+    <nav className="hidden lg:flex lg:flex-col w-64 bg-sidebar border-r border-sidebar-border p-6 overflow-y-auto flex-shrink-0">
       <ul className="space-y-2 list-none m-0 p-0">
         {items.map(item => {
           const isActive = currentPath === item.path || currentPath.startsWith(`${item.path}/`);
@@ -28,8 +28,8 @@ export function Sidebar({ items, activeRoute }: SidebarProps) {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
                   isActive
-                    ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-sidebar-accent text-sidebar-primary-foreground border-l-4 border-sidebar-primary font-semibold'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 }`}
               >
                 <span>{item.label}</span>
