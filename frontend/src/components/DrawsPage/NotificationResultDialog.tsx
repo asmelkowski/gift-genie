@@ -21,11 +21,11 @@ export default function NotificationResultDialog({
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <CheckCircle className="w-6 h-6 text-green-600" />
-          <span className="font-semibold text-gray-900">✓ Sent: {result.sent} notifications</span>
+          <span className="font-semibold text-foreground">✓ Sent: {result.sent} notifications</span>
         </div>
         {result.skipped > 0 && (
           <div>
-            <p className="font-semibold text-gray-900">
+            <p className="font-semibold text-foreground">
               ⊘ Skipped: {result.skipped} members (no email)
             </p>
           </div>

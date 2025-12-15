@@ -28,7 +28,7 @@ export default function DrawMetadata({ draw, assignmentCount, groupName }: DrawM
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Draw Information</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">Draw Information</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Status:</span>
@@ -38,19 +38,19 @@ export default function DrawMetadata({ draw, assignmentCount, groupName }: DrawM
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Created:</span>
-              <span className="text-gray-900">{formatDrawTimestamp(draw.created_at)}</span>
+              <span className="text-foreground">{formatDrawTimestamp(draw.created_at)}</span>
             </div>
             {draw.finalized_at && (
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Finalized:</span>
-                <span className="text-gray-900">{formatDrawTimestamp(draw.finalized_at)}</span>
+                <span className="text-foreground">{formatDrawTimestamp(draw.finalized_at)}</span>
               </div>
             )}
           </div>
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Notification Status</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">Notification Status</h3>
           <div className="space-y-3">
             {draw.notification_sent_at ? (
               <>
@@ -77,7 +77,7 @@ export default function DrawMetadata({ draw, assignmentCount, groupName }: DrawM
           <span className="text-gray-600">{groupName && `${groupName} - `}Assignments:</span>
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            <span className="text-lg font-semibold text-gray-900">{assignmentCount}</span>
+            <span className="text-lg font-semibold text-foreground">{assignmentCount}</span>
           </div>
         </div>
       </div>

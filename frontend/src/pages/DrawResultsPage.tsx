@@ -120,7 +120,7 @@ export default function DrawResultsPage() {
         />
 
         <details className="border border-gray-200 rounded-lg bg-white">
-          <summary className="cursor-pointer px-6 py-4 font-semibold text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-3">
+          <summary className="cursor-pointer px-6 py-4 font-semibold text-foreground hover:bg-gray-50 transition-colors flex items-center gap-3">
             <span className="text-lg">🎁 View Draw Results</span>
             <span className="text-sm font-normal text-gray-600 bg-yellow-100 px-2 py-1 rounded">
               ⚠️ May spoil the fun!

@@ -108,7 +108,7 @@ export function ExclusionCard({
               <div className="text-sm">
                 <div className="text-gray-600 font-medium mb-1">From:</div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">{giverName}</span>
+                  <span className="font-medium text-foreground">{giverName}</span>
                   {giverStatusBadge}
                 </div>
                 {giverMember?.email && (
@@ -119,7 +119,7 @@ export function ExclusionCard({
               <div className="text-sm">
                 <div className="text-gray-600 font-medium mb-1">To:</div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">{receiverName}</span>
+                  <span className="font-medium text-foreground">{receiverName}</span>
                   {receiverStatusBadge}
                 </div>
                 {receiverMember?.email && (
