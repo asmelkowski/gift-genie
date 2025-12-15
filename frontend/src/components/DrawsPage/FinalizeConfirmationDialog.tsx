@@ -19,7 +19,7 @@ export default function FinalizeConfirmationDialog({
       <div className="space-y-4">
         <div className="space-y-3">
           <p>Once finalized, this draw becomes immutable and cannot be modified.</p>
-          <p className="font-semibold text-gray-900">This action cannot be undone.</p>
+          <p className="font-semibold text-foreground">This action cannot be undone.</p>
         </div>
         <div className="flex gap-3 justify-end pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>

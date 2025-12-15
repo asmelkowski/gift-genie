@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export function useAppLayout() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -8,6 +8,13 @@ export function useAppLayout() {
       return 'light';
     }
   });
+
+  // Apply theme to document
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  }, [theme]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

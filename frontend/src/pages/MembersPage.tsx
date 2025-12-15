@@ -139,7 +139,7 @@ export function MembersPage() {
 
       {members.length === 0 && (params.search || params.is_active !== null) ? (
         <div className="text-center py-12">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No members found</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">No members found</h3>
           <p className="text-gray-600 mb-4">
             {params.search
               ? `No members match "${params.search}".`

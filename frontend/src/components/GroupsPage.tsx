@@ -106,7 +106,7 @@ export function GroupsPage() {
 
       {groups.length === 0 && params.search ? (
         <div className="text-center py-12">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No groups found</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">No groups found</h3>
           <p className="text-gray-600 mb-4">
             No groups match "{params.search}". Try a different search term.
           </p>

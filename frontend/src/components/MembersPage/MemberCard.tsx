@@ -30,7 +30,7 @@ export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
       <Card className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="font-semibold text-gray-900">{member.name}</h3>
+            <h3 className="font-semibold text-foreground">{member.name}</h3>
             <div className="mt-1">
               <span
                 className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
@@ -64,7 +64,7 @@ export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
             role="alertdialog"
             aria-labelledby="delete-confirm-title"
           >
-            <p className="text-sm text-gray-900 mb-3" id="delete-confirm-title">
+            <p className="text-sm text-foreground mb-3" id="delete-confirm-title">
               Are you sure you want to delete {member.name}? This will also remove any exclusion
               rules involving this member. This action cannot be undone.
             </p>

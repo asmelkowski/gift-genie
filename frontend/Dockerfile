@@ -121,49 +121,7 @@ RUN bun run build
 FROM nginx:alpine AS production
 
 # Copy custom nginx configuration
-COPY <<EOF /etc/nginx/templates/default.conf.template
-server {
-    listen 80;
-    server_name _;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/css text/javascript application/javascript application/json;
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-
-    # API proxy (if needed)
-    location /api {
-        proxy_pass \${BACKEND_URL};
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_cache_bypass \$http_upgrade;
-    }
-
-    # SPA routing - serve index.html for all routes
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}
-EOF
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy built application from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
