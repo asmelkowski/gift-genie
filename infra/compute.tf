@@ -91,7 +91,7 @@ resource "scaleway_container" "frontend" {
 resource "scaleway_container_domain" "frontend" {
   count        = var.custom_domain != null ? 1 : 0
   container_id = scaleway_container.frontend.id
-  hostname     = var.custom_domain
+  hostname     = "www.${var.custom_domain}"
 }
 
 resource "scaleway_container_domain" "backend" {
