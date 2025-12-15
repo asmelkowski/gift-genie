@@ -81,7 +81,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
       {isOpen && (
         <div
           role="menu"
-          className="absolute top-full right-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg z-1000 opacity-100 transform translate-y-0 transition-all"
+          className="absolute top-full right-0 mt-2 w-52 bg-card border border-gray-200 rounded-md shadow-lg z-1000 opacity-100 transform translate-y-0 transition-all"
         >
           <div className="p-4 border-b border-gray-200">
             <div className="font-semibold text-foreground">{user.name}</div>
@@ -92,7 +92,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
               <button
                 onClick={handleSettings}
                 role="menuitem"
-                className="block w-full text-left px-4 py-2 text-foreground hover:bg-gray-50 transition-colors"
+                className="block w-full text-left px-4 py-2 text-foreground hover:bg-muted transition-colors"
               >
                 Settings
               </button>
@@ -101,7 +101,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
               <button
                 onClick={handleLogout}
                 role="menuitem"
-                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50 transition-colors"
+                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-muted transition-colors"
               >
                 Logout
               </button>

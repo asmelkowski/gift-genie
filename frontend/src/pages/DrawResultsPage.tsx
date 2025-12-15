@@ -119,8 +119,8 @@ export default function DrawResultsPage() {
           groupName={groupQuery.data?.name}
         />
 
-        <details className="border border-gray-200 rounded-lg bg-white">
-          <summary className="cursor-pointer px-6 py-4 font-semibold text-foreground hover:bg-gray-50 transition-colors flex items-center gap-3">
+        <details className="border border-gray-200 rounded-lg bg-card">
+          <summary className="cursor-pointer px-6 py-4 font-semibold text-foreground hover:bg-muted/50 transition-colors flex items-center gap-3">
             <span className="text-lg">🎁 View Draw Results</span>
             <span className="text-sm font-normal text-gray-600 bg-yellow-100 px-2 py-1 rounded">
               ⚠️ May spoil the fun!

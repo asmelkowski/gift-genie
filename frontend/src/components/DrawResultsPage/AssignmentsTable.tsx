@@ -7,7 +7,7 @@ interface AssignmentsTableProps {
 
 export default function AssignmentsTable({ assignments }: AssignmentsTableProps) {
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-card">
       {/* Table layout for larger screens */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">

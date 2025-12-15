@@ -17,7 +17,7 @@ export function GroupDetails() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-card rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold mb-1">Members</h2>
@@ -27,7 +27,7 @@ export function GroupDetails() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-card rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold mb-1">Exclusions</h2>
@@ -39,7 +39,7 @@ export function GroupDetails() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-card rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold mb-1">Draws</h2>
