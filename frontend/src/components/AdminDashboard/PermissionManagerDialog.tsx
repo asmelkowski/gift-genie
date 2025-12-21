@@ -15,6 +15,7 @@ import {
 import { PermissionSection } from './PermissionSection';
 import { PermissionRow } from './PermissionRow';
 import { AvailablePermissionRow } from './AvailablePermissionRow';
+import { GrantGroupAccessSection } from './GrantGroupAccessSection';
 
 interface PermissionManagerDialogProps {
   isOpen: boolean;
@@ -202,14 +203,23 @@ export function PermissionManagerDialog({
           className="text-sm"
         />
 
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className="space-y-4">
-             {/* Available Permissions Section */}
-             {filteredAvailableUngrouped.length > 0 || filteredAvailableGrouped.size > 0 ? (
+         {isLoading ? (
+           <div className="flex justify-center py-8">
+             <Loader2 className="h-6 w-6 animate-spin text-primary" />
+           </div>
+         ) : (
+           <div className="space-y-4">
+              {/* Grant Group-Specific Access Section */}
+              <GrantGroupAccessSection
+                userId={userId}
+                userPermissions={userPermissions}
+              />
+
+              {/* Separator */}
+              <div className="border-t border-gray-200 dark:border-gray-700" />
+
+              {/* Available Permissions Section */}
+              {filteredAvailableUngrouped.length > 0 || filteredAvailableGrouped.size > 0 ? (
                <div className="space-y-4">
                  {/* System Available Permissions Section */}
                  {filteredAvailableUngrouped.length > 0 && (
