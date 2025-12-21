@@ -7,6 +7,7 @@ from httpx import AsyncClient
 from gift_genie.main import app
 from gift_genie.presentation.api.v1 import auth as auth_router
 from gift_genie.domain.entities.user import User
+from gift_genie.domain.entities.enums import UserRole
 from gift_genie.domain.interfaces.repositories import UserRepository
 
 
@@ -63,6 +64,7 @@ async def test_login_success(client: AsyncClient, monkeypatch):
         email="alice@example.com",
         password_hash="hashed:Str0ng!Pass1",
         name="Alice",
+        role=UserRole.USER,
         created_at=datetime.now(tz=UTC),
         updated_at=datetime.now(tz=UTC),
     )
@@ -118,6 +120,7 @@ async def test_login_wrong_password_returns_401(client: AsyncClient):
         email="bob@example.com",
         password_hash="hashed:correctpassword",
         name="Bob",
+        role=UserRole.USER,
         created_at=datetime.now(tz=UTC),
         updated_at=datetime.now(tz=UTC),
     )

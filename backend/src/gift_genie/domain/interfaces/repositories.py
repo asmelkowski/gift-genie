@@ -5,7 +5,9 @@ from gift_genie.domain.entities.enums import DrawStatus, ExclusionType
 from gift_genie.domain.entities.exclusion import Exclusion
 from gift_genie.domain.entities.group import Group
 from gift_genie.domain.entities.member import Member
+from gift_genie.domain.entities.permission import Permission
 from gift_genie.domain.entities.user import User
+from gift_genie.domain.entities.user_permission import UserPermission
 
 
 @runtime_checkable
@@ -20,6 +22,10 @@ class UserRepository(Protocol):
 
     async def email_exists_ci(self, email: str) -> bool: ...
 
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[User], int]: ...
+
 
 @runtime_checkable
 class GroupRepository(Protocol):
@@ -27,6 +33,10 @@ class GroupRepository(Protocol):
 
     async def list_by_admin_user(
         self, user_id: str, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[Group], int]: ...
+
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
     ) -> tuple[list[Group], int]: ...
 
     async def get_by_id(self, group_id: str) -> Group | None: ...
@@ -131,3 +141,33 @@ class DrawRepository(Protocol):
     async def update(self, draw: Draw) -> Draw: ...
 
     async def delete(self, draw_id: str) -> None: ...
+
+
+@runtime_checkable
+class PermissionRepository(Protocol):
+    """Repository interface for Permission entities."""
+
+    async def get_by_code(self, code: str) -> Permission | None: ...
+
+    async def list_all(self) -> list[Permission]: ...
+
+    async def list_by_category(self, category: str) -> list[Permission]: ...
+
+    async def create(self, permission: Permission) -> Permission: ...
+
+
+@runtime_checkable
+class UserPermissionRepository(Protocol):
+    """Repository interface for UserPermission entities (many-to-many junction)."""
+
+    async def grant_permission(
+        self, user_id: str, permission_code: str, granted_by: str | None
+    ) -> UserPermission: ...
+
+    async def revoke_permission(self, user_id: str, permission_code: str) -> bool: ...
+
+    async def has_permission(self, user_id: str, permission_code: str) -> bool: ...
+
+    async def list_by_user(self, user_id: str) -> list[UserPermission]: ...
+
+    async def list_permissions_for_user(self, user_id: str) -> list[Permission]: ...

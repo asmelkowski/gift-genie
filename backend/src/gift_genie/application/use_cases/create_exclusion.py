@@ -28,7 +28,7 @@ class CreateExclusionUseCase:
     exclusion_repository: ExclusionRepository
 
     async def execute(self, command: CreateExclusionCommand) -> list[Exclusion]:
-        # Validate group exists and user is admin
+        # Validate group exists and user is owner
         group = await self.group_repository.get_by_id(command.group_id)
         if not group:
             raise GroupNotFoundError()

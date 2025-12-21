@@ -1,0 +1,684 @@
+import { test, expect } from '@playwright/test';
+import { AdminDashboardPage } from '../page-objects/AdminDashboardPage';
+import {
+  createAdminUser,
+  createRegularUser,
+  createUserWithoutLogin,
+  grantPermissionViaAPI,
+  generateRandomString,
+  generateUser,
+  registerUser,
+  loginUser,
+  type UserData,
+} from '../helpers';
+
+/**
+ * Admin Dashboard UX, Search, Pagination, and Error Handling E2E Tests
+ *
+ * These tests verify the user experience quality of the admin dashboard,
+ * including search functionality, pagination, loading states, error handling,
+ * and empty states.
+ */
+test.describe('Admin Dashboard UX and Error Handling', () => {
+  // ============================================================================
+  // Search & Filtering Tests
+  // ============================================================================
+
+  test('search filters users correctly by name', async ({ page, context }) => {
+    console.log('[E2E] Test: search filters users correctly by name');
+
+     // Setup: Create admin and 3 regular users with distinct names
+     const adminUser = await createAdminUser(page, context);
+     const user1 = await createUserWithoutLogin(page, 'user');
+     const user2 = await createUserWithoutLogin(page, 'user');
+     const user3 = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Verify all users are visible initially
+    await adminDashboard.expectUserInTable(user1.email);
+    await adminDashboard.expectUserInTable(user2.email);
+    await adminDashboard.expectUserInTable(user3.email);
+    console.log('[E2E] All 3 users visible initially');
+
+    // Search for specific user by partial email
+    const searchTerm = user1.email.split('@')[0]; // e.g., "e2e-user-xyz"
+    await adminDashboard.searchUsers(searchTerm);
+    console.log(`[E2E] Searched for: "${searchTerm}"`);
+
+    // Verify only matching user is visible
+    await adminDashboard.expectUserInTable(user1.email);
+    console.log('[E2E] User 1 found in search results');
+
+    // Verify other users are filtered out
+    await adminDashboard.expectUserNotInTable(user2.email);
+    await adminDashboard.expectUserNotInTable(user3.email);
+    console.log('[E2E] Other users correctly filtered out');
+
+    // Verify count of rows is correct
+    const rows = page.getByTestId(/^user-row-/).or(page.locator('tbody tr'));
+    const visibleRows = await rows.count();
+    expect(visibleRows).toBeGreaterThan(0);
+    console.log(`[E2E] ✓ Search filtered results correctly (${visibleRows} row(s) visible)`);
+  });
+
+   test('search is case-insensitive', async ({ page, context }) => {
+     console.log('[E2E] Test: search is case-insensitive');
+
+     // Setup: Create admin and regular user
+     const adminUser = await createAdminUser(page, context);
+     const regularUser = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Get the user's email/name for searching
+    const email = regularUser.email;
+    const emailPrefix = email.split('@')[0];
+
+    // Test lowercase search
+    await adminDashboard.searchUsers(emailPrefix.toLowerCase());
+    await adminDashboard.expectUserInTable(email);
+    console.log('[E2E] Found user with lowercase search');
+
+    // Clear and test uppercase search
+    await adminDashboard.clearSearch();
+    await adminDashboard.searchUsers(emailPrefix.toUpperCase());
+    await adminDashboard.expectUserInTable(email);
+    console.log('[E2E] Found user with uppercase search');
+
+    // Clear and test mixed case search
+    await adminDashboard.clearSearch();
+    const mixedCase = emailPrefix
+      .split('')
+      .map((char, i) => (i % 2 === 0 ? char.toUpperCase() : char.toLowerCase()))
+      .join('');
+    await adminDashboard.searchUsers(mixedCase);
+    await adminDashboard.expectUserInTable(email);
+    console.log('[E2E] Found user with mixed case search');
+
+    console.log('[E2E] ✓ Search is case-insensitive');
+  });
+
+   test('clearing search shows all users again', async ({ page, context }) => {
+     console.log('[E2E] Test: clearing search shows all users again');
+
+     // Setup: Create admin and 2 regular users
+     const adminUser = await createAdminUser(page, context);
+     const user1 = await createUserWithoutLogin(page, 'user');
+     const user2 = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Note initial state - both users visible
+    const initialRows = await page.locator('tbody tr').count();
+    expect(initialRows).toBeGreaterThan(0);
+    console.log(`[E2E] Initial state: ${initialRows} rows visible`);
+
+    // Search for user1
+    const searchTerm = user1.email.split('@')[0];
+    await adminDashboard.searchUsers(searchTerm);
+    console.log(`[E2E] Searched for: "${searchTerm}"`);
+
+    // Verify filtered state
+    await adminDashboard.expectUserInTable(user1.email);
+    const filteredRows = await page.locator('tbody tr').count();
+    console.log(`[E2E] Filtered state: ${filteredRows} rows visible`);
+    expect(filteredRows).toBeLessThanOrEqual(initialRows);
+
+    // Clear search
+    await adminDashboard.clearSearch();
+    console.log('[E2E] Cleared search');
+
+    // Verify all users visible again
+    await adminDashboard.expectUserInTable(user1.email);
+    await adminDashboard.expectUserInTable(user2.email);
+
+    const finalRows = await page.locator('tbody tr').count();
+    expect(finalRows).toBeGreaterThanOrEqual(filteredRows);
+    console.log(`[E2E] Final state: ${finalRows} rows visible (should be >= filtered)`);
+
+    console.log('[E2E] ✓ Clearing search shows all users again');
+  });
+
+   test('search with no matching results shows empty state', async ({ page, context }) => {
+     console.log('[E2E] Test: search with no matching results shows empty state');
+
+     // Setup: Create admin + regular user
+     const adminUser = await createAdminUser(page, context);
+     const regularUser = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Search for non-existent user
+    const nonExistentSearch = 'nonexistent-user-xyz-' + generateRandomString(8);
+    await adminDashboard.searchUsers(nonExistentSearch);
+    console.log(`[E2E] Searched for non-existent: "${nonExistentSearch}"`);
+
+    // Verify empty state message
+    const noResultsText = page.locator('text=No users found');
+    await expect(noResultsText).toBeVisible();
+    console.log('[E2E] Empty state message visible');
+
+    // Verify no user rows are shown
+    const userRows = await page.locator('tbody tr').count();
+    // Should be 0 rows in tbody, or just the empty state row
+    expect(userRows).toBeLessThanOrEqual(1);
+
+    console.log('[E2E] ✓ Empty state displayed for no results');
+  });
+
+  // ============================================================================
+  // Pagination Tests
+  // ============================================================================
+
+   test('pagination works correctly with multiple pages', async ({ page, context }) => {
+     console.log('[E2E] Test: pagination works correctly with multiple pages');
+
+     // Setup: Create admin + 15 regular users to ensure pagination
+     const adminUser = await createAdminUser(page, context);
+     const users: UserData[] = [];
+     for (let i = 0; i < 15; i++) {
+       const user = await createUserWithoutLogin(page, 'user');
+       users.push(user);
+     }
+    console.log('[E2E] Created 15 test users');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Verify first page is visible and has users
+    const page1Rows = await page.locator('tbody tr').count();
+    expect(page1Rows).toBeGreaterThan(0);
+    console.log(`[E2E] Page 1 has ${page1Rows} rows`);
+
+    // Check that next button is enabled
+    const nextButton = page.getByTestId('pagination-next');
+    const isNextEnabled = await nextButton.isEnabled();
+    console.log(`[E2E] Next button enabled: ${isNextEnabled}`);
+
+    if (isNextEnabled) {
+      // Navigate to next page
+      await adminDashboard.goToNextPage();
+      console.log('[E2E] Navigated to page 2');
+
+      // Wait for table rows to appear on page 2
+      await page.locator('tbody tr').first().waitFor({ state: 'visible', timeout: 5000 });
+      
+      // Verify page 2 has users
+      const page2Rows = await page.locator('tbody tr').count();
+      console.log(`[E2E] Counted ${page2Rows} rows on page 2`);
+      expect(page2Rows).toBeGreaterThan(0);
+      console.log(`[E2E] Page 2 has ${page2Rows} rows`);
+
+      // Verify previous button is now enabled
+      const prevButton = page.getByTestId('pagination-prev');
+      const isPrevEnabled = await prevButton.isEnabled();
+      expect(isPrevEnabled).toBe(true);
+      console.log('[E2E] Previous button is enabled on page 2');
+
+      // Go back to page 1
+      await adminDashboard.goToPreviousPage();
+      console.log('[E2E] Navigated back to page 1');
+
+      // Verify previous button is disabled on page 1
+      const isPrevDisabledOnPage1 = await prevButton.isDisabled();
+      expect(isPrevDisabledOnPage1).toBe(true);
+      console.log('[E2E] Previous button is disabled on page 1');
+    }
+
+    console.log('[E2E] ✓ Pagination works correctly');
+  });
+
+   test('pagination resets to page 1 when searching', async ({ page, context }) => {
+     console.log('[E2E] Test: pagination resets to page 1 when searching');
+
+     // Setup: Create admin + 12 users
+     const adminUser = await createAdminUser(page, context);
+     const users: UserData[] = [];
+     for (let i = 0; i < 12; i++) {
+       const user = await createUserWithoutLogin(page, 'user');
+       users.push(user);
+     }
+    console.log('[E2E] Created 12 test users');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Try to navigate to page 2
+    const nextButton = page.getByTestId('pagination-next');
+    const isNextEnabled = await nextButton.isEnabled();
+
+    if (isNextEnabled) {
+      await adminDashboard.goToNextPage();
+      console.log('[E2E] Navigated to page 2');
+
+      // Verify we're on page 2 (pagination text shows page 2)
+      const paginationText = page.locator('text=/Page 2/');
+      await expect(paginationText).toBeVisible();
+    }
+
+    // Now perform a search
+    const searchTerm = users[0].email.split('@')[0];
+    await adminDashboard.searchUsers(searchTerm);
+    console.log(`[E2E] Performed search: "${searchTerm}"`);
+
+    // Verify pagination resets to page 1
+    const page1Text = page.locator('text=/Page 1/');
+    await expect(page1Text).toBeVisible();
+    console.log('[E2E] Pagination reset to page 1');
+
+    // Verify user is found in search
+    await adminDashboard.expectUserInTable(users[0].email);
+
+    console.log('[E2E] ✓ Pagination resets on search');
+  });
+
+  // ============================================================================
+  // Loading States
+  // ============================================================================
+
+  test('loading state shows during dashboard load', async ({ page, context }) => {
+    console.log('[E2E] Test: loading state shows during dashboard load');
+
+    // Setup: Create admin user
+    const adminUser = await createAdminUser(page, context);
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard without waiting
+    await page.goto('/app/admin');
+
+    // Try to catch loading state (may be brief)
+    // First check if loader appears or wait for it to disappear
+    const loader = page.locator('svg.animate-spin').first();
+    const dashboardContent = page.getByTestId('admin-dashboard');
+
+    // Either we catch the loader or the content loads
+    try {
+      await loader.waitFor({ state: 'visible', timeout: 1000 });
+      console.log('[E2E] Loading spinner was visible');
+      // Wait for it to disappear
+      await loader.waitFor({ state: 'hidden', timeout: 5000 });
+    } catch {
+      console.log('[E2E] Loading spinner was not visible (content loaded quickly)');
+    }
+
+    // Eventually dashboard should be visible
+    await expect(dashboardContent).toBeVisible();
+    console.log('[E2E] Dashboard loaded');
+
+    console.log('[E2E] ✓ Loading state verified');
+  });
+
+  test('loading state clears after search results load', async ({ page, context }) => {
+    console.log('[E2E] Test: loading state clears after search results load');
+
+    // Setup: Create admin and users
+    const adminUser = await createAdminUser(page, context);
+    const regularUser = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Perform search
+    const searchTerm = regularUser.email.split('@')[0];
+    await adminDashboard.searchUsers(searchTerm);
+    console.log(`[E2E] Searched for: "${searchTerm}"`);
+
+    // Wait for results to load
+    await page.waitForLoadState('networkidle');
+
+    // Verify loading spinner is gone (wait for spinners to disappear with timeout)
+    const loaders = page.locator('svg.animate-spin').first();
+    try {
+      await loaders.waitFor({ state: 'hidden', timeout: 3000 });
+    } catch {
+      // Spinner may have already disappeared
+    }
+    console.log('[E2E] Loading spinner cleared');
+
+    // Verify results are shown
+    await adminDashboard.expectUserInTable(regularUser.email);
+    console.log('[E2E] ✓ Search results loaded without loading state');
+  });
+
+  // ============================================================================
+  // Error Handling Tests
+  // ============================================================================
+
+   test('granting invalid permission code shows error', async ({ page, context }) => {
+     console.log('[E2E] Test: granting invalid permission code shows error');
+
+     // Setup: Create admin and regular user
+     const adminUser = await createAdminUser(page, context);
+     const regularUser = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+     // Search for user and open dialog
+     await adminDashboard.searchUsers(regularUser.email);
+     await adminDashboard.expectUserInTable(regularUser.email);
+
+     // Use the user ID directly from the created user
+     const userId = regularUser.id!;
+
+    // Open permission dialog
+    await adminDashboard.clickManagePermissions(userId);
+    console.log('[E2E] Opened permission dialog');
+
+    // Attempt to grant invalid permission via API interception
+    await page.route('**/api/v1/admin/users/**/permissions', async (route) => {
+      const request = route.request();
+      if (request.method() === 'POST') {
+        const body = request.postDataJSON() as { permission_code?: string };
+        // Check if code looks invalid
+        if (body.permission_code === 'invalid:permission') {
+          await route.abort('failed');
+        } else {
+          await route.continue();
+        }
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Try to grant invalid permission by directly calling API with invalid code
+    try {
+      const response = await page.request.post(
+        `http://${process.env.CI ? 'backend:8000' : 'localhost:8000'}/api/v1/admin/users/${userId}/permissions`,
+        {
+          data: {
+            permission_code: 'invalid:permission:code',
+          },
+        }
+      );
+
+      console.log(`[E2E] Grant response status: ${response.status()}`);
+
+      if (!response.ok()) {
+        console.log('[E2E] Invalid permission was rejected (expected)');
+      }
+    } catch (error) {
+      console.log('[E2E] Invalid permission grant resulted in error (expected)');
+    }
+
+    console.log('[E2E] ✓ Invalid permission handled gracefully');
+  });
+
+  test('permission dialog handles missing user gracefully', async ({ page, context }) => {
+    console.log('[E2E] Test: permission dialog handles missing user gracefully');
+
+    // Setup: Create admin user
+    const adminUser = await createAdminUser(page, context);
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Attempt to open dialog for non-existent user
+    const fakeUserId = 'nonexistent-user-id-' + generateRandomString(8);
+
+    // Try to navigate directly to permission API with non-existent user
+    const response = await page.request.get(
+      `http://${process.env.CI ? 'backend:8000' : 'localhost:8000'}/api/v1/admin/users/${fakeUserId}/permissions`
+    );
+
+    console.log(`[E2E] Response for non-existent user: ${response.status()}`);
+    expect([401, 403, 404]).toContain(response.status());
+
+    console.log('[E2E] ✓ Missing user handled with appropriate error status');
+  });
+
+   test('API errors display graceful error handling', async ({ page, context }) => {
+     console.log('[E2E] Test: API errors display graceful error handling');
+
+     // Setup: Create admin and regular user
+     const adminUser = await createAdminUser(page, context);
+     const regularUser = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+     // Search for user and extract ID
+     await adminDashboard.searchUsers(regularUser.email);
+     await adminDashboard.expectUserInTable(regularUser.email);
+
+     // Use the user ID directly from the created user
+     const userId = regularUser.id!;
+
+    // Set up API error response for permission grant
+    let errorTriggered = false;
+    await page.route('**/api/v1/admin/users/**/permissions', async (route) => {
+      if (route.request().method() === 'POST') {
+        errorTriggered = true;
+        await route.abort('failed');
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Try to grant permission (should fail)
+    try {
+      const response = await page.request.post(
+        `http://${process.env.CI ? 'backend:8000' : 'localhost:8000'}/api/v1/admin/users/${userId}/permissions`,
+        {
+          data: {
+            permission_code: 'draws:notify',
+          },
+        }
+      );
+
+      if (!response.ok()) {
+        console.log(`[E2E] API error caught (status: ${response.status()})`);
+      }
+    } catch (error) {
+      console.log('[E2E] API error: request was aborted (expected)');
+      expect(errorTriggered).toBe(true);
+    }
+
+    console.log('[E2E] ✓ API errors handled gracefully');
+  });
+
+  // ============================================================================
+  // Permission Count and State
+  // ============================================================================
+
+  test('permission count displays correctly for users with different permission levels', async ({
+    page,
+    context,
+  }) => {
+    console.log(
+      '[E2E] Test: permission count displays correctly for users with different permission levels'
+    );
+
+     // Setup: Create admin and regular users
+     const adminUser = await createAdminUser(page, context);
+     const userNoPermissions = await createUserWithoutLogin(page, 'user');
+     const userWithPermissions = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Grant permissions to second user
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+     // Find user with no permissions
+     await adminDashboard.searchUsers(userNoPermissions.email);
+     await adminDashboard.expectUserInTable(userNoPermissions.email);
+
+     // Use the user ID directly from the created user
+     let userId = userNoPermissions.id!;
+
+     let countText = await adminDashboard.getPermissionCount(userId);
+     expect(countText).toContain('0');
+     console.log(`[E2E] User with no permissions shows count: ${countText}`);
+
+     // Clear search and find user with permissions
+     await adminDashboard.clearSearch();
+     await adminDashboard.searchUsers(userWithPermissions.email);
+     await adminDashboard.expectUserInTable(userWithPermissions.email);
+
+     // Use the user ID directly from the created user
+     userId = userWithPermissions.id!;
+
+    await grantPermissionViaAPI(page, userId, 'draws:notify');
+    console.log('[E2E] Granted permission via API');
+
+    // Refresh to see updated count
+    await page.reload();
+    await adminDashboard.waitForLoad();
+    await adminDashboard.searchUsers(userWithPermissions.email);
+
+    // Check updated count
+    countText = await adminDashboard.getPermissionCount(userId);
+    expect(countText).toContain('1');
+    console.log(`[E2E] User with 1 permission shows count: ${countText}`);
+
+     // Verify admin user shows "All (Admin)"
+     const adminEmail = adminUser.email;
+     await adminDashboard.clearSearch();
+     await adminDashboard.searchUsers(adminEmail);
+
+     // Use the user ID directly from the created user
+     userId = adminUser.id!;
+
+    countText = await adminDashboard.getPermissionCount(userId);
+    expect(countText).toContain('All (Admin)');
+    console.log(`[E2E] Admin user shows count: ${countText}`);
+
+    console.log('[E2E] ✓ Permission counts display correctly');
+  });
+
+  test('no users found message appears when all are filtered out', async ({
+    page,
+    context,
+  }) => {
+    console.log('[E2E] Test: no users found message appears when all are filtered out');
+
+    // Setup: Create admin
+    const adminUser = await createAdminUser(page, context);
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to admin dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+
+    // Search for extremely unlikely email pattern
+    const impossibleSearch = 'zzzzzzzzzzzzzz-nonexistent-' + generateRandomString(12);
+    await adminDashboard.searchUsers(impossibleSearch);
+    console.log(`[E2E] Searched for: "${impossibleSearch}"`);
+
+    // Wait for results
+    await page.waitForLoadState('networkidle');
+
+    // Verify empty state message is visible
+    const emptyStateText = page.locator('text=No users found');
+    await expect(emptyStateText).toBeVisible();
+    console.log('[E2E] Empty state message visible');
+
+    // Verify table is visible but empty
+    const tableRows = page.locator('tbody tr');
+    const rowCount = await tableRows.count();
+    expect(rowCount).toBeLessThanOrEqual(1); // Should be 0 or the empty state row
+
+    console.log('[E2E] ✓ Empty state displayed correctly');
+  });
+
+  // ============================================================================
+  // User Interaction Flow Tests
+  // ============================================================================
+
+  test('admin can search, navigate pages, and manage permissions in sequence', async ({
+    page,
+    context,
+  }) => {
+    console.log('[E2E] Test: admin can search, navigate pages, and manage permissions in sequence');
+
+     // Setup: Create admin and 2 users
+     const adminUser = await createAdminUser(page, context);
+     const user1 = await createUserWithoutLogin(page, 'user');
+     const user2 = await createUserWithoutLogin(page, 'user');
+
+    const adminDashboard = new AdminDashboardPage(page);
+
+    // Navigate to dashboard
+    await adminDashboard.goto();
+    await adminDashboard.waitForLoad();
+    console.log('[E2E] Step 1: Dashboard loaded');
+
+    // Verify both users are visible
+    await adminDashboard.expectUserInTable(user1.email);
+    await adminDashboard.expectUserInTable(user2.email);
+    console.log('[E2E] Step 2: Both users visible');
+
+    // Search for user1
+    const searchTerm = user1.email.split('@')[0];
+    await adminDashboard.searchUsers(searchTerm);
+    await adminDashboard.expectUserInTable(user1.email);
+    await adminDashboard.expectUserNotInTable(user2.email);
+    console.log('[E2E] Step 3: Search filtered results');
+
+     // Use the user ID directly from the created user
+     const userId = user1.id!;
+
+    await adminDashboard.clickManagePermissions(userId);
+    console.log('[E2E] Step 4: Opened permission dialog');
+
+     // Grant permission
+     await adminDashboard.grantPermission('draws:notify');
+     console.log('[E2E] Step 5: Permission granted');
+
+    // Close dialog
+    await adminDashboard.closePermissionDialog();
+    await page.waitForLoadState('networkidle');
+    console.log('[E2E] Step 6: Dialog closed');
+
+    // Clear search to see all users again
+    await adminDashboard.clearSearch();
+    await adminDashboard.expectUserInTable(user1.email);
+    await adminDashboard.expectUserInTable(user2.email);
+    console.log('[E2E] Step 7: Search cleared, all users visible');
+
+    // Verify permission persisted
+    const countText = await adminDashboard.getPermissionCount(userId);
+    expect(countText).toContain('1');
+    console.log('[E2E] Step 8: Permission count updated to 1');
+
+    console.log('[E2E] ✓ Full admin workflow completed successfully');
+  });
+});

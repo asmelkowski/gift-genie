@@ -7,6 +7,7 @@ from httpx import AsyncClient
 
 from gift_genie.main import app
 from gift_genie.presentation.api.v1 import groups as groups_router
+from gift_genie.presentation.api import dependencies as api_dependencies
 from gift_genie.domain.entities.group import Group
 from gift_genie.domain.interfaces.repositories import GroupRepository
 
@@ -40,7 +41,7 @@ class InMemoryGroupRepo(GroupRepository):
 async def test_get_groups_empty(client: AsyncClient):
     repo = InMemoryGroupRepo()
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     resp = await client.get("/api/v1/groups")
     assert resp.status_code == 200
@@ -67,7 +68,7 @@ async def test_get_groups_with_data(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     resp = await client.get("/api/v1/groups")
     assert resp.status_code == 200
@@ -90,7 +91,7 @@ async def test_get_groups_unauthorized(client: AsyncClient):
 async def test_create_group_success(client: AsyncClient):
     repo = InMemoryGroupRepo()
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     payload = {"name": "New Group"}
     resp = await client.post("/api/v1/groups", json=payload)
@@ -108,7 +109,7 @@ async def test_create_group_success(client: AsyncClient):
 async def test_create_group_invalid_name(client: AsyncClient):
     repo = InMemoryGroupRepo()
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     payload = {"name": ""}
     resp = await client.post("/api/v1/groups", json=payload)
@@ -125,7 +126,7 @@ async def test_create_group_unauthorized(client: AsyncClient):
     def raise_unauthorized():
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
-    app.dependency_overrides[groups_router.get_current_user] = raise_unauthorized
+    app.dependency_overrides[api_dependencies.get_current_user] = raise_unauthorized
 
     payload = {"name": "Group"}
     resp = await client.post("/api/v1/groups", json=payload)

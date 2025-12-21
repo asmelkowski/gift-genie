@@ -10,6 +10,8 @@ import { PaginationControls } from './GroupsPage/PaginationControls';
 import { CreateGroupDialog } from './GroupsPage/CreateGroupDialog';
 import { useGroupsQuery } from '@/hooks/useGroupsQuery';
 import { useGroupsParams } from './GroupsPage/useGroupsParams';
+import { isForbiddenError } from '@/lib/errors';
+import { AccessDeniedState } from '@/components/ui/AccessDeniedState';
 
 export function GroupsPage() {
   const navigate = useNavigate();
@@ -73,6 +75,17 @@ export function GroupsPage() {
   }
 
   if (error) {
+    if (isForbiddenError(error)) {
+      return (
+        <div className="space-y-6">
+          <PageHeader onCreateClick={handleCreateClick} />
+          <AccessDeniedState
+            message="You don't have permission to view this group list."
+            onRetry={() => refetch()}
+          />
+        </div>
+      );
+    }
     return (
       <div className="space-y-6">
         <PageHeader onCreateClick={handleCreateClick} />

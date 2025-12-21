@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDrawQuery } from '@/hooks/useDrawQuery';
 import { useAssignmentsQuery } from '@/hooks/useAssignmentsQuery';
 import { useGroupDetailsQuery } from '@/hooks/useGroupDetailsQuery';
-
+import { isForbiddenError } from '@/lib/errors';
+import { AccessDeniedState } from '@/components/ui/AccessDeniedState';
 import { shouldShowConfetti, clearConfettiFlag, type AssignmentWithNames } from '@/lib/drawUtils';
 import PageHeader from '@/components/DrawResultsPage/PageHeader';
 import DrawMetadata from '@/components/DrawResultsPage/DrawMetadata';
@@ -97,7 +98,14 @@ export default function DrawResultsPage() {
   if (assignmentsQuery.isError) {
     return (
       <div className="p-8 max-w-6xl mx-auto">
-        <ErrorState error="Failed to load assignments" />
+        {isForbiddenError(assignmentsQuery.error) ? (
+          <AccessDeniedState
+            message="You don't have permission to view these draw results."
+            onRetry={() => assignmentsQuery.refetch()}
+          />
+        ) : (
+          <ErrorState error="Failed to load assignments" />
+        )}
       </div>
     );
   }

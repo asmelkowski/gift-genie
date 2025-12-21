@@ -25,9 +25,15 @@ from gift_genie.application.use_cases.get_current_user import GetCurrentUserUseC
 from gift_genie.application.use_cases.login_user import LoginUserUseCase
 from gift_genie.application.use_cases.register_user import RegisterUserUseCase
 from gift_genie.domain.interfaces.security import PasswordHasher
-from gift_genie.domain.interfaces.repositories import UserRepository
+from gift_genie.domain.interfaces.repositories import (
+    UserRepository,
+    UserPermissionRepository,
+)
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.database.repositories.users import UserRepositorySqlAlchemy
+from gift_genie.infrastructure.database.repositories.user_permissions import (
+    UserPermissionRepositorySqlAlchemy,
+)
 from gift_genie.infrastructure.security.jwt import JWTService
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
 from gift_genie.infrastructure.config.settings import get_settings
@@ -65,6 +71,7 @@ class UserCreatedResponse(BaseModel):
     id: str
     email: EmailStr
     name: str
+    role: str
     created_at: datetime
 
 
@@ -79,6 +86,7 @@ class UserProfile(BaseModel):
     id: str
     email: str
     name: str
+    role: str
 
 
 class LoginResponse(BaseModel):
@@ -91,6 +99,7 @@ class UserProfileResponse(BaseModel):
     id: str
     email: str
     name: str
+    role: str
     created_at: datetime
     updated_at: datetime
 
@@ -100,6 +109,12 @@ async def get_user_repository(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> AsyncGenerator[UserRepository, None]:
     yield UserRepositorySqlAlchemy(session)
+
+
+async def get_user_permission_repository(
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> AsyncGenerator[UserPermissionRepository, None]:
+    yield UserPermissionRepositorySqlAlchemy(session)
 
 
 async def get_password_hasher() -> PasswordHasher:
@@ -118,19 +133,24 @@ async def register_user(
     payload: RegisterRequest,
     response: Response,
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
+    user_perm_repo: Annotated[UserPermissionRepository, Depends(get_user_permission_repository)],
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
 ) -> UserCreatedResponse:
     cmd = RegisterUserCommand(
         email=str(payload.email).strip(), password=payload.password, name=payload.name
     )
-    use_case = RegisterUserUseCase(user_repository=user_repo, password_hasher=password_hasher)
+    use_case = RegisterUserUseCase(
+        user_repository=user_repo,
+        password_hasher=password_hasher,
+        user_permission_repository=user_perm_repo,
+    )
     user = await use_case.execute(cmd)
 
     # Optionally set Location header
     _ = response.headers.setdefault("Location", f"/api/v1/users/{user.id}")
 
     return UserCreatedResponse(
-        id=user.id, email=user.email, name=user.name, created_at=user.created_at
+        id=user.id, email=user.email, name=user.name, role=user.role, created_at=user.created_at
     )
 
 
@@ -177,7 +197,8 @@ async def login_user(
     response.headers["X-CSRF-Token"] = csrf_token
 
     return LoginResponse(
-        user=UserProfile(id=user.id, email=user.email, name=user.name), access_token=access_token
+        user=UserProfile(id=user.id, email=user.email, name=user.name, role=user.role),
+        access_token=access_token,
     )
 
 
@@ -196,6 +217,7 @@ async def get_current_user_profile(
         id=user.id,
         email=user.email,
         name=user.name,
+        role=user.role,
         created_at=user.created_at,
         updated_at=user.updated_at,
     )

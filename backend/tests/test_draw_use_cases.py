@@ -103,7 +103,7 @@ async def test_create_draw_group_not_found():
 
 
 @pytest.mark.anyio
-async def test_create_draw_forbidden():
+async def test_create_draw_forbidden_not_owner():
     group_repo = AsyncMock()
     draw_repo = AsyncMock()
 
@@ -112,7 +112,7 @@ async def test_create_draw_forbidden():
     user_id = str(uuid4())
     group = Group(
         id=group_id,
-        admin_user_id=admin_id,  # Different admin
+        admin_user_id=admin_id,  # Different owner
         name="Test Group",
         historical_exclusions_enabled=True,
         historical_exclusions_lookback=1,
@@ -127,7 +127,7 @@ async def test_create_draw_forbidden():
     )
     command = CreateDrawCommand(
         group_id=group_id,
-        requesting_user_id=user_id,  # Not admin
+        requesting_user_id=user_id,  # Not owner
     )
 
     with pytest.raises(ForbiddenError):

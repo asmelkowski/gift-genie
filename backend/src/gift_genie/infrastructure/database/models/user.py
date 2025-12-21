@@ -4,10 +4,11 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, Index, Text, func
+from sqlalchemy import DateTime, Index, Text, func, Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from gift_genie.infrastructure.database.models.base import Base
+from gift_genie.domain.entities.enums import UserRole
 from gift_genie.libs.utils import utc_datetime_now
 
 if TYPE_CHECKING:
@@ -21,6 +22,7 @@ class UserModel(Base):
     email: Mapped[str] = mapped_column(Text, nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    role: Mapped[UserRole] = mapped_column(SqlEnum(UserRole), nullable=False, default=UserRole.USER)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_datetime_now
     )

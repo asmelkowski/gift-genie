@@ -22,7 +22,7 @@ class CreateDrawUseCase:
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group admin
+        # Verify authorization: user must be the group owner
         if group.admin_user_id != command.requesting_user_id:
             raise ForbiddenError()
 

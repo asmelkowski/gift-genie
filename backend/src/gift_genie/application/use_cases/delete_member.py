@@ -13,12 +13,14 @@ class DeleteMemberUseCase:
     member_repository: MemberRepository
 
     async def execute(self, command: DeleteMemberCommand) -> None:
+        # Permission check removed (now at presentation layer via require_permission dependency)
+
         # Validate group exists
         group = await self.group_repository.get_by_id(command.group_id)
         if not group:
             raise GroupNotFoundError()
 
-        # Verify user is admin of the group
+        # Verify user is owner of the group
         if group.admin_user_id != command.requesting_user_id:
             raise ForbiddenError()
 

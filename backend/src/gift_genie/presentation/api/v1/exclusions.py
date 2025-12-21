@@ -41,7 +41,9 @@ from gift_genie.infrastructure.database.repositories.groups import GroupReposito
 from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.presentation.api.v1.shared import PaginationMeta
-from gift_genie.presentation.api.dependencies import get_current_user
+from gift_genie.presentation.api.dependencies import (
+    require_permission,
+)
 
 
 router: APIRouter = APIRouter(prefix="/groups/{group_id}/exclusions", tags=["exclusions"])
@@ -120,7 +122,7 @@ async def list_exclusions(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("exclusion_type,name"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("exclusions:read"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
 ) -> PaginatedExclusionsResponse:
@@ -197,7 +199,7 @@ async def create_exclusion(
     *,
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateExclusionRequest,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("exclusions:create"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
@@ -298,7 +300,7 @@ async def create_exclusions_bulk(
     *,
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateExclusionsBulkRequest,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("exclusions:create"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
@@ -388,7 +390,7 @@ async def delete_exclusion(
     group_id: UUID = Path(..., description="Group UUID"),
     exclusion_id: UUID = Path(..., description="Exclusion UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("exclusions:delete"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
 ) -> Response:
@@ -399,7 +401,8 @@ async def delete_exclusion(
             requesting_user_id=current_user_id,
         )
         use_case = DeleteExclusionUseCase(
-            group_repository=group_repo, exclusion_repository=exclusion_repo
+            group_repository=group_repo,
+            exclusion_repository=exclusion_repo,
         )
         await use_case.execute(command)
         return Response(status_code=204)

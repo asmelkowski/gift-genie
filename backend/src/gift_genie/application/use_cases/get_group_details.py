@@ -18,7 +18,7 @@ class GetGroupDetailsUseCase:
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group admin
+        # Verify authorization: user must be the group owner
         if group.admin_user_id != query.requesting_user_id:
             raise ForbiddenError()
 

@@ -28,7 +28,7 @@ from gift_genie.application.use_cases.update_group import UpdateGroupUseCase
 from gift_genie.domain.interfaces.repositories import GroupRepository
 from gift_genie.infrastructure.database.repositories.groups import GroupRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
-from gift_genie.presentation.api.dependencies import get_current_user
+from gift_genie.presentation.api.dependencies import require_permission
 
 router: APIRouter = APIRouter(prefix="/groups", tags=["groups"])
 
@@ -125,7 +125,7 @@ async def list_groups(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("-created_at", pattern=r"^-?(created_at|name)$"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("groups:read"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> PaginatedGroupsResponse:
     try:
@@ -136,7 +136,9 @@ async def list_groups(
             page_size=page_size,
             sort=sort,
         )
-        use_case = ListUserGroupsUseCase(group_repository=group_repo)
+        use_case = ListUserGroupsUseCase(
+            group_repository=group_repo,
+        )
         groups, total = await use_case.execute(query)
 
         data = [
@@ -171,7 +173,7 @@ async def create_group(
     payload: CreateGroupRequest,
     response: Response,
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("groups:create"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> GroupDetailResponse:
     try:
@@ -193,7 +195,9 @@ async def create_group(
             historical_exclusions_enabled=enabled,
             historical_exclusions_lookback=lookback,
         )
-        use_case = CreateGroupUseCase(group_repository=group_repo)
+        use_case = CreateGroupUseCase(
+            group_repository=group_repo,
+        )
         group = await use_case.execute(command)
 
         resp = GroupDetailResponse(
@@ -256,12 +260,14 @@ async def create_group(
 async def get_group_details(
     group_id: UUID = Path(..., description="Group UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("groups:read"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> GroupDetailWithStatsResponse:
     try:
         query = GetGroupDetailsQuery(group_id=str(group_id), requesting_user_id=current_user_id)
-        use_case = GetGroupDetailsUseCase(group_repository=group_repo)
+        use_case = GetGroupDetailsUseCase(
+            group_repository=group_repo,
+        )
         group, (member_count, active_count) = await use_case.execute(query)
 
         return GroupDetailWithStatsResponse(
@@ -305,7 +311,7 @@ async def update_group(
     *,
     group_id: UUID = Path(..., description="Group UUID"),
     payload: UpdateGroupRequest,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("groups:update"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> GroupUpdateResponse:
     try:
@@ -316,7 +322,9 @@ async def update_group(
             historical_exclusions_enabled=payload.historical_exclusions_enabled,
             historical_exclusions_lookback=payload.historical_exclusions_lookback,
         )
-        use_case = UpdateGroupUseCase(group_repository=group_repo)
+        use_case = UpdateGroupUseCase(
+            group_repository=group_repo,
+        )
         group = await use_case.execute(command)
 
         return GroupUpdateResponse(
@@ -394,12 +402,14 @@ async def update_group(
 async def delete_group(
     group_id: UUID = Path(..., description="Group UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("groups:delete"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> Response:
     try:
         command = DeleteGroupCommand(group_id=str(group_id), requesting_user_id=current_user_id)
-        use_case = DeleteGroupUseCase(group_repository=group_repo)
+        use_case = DeleteGroupUseCase(
+            group_repository=group_repo,
+        )
         await use_case.execute(command)
         return Response(status_code=204)
     except GroupNotFoundError as e:

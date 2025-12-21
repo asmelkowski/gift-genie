@@ -11,3 +11,8 @@ class DrawStatus(str, Enum):
 class ExclusionType(str, Enum):
     MANUAL = "manual"
     HISTORICAL = "historical"
+
+
+class UserRole(str, Enum):
+    ADMIN = "admin"
+    USER = "user"

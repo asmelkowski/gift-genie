@@ -148,3 +148,21 @@ class DrawImpossibleError(Exception):
 
     def __init__(self, message: str = "No valid draw configuration possible"):
         super().__init__(message)
+
+
+class UserNotFoundError(Exception):
+    """Raised when a user is not found."""
+
+    pass
+
+
+class PermissionNotFoundError(Exception):
+    """Raised when a permission is not found."""
+
+    pass
+
+
+class NotFoundError(Exception):
+    """Generic not found error for flexible use in repositories."""
+
+    pass

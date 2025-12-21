@@ -12,6 +12,8 @@ import { useMembersQuery } from '@/hooks/useMembersQuery';
 import { useMembersParams } from '@/components/MembersPage/useMembersParams';
 import { useDeleteMemberMutation } from '@/hooks/useDeleteMemberMutation';
 import { useGroupDetailsQuery } from '@/hooks/useGroupDetailsQuery';
+import { isForbiddenError } from '@/lib/errors';
+import { AccessDeniedState } from '@/components/ui/AccessDeniedState';
 import type { components } from '@/types/schema';
 
 type MemberResponse = components['schemas']['MemberResponse'];
@@ -99,6 +101,17 @@ export function MembersPage() {
   }
 
   if (error) {
+    if (isForbiddenError(error)) {
+      return (
+        <div className="space-y-6">
+          <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
+          <AccessDeniedState
+            message="You don't have permission to view members of this group."
+            onRetry={() => refetch()}
+          />
+        </div>
+      );
+    }
     return (
       <div className="space-y-6">
         <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
