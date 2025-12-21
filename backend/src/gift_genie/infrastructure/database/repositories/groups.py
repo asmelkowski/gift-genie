@@ -66,6 +66,29 @@ class GroupRepositorySqlAlchemy(GroupRepository):
 
         return groups, total
 
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[Group], int]:
+        # Build base filter
+        filter_expr = True
+        if search:
+            filter_expr = func.lower(GroupModel.name).contains(func.lower(search))
+
+        # Get total count
+        count_stmt = select(func.count()).select_from(GroupModel).where(filter_expr)
+        count_res = await self._session.execute(count_stmt)
+        total = count_res.scalar_one() or 0
+
+        # Build query
+        query = select(GroupModel).where(filter_expr)
+        query = self._apply_sort(query, sort)
+        query = query.limit(page_size).offset((page - 1) * page_size)
+
+        # Execute
+        res = await self._session.execute(query)
+        models = res.scalars().all()
+        return [self._to_domain(m) for m in models], total
+
     async def get_by_id(self, group_id: str) -> Optional[Group]:
         stmt = select(GroupModel).where(GroupModel.id == UUID(group_id))
         res = await self._session.execute(stmt)

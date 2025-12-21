@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from gift_genie.domain.entities.enums import UserRole
+
 
 @dataclass
 class User:
@@ -8,6 +10,7 @@ class User:
     email: str
     password_hash: str
     name: str
+    role: UserRole
     created_at: datetime
     updated_at: datetime
 

@@ -216,7 +216,7 @@ async def test_draw_not_found_raises_error():
 
 
 @pytest.mark.anyio
-async def test_forbidden_when_not_admin():
+async def test_forbidden_when_not_owner():
     # Mock repositories
     draw_repo = AsyncMock()
     group_repo = AsyncMock()

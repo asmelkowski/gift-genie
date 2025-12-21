@@ -13,9 +13,11 @@ import { ExclusionsPage } from '@/pages/ExclusionsPage';
 import DrawsPage from '@/components/DrawsPage/DrawsPage';
 import DrawResultsPage from '@/pages/DrawResultsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AdminRoute } from '@/components/AdminRoute';
 import { AppLayout } from '@/components/AppLayout/AppLayout';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import api from '@/lib/api';
+import { AdminDashboard } from '@/pages/AdminDashboard';
 import { BootstrapContext } from '@/contexts/BootstrapContext';
 import './App.css';
 
@@ -78,6 +80,14 @@ const router = createBrowserRouter([
         element: <GroupDetails />,
       },
 
+      {
+        path: 'admin',
+        element: (
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        ),
+      },
       {
         path: 'settings',
         element: <div>Settings Page (To be implemented)</div>,

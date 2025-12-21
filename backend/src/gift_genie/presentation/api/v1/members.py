@@ -26,7 +26,7 @@ from gift_genie.application.use_cases.update_member import UpdateMemberUseCase
 from gift_genie.domain.interfaces.repositories import GroupRepository, MemberRepository
 from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
-from gift_genie.presentation.api.dependencies import get_current_user
+from gift_genie.presentation.api.dependencies import require_permission
 from gift_genie.presentation.api.v1.groups import get_group_repository
 from gift_genie.presentation.api.v1.shared import PaginationMeta
 
@@ -81,7 +81,7 @@ async def get_member(
     group_id: UUID = Path(..., description="Group UUID"),
     member_id: UUID = Path(..., description="Member UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("members:read"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
 ) -> MemberResponse:
@@ -147,7 +147,7 @@ async def update_member(
     group_id: UUID = Path(..., description="Group UUID"),
     member_id: UUID = Path(..., description="Member UUID"),
     request: UpdateMemberRequest,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("members:update"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
 ) -> MemberResponse:
@@ -246,7 +246,7 @@ async def delete_member(
     group_id: UUID = Path(..., description="Group UUID"),
     member_id: UUID = Path(..., description="Member UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("members:delete"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
 ) -> Response:
@@ -310,7 +310,7 @@ async def list_members(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("name", pattern=r"^-?(name|created_at)$"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("members:read"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
 ) -> PaginatedMembersResponse:
@@ -392,7 +392,7 @@ async def create_member(
     group_id: UUID = Path(..., description="Group UUID"),
     request: CreateMemberRequest,
     response: Response,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("members:create"))],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
 ) -> MemberResponse:

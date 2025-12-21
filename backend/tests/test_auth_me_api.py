@@ -7,6 +7,7 @@ from httpx import AsyncClient
 from gift_genie.main import app
 from gift_genie.presentation.api.v1 import auth as auth_router
 from gift_genie.domain.entities.user import User
+from gift_genie.domain.entities.enums import UserRole
 from gift_genie.domain.interfaces.repositories import UserRepository
 
 
@@ -61,6 +62,7 @@ async def test_get_me_success(client: AsyncClient):
         email="test@example.com",
         password_hash="hashed:password",
         name="Test User",
+        role=UserRole.USER,
         created_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
         updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
     )

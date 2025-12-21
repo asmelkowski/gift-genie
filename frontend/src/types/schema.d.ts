@@ -38,6 +38,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Users */
+        get: operations["list_users_api_v1_admin_users_get"];
+    };
+    "/api/v1/admin/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Groups */
+        get: operations["list_groups_api_v1_admin_groups_get"];
+    };
     "/api/v1/groups": {
         parameters: {
             query?: never;
@@ -664,6 +684,8 @@ export interface components {
             email: string;
             /** Name */
             name: string;
+            /** Role */
+            role: string;
             /**
              * Created At
              * Format: date-time
@@ -678,6 +700,8 @@ export interface components {
             email: string;
             /** Name */
             name: string;
+            /** Role */
+            role: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -687,6 +711,48 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** UserResponse */
+        UserResponse: {
+            /** Id */
+            id: string;
+            /** Email */
+            email: string;
+            /** Name */
+            name: string;
+            /** Role */
+            role: string;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** PaginatedUsersResponse */
+        PaginatedUsersResponse: {
+            /** Data */
+            data: components["schemas"]["UserResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** AdminGroupResponse */
+        AdminGroupResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Admin User Id */
+            admin_user_id: string;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /** Historical Exclusions Enabled */
+            historical_exclusions_enabled: boolean;
+        };
+        /** AdminPaginatedGroupsResponse */
+        AdminPaginatedGroupsResponse: {
+            /** Data */
+            data: components["schemas"]["AdminGroupResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
         };
     };
     responses: never;
@@ -759,6 +825,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_users_api_v1_admin_users_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+                sort?: string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedUsersResponse"];
+                };
+            };
+        };
+    };
+    list_groups_api_v1_admin_groups_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+                sort?: string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPaginatedGroupsResponse"];
                 };
             };
         };

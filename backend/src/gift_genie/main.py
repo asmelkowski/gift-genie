@@ -11,12 +11,27 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from gift_genie.infrastructure.config.settings import get_settings
-from gift_genie.infrastructure.database.session import close_db
+from gift_genie.infrastructure.database.session import close_db, get_async_session
+from gift_genie.infrastructure.database.repositories.permissions import (
+    PermissionRepositorySqlAlchemy,
+)
+from gift_genie.infrastructure.database.seeds.permissions_seed import seed_permissions
 from gift_genie.infrastructure.logging import get_request_context
 from gift_genie.infrastructure.rate_limiting import limiter
-from gift_genie.presentation.api.v1 import auth, draws, exclusions, groups, members
+from gift_genie.presentation.api.v1 import (
+    admin,
+    auth,
+    draws,
+    exclusions,
+    groups,
+    members,
+    test_endpoints,
+)
 from gift_genie.presentation.api.exception_handlers import setup_exception_handlers
-from gift_genie.presentation.middleware import setup_exception_logging_middleware
+from gift_genie.presentation.middleware import (
+    setup_exception_logging_middleware,
+    setup_test_guard_middleware,
+)
 
 settings = get_settings()
 
@@ -61,6 +76,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Application starting up")
     logger.info("Rate limiting initialized with in-memory storage")
 
+    # Seed permissions on startup (idempotent - safe to run multiple times)
+    try:
+        logger.info("Seeding permissions...")
+        async for session in get_async_session():
+            permission_repo = PermissionRepositorySqlAlchemy(session)
+            await seed_permissions(permission_repo)
+            await session.commit()
+            logger.info("Permissions seeding completed successfully")
+            break  # Only need one session
+    except Exception as e:
+        logger.error(f"Failed to seed permissions: {e}")
+        # Don't fail startup - permissions might already exist or will be handled later
+
     yield
 
     # Shutdown
@@ -91,6 +119,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Setup test guard middleware (must be before exception logging)
+setup_test_guard_middleware(app)
+
 # Setup exception logging middleware
 setup_exception_logging_middleware(app)
 
@@ -99,10 +130,18 @@ setup_exception_handlers(app)
 
 # Include routers
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(admin.router, prefix="/api/v1")
 app.include_router(groups.router, prefix="/api/v1")
 app.include_router(members.router, prefix="/api/v1")
 app.include_router(exclusions.router, prefix="/api/v1")
 app.include_router(draws.router, prefix="/api/v1")
+
+# Include test-only endpoints in non-production environments
+if settings.ENV != "production":
+    app.include_router(test_endpoints.router, prefix="/api/v1")
+    logger.warning(
+        "Test endpoints enabled in non-production environment", extra={"env": settings.ENV}
+    )
 
 
 class HealthResponse(BaseModel):

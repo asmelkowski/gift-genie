@@ -41,6 +41,23 @@ async def test_execute_successful_deletion():
 
 
 @pytest.mark.anyio
+async def test_execute_forbidden_when_not_owner():
+    # Arrange - user doesn't own the group
+    group = _make_group("admin-456")  # Different owner
+    mock_repo = AsyncMock()
+    mock_repo.get_by_id.return_value = group
+
+    use_case = DeleteGroupUseCase(mock_repo)
+    command = DeleteGroupCommand(group_id=group.id, requesting_user_id="user-123")
+
+    # Act & Assert
+    with pytest.raises(ForbiddenError):
+        await use_case.execute(command)
+
+    mock_repo.delete.assert_not_called()
+
+
+@pytest.mark.anyio
 async def test_execute_group_not_found():
     # Arrange
     mock_repo = AsyncMock()
@@ -51,23 +68,6 @@ async def test_execute_group_not_found():
 
     # Act & Assert
     with pytest.raises(GroupNotFoundError):
-        await use_case.execute(command)
-
-    mock_repo.delete.assert_not_called()
-
-
-@pytest.mark.anyio
-async def test_execute_forbidden_access():
-    # Arrange
-    group = _make_group("admin-456")  # Different admin
-    mock_repo = AsyncMock()
-    mock_repo.get_by_id.return_value = group
-
-    use_case = DeleteGroupUseCase(mock_repo)
-    command = DeleteGroupCommand(group_id=group.id, requesting_user_id="user-123")  # Wrong user
-
-    # Act & Assert
-    with pytest.raises(ForbiddenError):
         await use_case.execute(command)
 
     mock_repo.delete.assert_not_called()

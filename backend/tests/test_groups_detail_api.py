@@ -8,6 +8,7 @@ from fastapi import HTTPException
 
 from gift_genie.main import app
 from gift_genie.presentation.api.v1 import groups as groups_router
+from gift_genie.presentation.api import dependencies as api_dependencies
 from gift_genie.domain.entities.group import Group
 from gift_genie.domain.interfaces.repositories import GroupRepository
 
@@ -73,7 +74,7 @@ async def test_get_group_details_success(client: AsyncClient):
     repo._member_stats[group.id] = (15, 12)  # Set stats
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "admin-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     resp = await client.get(f"/api/v1/groups/{group.id}")
 
@@ -95,7 +96,7 @@ async def test_get_group_details_unauthorized(client: AsyncClient):
     async def unauthorized():
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
-    app.dependency_overrides[groups_router.get_current_user] = unauthorized
+    app.dependency_overrides[api_dependencies.get_current_user] = unauthorized
 
     resp = await client.get("/api/v1/groups/some-id")
 
@@ -110,7 +111,7 @@ async def test_get_group_details_forbidden(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"  # Wrong user
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"  # Wrong user
 
     resp = await client.get(f"/api/v1/groups/{group.id}")
 
@@ -122,7 +123,7 @@ async def test_get_group_details_forbidden(client: AsyncClient):
 async def test_get_group_details_not_found(client: AsyncClient):
     repo = InMemoryGroupRepo()
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     nonexistent_uuid = str(uuid4())  # Valid UUID that doesn't exist
     resp = await client.get(f"/api/v1/groups/{nonexistent_uuid}")
@@ -138,7 +139,7 @@ async def test_patch_group_success_partial_update(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "admin-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     payload = {"name": "Updated Name", "historical_exclusions_lookback": 3}
     resp = await client.patch(f"/api/v1/groups/{group.id}", json=payload)
@@ -158,7 +159,7 @@ async def test_patch_group_invalid_payload_no_fields(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "admin-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     resp = await client.patch(f"/api/v1/groups/{group.id}", json={})
 
@@ -173,7 +174,7 @@ async def test_patch_group_invalid_name(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "admin-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     payload = {"name": ""}  # Invalid empty name
     resp = await client.patch(f"/api/v1/groups/{group.id}", json=payload)
@@ -188,7 +189,7 @@ async def test_patch_group_forbidden(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"  # Wrong user
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"  # Wrong user
 
     payload = {"name": "New Name"}
     resp = await client.patch(f"/api/v1/groups/{group.id}", json=payload)
@@ -204,7 +205,7 @@ async def test_delete_group_success(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "admin-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     resp = await client.delete(f"/api/v1/groups/{group.id}")
 
@@ -222,7 +223,7 @@ async def test_delete_group_forbidden(client: AsyncClient):
     await repo.create(group)
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"  # Wrong user
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"  # Wrong user
 
     resp = await client.delete(f"/api/v1/groups/{group.id}")
 
@@ -237,7 +238,7 @@ async def test_delete_group_forbidden(client: AsyncClient):
 async def test_delete_group_not_found(client: AsyncClient):
     repo = InMemoryGroupRepo()
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     nonexistent_uuid = str(uuid4())  # Valid UUID that doesn't exist
     resp = await client.delete(f"/api/v1/groups/{nonexistent_uuid}")

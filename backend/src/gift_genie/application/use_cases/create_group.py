@@ -14,6 +14,7 @@ class CreateGroupUseCase:
     group_repository: GroupRepository
 
     async def execute(self, command: CreateGroupCommand) -> Group:
+        # Permission check removed (now at presentation layer via require_permission)
         # Format validation handled at presentation layer
         # Business validation: check for duplicate names if needed (not currently implemented)
 

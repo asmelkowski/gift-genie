@@ -47,7 +47,9 @@ from gift_genie.infrastructure.database.repositories.members import MemberReposi
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.services.email_notification_service import EmailNotificationService
 from gift_genie.presentation.api.v1.shared import PaginationMeta
-from gift_genie.presentation.api.dependencies import get_current_user
+from gift_genie.presentation.api.dependencies import (
+    require_permission,
+)
 from gift_genie.presentation.api.v1.groups import get_group_repository
 
 router: APIRouter = APIRouter(tags=["draws"])
@@ -265,7 +267,7 @@ async def list_draws(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("-created_at", pattern=r"^-?created_at$"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:read"))],
     use_case: Annotated[ListDrawsUseCase, Depends(get_list_draws_use_case)],
 ) -> PaginatedDrawsResponse:
     query = ListDrawsQuery(
@@ -306,7 +308,7 @@ async def create_draw(
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateDrawRequest = Depends(),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:create"))],
     use_case: Annotated[CreateDrawUseCase, Depends(get_create_draw_use_case)],
     response: Response,
 ) -> DrawResponse:
@@ -336,7 +338,7 @@ async def create_draw(
 async def get_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:read"))],
     use_case: Annotated[GetDrawUseCase, Depends(get_get_draw_use_case)],
 ) -> DrawResponse:
     query = GetDrawQuery(
@@ -361,7 +363,7 @@ async def get_draw(
 async def delete_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:delete"))],
     use_case: Annotated[DeleteDrawUseCase, Depends(get_delete_draw_use_case)],
 ) -> Response:
     command = DeleteDrawCommand(
@@ -378,7 +380,7 @@ async def execute_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: ExecuteDrawRequest = Depends(),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:create"))],
     use_case: Annotated[ExecuteDrawUseCase, Depends(get_execute_draw_use_case)],
 ) -> ExecuteDrawResponse:
     command = ExecuteDrawCommand(
@@ -414,7 +416,7 @@ async def finalize_draw(
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: FinalizeDrawRequest = Depends(),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:finalize"))],
     use_case: Annotated[FinalizeDrawUseCase, Depends(get_finalize_draw_use_case)],
 ) -> DrawResponse:
     command = FinalizeDrawCommand(
@@ -440,7 +442,7 @@ async def notify_draw(
     payload: NotifyDrawRequest,
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:notify"))],
     use_case: Annotated[NotifyDrawUseCase, Depends(get_notify_draw_use_case)],
 ) -> NotifyDrawResponse:
     print(payload)
@@ -460,7 +462,7 @@ async def list_assignments(
     draw_id: UUID = Path(..., description="Draw UUID"),
     include: Literal["names", "none"] = Query("none", description="Include member names"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user_id: Annotated[str, Depends(require_permission("draws:view_assignments"))],
     use_case: Annotated[ListAssignmentsUseCase, Depends(get_list_assignments_use_case)],
 ) -> ListAssignmentsResponse:
     query = ListAssignmentsQuery(

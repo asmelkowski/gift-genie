@@ -55,7 +55,7 @@ class ListAssignmentsUseCase:
             logger.error(f"Group {draw.group_id} not found for draw {query.draw_id}")
             raise DrawNotFoundError()
 
-        # Verify authorization: user must be the group admin
+        # Verify authorization: user must be the group owner
         if group.admin_user_id != query.requesting_user_id:
             logger.warning(
                 f"User {query.requesting_user_id} forbidden from accessing "

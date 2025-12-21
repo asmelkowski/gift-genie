@@ -17,10 +17,28 @@ export class GroupsPage {
 
   // Actions
   async clickCreateGroup() {
-    await this.page
+    // Try header button first (shown when groups exist)
+    const headerButton = this.page
       .getByTestId('groups-page-header')
-      .getByRole('button', { name: 'Create Group' })
-      .click();
+      .getByRole('button', { name: 'Create Group' });
+    
+    // Try empty state button (shown when no groups exist)
+    const emptyButton = this.page.getByTestId('empty-state-create-group');
+    
+    // Check which button is visible and click it
+    const headerVisible = await headerButton.isVisible().catch(() => false);
+    const emptyVisible = await emptyButton.isVisible().catch(() => false);
+    
+    if (headerVisible) {
+      await headerButton.click();
+    } else if (emptyVisible) {
+      await emptyButton.click();
+    } else {
+      throw new Error('No Create Group button found (neither header nor empty state)');
+    }
+    
+    // Wait for the dialog to open and form to be ready
+    await this.page.getByPlaceholder('Enter group name').waitFor({ state: 'visible', timeout: 5000 });
   }
 
   async fillGroupName(name: string) {

@@ -11,6 +11,8 @@ import { PaginationControls } from './PaginationControls';
 import { LoadingState } from './LoadingState';
 import { ErrorState } from './ErrorState';
 import { EmptyState } from './EmptyState';
+import { isForbiddenError } from '@/lib/errors';
+import { AccessDeniedState } from '@/components/ui/AccessDeniedState';
 import type { components } from '@/types/schema';
 
 type ExclusionType = components['schemas']['ExclusionType'];
@@ -118,7 +120,13 @@ export function ExclusionsPage() {
       {exclusionsLoading ? (
         <LoadingState />
       ) : exclusionsError ? (
-        <ErrorState message="Failed to load exclusions" />
+        isForbiddenError(exclusionsError) ? (
+          <AccessDeniedState
+            message="You don't have permission to view exclusions for this group."
+          />
+        ) : (
+          <ErrorState message="Failed to load exclusions" />
+        )
       ) : exclusionsWithMembers.length === 0 ? (
         <EmptyState
           message={

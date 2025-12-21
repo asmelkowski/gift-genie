@@ -2,6 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { queryClient } from './queryClient';
 import { useAuthStore } from '@/hooks/useAuthStore';
+import { getErrorMessage } from './errors';
 
 const api = axios.create({
   baseURL: (() => {
@@ -133,12 +134,9 @@ api.interceptors.response.use(
     }
     // Handle client errors (4xx except 401 which is handled above)
     else if (error.response?.status >= 400 && error.response?.status !== 401) {
-      // Don't show toast for validation errors (422) as they're usually handled by forms
-      if (error.response.status !== 422) {
-        const errorMessage =
-          error.response?.data?.detail ||
-          error.response?.data?.message ||
-          `Request failed (${error.response.status})`;
+      // Don't show toast for 403 (handled by components) or 422 (handled by forms)
+      if (error.response.status !== 403 && error.response.status !== 422) {
+        const errorMessage = getErrorMessage(error);
         toast.error(errorMessage);
       }
     }

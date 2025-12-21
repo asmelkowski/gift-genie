@@ -9,6 +9,8 @@ import { useNotifyDrawMutation } from '@/hooks/useNotifyDrawMutation';
 import { useDeleteDrawMutation } from '@/hooks/useDeleteDrawMutation';
 import { useGroupDetailsQuery } from '@/hooks/useGroupDetailsQuery';
 import { transformToDrawViewModel, type DrawViewModel } from '@/lib/drawUtils';
+import { isForbiddenError } from '@/lib/errors';
+import { AccessDeniedState } from '@/components/ui/AccessDeniedState';
 import PageHeader from './PageHeader';
 import DrawsToolbar from './DrawsToolbar';
 import DrawsGrid from './DrawsGrid';
@@ -153,7 +155,14 @@ export default function DrawsPage() {
         {drawsQuery.isLoading ? (
           <LoadingState />
         ) : drawsQuery.isError ? (
-          <ErrorState error="Failed to load draws" />
+          isForbiddenError(drawsQuery.error) ? (
+            <AccessDeniedState
+              message="You don't have permission to view draws for this group."
+              onRetry={() => drawsQuery.refetch()}
+            />
+          ) : (
+            <ErrorState error="Failed to load draws" />
+          )
         ) : (
           <>
             {executeError && <ErrorGuidanceAlert error={executeError} groupId={groupId} />}
@@ -193,38 +202,44 @@ export default function DrawsPage() {
 
       <ExecuteDrawLoadingOverlay isVisible={executingDrawId !== null} />
 
-      {selectedDrawForFinalize && (
-        <FinalizeConfirmationDialog
-          isOpen={finalizeDialogOpen}
-          onClose={() => {
-            setFinalizeDialogOpen(false);
-            setSelectedDrawForFinalize(null);
-          }}
-          onConfirm={handleFinalizeConfirm}
-          isLoading={finalizeDrawMutation.isPending}
-        />
-      )}
+      {
+        selectedDrawForFinalize && (
+          <FinalizeConfirmationDialog
+            isOpen={finalizeDialogOpen}
+            onClose={() => {
+              setFinalizeDialogOpen(false);
+              setSelectedDrawForFinalize(null);
+            }}
+            onConfirm={handleFinalizeConfirm}
+            isLoading={finalizeDrawMutation.isPending}
+          />
+        )
+      }
 
-      {selectedDrawForNotify && (
-        <NotifyDrawDialog
-          isOpen={notifyDialogOpen}
-          onClose={() => {
-            setNotifyDialogOpen(false);
-            setSelectedDrawForNotify(null);
-          }}
-          onConfirm={handleNotifyConfirm}
-          draw={selectedDrawForNotify}
-          isLoading={notifyDrawMutation.isPending}
-        />
-      )}
+      {
+        selectedDrawForNotify && (
+          <NotifyDrawDialog
+            isOpen={notifyDialogOpen}
+            onClose={() => {
+              setNotifyDialogOpen(false);
+              setSelectedDrawForNotify(null);
+            }}
+            onConfirm={handleNotifyConfirm}
+            draw={selectedDrawForNotify}
+            isLoading={notifyDrawMutation.isPending}
+          />
+        )
+      }
 
-      {notifyResult && (
-        <NotificationResultDialog
-          isOpen={!!notifyResult}
-          onClose={() => setNotifyResult(null)}
-          result={notifyResult}
-        />
-      )}
-    </div>
+      {
+        notifyResult && (
+          <NotificationResultDialog
+            isOpen={!!notifyResult}
+            onClose={() => setNotifyResult(null)}
+            result={notifyResult}
+          />
+        )
+      }
+    </div >
   );
 }

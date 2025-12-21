@@ -6,6 +6,7 @@ from uuid import uuid4
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from gift_genie.domain.entities.user import User
+from gift_genie.domain.entities.enums import UserRole
 from gift_genie.application.errors import EmailConflictError
 from gift_genie.infrastructure.database.models.base import Base
 from gift_genie.infrastructure.database.repositories.users import (
@@ -41,6 +42,7 @@ def _make_user(email: str, name: str = "Test User") -> User:
         email=email,
         password_hash="hashed:password",
         name=name,
+        role=UserRole.USER,
         created_at=now,
         updated_at=now,
     )

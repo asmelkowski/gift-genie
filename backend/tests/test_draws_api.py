@@ -8,6 +8,7 @@ from httpx import AsyncClient
 from gift_genie.main import app
 from gift_genie.presentation.api.v1 import draws as draws_router
 from gift_genie.presentation.api.v1 import groups as groups_router
+from gift_genie.presentation.api import dependencies as api_dependencies
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.entities.enums import DrawStatus, ExclusionType
 from gift_genie.domain.entities.group import Group
@@ -240,7 +241,7 @@ async def test_list_draws_empty(client: AsyncClient):
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: group_repo
     app.dependency_overrides[draws_router.get_draw_repository] = lambda: draw_repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     # Create a group for the user
     now = datetime.now(UTC)
@@ -271,7 +272,7 @@ async def test_create_and_get_draw(client: AsyncClient):
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: group_repo
     app.dependency_overrides[draws_router.get_draw_repository] = lambda: draw_repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     now = datetime.now(UTC)
     group = Group(
@@ -310,7 +311,7 @@ async def test_delete_draw(client: AsyncClient):
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: group_repo
     app.dependency_overrides[draws_router.get_draw_repository] = lambda: draw_repo
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     now = datetime.now(UTC)
     group = Group(
@@ -352,7 +353,7 @@ async def test_delete_finalized_draw(client: AsyncClient):
     app.dependency_overrides[draws_router.get_assignment_repository] = lambda: assignment_repo
     app.dependency_overrides[draws_router.get_notification_service] = lambda: notif
     app.dependency_overrides[draws_router.get_draw_algorithm] = lambda: algorithm
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     now = datetime.now(UTC)
     group = Group(
@@ -432,7 +433,7 @@ async def test_execute_finalized_draw(client: AsyncClient):
     app.dependency_overrides[draws_router.get_assignment_repository] = lambda: assignment_repo
     app.dependency_overrides[draws_router.get_notification_service] = lambda: notif
     app.dependency_overrides[draws_router.get_draw_algorithm] = lambda: algorithm
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     now = datetime.now(UTC)
     group = Group(
@@ -512,7 +513,7 @@ async def test_execute_finalize_notify_draw_flow(client: AsyncClient):
     app.dependency_overrides[draws_router.get_assignment_repository] = lambda: assignment_repo
     app.dependency_overrides[draws_router.get_notification_service] = lambda: notif
     app.dependency_overrides[draws_router.get_draw_algorithm] = lambda: algorithm
-    app.dependency_overrides[groups_router.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
 
     # Create group and three members
     now = datetime.now(UTC)

@@ -12,12 +12,13 @@ class DeleteGroupUseCase:
     group_repository: GroupRepository
 
     async def execute(self, command: DeleteGroupCommand) -> None:
+        # Permission check removed (now at presentation layer via require_permission)
         # Fetch group by ID
         group = await self.group_repository.get_by_id(command.group_id)
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group admin
+        # Verify authorization: user must be the group owner
         if group.admin_user_id != command.requesting_user_id:
             raise ForbiddenError()
 

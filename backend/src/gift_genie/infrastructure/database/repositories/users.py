@@ -23,6 +23,7 @@ class UserRepositorySqlAlchemy(UserRepository):
             email=user.email,
             password_hash=user.password_hash,
             name=user.name,
+            role=user.role,
             created_at=user.created_at,
             updated_at=user.updated_at,
         )
@@ -61,12 +62,48 @@ class UserRepositorySqlAlchemy(UserRepository):
         count = res.scalar_one() or 0
         return count > 0
 
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[User], int]:
+        query = select(UserModel)
+
+        if search:
+            s_term = f"%{search.lower()}%"
+            query = query.where(
+                (func.lower(UserModel.name).like(s_term))
+                | (func.lower(UserModel.email).like(s_term))
+            )
+
+        # Count total
+        count_query = select(func.count()).select_from(query.subquery())
+        res_count = await self._session.execute(count_query)
+        total = res_count.scalar_one() or 0
+
+        # Sort
+        if sort == "newest":
+            query = query.order_by(UserModel.created_at.desc())
+        elif sort == "oldest":
+            query = query.order_by(UserModel.created_at.asc())
+        elif sort == "name_asc":
+            query = query.order_by(UserModel.name.asc())
+        elif sort == "name_desc":
+            query = query.order_by(UserModel.name.desc())
+
+        # Paginate
+        query = query.offset((page - 1) * page_size).limit(page_size)
+
+        res = await self._session.execute(query)
+        models = res.scalars().all()
+
+        return [self._to_domain(m) for m in models], total
+
     def _to_domain(self, model: UserModel) -> User:
         return User(
             id=str(model.id),
             email=model.email,
             password_hash=model.password_hash,
             name=model.name,
+            role=model.role,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
