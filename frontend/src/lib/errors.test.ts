@@ -3,10 +3,10 @@ import axios from 'axios';
 import { isForbiddenError, isNotFoundError, getErrorMessage, isAxiosError } from './errors';
 
 vi.mock('axios', async () => {
-  const actual = (await vi.importActual('axios')) as Record<string, unknown>;
+  const actual = await vi.importActual<typeof import('axios')>('axios');
   return {
     default: {
-      ...actual.default,
+      ...(actual?.default as object),
       isAxiosError: vi.fn(),
     },
   };

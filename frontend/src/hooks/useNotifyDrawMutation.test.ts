@@ -11,10 +11,10 @@ import type { components } from '@/types/schema';
 vi.mock('@/lib/api');
 vi.mock('react-hot-toast');
 vi.mock('axios', async () => {
-  const actual = (await vi.importActual('axios')) as Record<string, unknown>;
+  const actual = await vi.importActual<typeof import('axios')>('axios');
   return {
     default: {
-      ...actual.default,
+      ...(actual?.default as object),
       isAxiosError: vi.fn(),
     },
   };
