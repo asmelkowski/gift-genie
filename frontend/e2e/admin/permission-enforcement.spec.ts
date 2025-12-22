@@ -307,8 +307,7 @@ test.describe('Permission Enforcement', () => {
     // Create an admin user to grant the permission
     // First, navigate to a fresh context for admin
     const adminPage = await context.newPage();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _adminUser = await createAdminUser(adminPage, context);
+    const adminUser = await createAdminUser(adminPage, context);
     console.log(`[E2E] Created admin user: ${adminUser.email}`);
 
     // Grant draws:notify via API (using admin context)

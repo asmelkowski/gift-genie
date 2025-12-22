@@ -532,8 +532,7 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     );
 
     // Setup: Create admin and regular users
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _adminUser = await createAdminUser(page, context);
+    const adminUser = await createAdminUser(page, context);
     const userNoPermissions = await createUserWithoutLogin(page, 'user');
     const userWithPermissions = await createUserWithoutLogin(page, 'user');
 
