@@ -73,8 +73,9 @@ export function ExclusionCard({
                   {truncateUuid(exclusion.receiver_member_id)}
                 </span>
                 <svg
-                  className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''
-                    }`}
+                  className={`w-4 h-4 text-muted-foreground transition-transform ${
+                    expanded ? 'rotate-180' : ''
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

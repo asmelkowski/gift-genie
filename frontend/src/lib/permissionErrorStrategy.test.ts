@@ -30,20 +30,22 @@ describe('getPermissionErrorBehavior', () => {
     expect(getPermissionErrorBehavior('/groups/abc-123/members/def-456', 'GET')).toBe('show-404');
   });
 
-  it('should return "show-empty" for members list GET', () => {
-    expect(getPermissionErrorBehavior('/groups/abc-123/members', 'GET')).toBe('show-empty');
+  it('should return "show-forbidden" for members list GET', () => {
+    expect(getPermissionErrorBehavior('/groups/abc-123/members', 'GET')).toBe('show-forbidden');
   });
 
-  it('should return "show-empty" for members list GET with query params', () => {
-    expect(getPermissionErrorBehavior('/groups/abc-123/members?page=1', 'GET')).toBe('show-empty');
+  it('should return "show-forbidden" for members list GET with query params', () => {
+    expect(getPermissionErrorBehavior('/groups/abc-123/members?page=1', 'GET')).toBe(
+      'show-forbidden'
+    );
   });
 
   it('should return "show-404" for single draw GET', () => {
     expect(getPermissionErrorBehavior('/groups/abc-123/draws/def-456', 'GET')).toBe('show-404');
   });
 
-  it('should return "show-empty" for draws list GET', () => {
-    expect(getPermissionErrorBehavior('/groups/abc-123/draws', 'GET')).toBe('show-empty');
+  it('should return "show-forbidden" for draws list GET', () => {
+    expect(getPermissionErrorBehavior('/groups/abc-123/draws', 'GET')).toBe('show-forbidden');
   });
 
   it('should return "show-404" for single exclusion GET', () => {
@@ -52,8 +54,8 @@ describe('getPermissionErrorBehavior', () => {
     );
   });
 
-  it('should return "show-empty" for exclusions list GET', () => {
-    expect(getPermissionErrorBehavior('/groups/abc-123/exclusions', 'GET')).toBe('show-empty');
+  it('should return "show-forbidden" for exclusions list GET', () => {
+    expect(getPermissionErrorBehavior('/groups/abc-123/exclusions', 'GET')).toBe('show-forbidden');
   });
 
   it('should return "show-forbidden" for admin endpoints', () => {

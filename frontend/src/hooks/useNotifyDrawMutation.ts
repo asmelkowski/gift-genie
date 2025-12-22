@@ -30,7 +30,7 @@ export const useNotifyDrawMutation = (groupId: string) => {
       if (isForbiddenError(error)) {
         toast.error("You don't have permission to perform this action");
       } else {
-        const message = getErrorMessage(error) || 'Failed to send notifications';
+        const message = getErrorMessage(error);
         toast.error(message);
       }
     },
