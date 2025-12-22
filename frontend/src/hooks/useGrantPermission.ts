@@ -18,11 +18,8 @@ export const useGrantPermission = (userId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation<GrantPermissionResponse, Error, GrantPermissionRequest>({
-    mutationFn: async (request) => {
-      const { data } = await api.post(
-        `/admin/users/${userId}/permissions`,
-        request
-      );
+    mutationFn: async request => {
+      const { data } = await api.post(`/admin/users/${userId}/permissions`, request);
       return data;
     },
     onSuccess: () => {
@@ -32,9 +29,8 @@ export const useGrantPermission = (userId: string) => {
         queryKey: ['admin', 'users', userId, 'permissions'],
       });
     },
-    onError: (error) => {
-      const message =
-        error instanceof Error ? error.message : 'Failed to grant permission';
+    onError: error => {
+      const message = error instanceof Error ? error.message : 'Failed to grant permission';
       toast.error(message);
     },
   });

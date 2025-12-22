@@ -24,9 +24,7 @@ describe('useGrantPermission', () => {
 
   const createWrapper = () => {
     return ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider {...{ client: queryClient }}>
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider {...{ client: queryClient }}>{children}</QueryClientProvider>
     );
   };
 
@@ -55,16 +53,11 @@ describe('useGrantPermission', () => {
 
     expect(result.current.data).toEqual(mockResponse);
 
-    expect(api.post).toHaveBeenCalledWith(
-      `/admin/users/${userId}/permissions`,
-      {
-        permission_code: 'draws:notify',
-      }
-    );
+    expect(api.post).toHaveBeenCalledWith(`/admin/users/${userId}/permissions`, {
+      permission_code: 'draws:notify',
+    });
 
-    expect(toast.success).toHaveBeenCalledWith(
-      'Permission granted successfully'
-    );
+    expect(toast.success).toHaveBeenCalledWith('Permission granted successfully');
   });
 
   it('handles error when granting permission', async () => {
@@ -141,12 +134,9 @@ describe('useGrantPermission', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith(
-      `/admin/users/${userId}/permissions`,
-      {
-        permission_code: 'draws:notify',
-        notes: 'Granted for special project',
-      }
-    );
+    expect(api.post).toHaveBeenCalledWith(`/admin/users/${userId}/permissions`, {
+      permission_code: 'draws:notify',
+      notes: 'Granted for special project',
+    });
   });
 });

@@ -39,7 +39,7 @@ export function GrantGroupAccessSection({
     (opCode: string): boolean => {
       if (!selectedGroupId) return false;
       const resourcePermCode = `${opCode}:${selectedGroupId}`;
-      return userPermissions.some((p) => p.code === resourcePermCode);
+      return userPermissions.some(p => p.code === resourcePermCode);
     },
     [selectedGroupId, userPermissions]
   );
@@ -55,7 +55,7 @@ export function GrantGroupAccessSection({
 
   // Handle checkbox toggle
   const handleOpToggle = useCallback((opCode: string) => {
-    setSelectedOps((prev) => {
+    setSelectedOps(prev => {
       const next = new Set(prev);
       if (next.has(opCode)) {
         next.delete(opCode);
@@ -72,12 +72,10 @@ export function GrantGroupAccessSection({
 
     setIsGranting(true);
     try {
-      const permissionsToGrant = Array.from(selectedOps).map((op) => `${op}:${selectedGroupId}`);
+      const permissionsToGrant = Array.from(selectedOps).map(op => `${op}:${selectedGroupId}`);
 
       await Promise.all(
-        permissionsToGrant.map((code) =>
-          grantMutation.mutateAsync({ permission_code: code })
-        )
+        permissionsToGrant.map(code => grantMutation.mutateAsync({ permission_code: code }))
       );
 
       // Reset form on success
@@ -106,14 +104,17 @@ export function GrantGroupAccessSection({
         <div className="space-y-4 p-3">
           {/* Group Dropdown */}
           <div className="space-y-2">
-            <label htmlFor="group-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="group-select"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Select Group
             </label>
-              <select
+            <select
               id="group-select"
               data-testid="select-group-dropdown"
               value={selectedGroupId || ''}
-              onChange={(e) => {
+              onChange={e => {
                 setSelectedGroupId(e.target.value || null);
                 setSelectedOps(new Set()); // Clear selections when group changes
               }}
@@ -148,7 +149,7 @@ export function GrantGroupAccessSection({
 
                       {/* Category Operations */}
                       <div className="space-y-2 ml-2">
-                        {ops.map((op) => {
+                        {ops.map(op => {
                           const alreadyHas = hasPermission(op.code);
                           const isSelected = selectedOps.has(op.code);
 
@@ -156,9 +157,7 @@ export function GrantGroupAccessSection({
                             <label
                               key={op.code}
                               className={`flex items-start gap-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
-                                alreadyHas
-                                  ? 'opacity-50 cursor-not-allowed'
-                                  : ''
+                                alreadyHas ? 'opacity-50 cursor-not-allowed' : ''
                               }`}
                             >
                               <input
@@ -214,9 +213,7 @@ export function GrantGroupAccessSection({
 
           {!isLoading && availableGroups.length === 0 && (
             <div className="text-center py-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                No groups available
-              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">No groups available</p>
             </div>
           )}
 

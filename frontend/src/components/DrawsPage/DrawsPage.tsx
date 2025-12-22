@@ -39,7 +39,10 @@ export default function DrawsPage() {
   const [notifyDialogOpen, setNotifyDialogOpen] = useState(false);
   const [selectedDrawForNotify, setSelectedDrawForNotify] = useState<DrawViewModel | null>(null);
   const [notifyResult, setNotifyResult] = useState<NotifyDrawResponse | null>(null);
-  const [executeError, setExecuteError] = useState<string | null>(null);
+  const [executeError, setExecuteError] = useState<{
+    code: string;
+    message: string;
+  } | null>(null);
 
   const drawsQuery = useDrawsQuery({
     groupId: groupId!,
@@ -70,9 +73,15 @@ export default function DrawsPage() {
     try {
       await executeDrawMutation.mutateAsync(draw.id);
     } catch (error: unknown) {
-      const axiosError = error as { response?: { status?: number; data?: { detail?: string } } };
-      if (axiosError.response?.status === 422) {
-        setExecuteError(axiosError.response?.data?.detail || 'No valid configuration found');
+      // Check if error is a structured draw execution error
+      if (typeof error === 'object' && error !== null && 'code' in error && 'message' in error) {
+        const errorObj = error as Record<string, unknown>;
+        if (typeof errorObj.code === 'string' && typeof errorObj.message === 'string') {
+          setExecuteError({
+            code: errorObj.code,
+            message: errorObj.message,
+          });
+        }
       }
     } finally {
       setExecutingDrawId(null);
@@ -106,7 +115,8 @@ export default function DrawsPage() {
         });
         setNotifyResult(result);
         setNotifyDialogOpen(false);
-      } catch {
+      } catch (error) {
+        console.error('Failed to notify draw:', error);
         setNotifyDialogOpen(false);
       }
     }
@@ -165,7 +175,13 @@ export default function DrawsPage() {
           )
         ) : (
           <>
-            {executeError && <ErrorGuidanceAlert error={executeError} groupId={groupId} />}
+            {executeError && (
+              <ErrorGuidanceAlert
+                error={executeError.message}
+                errorCode={executeError.code}
+                groupId={groupId}
+              />
+            )}
 
             <DrawsToolbar
               status={statusDisplay}
@@ -202,44 +218,38 @@ export default function DrawsPage() {
 
       <ExecuteDrawLoadingOverlay isVisible={executingDrawId !== null} />
 
-      {
-        selectedDrawForFinalize && (
-          <FinalizeConfirmationDialog
-            isOpen={finalizeDialogOpen}
-            onClose={() => {
-              setFinalizeDialogOpen(false);
-              setSelectedDrawForFinalize(null);
-            }}
-            onConfirm={handleFinalizeConfirm}
-            isLoading={finalizeDrawMutation.isPending}
-          />
-        )
-      }
+      {selectedDrawForFinalize && (
+        <FinalizeConfirmationDialog
+          isOpen={finalizeDialogOpen}
+          onClose={() => {
+            setFinalizeDialogOpen(false);
+            setSelectedDrawForFinalize(null);
+          }}
+          onConfirm={handleFinalizeConfirm}
+          isLoading={finalizeDrawMutation.isPending}
+        />
+      )}
 
-      {
-        selectedDrawForNotify && (
-          <NotifyDrawDialog
-            isOpen={notifyDialogOpen}
-            onClose={() => {
-              setNotifyDialogOpen(false);
-              setSelectedDrawForNotify(null);
-            }}
-            onConfirm={handleNotifyConfirm}
-            draw={selectedDrawForNotify}
-            isLoading={notifyDrawMutation.isPending}
-          />
-        )
-      }
+      {selectedDrawForNotify && (
+        <NotifyDrawDialog
+          isOpen={notifyDialogOpen}
+          onClose={() => {
+            setNotifyDialogOpen(false);
+            setSelectedDrawForNotify(null);
+          }}
+          onConfirm={handleNotifyConfirm}
+          draw={selectedDrawForNotify}
+          isLoading={notifyDrawMutation.isPending}
+        />
+      )}
 
-      {
-        notifyResult && (
-          <NotificationResultDialog
-            isOpen={!!notifyResult}
-            onClose={() => setNotifyResult(null)}
-            result={notifyResult}
-          />
-        )
-      }
-    </div >
+      {notifyResult && (
+        <NotificationResultDialog
+          isOpen={!!notifyResult}
+          onClose={() => setNotifyResult(null)}
+          result={notifyResult}
+        />
+      )}
+    </div>
   );
 }

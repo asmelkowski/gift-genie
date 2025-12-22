@@ -107,7 +107,6 @@ async def test_grant_permission_non_admin_forbidden():
     """Test that non-admin cannot grant permissions."""
     # Arrange
     non_admin = _make_user("user-123", UserRole.USER)
-    target_user = _make_user("user-456", UserRole.USER)
 
     mock_user_repo = AsyncMock()
     mock_user_repo.get_by_id.return_value = non_admin

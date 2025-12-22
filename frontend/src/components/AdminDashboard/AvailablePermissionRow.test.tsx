@@ -105,7 +105,9 @@ describe('AvailablePermissionRow', () => {
       />
     );
 
-    expect(container.querySelector('[data-testid="available-permission-groups:delete"]')).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-testid="available-permission-groups:delete"]')
+    ).toBeInTheDocument();
   });
 
   it('renders with emerald badge color for available permissions', () => {

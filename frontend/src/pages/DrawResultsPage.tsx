@@ -23,8 +23,8 @@ export default function DrawResultsPage() {
   );
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const drawQuery = useDrawQuery(drawId || '');
-  const assignmentsQuery = useAssignmentsQuery(drawId || '');
+  const drawQuery = useDrawQuery(groupId || '', drawId || '');
+  const assignmentsQuery = useAssignmentsQuery(groupId || '', drawId || '');
   const groupQuery = useGroupDetailsQuery(drawQuery.data?.group_id || '');
 
   useEffect(() => {

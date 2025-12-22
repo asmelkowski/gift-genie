@@ -102,6 +102,16 @@ class InMemoryUserPermissionRepo(UserPermissionRepository):
         self.grants[(user_id, permission_code)] = user_permission
         return user_permission
 
+    async def grant_permissions_bulk(
+        self, user_id: str, permission_codes: list[str], granted_by: Optional[str] = None
+    ) -> list[UserPermission]:
+        """Grant multiple permissions to a user."""
+        results = []
+        for permission_code in permission_codes:
+            user_permission = await self.grant_permission(user_id, permission_code, granted_by)
+            results.append(user_permission)
+        return results
+
     async def revoke_permission(self, user_id: str, permission_code: str) -> bool:
         key = (user_id, permission_code)
         if key in self.grants:
@@ -111,6 +121,10 @@ class InMemoryUserPermissionRepo(UserPermissionRepository):
 
     async def has_permission(self, user_id: str, permission_code: str) -> bool:
         return (user_id, permission_code) in self.grants
+
+    async def list_by_user(self, user_id: str) -> list[UserPermission]:
+        """List all permissions granted to a user."""
+        return [perm for (uid, _), perm in self.grants.items() if uid == user_id]
 
     async def list_permissions_for_user(self, user_id: str) -> list[Permission]:
         # Return permission objects (not implemented fully, just ids)
@@ -215,6 +229,55 @@ async def test_grant_permission_success(
 
 
 @pytest.mark.anyio
+async def test_grant_permission_idempotent(
+    client: AsyncClient, admin_user: User, regular_user: User, sample_permissions: list[Permission]
+):
+    """Test that granting the same permission twice is idempotent."""
+    user_repo = InMemoryUserRepo([admin_user, regular_user])
+    permission_repo = InMemoryPermissionRepo(sample_permissions)
+    user_permission_repo = InMemoryUserPermissionRepo()
+
+    app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
+    app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
+    app.dependency_overrides[admin_router.get_permission_repository] = lambda: permission_repo
+    app.dependency_overrides[admin_router.get_user_permission_repository] = (
+        lambda: user_permission_repo
+    )
+
+    payload = {"permission_code": "draws:notify"}
+
+    # First grant - should return 201 Created
+    response1 = await client.post(
+        f"/api/v1/admin/users/{regular_user.id}/permissions",
+        json=payload,
+    )
+    assert response1.status_code == 201
+    data1 = response1.json()
+    assert data1["user_id"] == regular_user.id
+    assert data1["permission_code"] == "draws:notify"
+
+    # Second grant of same permission - should return 200 OK (idempotent)
+    response2 = await client.post(
+        f"/api/v1/admin/users/{regular_user.id}/permissions",
+        json=payload,
+    )
+    assert response2.status_code == 200
+    data2 = response2.json()
+    assert data2["user_id"] == regular_user.id
+    assert data2["permission_code"] == "draws:notify"
+    # Should have same IDs and granted_by (though granted_at may differ in test repos)
+    assert data2["user_id"] == data1["user_id"]
+    assert data2["permission_code"] == data1["permission_code"]
+    assert data2["granted_by"] == data1["granted_by"]
+
+    # Verify permission exists exactly once via has_permission
+    has_perm = await user_permission_repo.has_permission(regular_user.id, "draws:notify")
+    assert has_perm is True
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.anyio
 async def test_grant_permission_with_notes(
     client: AsyncClient, admin_user: User, regular_user: User, sample_permissions: list[Permission]
 ):
@@ -310,7 +373,6 @@ async def test_revoke_permission_success(
 ):
     """Test successfully revoking a permission from a user."""
     user_repo = InMemoryUserRepo([admin_user, regular_user])
-    permission_repo = InMemoryPermissionRepo(sample_permissions)
 
     # Create existing grant
     existing_grant = UserPermission(
@@ -390,7 +452,6 @@ async def test_list_user_permissions_success(
 ):
     """Test successfully listing all permissions for a user."""
     user_repo = InMemoryUserRepo([admin_user, regular_user])
-    permission_repo = InMemoryPermissionRepo(sample_permissions)
 
     # Create existing grants
     existing_grants = [
@@ -407,13 +468,13 @@ async def test_list_user_permissions_success(
             granted_by=admin_user.id,
         ),
     ]
-    user_permission_repo = InMemoryUserPermissionRepo(existing_grants)
 
-    # Mock the list_permissions_for_user to return actual permission objects
-    async def mock_list_permissions(*args, **kwargs):
-        return [p for p in sample_permissions if p.code in ["draws:notify", "groups:create"]]
+    # Create a mock repo that returns permission objects
+    class MockUserPermissionRepo(InMemoryUserPermissionRepo):
+        async def list_permissions_for_user(self, user_id: str) -> list[Permission]:
+            return [p for p in sample_permissions if p.code in ["draws:notify", "groups:create"]]
 
-    user_permission_repo.list_permissions_for_user = mock_list_permissions
+    user_permission_repo = MockUserPermissionRepo(existing_grants)
 
     app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
@@ -439,13 +500,13 @@ async def test_list_user_permissions_empty(
 ):
     """Test listing permissions for user with no permissions."""
     user_repo = InMemoryUserRepo([admin_user, regular_user])
-    permission_repo = InMemoryPermissionRepo([])
-    user_permission_repo = InMemoryUserPermissionRepo()
 
-    async def mock_list_permissions(*args, **kwargs):
-        return []
+    # Create a mock repo that returns empty permission list
+    class MockUserPermissionRepo(InMemoryUserPermissionRepo):
+        async def list_permissions_for_user(self, user_id: str) -> list[Permission]:
+            return []
 
-    user_permission_repo.list_permissions_for_user = mock_list_permissions
+    user_permission_repo = MockUserPermissionRepo()
 
     app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo

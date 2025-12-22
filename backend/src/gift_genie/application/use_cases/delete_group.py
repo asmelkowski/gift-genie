@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gift_genie.application.dto.delete_group_command import DeleteGroupCommand
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.errors import GroupNotFoundError
 from gift_genie.domain.interfaces.repositories import GroupRepository
 
 
@@ -18,9 +18,7 @@ class DeleteGroupUseCase:
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group owner
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission
 
         # Delete the group (cascade handled by database)
         await self.group_repository.delete(command.group_id)

@@ -434,7 +434,7 @@ test.describe('Admin Dashboard UX', () => {
 test.afterEach(async ({ page }) => {
   // Option 1: Delete test users created during test
   await cleanupTestUsers(page);
-  
+
   // Option 2: Database transaction rollback (if supported)
   // await rollbackTestTransaction();
 });
@@ -682,7 +682,7 @@ To make tests stable and maintainable, we need to add `data-testid` attributes t
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2025-12-18  
-**Author**: Gift Genie Development Team  
+**Document Version**: 1.0
+**Last Updated**: 2025-12-18
+**Author**: Gift Genie Development Team
 **Status**: Planning - Ready for Implementation

@@ -1,5 +1,6 @@
 import pytest
 import asyncio
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -25,7 +26,7 @@ def event_loop():
 
 
 @pytest.fixture
-async def session() -> AsyncSession:
+async def session() -> AsyncGenerator[AsyncSession, None]:
     # In-memory SQLite for integration-style tests
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", future=True)
     async with engine.begin() as conn:

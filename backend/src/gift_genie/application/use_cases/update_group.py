@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from gift_genie.application.dto.update_group_command import UpdateGroupCommand
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError, InvalidGroupNameError
+from gift_genie.application.errors import GroupNotFoundError, InvalidGroupNameError
 from gift_genie.domain.entities.group import Group
 from gift_genie.domain.interfaces.repositories import GroupRepository
 
@@ -20,9 +20,7 @@ class UpdateGroupUseCase:
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group owner
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission
 
         # Apply partial updates
         updated = False

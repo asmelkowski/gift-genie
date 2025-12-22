@@ -223,7 +223,7 @@ export function MemberForm({
           Active member
         </Label>
       </div>
-      <p className="text-sm text-gray-600">Inactive members are excluded from draws</p>
+      <p className="text-sm text-muted-foreground">Inactive members are excluded from draws</p>
 
       <div className="flex gap-2 pt-4">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>

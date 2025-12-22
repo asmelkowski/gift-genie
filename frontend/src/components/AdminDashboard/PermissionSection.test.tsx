@@ -126,10 +126,7 @@ describe('PermissionSection', () => {
 
   it('truncates long titles', () => {
     const { container } = render(
-      <PermissionSection
-        title="This is a very long title that should be truncated"
-        count={5}
-      >
+      <PermissionSection title="This is a very long title that should be truncated" count={5}>
         <div>Content</div>
       </PermissionSection>
     );

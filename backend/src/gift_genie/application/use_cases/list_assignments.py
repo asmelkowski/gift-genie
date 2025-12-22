@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from gift_genie.application.dto.list_assignments_query import ListAssignmentsQuery
-from gift_genie.application.errors import DrawNotFoundError, ForbiddenError
+from gift_genie.application.errors import DrawNotFoundError
 from gift_genie.domain.entities.assignment import Assignment
 from gift_genie.domain.interfaces.repositories import (
     AssignmentRepository,
@@ -55,13 +55,7 @@ class ListAssignmentsUseCase:
             logger.error(f"Group {draw.group_id} not found for draw {query.draw_id}")
             raise DrawNotFoundError()
 
-        # Verify authorization: user must be the group owner
-        if group.admin_user_id != query.requesting_user_id:
-            logger.warning(
-                f"User {query.requesting_user_id} forbidden from accessing "
-                f"draw {query.draw_id} (group {group.id})"
-            )
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on draw_id)
 
         # Fetch all assignments for the draw
         assignments = await self.assignment_repository.list_by_draw(query.draw_id)

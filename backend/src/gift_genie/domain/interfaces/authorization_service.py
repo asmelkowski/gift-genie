@@ -7,12 +7,15 @@ from typing import Protocol, runtime_checkable
 class AuthorizationService(Protocol):
     """Service interface for checking user permissions and authorization."""
 
-    async def has_permission(self, user_id: str, permission_code: str) -> bool:
+    async def has_permission(
+        self, user_id: str, permission_code: str, resource_id: str | None = None
+    ) -> bool:
         """Check if a user has a specific permission.
 
         Args:
             user_id: The ID of the user to check
             permission_code: The permission code to check (e.g., "draws:notify")
+            resource_id: Optional ID of the resource to check granular permission for
 
         Returns:
             True if the user has the permission, False otherwise.
@@ -20,12 +23,15 @@ class AuthorizationService(Protocol):
         """
         ...
 
-    async def require_permission(self, user_id: str, permission_code: str) -> None:
+    async def require_permission(
+        self, user_id: str, permission_code: str, resource_id: str | None = None
+    ) -> None:
         """Require a user to have a specific permission.
 
         Args:
             user_id: The ID of the user to check
             permission_code: The permission code to require
+            resource_id: Optional ID of the resource to check granular permission for
 
         Raises:
             ForbiddenError: If the user lacks the required permission

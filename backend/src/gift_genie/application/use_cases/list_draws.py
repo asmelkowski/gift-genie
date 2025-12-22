@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gift_genie.application.dto.list_draws_query import ListDrawsQuery
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.errors import GroupNotFoundError
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.interfaces.repositories import DrawRepository, GroupRepository
 
@@ -19,9 +19,7 @@ class ListDrawsUseCase:
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group admin
-        if group.admin_user_id != query.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # List draws with filters
         return await self.draw_repository.list_by_group(

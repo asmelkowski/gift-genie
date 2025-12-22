@@ -17,7 +17,12 @@ describe('useGroupNames', () => {
   it('fetches multiple group names in parallel', async () => {
     const groupIds = ['group-1', 'group-2'];
     const mockResponses = [
-      { id: 'group-1', name: 'Engineering Team', admin_user_id: 'admin-1', created_at: '2024-01-01' },
+      {
+        id: 'group-1',
+        name: 'Engineering Team',
+        admin_user_id: 'admin-1',
+        created_at: '2024-01-01',
+      },
       { id: 'group-2', name: 'Marketing Team', admin_user_id: 'admin-2', created_at: '2024-01-02' },
     ];
 
@@ -51,7 +56,12 @@ describe('useGroupNames', () => {
 
     vi.mocked(api.get)
       .mockResolvedValueOnce({
-        data: { id: 'group-1', name: 'Engineering Team', admin_user_id: 'admin-1', created_at: '2024-01-01' },
+        data: {
+          id: 'group-1',
+          name: 'Engineering Team',
+          admin_user_id: 'admin-1',
+          created_at: '2024-01-01',
+        },
       })
       .mockRejectedValueOnce(new Error('Not found'));
 
@@ -102,7 +112,12 @@ describe('useGroupNames', () => {
     const groupIds = ['group-123'];
 
     vi.mocked(api.get).mockResolvedValueOnce({
-      data: { id: 'group-123', name: 'Sales Team', admin_user_id: 'admin-1', created_at: '2024-01-01' },
+      data: {
+        id: 'group-123',
+        name: 'Sales Team',
+        admin_user_id: 'admin-1',
+        created_at: '2024-01-01',
+      },
     });
 
     const { result } = renderHook(() => useGroupNames(groupIds), {
@@ -149,11 +164,21 @@ describe('useGroupNames', () => {
 
     vi.mocked(api.get)
       .mockResolvedValueOnce({
-        data: { id: 'group-1', name: 'Success 1', admin_user_id: 'admin-1', created_at: '2024-01-01' },
+        data: {
+          id: 'group-1',
+          name: 'Success 1',
+          admin_user_id: 'admin-1',
+          created_at: '2024-01-01',
+        },
       })
       .mockRejectedValueOnce(new Error('Not found'))
       .mockResolvedValueOnce({
-        data: { id: 'group-3', name: 'Success 3', admin_user_id: 'admin-3', created_at: '2024-01-03' },
+        data: {
+          id: 'group-3',
+          name: 'Success 3',
+          admin_user_id: 'admin-3',
+          created_at: '2024-01-03',
+        },
       });
 
     const { result } = renderHook(() => useGroupNames(groupIds), {
@@ -174,7 +199,12 @@ describe('useGroupNames', () => {
     const groupIds = ['group-1'];
 
     vi.mocked(api.get).mockResolvedValueOnce({
-      data: { id: 'group-1', name: 'Test Group', admin_user_id: 'admin-1', created_at: '2024-01-01' },
+      data: {
+        id: 'group-1',
+        name: 'Test Group',
+        admin_user_id: 'admin-1',
+        created_at: '2024-01-01',
+      },
     });
 
     const wrapper = createTestWrapper(queryClient);
@@ -244,10 +274,20 @@ describe('useGroupNames', () => {
 
     vi.mocked(api.get)
       .mockResolvedValueOnce({
-        data: { id: 'group-1', name: 'Group 1', admin_user_id: 'admin-1', created_at: '2024-01-01' },
+        data: {
+          id: 'group-1',
+          name: 'Group 1',
+          admin_user_id: 'admin-1',
+          created_at: '2024-01-01',
+        },
       })
       .mockResolvedValueOnce({
-        data: { id: 'group-2', name: 'Group 2', admin_user_id: 'admin-2', created_at: '2024-01-02' },
+        data: {
+          id: 'group-2',
+          name: 'Group 2',
+          admin_user_id: 'admin-2',
+          created_at: '2024-01-02',
+        },
       });
 
     const { result } = renderHook(() => useGroupNames(groupIds), {

@@ -2,6 +2,7 @@
 
 import pytest
 import asyncio
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -31,7 +32,7 @@ def event_loop():
 
 
 @pytest.fixture
-async def session() -> AsyncSession:
+async def session() -> AsyncGenerator[AsyncSession, None]:
     """Create an in-memory SQLite session for testing."""
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", future=True)
     async with engine.begin() as conn:
@@ -311,8 +312,8 @@ async def test_list_permissions_for_user_returns_permission_objects(
 
 
 @pytest.mark.anyio
-async def test_grant_duplicate_permission_raises_error(session: AsyncSession):
-    """Test that granting duplicate permission raises error."""
+async def test_grant_duplicate_permission_idempotent(session: AsyncSession):
+    """Test that granting duplicate permission is idempotent and doesn't raise error."""
     user_repo = UserRepositorySqlAlchemy(session)
     perm_repo = PermissionRepositorySqlAlchemy(session)
     user_perm_repo = UserPermissionRepositorySqlAlchemy(session)
@@ -329,13 +330,14 @@ async def test_grant_duplicate_permission_raises_error(session: AsyncSession):
         granted_by=None,
     )
 
-    # Try to grant the same permission again
-    with pytest.raises(ValueError):
-        await user_perm_repo.grant_permission(
-            user_id=created_user.id,
-            permission_code="draws:notify",
-            granted_by=None,
-        )
+    # Try to grant the same permission again - should not raise and should return same permission
+    granted = await user_perm_repo.grant_permission(
+        user_id=created_user.id,
+        permission_code="draws:notify",
+        granted_by=None,
+    )
+    assert granted.permission_code == "draws:notify"
+    assert granted.user_id == created_user.id
 
 
 @pytest.mark.anyio

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from gift_genie.application.dto.notify_draw_command import NotifyDrawCommand
-from gift_genie.application.errors import DrawNotFinalizedError, DrawNotFoundError, ForbiddenError
+from gift_genie.application.errors import DrawNotFinalizedError, DrawNotFoundError
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.interfaces.notification_service import NotificationService
 from gift_genie.domain.interfaces.repositories import (
@@ -34,9 +34,7 @@ class NotifyDrawUseCase:
         if group is None:
             raise DrawNotFoundError()
 
-        # Verify authorization: user must be the group owner
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on draw_id)
 
         # Validate draw is finalized
         if not draw.is_finalized():

@@ -17,26 +17,26 @@ describe('groupOperations', () => {
     });
 
     it('should have unique operation codes', () => {
-      const codes = GROUP_OPERATIONS.map((op) => op.code);
+      const codes = GROUP_OPERATIONS.map(op => op.code);
       const uniqueCodes = new Set(codes);
       expect(codes.length).toBe(uniqueCodes.size);
     });
 
     it('should have draws:notify marked as privileged', () => {
-      const notifyOp = GROUP_OPERATIONS.find((op) => op.code === 'draws:notify');
+      const notifyOp = GROUP_OPERATIONS.find(op => op.code === 'draws:notify');
       expect(notifyOp).toBeDefined();
       expect(notifyOp?.privileged).toBe(true);
     });
 
     it('should not have non-privileged operations with privileged flag', () => {
-      const nonPrivileged = GROUP_OPERATIONS.filter((op) => op.code !== 'draws:notify');
+      const nonPrivileged = GROUP_OPERATIONS.filter(op => op.code !== 'draws:notify');
       for (const op of nonPrivileged) {
         expect(op.privileged).toBeUndefined();
       }
     });
 
     it('should have operations in multiple categories', () => {
-      const categories = new Set(GROUP_OPERATIONS.map((op) => op.category));
+      const categories = new Set(GROUP_OPERATIONS.map(op => op.category));
       expect(categories.size).toBeGreaterThan(1);
     });
   });
@@ -55,7 +55,7 @@ describe('groupOperations', () => {
 
     it('should have all category keys present', () => {
       const result = groupOperationsByCategory();
-      const expectedCategories = new Set(GROUP_OPERATIONS.map((op) => op.category));
+      const expectedCategories = new Set(GROUP_OPERATIONS.map(op => op.category));
       expect(result.size).toBe(expectedCategories.size);
       for (const category of expectedCategories) {
         expect(result.has(category)).toBe(true);
@@ -66,7 +66,7 @@ describe('groupOperations', () => {
       const result = groupOperationsByCategory();
       for (const ops of result.values()) {
         for (const op of ops) {
-          const originalOp = GROUP_OPERATIONS.find((o) => o.code === op.code);
+          const originalOp = GROUP_OPERATIONS.find(o => o.code === op.code);
           expect(op).toEqual(originalOp);
         }
       }

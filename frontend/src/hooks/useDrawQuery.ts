@@ -4,13 +4,13 @@ import type { components } from '@/types/schema';
 
 type DrawResponse = components['schemas']['DrawResponse'];
 
-export const useDrawQuery = (drawId: string) => {
+export const useDrawQuery = (groupId: string, drawId: string) => {
   return useQuery({
     queryKey: ['draw', drawId],
     queryFn: async () => {
-      const response = await api.get<DrawResponse>(`/draws/${drawId}`);
+      const response = await api.get<DrawResponse>(`/groups/${groupId}/draws/${drawId}`);
       return response.data;
     },
-    enabled: !!drawId,
+    enabled: !!groupId && !!drawId,
   });
 };

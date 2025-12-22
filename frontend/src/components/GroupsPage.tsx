@@ -70,6 +70,7 @@ export function GroupsPage() {
           onSortChange={handleSortChange}
         />
         <LoadingState />
+        <CreateGroupDialog isOpen={isDialogOpen} onClose={handleDialogClose} />
       </div>
     );
   }
@@ -83,6 +84,7 @@ export function GroupsPage() {
             message="You don't have permission to view this group list."
             onRetry={() => refetch()}
           />
+          <CreateGroupDialog isOpen={isDialogOpen} onClose={handleDialogClose} />
         </div>
       );
     }
@@ -90,6 +92,7 @@ export function GroupsPage() {
       <div className="space-y-6">
         <PageHeader onCreateClick={handleCreateClick} />
         <ErrorState error={error as Error} onRetry={() => refetch()} />
+        <CreateGroupDialog isOpen={isDialogOpen} onClose={handleDialogClose} />
       </div>
     );
   }
@@ -120,12 +123,12 @@ export function GroupsPage() {
       {groups.length === 0 && params.search ? (
         <div className="text-center py-12">
           <h3 className="text-lg font-semibold text-foreground mb-2">No groups found</h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-muted-foreground mb-4">
             No groups match "{params.search}". Try a different search term.
           </p>
           <button
             onClick={() => updateParams({ search: '' })}
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-primary hover:underline font-medium"
           >
             Clear search
           </button>

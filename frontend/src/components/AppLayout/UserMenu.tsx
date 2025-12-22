@@ -73,7 +73,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
         onClick={handleToggle}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-2 focus:outline-blue-600 focus:outline-offset-2 transition-colors"
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-semibold hover:opacity-90 focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors"
         data-testid="user-menu-button"
       >
         {getInitials(user.name)}
@@ -81,11 +81,11 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
       {isOpen && (
         <div
           role="menu"
-          className="absolute top-full right-0 mt-2 w-52 bg-card border border-gray-200 rounded-md shadow-lg z-1000 opacity-100 transform translate-y-0 transition-all"
+          className="absolute top-full right-0 mt-2 w-52 bg-card border border-border rounded-md shadow-lg z-1000 opacity-100 transform translate-y-0 transition-all"
         >
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-border">
             <div className="font-semibold text-foreground">{user.name}</div>
-            <div className="text-sm text-gray-600">{user.email}</div>
+            <div className="text-sm text-muted-foreground">{user.email}</div>
           </div>
           <ul className="list-none m-0 p-0">
             <li>
@@ -97,11 +97,11 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
                 Settings
               </button>
             </li>
-            <li className="border-t border-gray-200">
+            <li className="border-t border-border">
               <button
                 onClick={handleLogout}
                 role="menuitem"
-                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-muted transition-colors"
+                className="block w-full text-left px-4 py-2 text-destructive hover:bg-muted transition-colors"
               >
                 Logout
               </button>

@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { AdminDashboardPage } from '../page-objects/AdminDashboardPage';
-import { AppLayoutPage } from '../page-objects/AppLayoutPage';
 import { createAdminUser, createRegularUser } from '../helpers';
 
 test.describe('Admin Dashboard Access Control', () => {
@@ -13,7 +12,8 @@ test.describe('Admin Dashboard Access Control', () => {
   test('admin user can access dashboard', async ({ page, context }) => {
     // Create and login admin user
     console.log('[E2E] Test: Admin user can access dashboard');
-    const adminUser = await createAdminUser(page, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -42,7 +42,8 @@ test.describe('Admin Dashboard Access Control', () => {
   test('admin user sees user list and groups tabs', async ({ page, context }) => {
     // Create and login admin user
     console.log('[E2E] Test: Admin user sees user list and groups tabs');
-    const adminUser = await createAdminUser(page, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -76,9 +77,8 @@ test.describe('Admin Dashboard Access Control', () => {
   test('regular user cannot access dashboard', async ({ page, context }) => {
     // Create and login regular (non-admin) user
     console.log('[E2E] Test: Regular user cannot access dashboard');
-    const regularUser = await createRegularUser(page, context);
-
-    const adminDashboard = new AdminDashboardPage(page);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _regularUser = await createRegularUser(page, context);
 
     // Attempt to navigate to admin dashboard
     console.log('[E2E] Attempting to navigate to /app/admin as regular user...');
@@ -107,35 +107,36 @@ test.describe('Admin Dashboard Access Control', () => {
     );
   });
 
-   /**
-    * Test 4: Regular user cannot access admin dashboard directly
-    *
-    * Verifies that a regular user attempting to visit /app/admin directly
-    * cannot access the dashboard (gets redirected, 404, or access denied).
-    */
-   test('regular user cannot access admin dashboard directly', async ({ page, context }) => {
-     // Create and login regular user
-     console.log('[E2E] Test: Regular user cannot access admin dashboard directly');
-     const regularUser = await createRegularUser(page, context);
+  /**
+   * Test 4: Regular user cannot access admin dashboard directly
+   *
+   * Verifies that a regular user attempting to visit /app/admin directly
+   * cannot access the dashboard (gets redirected, 404, or access denied).
+   */
+  test('regular user cannot access admin dashboard directly', async ({ page, context }) => {
+    // Create and login regular user
+    console.log('[E2E] Test: Regular user cannot access admin dashboard directly');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _regularUser = await createRegularUser(page, context);
 
-     // Attempt to navigate directly to admin dashboard
-     console.log('[E2E] Attempting to navigate to /app/admin as regular user...');
-     await page.goto('/app/admin');
-     await page.waitForLoadState('networkidle');
+    // Attempt to navigate directly to admin dashboard
+    console.log('[E2E] Attempting to navigate to /app/admin as regular user...');
+    await page.goto('/app/admin');
+    await page.waitForLoadState('networkidle');
 
-     // Verify we cannot access the dashboard
-     const isDashboardAccessible = await page
-       .getByTestId('admin-dashboard')
-       .isVisible()
-       .catch(() => false);
+    // Verify we cannot access the dashboard
+    const isDashboardAccessible = await page
+      .getByTestId('admin-dashboard')
+      .isVisible()
+      .catch(() => false);
 
-     // Dashboard should NOT be visible
-     if (isDashboardAccessible) {
-       throw new Error('Regular user was able to access admin dashboard!');
-     }
+    // Dashboard should NOT be visible
+    if (isDashboardAccessible) {
+      throw new Error('Regular user was able to access admin dashboard!');
+    }
 
-     console.log('[E2E] ✓ Regular user access to /app/admin denied - dashboard is not accessible');
-   });
+    console.log('[E2E] ✓ Regular user access to /app/admin denied - dashboard is not accessible');
+  });
 
   /**
    * Test 5: Unauthenticated user is redirected to login
@@ -143,7 +144,7 @@ test.describe('Admin Dashboard Access Control', () => {
    * Verifies that when an unauthenticated user attempts to access
    * the admin dashboard, they are redirected to the login page.
    */
-  test('unauthenticated user redirected to login', async ({ page, context }) => {
+  test('unauthenticated user redirected to login', async ({ page }) => {
     // Do NOT login - stay unauthenticated
     console.log('[E2E] Test: Unauthenticated user redirected to login');
 
@@ -171,44 +172,47 @@ test.describe('Admin Dashboard Access Control', () => {
     console.log(`[E2E] ✓ Unauthenticated user redirected to login (URL: ${currentUrl})`);
   });
 
-   /**
-    * Test 6: Admin user can access admin dashboard directly
-    *
-    * Verifies that an admin user can navigate directly to /app/admin
-    * and see the admin dashboard without needing navigation links.
-    */
-   test('admin user can access admin dashboard directly', async ({ page, context }) => {
-     // Create and login admin user
-     console.log('[E2E] Test: Admin user can access admin dashboard directly');
-     const adminUser = await createAdminUser(page, context);
+  /**
+   * Test 6: Admin user can access admin dashboard directly
+   *
+   * Verifies that an admin user can navigate directly to /app/admin
+   * and see the admin dashboard without needing navigation links.
+   */
+  test('admin user can access admin dashboard directly', async ({ page, context }) => {
+    // Create and login admin user
+    console.log('[E2E] Test: Admin user can access admin dashboard directly');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
 
-     const adminDashboard = new AdminDashboardPage(page);
+    const adminDashboard = new AdminDashboardPage(page);
 
-     // Navigate directly to admin dashboard
-     console.log('[E2E] Navigating directly to /app/admin as admin user...');
-     await page.goto('/app/admin');
-     await page.waitForLoadState('networkidle');
+    // Navigate directly to admin dashboard
+    console.log('[E2E] Navigating directly to /app/admin as admin user...');
+    await page.goto('/app/admin');
+    await page.waitForLoadState('networkidle');
 
-     // Verify we're on the admin dashboard
-     const currentUrl = page.url();
-     expect(currentUrl).toContain('/app/admin');
+    // Verify we're on the admin dashboard
+    const currentUrl = page.url();
+    expect(currentUrl).toContain('/app/admin');
 
-     // Verify dashboard is visible and accessible
-     const isDashboardVisible = await page
-       .getByTestId('admin-dashboard')
-       .isVisible()
-       .catch(() => false);
+    // Verify dashboard is visible and accessible
+    const isDashboardVisible = await page
+      .getByTestId('admin-dashboard')
+      .isVisible()
+      .catch(() => false);
 
-     if (!isDashboardVisible) {
-       throw new Error('Admin user should be able to access /app/admin but dashboard is not visible');
-     }
+    if (!isDashboardVisible) {
+      throw new Error(
+        'Admin user should be able to access /app/admin but dashboard is not visible'
+      );
+    }
 
-     // Verify key dashboard elements are present
-     await adminDashboard.expectPageVisible();
-     await adminDashboard.expectSearchInputVisible();
+    // Verify key dashboard elements are present
+    await adminDashboard.expectPageVisible();
+    await adminDashboard.expectSearchInputVisible();
 
-     console.log('[E2E] ✓ Admin user can access /app/admin directly and see dashboard');
-   });
+    console.log('[E2E] ✓ Admin user can access /app/admin directly and see dashboard');
+  });
 
   /**
    * Test 7: Admin user can interact with permission management

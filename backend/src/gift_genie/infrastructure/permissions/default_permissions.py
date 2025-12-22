@@ -2,40 +2,17 @@
 
 This module defines which permissions are granted by default to new users
 based on their role.
+
+NOTE: In the resource-level permissions system, regular users start with no
+global permissions. They receive permissions automatically when they create groups
+or are added to them with specific roles.
 """
 
 from gift_genie.infrastructure.permissions.permission_registry import (
     PermissionRegistry,
 )
 
-# ========== USER_BASIC_PERMISSIONS ==========
-# Default permissions granted to new regular users (UserRole.USER)
-# Includes all functionality that was available before the permission system
-# EXCLUDES: draws:notify (must be explicitly granted by admin)
-# EXCLUDES: admin:* (admin-only permissions)
-# EXCLUDES: *:*:all (global admin permissions)
-USER_BASIC_PERMISSIONS = [
-    # Groups - user can manage own groups
-    PermissionRegistry.GROUPS_CREATE,
-    PermissionRegistry.GROUPS_READ,
-    PermissionRegistry.GROUPS_UPDATE,
-    PermissionRegistry.GROUPS_DELETE,
-    # Members - user can manage members in own groups
-    PermissionRegistry.MEMBERS_CREATE,
-    PermissionRegistry.MEMBERS_READ,
-    PermissionRegistry.MEMBERS_UPDATE,
-    PermissionRegistry.MEMBERS_DELETE,
-    # Draws - user can create, read, finalize draws but NOT notify
-    PermissionRegistry.DRAWS_CREATE,
-    PermissionRegistry.DRAWS_READ,
-    PermissionRegistry.DRAWS_FINALIZE,
-    PermissionRegistry.DRAWS_VIEW_ASSIGNMENTS,
-    # NOTE: DRAWS_NOTIFY is NOT included - must be explicitly granted
-    # Exclusions - user can manage exclusions
-    PermissionRegistry.EXCLUSIONS_CREATE,
-    PermissionRegistry.EXCLUSIONS_READ,
-    PermissionRegistry.EXCLUSIONS_DELETE,
-]
+USER_BASIC_PERMISSIONS: list[str] = []
 
 # ========== ADMIN_PERMISSIONS ==========
 # Permissions for admin users

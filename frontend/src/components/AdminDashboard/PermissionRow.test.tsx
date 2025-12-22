@@ -23,12 +23,7 @@ const mockUnscopedPermission: Permission = {
 describe('PermissionRow', () => {
   it('renders permission badge correctly', () => {
     const onRevoke = vi.fn();
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} />);
 
     const badge = screen.getByText('groups:read');
     expect(badge).toBeInTheDocument();
@@ -39,13 +34,7 @@ describe('PermissionRow', () => {
     const onRevoke = vi.fn();
     const groupName = 'My Christmas Group';
 
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        groupName={groupName}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} groupName={groupName} onRevoke={onRevoke} />);
 
     const groupNameElement = screen.getByText(`(${groupName})`);
     expect(groupNameElement).toBeInTheDocument();
@@ -55,12 +44,7 @@ describe('PermissionRow', () => {
   it('does not show group name when not provided', () => {
     const onRevoke = vi.fn();
 
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} />);
 
     // Verify badge is still there
     expect(screen.getByText('groups:read')).toBeInTheDocument();
@@ -71,12 +55,7 @@ describe('PermissionRow', () => {
   it('renders permission name/description', () => {
     const onRevoke = vi.fn();
 
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} />);
 
     expect(screen.getByText('Read Groups')).toBeInTheDocument();
     expect(screen.getByText('Read Groups')).toHaveClass('text-xs');
@@ -85,12 +64,7 @@ describe('PermissionRow', () => {
   it('renders revoke button with trash icon', () => {
     const onRevoke = vi.fn();
 
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} />);
 
     const revokeButton = screen.getByRole('button', {
       name: /revoke groups:read/i,
@@ -106,12 +80,7 @@ describe('PermissionRow', () => {
     const user = userEvent.setup();
     const onRevoke = vi.fn();
 
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} />);
 
     const revokeButton = screen.getByRole('button', {
       name: /revoke groups:read/i,
@@ -124,13 +93,7 @@ describe('PermissionRow', () => {
   it('disables button when isRevoking is true', () => {
     const onRevoke = vi.fn();
 
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-        isRevoking={true}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} isRevoking={true} />);
 
     const revokeButton = screen.getByRole('button', {
       name: /revoke groups:read/i,
@@ -141,31 +104,18 @@ describe('PermissionRow', () => {
   it('has proper aria-label for accessibility', () => {
     const onRevoke = vi.fn();
 
-    render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} />);
 
     const revokeButton = screen.getByRole('button', {
       name: `Revoke ${mockPermission.code}`,
     });
-    expect(revokeButton).toHaveAttribute(
-      'aria-label',
-      `Revoke ${mockPermission.code}`
-    );
+    expect(revokeButton).toHaveAttribute('aria-label', `Revoke ${mockPermission.code}`);
   });
 
   it('handles unscoped permissions correctly', () => {
     const onRevoke = vi.fn();
 
-    render(
-      <PermissionRow
-        permission={mockUnscopedPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    render(<PermissionRow permission={mockUnscopedPermission} onRevoke={onRevoke} />);
 
     // Should display resource:action without UUID
     expect(screen.getByText('admin:view_dashboard')).toBeInTheDocument();
@@ -175,12 +125,7 @@ describe('PermissionRow', () => {
   it('has correct styling classes', () => {
     const onRevoke = vi.fn();
 
-    const { container } = render(
-      <PermissionRow
-        permission={mockPermission}
-        onRevoke={onRevoke}
-      />
-    );
+    const { container } = render(<PermissionRow permission={mockPermission} onRevoke={onRevoke} />);
 
     const row = container.querySelector('div');
     expect(row).toHaveClass(
@@ -201,11 +146,7 @@ describe('PermissionRow', () => {
     const groupName = 'Engineering Team';
 
     const { container } = render(
-      <PermissionRow
-        permission={mockPermission}
-        groupName={groupName}
-        onRevoke={onRevoke}
-      />
+      <PermissionRow permission={mockPermission} groupName={groupName} onRevoke={onRevoke} />
     );
 
     // Check the wrapper has proper flex layout

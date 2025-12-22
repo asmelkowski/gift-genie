@@ -6,10 +6,8 @@ export const useRevokePermission = (userId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({
-    mutationFn: async (permissionCode) => {
-      await api.delete(
-        `/admin/users/${userId}/permissions/${permissionCode}`
-      );
+    mutationFn: async permissionCode => {
+      await api.delete(`/admin/users/${userId}/permissions/${permissionCode}`);
     },
     onSuccess: () => {
       toast.success('Permission revoked successfully');
@@ -18,9 +16,8 @@ export const useRevokePermission = (userId: string) => {
         queryKey: ['admin', 'users', userId, 'permissions'],
       });
     },
-    onError: (error) => {
-      const message =
-        error instanceof Error ? error.message : 'Failed to revoke permission';
+    onError: error => {
+      const message = error instanceof Error ? error.message : 'Failed to revoke permission';
       toast.error(message);
     },
   });

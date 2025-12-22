@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
 import { MemberForm } from './MemberForm';
 import type { components } from '@/types/schema';
 
@@ -25,21 +26,19 @@ export function MemberDialog({ isOpen, onClose, member, groupId }: MemberDialogP
     setPendingDrawAlert(null);
   };
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <>
-      <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose} />
-      <div className="fixed left-[50%] top-[50%] z-50 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-lg border bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">{title}</h2>
-
+    <Dialog isOpen={isOpen} onClose={onClose} title={title} testId="member-dialog">
+      <div className="space-y-4">
         {pendingDrawAlert && (
-          <div className="mb-4 space-y-3">
-            <Alert variant="destructive" className="border-red-200 bg-red-50">
-              <div className="text-sm text-red-700 font-medium mb-2">Cannot Deactivate Member</div>
-              <div className="text-sm text-red-700">{pendingDrawAlert}</div>
+          <div className="space-y-3">
+            <Alert
+              variant="destructive"
+              className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900/50"
+            >
+              <div className="text-sm text-red-700 dark:text-red-400 font-medium mb-2">
+                Cannot Deactivate Member
+              </div>
+              <div className="text-sm text-red-700 dark:text-red-400">{pendingDrawAlert}</div>
             </Alert>
             <Button onClick={closePendingDrawAlert} variant="outline" className="w-full">
               OK
@@ -55,6 +54,6 @@ export function MemberDialog({ isOpen, onClose, member, groupId }: MemberDialogP
           onPendingDrawAlert={handlePendingDrawAlert}
         />
       </div>
-    </>
+    </Dialog>
   );
 }

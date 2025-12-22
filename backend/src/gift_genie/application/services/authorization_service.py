@@ -20,16 +20,20 @@ class AuthorizationServiceImpl:
     user_repository: UserRepository
     user_permission_repository: UserPermissionRepository
 
-    async def has_permission(self, user_id: str, permission_code: str) -> bool:
+    async def has_permission(
+        self, user_id: str, permission_code: str, resource_id: str | None = None
+    ) -> bool:
         """Check if a user has a specific permission.
 
         Uses a layered approach:
         1. Admin bypass: Users with ADMIN role have all permissions
-        2. Permission check: Check if user has explicit permission via repository
+        2. Global permission: Check if user has explicit global permission
+        3. Granular permission: Check if user has explicit granular permission (resource specific)
 
         Args:
             user_id: The ID of the user to check
             permission_code: The permission code to check (e.g., "draws:notify")
+            resource_id: Optional ID of the resource to check granular permission for
 
         Returns:
             True if the user has the permission or is an admin, False otherwise.
@@ -39,22 +43,37 @@ class AuthorizationServiceImpl:
         if user and user.role == UserRole.ADMIN:
             return True
 
-        # Layer 2: Permission check via repository
-        return await self.user_permission_repository.has_permission(user_id, permission_code)
+        # Layer 2: Global permission check
+        has_global = await self.user_permission_repository.has_permission(user_id, permission_code)
+        if has_global:
+            return True
 
-    async def require_permission(self, user_id: str, permission_code: str) -> None:
+        # Layer 3: Granular permission check (if resource_id is provided)
+        if resource_id:
+            granular_code = f"{permission_code}:{resource_id}"
+            return await self.user_permission_repository.has_permission(user_id, granular_code)
+
+        return False
+
+    async def require_permission(
+        self, user_id: str, permission_code: str, resource_id: str | None = None
+    ) -> None:
         """Require a user to have a specific permission.
 
         Args:
             user_id: The ID of the user to check
             permission_code: The permission code to require
+            resource_id: Optional ID of the resource to check granular permission for
 
         Raises:
             ForbiddenError: If the user lacks the required permission
         """
-        has_perm = await self.has_permission(user_id, permission_code)
+        has_perm = await self.has_permission(user_id, permission_code, resource_id)
         if not has_perm:
-            raise ForbiddenError(f"Permission '{permission_code}' required")
+            msg = f"Permission '{permission_code}' required"
+            if resource_id:
+                msg += f" for resource '{resource_id}'"
+            raise ForbiddenError(msg)
 
     async def check_resource_ownership(self, user_id: str, resource_owner_id: str) -> bool:
         """Check if a user owns a resource.

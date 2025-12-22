@@ -16,9 +16,30 @@ describe('GrantGroupAccessSection', () => {
 
   const mockGroups = {
     data: [
-      { id: 'group-1', name: 'Engineering Team', admin_user_id: 'admin-1', created_at: '2025-01-01T00:00:00Z', updated_at: '2025-01-01T00:00:00Z', historical_exclusions_enabled: false },
-      { id: 'group-2', name: 'Marketing Team', admin_user_id: 'admin-1', created_at: '2025-01-01T00:00:00Z', updated_at: '2025-01-01T00:00:00Z', historical_exclusions_enabled: false },
-      { id: 'group-3', name: 'Sales Team', admin_user_id: 'admin-1', created_at: '2025-01-01T00:00:00Z', updated_at: '2025-01-01T00:00:00Z', historical_exclusions_enabled: false },
+      {
+        id: 'group-1',
+        name: 'Engineering Team',
+        admin_user_id: 'admin-1',
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:00Z',
+        historical_exclusions_enabled: false,
+      },
+      {
+        id: 'group-2',
+        name: 'Marketing Team',
+        admin_user_id: 'admin-1',
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:00Z',
+        historical_exclusions_enabled: false,
+      },
+      {
+        id: 'group-3',
+        name: 'Sales Team',
+        admin_user_id: 'admin-1',
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:00Z',
+        historical_exclusions_enabled: false,
+      },
     ],
     meta: { total: 3, page: 1, page_size: 100, total_pages: 1 },
   };

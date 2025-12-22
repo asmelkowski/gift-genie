@@ -25,20 +25,13 @@ from gift_genie.domain.entities.enums import UserRole
 from gift_genie.domain.entities.user import User
 from gift_genie.domain.interfaces.repositories import (
     UserRepository,
-    UserPermissionRepository,
 )
 from gift_genie.domain.interfaces.security import PasswordHasher
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.database.repositories.users import UserRepositorySqlAlchemy
-from gift_genie.infrastructure.database.repositories.user_permissions import (
-    UserPermissionRepositorySqlAlchemy,
-)
 from gift_genie.infrastructure.security.jwt import JWTService
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
 from gift_genie.infrastructure.config.settings import get_settings
-from gift_genie.infrastructure.permissions.default_permissions import (
-    USER_BASIC_PERMISSIONS,
-)
 from gift_genie.libs.utils import utc_datetime_now
 
 router: APIRouter = APIRouter(prefix="/test", tags=["test"])
@@ -110,13 +103,6 @@ async def get_jwt_service() -> JWTService:
     return JWTService(settings.SECRET_KEY, settings.ALGORITHM)
 
 
-async def get_user_permission_repository(
-    session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> AsyncGenerator[UserPermissionRepository, None]:
-    """Dependency to provide UserPermissionRepository."""
-    yield UserPermissionRepositorySqlAlchemy(session)
-
-
 # =====================
 # Endpoints
 # =====================
@@ -126,7 +112,6 @@ async def get_user_permission_repository(
 async def create_test_user(
     payload: CreateTestUserRequest,
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
-    user_perm_repo: Annotated[UserPermissionRepository, Depends(get_user_permission_repository)],
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
     jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
 ) -> CreateTestUserResponse:
@@ -135,13 +120,12 @@ async def create_test_user(
     This endpoint is useful for E2E tests that need to create users with
     specific roles (e.g., admin users) to test permission scenarios.
 
-    Similar to the RegisterUserUseCase, this endpoint grants default permissions
-    to regular users so they can actually use the application features.
+    In the resource-level permissions system, users start with no global permissions.
+    They receive permissions automatically when they create groups.
 
     Args:
         payload: The test user creation request
         user_repo: The user repository
-        user_perm_repo: The user permission repository
         password_hasher: The password hasher
         jwt_service: The JWT service for token generation
 
@@ -175,21 +159,6 @@ async def create_test_user(
             status_code=409,
             detail={"code": "email_conflict", "message": "Email already exists"},
         )
-
-    # Grant default permissions based on role (same as RegisterUserUseCase)
-    if created_user.role == UserRole.USER:
-        for permission_code in USER_BASIC_PERMISSIONS:
-            try:
-                await user_perm_repo.grant_permission(
-                    user_id=created_user.id,
-                    permission_code=permission_code,
-                    granted_by=None,
-                )
-            except ValueError:
-                # Permission might not exist yet - skip
-                logger.warning(
-                    f"Failed to grant permission {permission_code} to test user {created_user.id}"
-                )
 
     # Generate access token
     access_token = jwt_service.create_access_token(data={"sub": created_user.id})

@@ -75,35 +75,35 @@ const setupAuthState = async function (
   await page.waitForLoadState('domcontentloaded');
 
   // Now set localStorage SYNCHRONOUSLY before the app bootstraps
-   console.log('[E2E] Setting localStorage with auth state...');
-   await page.evaluate(
-     ({ token, userData }) => {
-       // Set auth token (if frontend uses it separately)
-       localStorage.setItem('auth_token', token);
+  console.log('[E2E] Setting localStorage with auth state...');
+  await page.evaluate(
+    ({ token, userData }) => {
+      // Set auth token (if frontend uses it separately)
+      localStorage.setItem('auth_token', token);
 
-       // Set up Zustand auth store with the actual user data
-       localStorage.setItem(
-         'auth-storage',
-         JSON.stringify({
-           state: {
-             user: {
-               id: userData.id,
-               email: userData.email,
-               name: userData.name,
-               ...(userData.role && { role: userData.role }),
-             },
-             csrfToken: null, // Will be set by /auth/me call if needed
-           },
-           version: 0,
-         })
-       );
-       console.log(
-         '[E2E] localStorage auth state initialized:',
-         localStorage.getItem('auth-storage')
-       );
-     },
-     { token: accessToken, userData: user }
-   );
+      // Set up Zustand auth store with the actual user data
+      localStorage.setItem(
+        'auth-storage',
+        JSON.stringify({
+          state: {
+            user: {
+              id: userData.id,
+              email: userData.email,
+              name: userData.name,
+              ...(userData.role && { role: userData.role }),
+            },
+            csrfToken: null, // Will be set by /auth/me call if needed
+          },
+          version: 0,
+        })
+      );
+      console.log(
+        '[E2E] localStorage auth state initialized:',
+        localStorage.getItem('auth-storage')
+      );
+    },
+    { token: accessToken, userData: user }
+  );
 
   // Set up route interception to inject Authorization header on all API requests
   console.log('[E2E] Setting up route interception for Bearer token...');
@@ -190,12 +190,13 @@ const loginUser = async function (page: Page, context: BrowserContext, data: Use
  * Much simpler and faster than the old register + login flow
  *
  * @param page Playwright page object (provides request context with auth)
- * @param context Browser context for isolated test environment
+ * @param _context Browser context for isolated test environment (reserved for future use)
  * @returns User data including generated id from the backend
  */
 const createRegularUser = async function (
   page: Page,
-  context: BrowserContext
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _context: BrowserContext
 ): Promise<UserData> {
   console.log('[E2E] Creating regular user via test endpoint...');
   const apiBaseUrl = process.env.CI ? 'http://backend:8000' : 'http://localhost:8000';
@@ -221,26 +222,24 @@ const createRegularUser = async function (
 
   if (!response.ok()) {
     const body = await response.text();
-    throw new Error(
-      `[E2E] Failed to create test user: ${response.status()} - ${body}`
-    );
+    throw new Error(`[E2E] Failed to create test user: ${response.status()} - ${body}`);
   }
 
-    const responseData = await response.json();
-    const accessToken = responseData.access_token;
-    // User data is at top level, not nested
-    const createdUser = {
-      id: responseData.id,
-      name: responseData.name,
-      email: responseData.email,
-      role: responseData.role,
-    };
+  const responseData = await response.json();
+  const accessToken = responseData.access_token;
+  // User data is at top level, not nested
+  const createdUser = {
+    id: responseData.id,
+    name: responseData.name,
+    email: responseData.email,
+    role: responseData.role,
+  };
 
-    console.log(`[E2E] Test user created successfully: ${userData.email}`);
-    console.log(`[E2E] User ID: ${createdUser.id}`);
+  console.log(`[E2E] Test user created successfully: ${userData.email}`);
+  console.log(`[E2E] User ID: ${createdUser.id}`);
 
-    // Set up auth state and navigate to app
-    await setupAuthState(page, accessToken, createdUser, '/app/groups');
+  // Set up auth state and navigate to app
+  await setupAuthState(page, accessToken, createdUser, '/app/groups');
 
   // Return user data with the server-generated ID
   return {
@@ -259,12 +258,13 @@ const createRegularUser = async function (
  * - Skips email verification (test-only feature)
  *
  * @param page Playwright page object (provides request context with auth)
- * @param context Browser context for isolated test environment
+ * @param _context Browser context for isolated test environment (reserved for future use)
  * @returns User data including generated id from the backend
  */
 const createAdminUser = async function (
   page: Page,
-  context: BrowserContext
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _context: BrowserContext
 ): Promise<UserData> {
   console.log('[E2E] Creating admin user via test endpoint...');
   const apiBaseUrl = process.env.CI ? 'http://backend:8000' : 'http://localhost:8000';
@@ -290,32 +290,30 @@ const createAdminUser = async function (
 
   if (!response.ok()) {
     const body = await response.text();
-    throw new Error(
-      `[E2E] Failed to create test admin user: ${response.status()} - ${body}`
-    );
+    throw new Error(`[E2E] Failed to create test admin user: ${response.status()} - ${body}`);
   }
 
-    const responseData = await response.json();
-    const accessToken = responseData.access_token;
-    // User data is at top level, not nested
-    const createdUser = {
-      id: responseData.id,
-      name: responseData.name,
-      email: responseData.email,
-      role: responseData.role,
-    };
+  const responseData = await response.json();
+  const accessToken = responseData.access_token;
+  // User data is at top level, not nested
+  const createdUser = {
+    id: responseData.id,
+    name: responseData.name,
+    email: responseData.email,
+    role: responseData.role,
+  };
 
-    console.log(`[E2E] Admin user created successfully: ${userData.email}`);
-    console.log(`[E2E] User ID: ${createdUser.id}`);
+  console.log(`[E2E] Admin user created successfully: ${userData.email}`);
+  console.log(`[E2E] User ID: ${createdUser.id}`);
 
-    // Set up auth state and navigate to app
-    await setupAuthState(page, accessToken, createdUser, '/app/admin');
+  // Set up auth state and navigate to app
+  await setupAuthState(page, accessToken, createdUser, '/app/admin');
 
-   // Return user data with the server-generated ID
-   return {
-     ...userData,
-     id: createdUser.id,
-   };
+  // Return user data with the server-generated ID
+  return {
+    ...userData,
+    id: createdUser.id,
+  };
 };
 
 /**
@@ -354,9 +352,7 @@ const createUserWithoutLogin = async function (
 
   if (!response.ok()) {
     const body = await response.text();
-    throw new Error(
-      `[E2E] Failed to create test user: ${response.status()} - ${body}`
-    );
+    throw new Error(`[E2E] Failed to create test user: ${response.status()} - ${body}`);
   }
 
   const responseData = await response.json();
@@ -402,7 +398,7 @@ const grantPermissionViaAPI = async function (
     `${apiBaseUrl}/api/v1/admin/users/${userId}/permissions`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       data: {
@@ -414,17 +410,13 @@ const grantPermissionViaAPI = async function (
   if (!response.ok()) {
     const body = await response.text();
     const statusCode = response.status();
-    console.error(
-      `[E2E] Failed to grant permission: ${statusCode} - ${body}`
-    );
+    console.error(`[E2E] Failed to grant permission: ${statusCode} - ${body}`);
     throw new Error(
       `Failed to grant permission '${permissionCode}' to user ${userId}: ${statusCode} - ${body}`
     );
   }
 
-  console.log(
-    `[E2E] Successfully granted permission '${permissionCode}' to user ${userId}`
-  );
+  console.log(`[E2E] Successfully granted permission '${permissionCode}' to user ${userId}`);
 };
 
 /**
@@ -459,7 +451,7 @@ const revokePermissionViaAPI = async function (
     `${apiBaseUrl}/api/v1/admin/users/${userId}/permissions/${permissionCode}`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
@@ -467,17 +459,13 @@ const revokePermissionViaAPI = async function (
   if (!response.ok()) {
     const body = await response.text();
     const statusCode = response.status();
-    console.error(
-      `[E2E] Failed to revoke permission: ${statusCode} - ${body}`
-    );
+    console.error(`[E2E] Failed to revoke permission: ${statusCode} - ${body}`);
     throw new Error(
       `Failed to revoke permission '${permissionCode}' from user ${userId}: ${statusCode} - ${body}`
     );
   }
 
-  console.log(
-    `[E2E] Successfully revoked permission '${permissionCode}' from user ${userId}`
-  );
+  console.log(`[E2E] Successfully revoked permission '${permissionCode}' from user ${userId}`);
 };
 
 /**
@@ -491,10 +479,7 @@ const revokePermissionViaAPI = async function (
  *
  * @throws Error if the API call fails with details about the failure
  */
-const getUserPermissions = async function (
-  page: Page,
-  userId: string
-): Promise<string[]> {
+const getUserPermissions = async function (page: Page, userId: string): Promise<string[]> {
   console.log(`[E2E] Fetching permissions for user ${userId}...`);
 
   const apiBaseUrl = process.env.CI ? 'http://backend:8000' : 'http://localhost:8000';
@@ -510,7 +495,7 @@ const getUserPermissions = async function (
     `${apiBaseUrl}/api/v1/admin/users/${userId}/permissions`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
@@ -518,20 +503,14 @@ const getUserPermissions = async function (
   if (!response.ok()) {
     const body = await response.text();
     const statusCode = response.status();
-    console.error(
-      `[E2E] Failed to fetch permissions: ${statusCode} - ${body}`
-    );
-    throw new Error(
-      `Failed to fetch permissions for user ${userId}: ${statusCode} - ${body}`
-    );
+    console.error(`[E2E] Failed to fetch permissions: ${statusCode} - ${body}`);
+    throw new Error(`Failed to fetch permissions for user ${userId}: ${statusCode} - ${body}`);
   }
 
   const permissions = await response.json();
   const permissionCodes = permissions.map((p: { code: string }) => p.code);
 
-  console.log(
-    `[E2E] User ${userId} has permissions: ${permissionCodes.join(', ')}`
-  );
+  console.log(`[E2E] User ${userId} has permissions: ${permissionCodes.join(', ')}`);
   return permissionCodes;
 };
 
@@ -562,7 +541,7 @@ const cleanupTestUsers = async function (
 
   const response = await page.request.delete(`${apiBaseUrl}/api/v1/test/users`, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     data: {
       email_pattern: emailPattern,
@@ -572,9 +551,7 @@ const cleanupTestUsers = async function (
   if (!response.ok()) {
     const body = await response.text();
     const statusCode = response.status();
-    console.error(
-      `[E2E] Failed to cleanup test users: ${statusCode} - ${body}`
-    );
+    console.error(`[E2E] Failed to cleanup test users: ${statusCode} - ${body}`);
     throw new Error(
       `Failed to cleanup test users with pattern '${emailPattern}': ${statusCode} - ${body}`
     );

@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 from gift_genie.application.dto.create_draw_command import CreateDrawCommand
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.errors import GroupNotFoundError
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.entities.enums import DrawStatus
 from gift_genie.domain.interfaces.repositories import DrawRepository, GroupRepository
@@ -22,9 +22,7 @@ class CreateDrawUseCase:
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group owner
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # Generate draw ID and timestamp
         draw_id = str(uuid4())

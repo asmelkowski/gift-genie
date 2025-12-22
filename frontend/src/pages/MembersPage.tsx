@@ -24,7 +24,7 @@ export function MembersPage() {
   const [editingMember, setEditingMember] = useState<MemberResponse | null>(null);
   const { params, updateParams } = useMembersParams();
   const { data, isLoading, error, refetch } = useMembersQuery(groupId!, params);
-  const { data: groupData } = useGroupDetailsQuery(groupId!);
+  const { data: groupData, error: groupError } = useGroupDetailsQuery(groupId!);
   const deleteMutation = useDeleteMemberMutation(groupId!);
 
   useEffect(() => {
@@ -100,8 +100,9 @@ export function MembersPage() {
     );
   }
 
-  if (error) {
-    if (isForbiddenError(error)) {
+  // Check for 403 errors in either the members query or the group details query
+  if (error || groupError) {
+    if (isForbiddenError(error) || isForbiddenError(groupError)) {
       return (
         <div className="space-y-6">
           <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
@@ -112,12 +113,15 @@ export function MembersPage() {
         </div>
       );
     }
-    return (
-      <div className="space-y-6">
-        <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
-        <ErrorState error={error as Error} onRetry={() => refetch()} />
-      </div>
-    );
+    // Show regular error state for non-403 errors
+    if (error) {
+      return (
+        <div className="space-y-6">
+          <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
+          <ErrorState error={error as Error} onRetry={() => refetch()} />
+        </div>
+      );
+    }
   }
 
   const members = data?.data || [];

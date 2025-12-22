@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gift_genie.application.dto.delete_member_command import DeleteMemberCommand
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError, MemberNotFoundError
+from gift_genie.application.errors import GroupNotFoundError, MemberNotFoundError
 from gift_genie.domain.interfaces.repositories import GroupRepository, MemberRepository
 
 
@@ -20,9 +20,7 @@ class DeleteMemberUseCase:
         if not group:
             raise GroupNotFoundError()
 
-        # Verify user is owner of the group
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # Verify member exists and belongs to group
         member = await self.member_repository.get_by_group_and_id(

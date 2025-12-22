@@ -4,13 +4,8 @@ import { GroupsPage } from '../page-objects/GroupsPage';
 import {
   createAdminUser,
   createRegularUser,
-  createUserWithoutLogin,
   grantPermissionViaAPI,
   revokePermissionViaAPI,
-  generateRandomString,
-  registerUser,
-  loginUser,
-  type UserData,
 } from '../helpers';
 
 /**
@@ -112,7 +107,8 @@ test.describe('Permission Enforcement', () => {
         const errorResponsePromise = page
           .waitForResponse(
             response =>
-              response.url().includes('/api/v1/draws') &&
+              response.url().includes('/api/v1/groups/') &&
+              response.url().includes('/draws/') &&
               response.url().includes('notify') &&
               (response.status() === 403 || response.status() === 401)
           )
@@ -141,16 +137,21 @@ test.describe('Permission Enforcement', () => {
     console.log('[E2E] Verifying via direct API call...');
     const apiBaseUrl = process.env.CI ? 'http://backend:8000' : 'http://localhost:8000';
 
-    // First, get the draw ID (assuming we can find it from the current page state)
+    // First, get the draw ID and group ID (assuming we can find them from the current page state)
     // For this test, we'll just verify that the notify endpoint would reject the request
     const drawIdMatch = page.url().match(/draws\/([^/?]+)/);
-    if (drawIdMatch) {
+    const groupIdMatch = page.url().match(/groups\/([^/?]+)/);
+    if (drawIdMatch && groupIdMatch) {
       const drawId = drawIdMatch[1];
-      console.log(`[E2E] Found draw ID: ${drawId}`);
+      const groupId = groupIdMatch[1];
+      console.log(`[E2E] Found group ID: ${groupId}, draw ID: ${drawId}`);
 
-      const response = await page.request.post(`${apiBaseUrl}/api/v1/draws/${drawId}/notify`, {
-        data: { resend: false },
-      });
+      const response = await page.request.post(
+        `${apiBaseUrl}/api/v1/groups/${groupId}/draws/${drawId}/notify`,
+        {
+          data: { resend: false },
+        }
+      );
 
       expect(response.status()).toBeLessThanOrEqual(403);
       console.log(`[E2E] ✓ API call returned ${response.status()} (expected 403 or similar)`);
@@ -190,6 +191,7 @@ test.describe('Permission Enforcement', () => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
     await groupsPage.waitForLoad();
+    await adminPage.close();
 
     // Create a group
     const groupName = `Test Group ${Date.now()}`;
@@ -239,7 +241,8 @@ test.describe('Permission Enforcement', () => {
         const successResponsePromise = page
           .waitForResponse(
             response =>
-              response.url().includes('/api/v1/draws') &&
+              response.url().includes('/api/v1/groups/') &&
+              response.url().includes('/draws/') &&
               response.url().includes('notify') &&
               response.status() === 200
           )
@@ -263,13 +266,18 @@ test.describe('Permission Enforcement', () => {
     // Verify via API call
     const apiBaseUrl = process.env.CI ? 'http://backend:8000' : 'http://localhost:8000';
     const drawIdMatch = page.url().match(/draws\/([^/?]+)/);
-    if (drawIdMatch) {
+    const groupIdMatch = page.url().match(/groups\/([^/?]+)/);
+    if (drawIdMatch && groupIdMatch) {
       const drawId = drawIdMatch[1];
-      console.log(`[E2E] Verifying notification via API for draw: ${drawId}`);
+      const groupId = groupIdMatch[1];
+      console.log(`[E2E] Verifying notification via API for group: ${groupId}, draw: ${drawId}`);
 
-      const response = await page.request.post(`${apiBaseUrl}/api/v1/draws/${drawId}/notify`, {
-        data: { resend: false },
-      });
+      const response = await page.request.post(
+        `${apiBaseUrl}/api/v1/groups/${groupId}/draws/${drawId}/notify`,
+        {
+          data: { resend: false },
+        }
+      );
 
       expect(response.status()).toBeLessThanOrEqual(200);
       console.log(`[E2E] ✓ API call succeeded with status ${response.status()}`);
@@ -299,7 +307,8 @@ test.describe('Permission Enforcement', () => {
     // Create an admin user to grant the permission
     // First, navigate to a fresh context for admin
     const adminPage = await context.newPage();
-    const adminUser = await createAdminUser(adminPage, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(adminPage, context);
     console.log(`[E2E] Created admin user: ${adminUser.email}`);
 
     // Grant draws:notify via API (using admin context)
@@ -486,7 +495,8 @@ test.describe('Permission Enforcement', () => {
     // Note: Regular users get default permissions, so they might have groups:delete
     // For this test, we'll revoke it first to establish the "without permission" state
     const adminPage = await context.newPage();
-    const adminUser = await createAdminUser(adminPage, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(adminPage, context);
 
     // Revoke groups:delete to ensure we start without it
     console.log('[E2E] Revoking groups:delete to establish baseline...');
@@ -507,12 +517,11 @@ test.describe('Permission Enforcement', () => {
     await groupsPage.expectGroupVisible(groupName);
     console.log(`[E2E] Created group: ${groupName}`);
 
-    // Try to find and interact with delete action
-    const groupElement = page.locator(`text=${groupName}`).first();
-
     // Look for various delete action patterns
     const deleteButton = page
-      .locator(`//button[contains(., "Delete")][.//text()="${groupName}" or ancestor::*//text()="${groupName}"]`)
+      .locator(
+        `//button[contains(., "Delete")][.//text()="${groupName}" or ancestor::*//text()="${groupName}"]`
+      )
       .first();
 
     const deleteOption = page.locator('[role="menuitem"][aria-label*="delete" i]').first();
@@ -581,9 +590,8 @@ test.describe('Permission Enforcement', () => {
     await adminDashboard.searchUsers(userData.email);
     await adminDashboard.clickManagePermissions(userId);
 
-    const hasDeletePermissionAfterRevoke = await adminDashboard.isPermissionGranted(
-      'groups:delete'
-    );
+    const hasDeletePermissionAfterRevoke =
+      await adminDashboard.isPermissionGranted('groups:delete');
     expect(hasDeletePermissionAfterRevoke).toBe(false);
     console.log('[E2E] ✓ groups:delete permission revoked');
 
@@ -615,7 +623,8 @@ test.describe('Permission Enforcement', () => {
 
     // Create admin context
     const adminPage = await context.newPage();
-    const adminUser = await createAdminUser(adminPage, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(adminPage, context);
 
     const adminDashboard = new AdminDashboardPage(adminPage);
 

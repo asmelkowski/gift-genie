@@ -24,9 +24,7 @@ describe('useRevokePermission', () => {
 
   const createWrapper = () => {
     return ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider {...{ client: queryClient }}>
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider {...{ client: queryClient }}>{children}</QueryClientProvider>
     );
   };
 
@@ -46,13 +44,9 @@ describe('useRevokePermission', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.delete).toHaveBeenCalledWith(
-      `/admin/users/${userId}/permissions/${permissionCode}`
-    );
+    expect(api.delete).toHaveBeenCalledWith(`/admin/users/${userId}/permissions/${permissionCode}`);
 
-    expect(toast.success).toHaveBeenCalledWith(
-      'Permission revoked successfully'
-    );
+    expect(toast.success).toHaveBeenCalledWith('Permission revoked successfully');
   });
 
   it('handles error when revoking permission', async () => {
@@ -113,8 +107,6 @@ describe('useRevokePermission', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.delete).toHaveBeenCalledWith(
-      `/admin/users/${userId}/permissions/${permissionCode}`
-    );
+    expect(api.delete).toHaveBeenCalledWith(`/admin/users/${userId}/permissions/${permissionCode}`);
   });
 });

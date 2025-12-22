@@ -52,7 +52,7 @@ from gift_genie.presentation.api.dependencies import (
 )
 from gift_genie.presentation.api.v1.groups import get_group_repository
 
-router: APIRouter = APIRouter(tags=["draws"])
+router: APIRouter = APIRouter(prefix="/groups/{group_id}/draws", tags=["draws"])
 
 
 # Pydantic Request Models
@@ -259,7 +259,7 @@ async def get_list_assignments_use_case(
 # API Endpoints
 
 
-@router.get("/groups/{group_id}/draws", response_model=PaginatedDrawsResponse)
+@router.get("", response_model=PaginatedDrawsResponse)
 async def list_draws(
     group_id: UUID = Path(..., description="Group UUID"),
     status: Literal["pending", "finalized"] | None = Query(None),
@@ -267,7 +267,9 @@ async def list_draws(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("-created_at", pattern=r"^-?created_at$"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:read"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("draws:read", resource_id_from_path=True))
+    ],
     use_case: Annotated[ListDrawsUseCase, Depends(get_list_draws_use_case)],
 ) -> PaginatedDrawsResponse:
     query = ListDrawsQuery(
@@ -303,12 +305,14 @@ async def list_draws(
     )
 
 
-@router.post("/groups/{group_id}/draws", response_model=DrawResponse, status_code=201)
+@router.post("", response_model=DrawResponse, status_code=201)
 async def create_draw(
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateDrawRequest = Depends(),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:create"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("draws:create", resource_id_from_path=True))
+    ],
     use_case: Annotated[CreateDrawUseCase, Depends(get_create_draw_use_case)],
     response: Response,
 ) -> DrawResponse:
@@ -321,7 +325,7 @@ async def create_draw(
     draw = await use_case.execute(command)
 
     # Set Location header
-    response.headers["Location"] = f"/api/v1/draws/{draw.id}"
+    response.headers["Location"] = f"/api/v1/groups/{group_id}/draws/{draw.id}"
 
     return DrawResponse(
         id=draw.id,
@@ -334,11 +338,14 @@ async def create_draw(
     )
 
 
-@router.get("/draws/{draw_id}", response_model=DrawResponse)
+@router.get("/{draw_id}", response_model=DrawResponse)
 async def get_draw(
+    group_id: UUID = Path(..., description="Group UUID"),
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:read"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("draws:read", resource_id_from_path=True))
+    ],
     use_case: Annotated[GetDrawUseCase, Depends(get_get_draw_use_case)],
 ) -> DrawResponse:
     query = GetDrawQuery(
@@ -359,11 +366,14 @@ async def get_draw(
     )
 
 
-@router.delete("/draws/{draw_id}", status_code=204)
+@router.delete("/{draw_id}", status_code=204)
 async def delete_draw(
+    group_id: UUID = Path(..., description="Group UUID"),
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:delete"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("draws:delete", resource_id_from_path=True))
+    ],
     use_case: Annotated[DeleteDrawUseCase, Depends(get_delete_draw_use_case)],
 ) -> Response:
     command = DeleteDrawCommand(
@@ -375,12 +385,15 @@ async def delete_draw(
     return Response(status_code=204)
 
 
-@router.post("/draws/{draw_id}/execute", response_model=ExecuteDrawResponse)
+@router.post("/{draw_id}/execute", response_model=ExecuteDrawResponse)
 async def execute_draw(
+    group_id: UUID = Path(..., description="Group UUID"),
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: ExecuteDrawRequest = Depends(),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:create"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("draws:create", resource_id_from_path=True))
+    ],
     use_case: Annotated[ExecuteDrawUseCase, Depends(get_execute_draw_use_case)],
 ) -> ExecuteDrawResponse:
     command = ExecuteDrawCommand(
@@ -411,12 +424,15 @@ async def execute_draw(
     )
 
 
-@router.post("/draws/{draw_id}/finalize", response_model=DrawResponse)
+@router.post("/{draw_id}/finalize", response_model=DrawResponse)
 async def finalize_draw(
+    group_id: UUID = Path(..., description="Group UUID"),
     draw_id: UUID = Path(..., description="Draw UUID"),
     payload: FinalizeDrawRequest = Depends(),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:finalize"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("draws:finalize", resource_id_from_path=True))
+    ],
     use_case: Annotated[FinalizeDrawUseCase, Depends(get_finalize_draw_use_case)],
 ) -> DrawResponse:
     command = FinalizeDrawCommand(
@@ -437,12 +453,15 @@ async def finalize_draw(
     )
 
 
-@router.post("/draws/{draw_id}/notify", response_model=NotifyDrawResponse, status_code=202)
+@router.post("/{draw_id}/notify", response_model=NotifyDrawResponse, status_code=202)
 async def notify_draw(
     payload: NotifyDrawRequest,
+    group_id: UUID = Path(..., description="Group UUID"),
     draw_id: UUID = Path(..., description="Draw UUID"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:notify"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("draws:notify", resource_id_from_path=True))
+    ],
     use_case: Annotated[NotifyDrawUseCase, Depends(get_notify_draw_use_case)],
 ) -> NotifyDrawResponse:
     print(payload)
@@ -457,12 +476,16 @@ async def notify_draw(
     return NotifyDrawResponse(sent=sent, skipped=skipped)
 
 
-@router.get("/draws/{draw_id}/assignments", response_model=ListAssignmentsResponse)
+@router.get("/{draw_id}/assignments", response_model=ListAssignmentsResponse)
 async def list_assignments(
+    group_id: UUID = Path(..., description="Group UUID"),
     draw_id: UUID = Path(..., description="Draw UUID"),
     include: Literal["names", "none"] = Query("none", description="Include member names"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("draws:view_assignments"))],
+    current_user_id: Annotated[
+        str,
+        Depends(require_permission("draws:view_assignments", resource_id_from_path=True)),
+    ],
     use_case: Annotated[ListAssignmentsUseCase, Depends(get_list_assignments_use_case)],
 ) -> ListAssignmentsResponse:
     query = ListAssignmentsQuery(

@@ -69,8 +69,11 @@ class GroupRepositorySqlAlchemy(GroupRepository):
     async def list_all(
         self, search: str | None, page: int, page_size: int, sort: str
     ) -> tuple[list[Group], int]:
+        from sqlalchemy import true
+        from sqlalchemy.sql import ColumnElement
+
         # Build base filter
-        filter_expr = True
+        filter_expr: ColumnElement[bool] = true()
         if search:
             filter_expr = func.lower(GroupModel.name).contains(func.lower(search))
 

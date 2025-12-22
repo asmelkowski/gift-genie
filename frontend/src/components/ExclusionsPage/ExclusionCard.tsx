@@ -31,13 +31,13 @@ export function ExclusionCard({
   const mutualLabel = exclusion.is_mutual ? '↔' : '→';
 
   const giverStatusBadge = giverMember && !giverMember.is_active && (
-    <span className="inline-block ml-1 px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded">
+    <span className="inline-block ml-1 px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded">
       Inactive
     </span>
   );
 
   const receiverStatusBadge = receiverMember && !receiverMember.is_active && (
-    <span className="inline-block ml-1 px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded">
+    <span className="inline-block ml-1 px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded">
       Inactive
     </span>
   );
@@ -45,15 +45,15 @@ export function ExclusionCard({
   const truncateUuid = (uuid: string) => uuid.slice(0, 8) + '...';
 
   return (
-    <div className="border rounded-lg p-4 bg-card hover:shadow-md transition-shadow">
+    <div className="border rounded-lg p-4 bg-card text-card-foreground hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+            <span className="text-xs font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary">
               {exclusionTypeLabel}
             </span>
             {exclusion.is_mutual && (
-              <span className="text-xs font-semibold px-2 py-1 rounded-full bg-purple-100 text-purple-700">
+              <span className="text-xs font-semibold px-2 py-1 rounded-full bg-secondary/10 text-secondary">
                 Mutual
               </span>
             )}
@@ -62,20 +62,19 @@ export function ExclusionCard({
           {!isHistorical && (
             <button
               onClick={() => setExpanded(!expanded)}
-              className="w-full text-left hover:bg-gray-50 p-2 rounded transition-colors"
+              className="w-full text-left hover:bg-muted/50 p-2 rounded transition-colors"
             >
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-sm text-gray-700">
+                <span className="font-mono text-sm text-muted-foreground group-hover:text-foreground">
                   {truncateUuid(exclusion.giver_member_id)}
                 </span>
-                <span className="text-gray-400 font-semibold">{mutualLabel}</span>
-                <span className="font-mono text-sm text-gray-700">
+                <span className="text-muted-foreground font-semibold">{mutualLabel}</span>
+                <span className="font-mono text-sm text-muted-foreground group-hover:text-foreground">
                   {truncateUuid(exclusion.receiver_member_id)}
                 </span>
                 <svg
-                  className={`w-4 h-4 text-gray-400 transition-transform ${
-                    expanded ? 'rotate-180' : ''
-                  }`}
+                  className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -93,47 +92,47 @@ export function ExclusionCard({
 
           {isHistorical && (
             <div className="flex items-center gap-2 mb-1 p-2">
-              <span className="font-mono text-sm text-gray-700">
+              <span className="font-mono text-sm text-muted-foreground">
                 {truncateUuid(exclusion.giver_member_id)}
               </span>
-              <span className="text-gray-400 font-semibold">{mutualLabel}</span>
-              <span className="font-mono text-sm text-gray-700">
+              <span className="text-muted-foreground font-semibold">{mutualLabel}</span>
+              <span className="font-mono text-sm text-muted-foreground">
                 {truncateUuid(exclusion.receiver_member_id)}
               </span>
             </div>
           )}
 
           {expanded && !isHistorical && (
-            <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+            <div className="mt-3 pt-3 border-t border-border space-y-2">
               <div className="text-sm">
-                <div className="text-gray-600 font-medium mb-1">From:</div>
+                <div className="text-muted-foreground font-medium mb-1">From:</div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">{giverName}</span>
                   {giverStatusBadge}
                 </div>
                 {giverMember?.email && (
-                  <div className="text-xs text-gray-500 mt-1">{giverMember.email}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{giverMember.email}</div>
                 )}
               </div>
 
               <div className="text-sm">
-                <div className="text-gray-600 font-medium mb-1">To:</div>
+                <div className="text-muted-foreground font-medium mb-1">To:</div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">{receiverName}</span>
                   {receiverStatusBadge}
                 </div>
                 {receiverMember?.email && (
-                  <div className="text-xs text-gray-500 mt-1">{receiverMember.email}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{receiverMember.email}</div>
                 )}
               </div>
 
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 Created: {new Date(exclusion.created_at).toLocaleDateString()}
               </div>
             </div>
           )}
 
-          <div className="text-xs text-gray-500 px-2">
+          <div className="text-xs text-muted-foreground px-2">
             Created: {new Date(exclusion.created_at).toLocaleDateString()}
           </div>
         </div>
@@ -151,7 +150,7 @@ export function ExclusionCard({
         </Button>
       )}
       {exclusion.exclusion_type === 'historical' && (
-        <div className="text-xs text-gray-500 italic text-center py-2">
+        <div className="text-xs text-muted-foreground italic text-center py-2">
           System-generated from previous draws
         </div>
       )}

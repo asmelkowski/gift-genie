@@ -9,7 +9,6 @@ from gift_genie.application.errors import (
     AssignmentsAlreadyExistError,
     DrawAlreadyFinalizedError,
     DrawNotFoundError,
-    ForbiddenError,
     NoValidDrawConfigurationError,
 )
 from gift_genie.domain.entities.assignment import Assignment
@@ -45,9 +44,7 @@ class ExecuteDrawUseCase:
         if group is None:
             raise DrawNotFoundError()
 
-        # Verify authorization: user must be the group admin
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on draw_id)
 
         # Validate draw is pending
         if not draw.can_be_modified():

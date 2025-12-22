@@ -100,9 +100,7 @@ export class AdminDashboardPage {
    */
   async selectPermissionCategory(category: string) {
     console.log(`[E2E] Selecting permission category: ${category}`);
-    await this.page
-      .getByTestId('permission-category-filter')
-      .selectOption(category);
+    await this.page.getByTestId('permission-category-filter').selectOption(category);
     // Wait for filtered permissions to load
     await this.page.waitForLoadState('networkidle');
   }
@@ -111,9 +109,7 @@ export class AdminDashboardPage {
    * Get list of available permission codes currently displayed
    */
   async getAvailablePermissions(): Promise<string[]> {
-    const permissions = await this.page
-      .getByTestId(/^available-permission-/)
-      .all();
+    const permissions = await this.page.getByTestId(/^available-permission-/).all();
     const codes: string[] = [];
     for (const perm of permissions) {
       const code = await perm.getAttribute('data-permission-code');
@@ -222,9 +218,7 @@ export class AdminDashboardPage {
    * Get the title/header of the permission dialog to verify correct user
    */
   async getDialogTitle(): Promise<string> {
-    const title = await this.page
-      .getByTestId('permission-dialog-title')
-      .textContent();
+    const title = await this.page.getByTestId('permission-dialog-title').textContent();
     return title?.trim() || '';
   }
 
@@ -280,8 +274,7 @@ export class AdminDashboardPage {
   async expectPermissionCount(userId: string, count: number | string) {
     console.log(`[E2E] Verifying permission count for user ${userId}: ${count}`);
     const countElement = this.page.getByTestId(`permission-count-${userId}`);
-    const countText =
-      count === 'All' ? 'All (Admin)' : count.toString();
+    const countText = count === 'All' ? 'All (Admin)' : count.toString();
     await expect(countElement).toContainText(countText);
   }
 
@@ -294,9 +287,7 @@ export class AdminDashboardPage {
    */
   async expectPermissionInList(code: string) {
     console.log(`[E2E] Expecting permission in list: ${code}`);
-    await expect(
-      this.page.getByTestId(`user-permission-${code}`)
-    ).toBeVisible();
+    await expect(this.page.getByTestId(`user-permission-${code}`)).toBeVisible();
   }
 
   /**
@@ -304,9 +295,7 @@ export class AdminDashboardPage {
    */
   async expectPermissionNotInList(code: string) {
     console.log(`[E2E] Expecting permission NOT in list: ${code}`);
-    await expect(
-      this.page.getByTestId(`user-permission-${code}`)
-    ).not.toBeVisible();
+    await expect(this.page.getByTestId(`user-permission-${code}`)).not.toBeVisible();
   }
 
   /**
@@ -314,21 +303,15 @@ export class AdminDashboardPage {
    */
   async expectAvailablePermissionVisible(permissionCode: string) {
     console.log(`[E2E] Expecting available permission visible: ${permissionCode}`);
-    await expect(
-      this.page.getByTestId(`available-permission-${permissionCode}`)
-    ).toBeVisible();
+    await expect(this.page.getByTestId(`available-permission-${permissionCode}`)).toBeVisible();
   }
 
   /**
    * Verify the permission dialog title contains the expected user identifier
    */
   async expectDialogTitleContains(userIdentifier: string) {
-    console.log(
-      `[E2E] Expecting dialog title to contain: ${userIdentifier}`
-    );
-    await expect(
-      this.page.getByTestId('permission-dialog-title')
-    ).toContainText(userIdentifier);
+    console.log(`[E2E] Expecting dialog title to contain: ${userIdentifier}`);
+    await expect(this.page.getByTestId('permission-dialog-title')).toContainText(userIdentifier);
   }
 
   // ============================================================================
@@ -340,9 +323,7 @@ export class AdminDashboardPage {
    */
   async expectSuccessMessage(message: string) {
     console.log(`[E2E] Expecting success message: "${message}"`);
-    await expect(
-      this.page.getByTestId('success-toast')
-    ).toContainText(message);
+    await expect(this.page.getByTestId('success-toast')).toContainText(message);
   }
 
   /**
@@ -350,9 +331,7 @@ export class AdminDashboardPage {
    */
   async expectErrorMessage(message: string) {
     console.log(`[E2E] Expecting error message: "${message}"`);
-    await expect(
-      this.page.getByTestId('error-toast')
-    ).toContainText(message);
+    await expect(this.page.getByTestId('error-toast')).toContainText(message);
   }
 
   /**
@@ -360,9 +339,7 @@ export class AdminDashboardPage {
    */
   async expectLoadingState() {
     console.log('[E2E] Expecting loading state...');
-    await expect(
-      this.page.getByTestId('permission-dialog-loading')
-    ).toBeVisible();
+    await expect(this.page.getByTestId('permission-dialog-loading')).toBeVisible();
   }
 
   /**
@@ -396,12 +373,8 @@ export class AdminDashboardPage {
    * (useful for testing UI state, e.g., already granted)
    */
   async expectGrantButtonDisabled(permissionCode: string) {
-    console.log(
-      `[E2E] Expecting grant button disabled for: ${permissionCode}`
-    );
-    await expect(
-      this.page.getByTestId(`grant-permission-${permissionCode}`)
-    ).toBeDisabled();
+    console.log(`[E2E] Expecting grant button disabled for: ${permissionCode}`);
+    await expect(this.page.getByTestId(`grant-permission-${permissionCode}`)).toBeDisabled();
   }
 
   /**
@@ -409,12 +382,8 @@ export class AdminDashboardPage {
    * (useful for testing UI state, e.g., not yet granted)
    */
   async expectRevokeButtonDisabled(permissionCode: string) {
-    console.log(
-      `[E2E] Expecting revoke button disabled for: ${permissionCode}`
-    );
-    await expect(
-      this.page.getByTestId(`revoke-permission-${permissionCode}`)
-    ).toBeDisabled();
+    console.log(`[E2E] Expecting revoke button disabled for: ${permissionCode}`);
+    await expect(this.page.getByTestId(`revoke-permission-${permissionCode}`)).toBeDisabled();
   }
 
   // ============================================================================

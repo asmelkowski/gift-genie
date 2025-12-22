@@ -14,7 +14,6 @@ from gift_genie.application.errors import (
     CannotDeleteFinalizedDrawError,
     DrawAlreadyFinalizedError,
     DrawNotFoundError,
-    ForbiddenError,
     GroupNotFoundError,
     NoValidDrawConfigurationError,
 )
@@ -99,38 +98,6 @@ async def test_create_draw_group_not_found():
     )
 
     with pytest.raises(GroupNotFoundError):
-        await use_case.execute(command)
-
-
-@pytest.mark.anyio
-async def test_create_draw_forbidden_not_owner():
-    group_repo = AsyncMock()
-    draw_repo = AsyncMock()
-
-    group_id = str(uuid4())
-    admin_id = str(uuid4())
-    user_id = str(uuid4())
-    group = Group(
-        id=group_id,
-        admin_user_id=admin_id,  # Different owner
-        name="Test Group",
-        historical_exclusions_enabled=True,
-        historical_exclusions_lookback=1,
-        created_at=None,
-        updated_at=None,
-    )
-    group_repo.get_by_id.return_value = group
-
-    use_case = CreateDrawUseCase(
-        group_repository=group_repo,
-        draw_repository=draw_repo,
-    )
-    command = CreateDrawCommand(
-        group_id=group_id,
-        requesting_user_id=user_id,  # Not owner
-    )
-
-    with pytest.raises(ForbiddenError):
         await use_case.execute(command)
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gift_genie.application.dto.get_draw_query import GetDrawQuery
-from gift_genie.application.errors import DrawNotFoundError, ForbiddenError
+from gift_genie.application.errors import DrawNotFoundError
 from gift_genie.domain.entities.draw import Draw
 from gift_genie.domain.interfaces.repositories import DrawRepository, GroupRepository
 
@@ -25,8 +25,6 @@ class GetDrawUseCase:
             # This shouldn't happen if DB is consistent, but handle it
             raise DrawNotFoundError()
 
-        # Verify authorization: user must be the group admin
-        if group.admin_user_id != query.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on draw_id)
 
         return draw

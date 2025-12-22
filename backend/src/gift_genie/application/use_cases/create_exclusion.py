@@ -6,7 +6,6 @@ from uuid import uuid4
 from gift_genie.application.dto.create_exclusion_command import CreateExclusionCommand
 from gift_genie.application.errors import (
     DuplicateExclusionError,
-    ForbiddenError,
     GroupNotFoundError,
     MemberNotFoundError,
     SelfExclusionNotAllowedError,
@@ -33,8 +32,7 @@ class CreateExclusionUseCase:
         if not group:
             raise GroupNotFoundError()
 
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # Validate both members exist in group
         giver = await self.member_repository.get_by_group_and_id(

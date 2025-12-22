@@ -10,28 +10,30 @@ export function GroupDetails() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Group Details</h1>
-          <p className="text-gray-600 mt-1">ID: {groupId}</p>
+          <p className="text-muted-foreground mt-1">ID: {groupId}</p>
         </div>
         <Button onClick={() => navigate('/app/groups')} variant="outline">
           Back to Groups
         </Button>
       </div>
 
-      <div className="bg-card rounded-lg border border-gray-200 p-6">
+      <div className="bg-card rounded-lg border border-border p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold mb-1">Members</h2>
-            <p className="text-gray-600 text-sm">Manage members in this group</p>
+            <p className="text-muted-foreground text-sm">Manage members in this group</p>
           </div>
           <Button onClick={() => navigate(`/app/groups/${groupId}/members`)}>View Members</Button>
         </div>
       </div>
 
-      <div className="bg-card rounded-lg border border-gray-200 p-6">
+      <div className="bg-card rounded-lg border border-border p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold mb-1">Exclusions</h2>
-            <p className="text-gray-600 text-sm">Manage member pairings to exclude from draws</p>
+            <p className="text-muted-foreground text-sm">
+              Manage member pairings to exclude from draws
+            </p>
           </div>
           <Button onClick={() => navigate(`/app/groups/${groupId}/exclusions`)}>
             View Exclusions
@@ -39,11 +41,11 @@ export function GroupDetails() {
         </div>
       </div>
 
-      <div className="bg-card rounded-lg border border-gray-200 p-6">
+      <div className="bg-card rounded-lg border border-border p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold mb-1">Draws</h2>
-            <p className="text-gray-600 text-sm">Create and manage gift exchange draws</p>
+            <p className="text-muted-foreground text-sm">Create and manage gift exchange draws</p>
           </div>
           <Button onClick={() => navigate(`/app/groups/${groupId}/draws`)}>View Draws</Button>
         </div>

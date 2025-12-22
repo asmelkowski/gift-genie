@@ -53,6 +53,24 @@ class InMemoryUserRepo(UserRepository):
     async def email_exists_ci(self, email: str) -> bool:
         return any(u.email.lower() == email.lower() for u in self.users.values())
 
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[User], int]:
+        users = list(self.users.values())
+        # Apply search filter if provided
+        if search:
+            search_lower = search.lower()
+            users = [
+                u
+                for u in users
+                if search_lower in u.email.lower() or search_lower in u.name.lower()
+            ]
+        # Simple pagination
+        total = len(users)
+        start = (page - 1) * page_size
+        end = start + page_size
+        return users[start:end], total
+
 
 @pytest.mark.anyio
 async def test_get_me_success(client: AsyncClient):

@@ -16,10 +16,7 @@ const categoryColors: Record<string, { bg: string; text: string }> = {
   admin: { bg: 'bg-red-100', text: 'text-red-800 dark:bg-red-900 dark:text-red-200' },
 };
 
-export function PermissionBadge({
-  permission,
-  showTooltip = true,
-}: PermissionBadgeProps) {
+export function PermissionBadge({ permission, showTooltip = true }: PermissionBadgeProps) {
   const colors = categoryColors[permission.category] || categoryColors.groups;
 
   const badge = (
