@@ -30,7 +30,7 @@ describe('useDeleteDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.delete).toHaveBeenCalledWith('/draws/draw-1');
+    expect(api.delete).toHaveBeenCalledWith('/groups/group-1/draws/draw-1');
   });
 
   it('invalidates draws query with group ID on success', async () => {

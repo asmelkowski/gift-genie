@@ -5,10 +5,20 @@ import { useNotifyDrawMutation } from './useNotifyDrawMutation';
 import { createTestQueryClient, createTestWrapper } from '@/test/test-utils';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import type { components } from '@/types/schema';
 
 vi.mock('@/lib/api');
 vi.mock('react-hot-toast');
+vi.mock('axios', async () => {
+  const actual = (await vi.importActual('axios')) as Record<string, unknown>;
+  return {
+    default: {
+      ...actual.default,
+      isAxiosError: vi.fn(),
+    },
+  };
+});
 
 type NotifyDrawResponse = components['schemas']['NotifyDrawResponse'];
 
@@ -18,6 +28,8 @@ describe('useNotifyDrawMutation', () => {
   beforeEach(() => {
     queryClient = createTestQueryClient();
     vi.clearAllMocks();
+    // Default axios.isAxiosError to false for tests that don't explicitly mock it
+    vi.mocked(axios.isAxiosError).mockReturnValue(false);
   });
 
   it('calls API with correct endpoint and resend parameter', async () => {
@@ -38,7 +50,7 @@ describe('useNotifyDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/notify', { resend: false });
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/draws/draw-1/notify', { resend: false });
   });
 
   it('invalidates both draws and draw queries on success', async () => {
@@ -86,7 +98,7 @@ describe('useNotifyDrawMutation', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/draws/draw-1/notify', { resend: true });
+    expect(api.post).toHaveBeenCalledWith('/groups/group-1/draws/draw-1/notify', { resend: true });
   });
 
   it('returns notification response data', async () => {
@@ -117,6 +129,7 @@ describe('useNotifyDrawMutation', () => {
       },
     };
 
+    vi.mocked(axios.isAxiosError).mockReturnValue(true);
     vi.mocked(api.post).mockRejectedValue(errorResponse);
 
     const { result } = renderHook(() => useNotifyDrawMutation('group-1'), {
@@ -151,6 +164,6 @@ describe('useNotifyDrawMutation', () => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect(toast.error).toHaveBeenCalledWith('Failed to send notifications');
+    expect(toast.error).toHaveBeenCalledWith('An unexpected error occurred');
   });
 });

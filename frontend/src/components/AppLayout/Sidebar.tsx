@@ -26,10 +26,11 @@ export function Sidebar({ items, activeRoute }: SidebarProps) {
             <li key={item.path}>
               <Link
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${isActive
+                className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
+                  isActive
                     ? 'bg-sidebar-accent text-sidebar-primary border-l-4 border-sidebar-primary font-semibold'
                     : 'text-sidebar-foreground hover:bg-sidebar-accent'
-                  }`}
+                }`}
               >
                 <span>{item.label}</span>
                 {item.badge !== undefined && (
