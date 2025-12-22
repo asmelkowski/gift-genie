@@ -175,7 +175,7 @@ export function PermissionManagerDialog({
         <div className="rounded-md bg-gray-50 dark:bg-gray-900 p-3">
           <div
             className="text-sm font-semibold text-gray-900 dark:text-gray-100"
-            data-testid="permission-dialog-title"
+            data-testid="permission-dialog-user-name"
           >
             {userName}
           </div>
