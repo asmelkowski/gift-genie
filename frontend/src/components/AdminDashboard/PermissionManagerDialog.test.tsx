@@ -18,9 +18,17 @@ vi.mock('@/hooks/useRevokePermission');
 vi.mock('@/hooks/useGrantPermission');
 vi.mock('@/hooks/useAdmin');
 vi.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, isOpen, title }: Record<string, unknown>) =>
+  Dialog: ({
+    children,
+    isOpen,
+    title,
+  }: {
+    children?: React.ReactNode;
+    isOpen?: boolean;
+    title?: string;
+  }) =>
     isOpen ? (
-      <div role="dialog" aria-label={title as string}>
+      <div role="dialog" aria-label={title}>
         {children}
       </div>
     ) : null,
