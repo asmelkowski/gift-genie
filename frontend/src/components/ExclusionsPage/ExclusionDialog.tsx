@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Dialog } from '@/components/ui/dialog';
 import { ExclusionForm } from './ExclusionForm';
 import type { components } from '@/types/schema';
 
@@ -40,23 +41,14 @@ export function ExclusionDialog({
     }
   };
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <>
-      <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose} />
-      <div className="fixed left-[50%] top-[50%] z-50 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-lg border bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Create Exclusion</h2>
-
-        <ExclusionForm
-          members={members}
-          onSubmit={handleSubmit}
-          onCancel={onClose}
-          isLoading={localLoading || isLoading}
-        />
-      </div>
-    </>
+    <Dialog isOpen={isOpen} onClose={onClose} title="Create Exclusion" testId="exclusion-dialog">
+      <ExclusionForm
+        members={members}
+        onSubmit={handleSubmit}
+        onCancel={onClose}
+        isLoading={localLoading || isLoading}
+      />
+    </Dialog>
   );
 }

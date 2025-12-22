@@ -5,7 +5,6 @@ from uuid import uuid4
 from gift_genie.application.dto.create_exclusion_command import CreateExclusionCommand
 from gift_genie.application.errors import (
     DuplicateExclusionError,
-    ForbiddenError,
     GroupNotFoundError,
     MemberNotFoundError,
     SelfExclusionNotAllowedError,
@@ -196,43 +195,6 @@ async def test_create_exclusion_group_not_found():
     )
 
     with pytest.raises(GroupNotFoundError):
-        await use_case.execute(command)
-
-
-@pytest.mark.anyio
-async def test_create_exclusion_forbidden():
-    group_repo = AsyncMock()
-    member_repo = AsyncMock()
-    exclusion_repo = AsyncMock()
-
-    group_id = str(uuid4())
-    admin_id = str(uuid4())
-    user_id = str(uuid4())
-    group = Group(
-        id=group_id,
-        admin_user_id=admin_id,  # Different admin
-        name="Test Group",
-        historical_exclusions_enabled=True,
-        historical_exclusions_lookback=1,
-        created_at=None,
-        updated_at=None,
-    )
-    group_repo.get_by_id.return_value = group
-
-    use_case = CreateExclusionUseCase(
-        group_repository=group_repo,
-        member_repository=member_repo,
-        exclusion_repository=exclusion_repo,
-    )
-    command = CreateExclusionCommand(
-        group_id=group_id,
-        requesting_user_id=user_id,  # Not admin
-        giver_member_id=str(uuid4()),
-        receiver_member_id=str(uuid4()),
-        is_mutual=False,
-    )
-
-    with pytest.raises(ForbiddenError):
         await use_case.execute(command)
 
 

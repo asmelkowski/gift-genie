@@ -27,13 +27,9 @@ from gift_genie.application.use_cases.register_user import RegisterUserUseCase
 from gift_genie.domain.interfaces.security import PasswordHasher
 from gift_genie.domain.interfaces.repositories import (
     UserRepository,
-    UserPermissionRepository,
 )
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.infrastructure.database.repositories.users import UserRepositorySqlAlchemy
-from gift_genie.infrastructure.database.repositories.user_permissions import (
-    UserPermissionRepositorySqlAlchemy,
-)
 from gift_genie.infrastructure.security.jwt import JWTService
 from gift_genie.infrastructure.security.passwords import BcryptPasswordHasher
 from gift_genie.infrastructure.config.settings import get_settings
@@ -111,12 +107,6 @@ async def get_user_repository(
     yield UserRepositorySqlAlchemy(session)
 
 
-async def get_user_permission_repository(
-    session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> AsyncGenerator[UserPermissionRepository, None]:
-    yield UserPermissionRepositorySqlAlchemy(session)
-
-
 async def get_password_hasher() -> PasswordHasher:
     return BcryptPasswordHasher()
 
@@ -133,7 +123,6 @@ async def register_user(
     payload: RegisterRequest,
     response: Response,
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
-    user_perm_repo: Annotated[UserPermissionRepository, Depends(get_user_permission_repository)],
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
 ) -> UserCreatedResponse:
     cmd = RegisterUserCommand(
@@ -142,7 +131,6 @@ async def register_user(
     use_case = RegisterUserUseCase(
         user_repository=user_repo,
         password_hasher=password_hasher,
-        user_permission_repository=user_perm_repo,
     )
     user = await use_case.execute(cmd)
 

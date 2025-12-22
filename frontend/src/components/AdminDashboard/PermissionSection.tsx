@@ -7,12 +7,7 @@ interface PermissionSectionProps {
   children: React.ReactNode;
 }
 
-export function PermissionSection({
-  title,
-  count,
-  icon,
-  children,
-}: PermissionSectionProps) {
+export function PermissionSection({ title, count, icon, children }: PermissionSectionProps) {
   const permissionText = count === 1 ? 'permission' : 'permissions';
 
   return (

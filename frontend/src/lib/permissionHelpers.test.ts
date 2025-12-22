@@ -426,7 +426,7 @@ describe('permissionHelpers', () => {
       it('handles permission with null code', () => {
         const permissions: Permission[] = [
           {
-            code: null as any,
+            code: null as unknown as string,
             name: 'Invalid',
             description: 'Invalid permission',
             category: 'test',

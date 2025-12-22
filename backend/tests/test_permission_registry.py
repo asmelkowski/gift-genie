@@ -1,6 +1,5 @@
 """Unit tests for PermissionRegistry."""
 
-
 from gift_genie.infrastructure.permissions.permission_registry import (
     PermissionRegistry,
 )

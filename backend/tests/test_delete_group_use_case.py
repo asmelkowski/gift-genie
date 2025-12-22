@@ -4,7 +4,7 @@ from uuid import uuid4
 from unittest.mock import AsyncMock
 
 from gift_genie.application.dto.delete_group_command import DeleteGroupCommand
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.errors import GroupNotFoundError
 from gift_genie.application.use_cases.delete_group import DeleteGroupUseCase
 from gift_genie.domain.entities.group import Group
 
@@ -38,23 +38,6 @@ async def test_execute_successful_deletion():
     # Assert
     mock_repo.get_by_id.assert_called_once_with(group.id)
     mock_repo.delete.assert_called_once_with(group.id)
-
-
-@pytest.mark.anyio
-async def test_execute_forbidden_when_not_owner():
-    # Arrange - user doesn't own the group
-    group = _make_group("admin-456")  # Different owner
-    mock_repo = AsyncMock()
-    mock_repo.get_by_id.return_value = group
-
-    use_case = DeleteGroupUseCase(mock_repo)
-    command = DeleteGroupCommand(group_id=group.id, requesting_user_id="user-123")
-
-    # Act & Assert
-    with pytest.raises(ForbiddenError):
-        await use_case.execute(command)
-
-    mock_repo.delete.assert_not_called()
 
 
 @pytest.mark.anyio

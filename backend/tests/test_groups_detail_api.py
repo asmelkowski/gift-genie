@@ -35,6 +35,18 @@ class InMemoryGroupRepo(GroupRepository):
         end = start + page_size
         return groups[start:end], total
 
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[Group], int]:
+        groups = list(self._groups.values())
+        if search:
+            groups = [g for g in groups if search.lower() in g.name.lower()]
+        groups.sort(key=lambda g: g.created_at, reverse=True)
+        total = len(groups)
+        start = (page - 1) * page_size
+        end = start + page_size
+        return groups[start:end], total
+
     async def get_by_id(self, group_id: str) -> Optional[Group]:
         return self._groups.get(group_id)
 
@@ -116,20 +128,21 @@ async def test_get_group_details_forbidden(client: AsyncClient):
     resp = await client.get(f"/api/v1/groups/{group.id}")
 
     assert resp.status_code == 403
-    assert resp.json() == {"detail": {"code": "forbidden"}}
+    assert resp.json()["detail"]["code"] == "forbidden"
 
 
 @pytest.mark.anyio
 async def test_get_group_details_not_found(client: AsyncClient):
     repo = InMemoryGroupRepo()
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    # Use an admin user to bypass permission check and reach use case
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     nonexistent_uuid = str(uuid4())  # Valid UUID that doesn't exist
     resp = await client.get(f"/api/v1/groups/{nonexistent_uuid}")
 
     assert resp.status_code == 404
-    assert resp.json() == {"detail": {"code": "group_not_found"}}
+    assert resp.json()["detail"]["code"] == "group_not_found"
 
 
 @pytest.mark.anyio
@@ -195,7 +208,7 @@ async def test_patch_group_forbidden(client: AsyncClient):
     resp = await client.patch(f"/api/v1/groups/{group.id}", json=payload)
 
     assert resp.status_code == 403
-    assert resp.json() == {"detail": {"code": "forbidden"}}
+    assert resp.json()["detail"]["code"] == "forbidden"
 
 
 @pytest.mark.anyio
@@ -228,7 +241,7 @@ async def test_delete_group_forbidden(client: AsyncClient):
     resp = await client.delete(f"/api/v1/groups/{group.id}")
 
     assert resp.status_code == 403
-    assert resp.json() == {"detail": {"code": "forbidden"}}
+    assert resp.json()["detail"]["code"] == "forbidden"
 
     # Verify not deleted
     assert await repo.get_by_id(group.id) is not None
@@ -238,10 +251,11 @@ async def test_delete_group_forbidden(client: AsyncClient):
 async def test_delete_group_not_found(client: AsyncClient):
     repo = InMemoryGroupRepo()
     app.dependency_overrides[groups_router.get_group_repository] = lambda: repo
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    # Use an admin user to bypass permission check and reach use case
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     nonexistent_uuid = str(uuid4())  # Valid UUID that doesn't exist
     resp = await client.delete(f"/api/v1/groups/{nonexistent_uuid}")
 
     assert resp.status_code == 404
-    assert resp.json() == {"detail": {"code": "group_not_found"}}
+    assert resp.json()["detail"]["code"] == "group_not_found"

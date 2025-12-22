@@ -5,7 +5,6 @@ from uuid import uuid4
 
 from gift_genie.application.dto.create_member_command import CreateMemberCommand
 from gift_genie.application.errors import (
-    ForbiddenError,
     GroupNotFoundError,
     MemberEmailConflictError,
     MemberNameConflictError,
@@ -28,9 +27,7 @@ class CreateMemberUseCase:
         if not group:
             raise GroupNotFoundError()
 
-        # Verify user is owner of the group
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # Check name uniqueness (name already validated at presentation layer)
         if await self.member_repository.name_exists_in_group(command.group_id, command.name):

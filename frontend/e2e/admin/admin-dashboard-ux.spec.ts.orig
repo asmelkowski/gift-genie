@@ -222,7 +222,7 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
 
       // Wait for table rows to appear on page 2
       await page.locator('tbody tr').first().waitFor({ state: 'visible', timeout: 5000 });
-      
+
       // Verify page 2 has users
       const page2Rows = await page.locator('tbody tr').count();
       console.log(`[E2E] Counted ${page2Rows} rows on page 2`);

@@ -4,7 +4,7 @@ from uuid import uuid4
 from unittest.mock import AsyncMock
 
 from gift_genie.application.dto.get_group_details_query import GetGroupDetailsQuery
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.errors import GroupNotFoundError
 from gift_genie.application.use_cases.get_group_details import GetGroupDetailsUseCase
 from gift_genie.domain.entities.group import Group
 
@@ -41,24 +41,6 @@ async def test_execute_successful_retrieval():
     assert stats == (10, 8)
     mock_repo.get_by_id.assert_called_once_with(group.id)
     mock_repo.get_member_stats.assert_called_once_with(group.id)
-
-
-@pytest.mark.anyio
-async def test_execute_forbidden_when_not_owner():
-    # Arrange
-    group = _make_group("admin-456")  # Different owner
-    mock_repo = AsyncMock()
-    mock_repo.get_by_id.return_value = group
-
-    use_case = GetGroupDetailsUseCase(mock_repo)
-    query = GetGroupDetailsQuery(group_id=group.id, requesting_user_id="user-123")  # Wrong user
-
-    # Act & Assert
-    with pytest.raises(ForbiddenError):
-        await use_case.execute(query)
-
-    mock_repo.get_by_id.assert_called_once_with(group.id)
-    mock_repo.get_member_stats.assert_not_called()
 
 
 @pytest.mark.anyio

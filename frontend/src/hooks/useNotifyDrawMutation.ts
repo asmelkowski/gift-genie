@@ -3,6 +3,7 @@ import api from '@/lib/api';
 import type { components } from '@/types/schema';
 import type { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
+import { getErrorMessage, isForbiddenError } from '@/lib/errors';
 
 type NotifyDrawResponse = components['schemas']['NotifyDrawResponse'];
 
@@ -11,9 +12,12 @@ export const useNotifyDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (params: { drawId: string; resend: boolean }) => {
-      const response = await api.post<NotifyDrawResponse>(`/draws/${params.drawId}/notify`, {
-        resend: params.resend,
-      });
+      const response = await api.post<NotifyDrawResponse>(
+        `/groups/${groupId}/draws/${params.drawId}/notify`,
+        {
+          resend: params.resend,
+        }
+      );
       return response.data;
     },
     onSuccess: (data, variables) => {
@@ -21,9 +25,14 @@ export const useNotifyDrawMutation = (groupId: string) => {
       queryClient.invalidateQueries({ queryKey: ['draw', variables.drawId] });
       return data;
     },
-    onError: (error: AxiosError<{ detail: string }>) => {
-      const message = error.response?.data?.detail || 'Failed to send notifications';
-      toast.error(message);
+    onError: (error: AxiosError) => {
+      // Show generic message for permission denied errors
+      if (isForbiddenError(error)) {
+        toast.error("You don't have permission to perform this action");
+      } else {
+        const message = getErrorMessage(error) || 'Failed to send notifications';
+        toast.error(message);
+      }
     },
   });
 };

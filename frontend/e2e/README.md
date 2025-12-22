@@ -86,7 +86,9 @@ We have comprehensive E2E tests for the permission system that verify admin dash
 The admin permission tests are organized into 4 focused test files:
 
 #### 1. **admin-dashboard-access.spec.ts**
+
 Verifies access control to the admin dashboard:
+
 - ✅ Admin users can access the dashboard
 - ✅ Admin users see user list and tabs
 - ✅ Regular users cannot access dashboard (blocked or redirected)
@@ -96,7 +98,9 @@ Verifies access control to the admin dashboard:
 - ✅ Admin users can interact with permission management
 
 #### 2. **permission-management.spec.ts**
+
 Tests the permission grant/revoke workflow through the UI:
+
 - ✅ Admin can grant permission to user
 - ✅ Admin can revoke permission from user
 - ✅ Granting duplicate permission shows error or is idempotent
@@ -108,7 +112,9 @@ Tests the permission grant/revoke workflow through the UI:
 - ✅ Multiple permissions can be managed in sequence
 
 #### 3. **permission-enforcement.spec.ts**
+
 Tests that permissions are actually enforced in features:
+
 - ✅ User without draws:notify cannot send notifications
 - ✅ User with draws:notify can send notifications
 - ✅ Granting draws:notify enables notification feature
@@ -118,7 +124,9 @@ Tests that permissions are actually enforced in features:
 - ✅ Permission state transitions work correctly (grant → revoke → grant)
 
 #### 4. **admin-dashboard-ux.spec.ts**
+
 Tests user experience aspects of the admin dashboard:
+
 - **Search & Filtering**: Case-insensitive search, filtering, clearing
 - **Pagination**: Multi-page navigation, page resets on search
 - **Loading States**: Spinners during load, clearing after results
@@ -174,11 +182,7 @@ test('example test', async ({ page, context }) => {
 #### Permission Management via API
 
 ```typescript
-import { 
-  grantPermissionViaAPI, 
-  revokePermissionViaAPI,
-  getUserPermissions 
-} from '../helpers';
+import { grantPermissionViaAPI, revokePermissionViaAPI, getUserPermissions } from '../helpers';
 
 // Grant a permission to a user
 await grantPermissionViaAPI(page, userId, 'draws:notify');
@@ -194,6 +198,7 @@ const permissions = await getUserPermissions(page, userId);
 #### Available Permissions for Testing
 
 The permission system uses codes like:
+
 - `draws:notify` - Send draw notifications
 - `draws:execute` - Execute/run draws
 - `groups:delete` - Delete groups
@@ -202,12 +207,14 @@ The permission system uses codes like:
 ### Test Isolation Strategy
 
 Each test is completely isolated:
+
 - **No shared state** between tests
 - **Each test creates its own users** (you don't share admin/regular users across tests)
 - **Tests cleanup by not cleaning up** - test data is temporary and test users created during a test don't affect other tests
 - **Parallel execution safe** - tests can run in parallel without interference
 
 This means:
+
 - ✅ Tests are independent and can run in any order
 - ✅ Tests can run in parallel (configured in playwright.config.ts)
 - ✅ No database state pollution between tests
@@ -223,57 +230,61 @@ import { AdminDashboardPage } from '../page-objects/AdminDashboardPage';
 const adminDashboard = new AdminDashboardPage(page);
 
 // Navigation
-await adminDashboard.goto();                      // Navigate to /app/admin
-await adminDashboard.waitForLoad();               // Wait for dashboard to load
+await adminDashboard.goto(); // Navigate to /app/admin
+await adminDashboard.waitForLoad(); // Wait for dashboard to load
 
 // User table interactions
-await adminDashboard.searchUsers('user@email');   // Search for users
-await adminDashboard.clearSearch();               // Clear search filter
-await adminDashboard.expectUserInTable(email);    // Assert user visible
+await adminDashboard.searchUsers('user@email'); // Search for users
+await adminDashboard.clearSearch(); // Clear search filter
+await adminDashboard.expectUserInTable(email); // Assert user visible
 await adminDashboard.expectUserNotInTable(email); // Assert user not visible
 
 // Pagination
-await adminDashboard.goToNextPage();              // Navigate to next page
-await adminDashboard.goToPreviousPage();          // Navigate to previous page
+await adminDashboard.goToNextPage(); // Navigate to next page
+await adminDashboard.goToPreviousPage(); // Navigate to previous page
 
 // Permission management
-await adminDashboard.clickManagePermissions(userId);  // Open permission dialog
+await adminDashboard.clickManagePermissions(userId); // Open permission dialog
 await adminDashboard.grantPermission('draws:notify'); // Grant a permission
 await adminDashboard.revokePermission('draws:notify'); // Revoke a permission
-await adminDashboard.closePermissionDialog();     // Close the dialog
+await adminDashboard.closePermissionDialog(); // Close the dialog
 
 // Assertions
-await adminDashboard.expectPermissionInList('draws:notify');     // Assert permission granted
-await adminDashboard.expectPermissionNotInList('draws:notify');  // Assert permission not granted
-await adminDashboard.expectDialogTitleContains(email);           // Assert dialog shows correct user
+await adminDashboard.expectPermissionInList('draws:notify'); // Assert permission granted
+await adminDashboard.expectPermissionNotInList('draws:notify'); // Assert permission not granted
+await adminDashboard.expectDialogTitleContains(email); // Assert dialog shows correct user
 await adminDashboard.waitForSuccessMessage('Permission granted'); // Wait for success toast
 
 // Check state
-const count = await adminDashboard.getPermissionCount(userId);   // Get permission count
+const count = await adminDashboard.getPermissionCount(userId); // Get permission count
 const isGranted = await adminDashboard.isPermissionGranted('draws:notify');
 ```
 
 ### Important Notes
 
 #### Admin Role Bypass Behavior
+
 - **Admin users** have a special "All (Admin)" status and don't need explicit permissions
 - Admin users can access all features and perform admin operations without individual permissions
 - Regular users need explicit permissions to access features
 - This is verified in the `permission-enforcement.spec.ts` tests
 
 #### CI Compatibility
+
 - ✅ Tests work identically in CI and local environments
 - API-based authentication is used in CI to avoid cross-origin cookie issues
 - Tests automatically detect CI environment via `process.env.CI`
 - All tests run in parallel (4 workers in CI, 2 locally)
 
 #### Known Behaviors
+
 - Permission operations are **idempotent** - granting the same permission twice is safe
 - Permission checks happen **server-side** - the frontend respects API errors
 - **Toast messages** appear briefly after permission operations (success/error)
 - Admin bypass is enforced at the **backend level** via middleware
 
 #### Future Improvements
+
 - Add performance benchmarks for permission checks
 - Test bulk permission operations (grant multiple at once)
 - Test permission inheritance (future feature)

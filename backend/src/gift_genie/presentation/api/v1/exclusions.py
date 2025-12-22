@@ -122,7 +122,9 @@ async def list_exclusions(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("exclusion_type,name"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("exclusions:read"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("exclusions:read", resource_id_from_path=True))
+    ],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
 ) -> PaginatedExclusionsResponse:
@@ -199,7 +201,9 @@ async def create_exclusion(
     *,
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateExclusionRequest,
-    current_user_id: Annotated[str, Depends(require_permission("exclusions:create"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("exclusions:create", resource_id_from_path=True))
+    ],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
@@ -300,7 +304,9 @@ async def create_exclusions_bulk(
     *,
     group_id: UUID = Path(..., description="Group UUID"),
     payload: CreateExclusionsBulkRequest,
-    current_user_id: Annotated[str, Depends(require_permission("exclusions:create"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("exclusions:create", resource_id_from_path=True))
+    ],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
@@ -390,7 +396,9 @@ async def delete_exclusion(
     group_id: UUID = Path(..., description="Group UUID"),
     exclusion_id: UUID = Path(..., description="Exclusion UUID"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("exclusions:delete"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("exclusions:delete", resource_id_from_path=True))
+    ],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
     exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
 ) -> Response:

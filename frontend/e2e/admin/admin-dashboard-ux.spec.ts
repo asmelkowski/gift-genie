@@ -2,13 +2,9 @@ import { test, expect } from '@playwright/test';
 import { AdminDashboardPage } from '../page-objects/AdminDashboardPage';
 import {
   createAdminUser,
-  createRegularUser,
   createUserWithoutLogin,
   grantPermissionViaAPI,
   generateRandomString,
-  generateUser,
-  registerUser,
-  loginUser,
   type UserData,
 } from '../helpers';
 
@@ -27,11 +23,12 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
   test('search filters users correctly by name', async ({ page, context }) => {
     console.log('[E2E] Test: search filters users correctly by name');
 
-     // Setup: Create admin and 3 regular users with distinct names
-     const adminUser = await createAdminUser(page, context);
-     const user1 = await createUserWithoutLogin(page, 'user');
-     const user2 = await createUserWithoutLogin(page, 'user');
-     const user3 = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin and 3 regular users with distinct names
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const user1 = await createUserWithoutLogin(page, 'user');
+    const user2 = await createUserWithoutLogin(page, 'user');
+    const user3 = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -66,12 +63,13 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log(`[E2E] ✓ Search filtered results correctly (${visibleRows} row(s) visible)`);
   });
 
-   test('search is case-insensitive', async ({ page, context }) => {
-     console.log('[E2E] Test: search is case-insensitive');
+  test('search is case-insensitive', async ({ page, context }) => {
+    console.log('[E2E] Test: search is case-insensitive');
 
-     // Setup: Create admin and regular user
-     const adminUser = await createAdminUser(page, context);
-     const regularUser = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin and regular user
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const regularUser = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -107,13 +105,14 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] ✓ Search is case-insensitive');
   });
 
-   test('clearing search shows all users again', async ({ page, context }) => {
-     console.log('[E2E] Test: clearing search shows all users again');
+  test('clearing search shows all users again', async ({ page, context }) => {
+    console.log('[E2E] Test: clearing search shows all users again');
 
-     // Setup: Create admin and 2 regular users
-     const adminUser = await createAdminUser(page, context);
-     const user1 = await createUserWithoutLogin(page, 'user');
-     const user2 = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin and 2 regular users
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const user1 = await createUserWithoutLogin(page, 'user');
+    const user2 = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -152,12 +151,12 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] ✓ Clearing search shows all users again');
   });
 
-   test('search with no matching results shows empty state', async ({ page, context }) => {
-     console.log('[E2E] Test: search with no matching results shows empty state');
+  test('search with no matching results shows empty state', async ({ page, context }) => {
+    console.log('[E2E] Test: search with no matching results shows empty state');
 
-     // Setup: Create admin + regular user
-     const adminUser = await createAdminUser(page, context);
-     const regularUser = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -187,16 +186,17 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
   // Pagination Tests
   // ============================================================================
 
-   test('pagination works correctly with multiple pages', async ({ page, context }) => {
-     console.log('[E2E] Test: pagination works correctly with multiple pages');
+  test('pagination works correctly with multiple pages', async ({ page, context }) => {
+    console.log('[E2E] Test: pagination works correctly with multiple pages');
 
-     // Setup: Create admin + 15 regular users to ensure pagination
-     const adminUser = await createAdminUser(page, context);
-     const users: UserData[] = [];
-     for (let i = 0; i < 15; i++) {
-       const user = await createUserWithoutLogin(page, 'user');
-       users.push(user);
-     }
+    // Setup: Create admin + 15 regular users to ensure pagination
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const users: UserData[] = [];
+    for (let i = 0; i < 15; i++) {
+      const user = await createUserWithoutLogin(page, 'user');
+      users.push(user);
+    }
     console.log('[E2E] Created 15 test users');
 
     const adminDashboard = new AdminDashboardPage(page);
@@ -222,7 +222,7 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
 
       // Wait for table rows to appear on page 2
       await page.locator('tbody tr').first().waitFor({ state: 'visible', timeout: 5000 });
-      
+
       // Verify page 2 has users
       const page2Rows = await page.locator('tbody tr').count();
       console.log(`[E2E] Counted ${page2Rows} rows on page 2`);
@@ -248,16 +248,17 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] ✓ Pagination works correctly');
   });
 
-   test('pagination resets to page 1 when searching', async ({ page, context }) => {
-     console.log('[E2E] Test: pagination resets to page 1 when searching');
+  test('pagination resets to page 1 when searching', async ({ page, context }) => {
+    console.log('[E2E] Test: pagination resets to page 1 when searching');
 
-     // Setup: Create admin + 12 users
-     const adminUser = await createAdminUser(page, context);
-     const users: UserData[] = [];
-     for (let i = 0; i < 12; i++) {
-       const user = await createUserWithoutLogin(page, 'user');
-       users.push(user);
-     }
+    // Setup: Create admin + 12 users
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const users: UserData[] = [];
+    for (let i = 0; i < 12; i++) {
+      const user = await createUserWithoutLogin(page, 'user');
+      users.push(user);
+    }
     console.log('[E2E] Created 12 test users');
 
     const adminDashboard = new AdminDashboardPage(page);
@@ -303,9 +304,8 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] Test: loading state shows during dashboard load');
 
     // Setup: Create admin user
-    const adminUser = await createAdminUser(page, context);
-
-    const adminDashboard = new AdminDashboardPage(page);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
 
     // Navigate to admin dashboard without waiting
     await page.goto('/app/admin');
@@ -336,7 +336,8 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] Test: loading state clears after search results load');
 
     // Setup: Create admin and users
-    const adminUser = await createAdminUser(page, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
     const regularUser = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
@@ -371,12 +372,13 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
   // Error Handling Tests
   // ============================================================================
 
-   test('granting invalid permission code shows error', async ({ page, context }) => {
-     console.log('[E2E] Test: granting invalid permission code shows error');
+  test('granting invalid permission code shows error', async ({ page, context }) => {
+    console.log('[E2E] Test: granting invalid permission code shows error');
 
-     // Setup: Create admin and regular user
-     const adminUser = await createAdminUser(page, context);
-     const regularUser = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin and regular user
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const regularUser = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -384,19 +386,19 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     await adminDashboard.goto();
     await adminDashboard.waitForLoad();
 
-     // Search for user and open dialog
-     await adminDashboard.searchUsers(regularUser.email);
-     await adminDashboard.expectUserInTable(regularUser.email);
+    // Search for user and open dialog
+    await adminDashboard.searchUsers(regularUser.email);
+    await adminDashboard.expectUserInTable(regularUser.email);
 
-     // Use the user ID directly from the created user
-     const userId = regularUser.id!;
+    // Use the user ID directly from the created user
+    const userId = regularUser.id!;
 
     // Open permission dialog
     await adminDashboard.clickManagePermissions(userId);
     console.log('[E2E] Opened permission dialog');
 
     // Attempt to grant invalid permission via API interception
-    await page.route('**/api/v1/admin/users/**/permissions', async (route) => {
+    await page.route('**/api/v1/admin/users/**/permissions', async route => {
       const request = route.request();
       if (request.method() === 'POST') {
         const body = request.postDataJSON() as { permission_code?: string };
@@ -427,7 +429,8 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
       if (!response.ok()) {
         console.log('[E2E] Invalid permission was rejected (expected)');
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       console.log('[E2E] Invalid permission grant resulted in error (expected)');
     }
 
@@ -438,7 +441,8 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] Test: permission dialog handles missing user gracefully');
 
     // Setup: Create admin user
-    const adminUser = await createAdminUser(page, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -460,12 +464,13 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] ✓ Missing user handled with appropriate error status');
   });
 
-   test('API errors display graceful error handling', async ({ page, context }) => {
-     console.log('[E2E] Test: API errors display graceful error handling');
+  test('API errors display graceful error handling', async ({ page, context }) => {
+    console.log('[E2E] Test: API errors display graceful error handling');
 
-     // Setup: Create admin and regular user
-     const adminUser = await createAdminUser(page, context);
-     const regularUser = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin and regular user
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const regularUser = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -473,16 +478,16 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     await adminDashboard.goto();
     await adminDashboard.waitForLoad();
 
-     // Search for user and extract ID
-     await adminDashboard.searchUsers(regularUser.email);
-     await adminDashboard.expectUserInTable(regularUser.email);
+    // Search for user and extract ID
+    await adminDashboard.searchUsers(regularUser.email);
+    await adminDashboard.expectUserInTable(regularUser.email);
 
-     // Use the user ID directly from the created user
-     const userId = regularUser.id!;
+    // Use the user ID directly from the created user
+    const userId = regularUser.id!;
 
     // Set up API error response for permission grant
     let errorTriggered = false;
-    await page.route('**/api/v1/admin/users/**/permissions', async (route) => {
+    await page.route('**/api/v1/admin/users/**/permissions', async route => {
       if (route.request().method() === 'POST') {
         errorTriggered = true;
         await route.abort('failed');
@@ -505,7 +510,8 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
       if (!response.ok()) {
         console.log(`[E2E] API error caught (status: ${response.status()})`);
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       console.log('[E2E] API error: request was aborted (expected)');
       expect(errorTriggered).toBe(true);
     }
@@ -525,10 +531,11 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
       '[E2E] Test: permission count displays correctly for users with different permission levels'
     );
 
-     // Setup: Create admin and regular users
-     const adminUser = await createAdminUser(page, context);
-     const userNoPermissions = await createUserWithoutLogin(page, 'user');
-     const userWithPermissions = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin and regular users
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const userNoPermissions = await createUserWithoutLogin(page, 'user');
+    const userWithPermissions = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -536,24 +543,24 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     await adminDashboard.goto();
     await adminDashboard.waitForLoad();
 
-     // Find user with no permissions
-     await adminDashboard.searchUsers(userNoPermissions.email);
-     await adminDashboard.expectUserInTable(userNoPermissions.email);
+    // Find user with no permissions
+    await adminDashboard.searchUsers(userNoPermissions.email);
+    await adminDashboard.expectUserInTable(userNoPermissions.email);
 
-     // Use the user ID directly from the created user
-     let userId = userNoPermissions.id!;
+    // Use the user ID directly from the created user
+    let userId = userNoPermissions.id!;
 
-     let countText = await adminDashboard.getPermissionCount(userId);
-     expect(countText).toContain('0');
-     console.log(`[E2E] User with no permissions shows count: ${countText}`);
+    let countText = await adminDashboard.getPermissionCount(userId);
+    expect(countText).toContain('0');
+    console.log(`[E2E] User with no permissions shows count: ${countText}`);
 
-     // Clear search and find user with permissions
-     await adminDashboard.clearSearch();
-     await adminDashboard.searchUsers(userWithPermissions.email);
-     await adminDashboard.expectUserInTable(userWithPermissions.email);
+    // Clear search and find user with permissions
+    await adminDashboard.clearSearch();
+    await adminDashboard.searchUsers(userWithPermissions.email);
+    await adminDashboard.expectUserInTable(userWithPermissions.email);
 
-     // Use the user ID directly from the created user
-     userId = userWithPermissions.id!;
+    // Use the user ID directly from the created user
+    userId = userWithPermissions.id!;
 
     await grantPermissionViaAPI(page, userId, 'draws:notify');
     console.log('[E2E] Granted permission via API');
@@ -568,13 +575,13 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     expect(countText).toContain('1');
     console.log(`[E2E] User with 1 permission shows count: ${countText}`);
 
-     // Verify admin user shows "All (Admin)"
-     const adminEmail = adminUser.email;
-     await adminDashboard.clearSearch();
-     await adminDashboard.searchUsers(adminEmail);
+    // Verify admin user shows "All (Admin)"
+    const adminEmail = adminUser.email;
+    await adminDashboard.clearSearch();
+    await adminDashboard.searchUsers(adminEmail);
 
-     // Use the user ID directly from the created user
-     userId = adminUser.id!;
+    // Use the user ID directly from the created user
+    userId = adminUser.id!;
 
     countText = await adminDashboard.getPermissionCount(userId);
     expect(countText).toContain('All (Admin)');
@@ -583,14 +590,12 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     console.log('[E2E] ✓ Permission counts display correctly');
   });
 
-  test('no users found message appears when all are filtered out', async ({
-    page,
-    context,
-  }) => {
+  test('no users found message appears when all are filtered out', async ({ page, context }) => {
     console.log('[E2E] Test: no users found message appears when all are filtered out');
 
     // Setup: Create admin
-    const adminUser = await createAdminUser(page, context);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -629,10 +634,11 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
   }) => {
     console.log('[E2E] Test: admin can search, navigate pages, and manage permissions in sequence');
 
-     // Setup: Create admin and 2 users
-     const adminUser = await createAdminUser(page, context);
-     const user1 = await createUserWithoutLogin(page, 'user');
-     const user2 = await createUserWithoutLogin(page, 'user');
+    // Setup: Create admin and 2 users
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _adminUser = await createAdminUser(page, context);
+    const user1 = await createUserWithoutLogin(page, 'user');
+    const user2 = await createUserWithoutLogin(page, 'user');
 
     const adminDashboard = new AdminDashboardPage(page);
 
@@ -653,15 +659,15 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     await adminDashboard.expectUserNotInTable(user2.email);
     console.log('[E2E] Step 3: Search filtered results');
 
-     // Use the user ID directly from the created user
-     const userId = user1.id!;
+    // Use the user ID directly from the created user
+    const userId = user1.id!;
 
     await adminDashboard.clickManagePermissions(userId);
     console.log('[E2E] Step 4: Opened permission dialog');
 
-     // Grant permission
-     await adminDashboard.grantPermission('draws:notify');
-     console.log('[E2E] Step 5: Permission granted');
+    // Grant permission
+    await adminDashboard.grantPermission('draws:notify');
+    console.log('[E2E] Step 5: Permission granted');
 
     // Close dialog
     await adminDashboard.closePermissionDialog();

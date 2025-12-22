@@ -7,7 +7,6 @@ from gift_genie.application.dto.finalize_draw_command import FinalizeDrawCommand
 from gift_genie.application.errors import (
     DrawAlreadyFinalizedError,
     DrawNotFoundError,
-    ForbiddenError,
     NoAssignmentsToFinalizeError,
 )
 from gift_genie.domain.entities.draw import Draw
@@ -36,9 +35,7 @@ class FinalizeDrawUseCase:
         if group is None:
             raise DrawNotFoundError()
 
-        # Verify authorization: user must be the group owner
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on draw_id)
 
         # Validate draw is pending
         if not draw.can_be_modified():

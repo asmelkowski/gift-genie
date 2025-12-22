@@ -37,14 +37,10 @@ export function PermissionRow({
             {badgeText}
           </div>
           {groupName && (
-            <span className="text-xs text-gray-600 dark:text-gray-400">
-              ({groupName})
-            </span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">({groupName})</span>
           )}
         </div>
-        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-          {permission.name}
-        </div>
+        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">{permission.name}</div>
       </div>
 
       <Button

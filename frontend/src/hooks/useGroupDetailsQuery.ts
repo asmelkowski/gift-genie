@@ -12,5 +12,6 @@ export const useGroupDetailsQuery = (groupId: string) => {
       return response.data;
     },
     staleTime: 60000,
+    enabled: !!groupId,
   });
 };

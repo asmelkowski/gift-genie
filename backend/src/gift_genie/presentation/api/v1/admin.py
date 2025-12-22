@@ -124,11 +124,11 @@ async def get_permission_repository(
 @router.post(
     "/users/{user_id}/permissions",
     response_model=UserPermissionResponse,
-    status_code=201,
 )
 async def grant_permission(
     user_id: Annotated[str, Path(..., description="The user ID to grant permission to")],
     request: GrantPermissionRequest,
+    response: Response,
     *,
     admin_id: Annotated[str, Depends(get_current_admin_user)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
@@ -137,23 +137,33 @@ async def grant_permission(
         UserPermissionRepository, Depends(get_user_permission_repository)
     ],
 ) -> UserPermissionResponse:
-    """Grant a permission to a user.
+    """Grant a permission to a user (idempotent).
 
-    Only administrators can grant permissions.
+    Only administrators can grant permissions. This endpoint is idempotent:
+    granting a permission that already exists will return the existing grant
+    with HTTP 200 instead of 201.
 
     Args:
         user_id: The user ID to grant permission to
         request: The permission to grant (permission_code, optional notes)
         admin_id: The current admin user ID (from auth)
+        response: FastAPI Response object to set status code
 
     Returns:
-        201 Created with the granted permission details
+        201 Created if the permission was newly granted
+        200 OK if the permission was already granted (idempotent)
 
     Raises:
         403: If the current user is not an admin
         404: If the user or permission doesn't exist
     """
     try:
+        # Check if permission already exists
+        already_granted = await user_permission_repo.has_permission(
+            user_id=user_id,
+            permission_code=request.permission_code,
+        )
+
         command = GrantPermissionCommand(
             requesting_user_id=admin_id,
             target_user_id=user_id,
@@ -167,6 +177,9 @@ async def grant_permission(
         )
 
         user_permission = await use_case.execute(command)
+
+        # Set appropriate status code: 201 if new, 200 if already existed
+        response.status_code = 200 if already_granted else 201
 
         return UserPermissionResponse(
             user_id=user_permission.user_id,

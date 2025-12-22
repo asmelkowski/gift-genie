@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gift_genie.application.dto.get_group_details_query import GetGroupDetailsQuery
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.errors import GroupNotFoundError
 from gift_genie.domain.entities.group import Group
 from gift_genie.domain.interfaces.repositories import GroupRepository
 
@@ -18,9 +18,7 @@ class GetGroupDetailsUseCase:
         if group is None:
             raise GroupNotFoundError()
 
-        # Verify authorization: user must be the group owner
-        if group.admin_user_id != query.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission
 
         # Fetch member statistics
         stats = await self.group_repository.get_member_stats(query.group_id)

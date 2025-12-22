@@ -4,15 +4,18 @@ import type { components } from '@/types/schema';
 
 type ListAssignmentsResponse = components['schemas']['ListAssignmentsResponse'];
 
-export const useAssignmentsQuery = (drawId: string) => {
+export const useAssignmentsQuery = (groupId: string, drawId: string) => {
   return useQuery({
     queryKey: ['assignments', drawId],
     queryFn: async () => {
-      const response = await api.get<ListAssignmentsResponse>(`/draws/${drawId}/assignments`, {
-        params: { include: 'names' },
-      });
+      const response = await api.get<ListAssignmentsResponse>(
+        `/groups/${groupId}/draws/${drawId}/assignments`,
+        {
+          params: { include: 'names' },
+        }
+      );
       return response.data;
     },
-    enabled: !!drawId,
+    enabled: !!groupId && !!drawId,
   });
 };

@@ -6,7 +6,6 @@ from uuid import uuid4
 from gift_genie.application.dto.create_exclusions_bulk_command import CreateExclusionsBulkCommand
 from gift_genie.application.errors import (
     ExclusionConflictsError,
-    ForbiddenError,
     GroupNotFoundError,
     MemberNotFoundError,
     SelfExclusionNotAllowedError,
@@ -33,8 +32,7 @@ class CreateExclusionsBulkUseCase:
         if not group:
             raise GroupNotFoundError()
 
-        if group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # Validate all members exist in group
         member_ids = set()

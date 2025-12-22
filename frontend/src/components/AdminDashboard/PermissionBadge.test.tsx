@@ -99,12 +99,8 @@ describe('PermissionBadge', () => {
     }
 
     // Tooltip should be visible
-    expect(
-      screen.getByText('Send Draw Notifications')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Send email notifications to draw participants')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Send Draw Notifications')).toBeInTheDocument();
+    expect(screen.getByText('Send email notifications to draw participants')).toBeInTheDocument();
   });
 
   it('does not show tooltip when disabled', () => {

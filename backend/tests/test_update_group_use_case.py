@@ -4,7 +4,7 @@ from uuid import uuid4
 from unittest.mock import AsyncMock
 
 from gift_genie.application.dto.update_group_command import UpdateGroupCommand
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError, InvalidGroupNameError
+from gift_genie.application.errors import GroupNotFoundError, InvalidGroupNameError
 from gift_genie.application.use_cases.update_group import UpdateGroupUseCase
 from gift_genie.domain.entities.group import Group
 
@@ -87,29 +87,6 @@ async def test_execute_partial_update_settings_only():
     assert result.historical_exclusions_enabled is False
     assert result.historical_exclusions_lookback == 3
     assert result.name == group.name  # Unchanged
-
-
-@pytest.mark.anyio
-async def test_execute_forbidden_when_not_owner():
-    # Arrange
-    group = _make_group("admin-456")  # Different owner
-    mock_repo = AsyncMock()
-    mock_repo.get_by_id.return_value = group
-
-    use_case = UpdateGroupUseCase(mock_repo)
-    command = UpdateGroupCommand(
-        group_id=group.id,
-        requesting_user_id="user-123",  # Wrong user
-        name="New Name",
-        historical_exclusions_enabled=None,
-        historical_exclusions_lookback=None,
-    )
-
-    # Act & Assert
-    with pytest.raises(ForbiddenError):
-        await use_case.execute(command)
-
-    mock_repo.update.assert_not_called()
 
 
 @pytest.mark.anyio

@@ -98,7 +98,7 @@ The implementation follows Clean Architecture principles:
 
 ### Phase 1: Domain & Core Infrastructure ✅ COMPLETE
 
-**Status: ✅ COMPLETE**  
+**Status: ✅ COMPLETE**
 **Completed: December 2025**
 
 **Summary:**
@@ -126,7 +126,7 @@ The implementation follows Clean Architecture principles:
 
 ### Phase 2: Authorization Service & Default Permissions ✅ COMPLETE
 
-**Status: ✅ COMPLETE**  
+**Status: ✅ COMPLETE**
 **Completed: December 2025**
 
 **Summary:**
@@ -152,7 +152,7 @@ The implementation follows Clean Architecture principles:
 
 ### Phase 3: Use Cases for Permission Management ✅ COMPLETE
 
-**Status: ✅ COMPLETE**  
+**Status: ✅ COMPLETE**
 **Completed: December 2025**
 
 **Summary:**
@@ -179,7 +179,7 @@ The implementation follows Clean Architecture principles:
 
 ### Phase 4: Admin API Endpoints ✅ COMPLETE
 
-**Status: ✅ COMPLETE**  
+**Status: ✅ COMPLETE**
 **Completed: December 2025**
 
 **Summary:**
@@ -288,7 +288,7 @@ The system uses a layered approach to permission checking:
 def check_permission(user: User, permission_code: str, resource_id: int | None = None) -> bool:
     """
     Check if user has permission.
-    
+
     Layered approach:
     1. Admin bypass: ADMIN role has all permissions
     2. Permission check: Check user_permissions table
@@ -297,20 +297,20 @@ def check_permission(user: User, permission_code: str, resource_id: int | None =
     # Layer 1: Admin bypass
     if user.role == UserRole.ADMIN:
         return True
-    
+
     # Layer 2: Permission check
     has_permission = permission_repository.user_has_permission(
         user_id=user.id,
         permission_code=permission_code
     )
-    
+
     if not has_permission:
         return False
-    
+
     # Layer 3: Ownership check (if applicable)
     if resource_id is not None:
         return check_ownership(user.id, resource_id)
-    
+
     return True
 ```
 
@@ -372,7 +372,7 @@ async def delete_group_use_case(
     group_repository: GroupRepositoryInterface
 ) -> None:
     """Delete a group (requires permission + ownership)."""
-    
+
     # Check permission
     if not await authorization_service.check_permission(
         user=requesting_user,
@@ -382,12 +382,12 @@ async def delete_group_use_case(
             status_code=403,
             detail="Permission denied: groups:delete required"
         )
-    
+
     # Load group
     group = await group_repository.get_by_id(group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
-    
+
     # Check ownership (unless admin)
     if requesting_user.role != UserRole.ADMIN:
         if group.owner_id != requesting_user.id:
@@ -395,7 +395,7 @@ async def delete_group_use_case(
                 status_code=403,
                 detail="Permission denied: you don't own this group"
             )
-    
+
     # Perform deletion
     await group_repository.delete(group_id)
 ```
@@ -432,19 +432,19 @@ class AuthorizationService:
         # Admin bypass: admins have all permissions
         if user.role == UserRole.ADMIN:
             return True
-        
+
         # Regular permission check
         return await self.permission_repository.user_has_permission(
             user_id=user.id,
             permission_code=permission_code
         )
-    
+
     async def list_user_permissions(self, user: User) -> list[Permission]:
         """List all permissions for user."""
         # Admin bypass: return all permissions
         if user.role == UserRole.ADMIN:
             return await self.permission_repository.get_all_permissions()
-        
+
         # Regular user: return granted permissions
         return await self.permission_repository.get_user_permissions(user.id)
 ```
@@ -516,13 +516,13 @@ USER_BASIC_PERMISSIONS = [
     "groups:read",
     "groups:update",
     "groups:delete",
-    
+
     # Members
     "members:create",
     "members:read",
     "members:update",
     "members:delete",
-    
+
     # Draws
     "draws:create",
     "draws:read",
@@ -530,7 +530,7 @@ USER_BASIC_PERMISSIONS = [
     "draws:view_assignments",
     # NOTE: "draws:notify" is NOT included by default
     # Must be explicitly granted by admin
-    
+
     # Exclusions
     "exclusions:create",
     "exclusions:read",
@@ -645,7 +645,7 @@ USER_BASIC_PERMISSIONS = [
    # Run migration to create permissions tables
    cd backend
    make migrate-up
-   
+
    # Verify schema
    make db-shell
    \d permissions
@@ -656,7 +656,7 @@ USER_BASIC_PERMISSIONS = [
    ```bash
    # Populate permissions table with all defined permissions
    python -m src.gift_genie.infrastructure.database.seeds.permissions_seed
-   
+
    # Verify permissions created
    make db-shell
    SELECT * FROM permissions ORDER BY category, code;
@@ -666,7 +666,7 @@ USER_BASIC_PERMISSIONS = [
    ```bash
    # Grant default permissions to existing non-admin users
    python -m src.gift_genie.infrastructure.database.seeds.user_permissions_migration
-   
+
    # Verify user permissions
    SELECT u.email, u.role, p.code
    FROM users u
@@ -708,7 +708,7 @@ USER_BASIC_PERMISSIONS = [
    ```python
    # Feature flag to disable permission checks
    PERMISSIONS_ENABLED = False  # Set via environment variable
-   
+
    # In AuthorizationService
    if not PERMISSIONS_ENABLED:
        return True  # Bypass all checks
@@ -719,7 +719,7 @@ USER_BASIC_PERMISSIONS = [
    # Rollback migration
    cd backend
    make migrate-down
-   
+
    # Verify tables removed
    make db-shell
    \dt permissions*
@@ -914,7 +914,7 @@ USER_BASIC_PERMISSIONS = [
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2025-12-16  
-**Author**: Gift Genie Development Team  
+**Document Version**: 1.0
+**Last Updated**: 2025-12-16
+**Author**: Gift Genie Development Team
 **Status**: Planning - Ready for Implementation

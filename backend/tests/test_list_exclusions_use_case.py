@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 
 from gift_genie.application.dto.list_exclusions_query import ListExclusionsQuery
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
+from gift_genie.application.errors import GroupNotFoundError
 from gift_genie.application.use_cases.list_exclusions import ListExclusionsUseCase
 from gift_genie.domain.entities.enums import ExclusionType
 from gift_genie.domain.entities.exclusion import Exclusion
@@ -90,42 +90,4 @@ async def test_list_exclusions_group_not_found():
     )
 
     with pytest.raises(GroupNotFoundError):
-        await use_case.execute(query)
-
-
-@pytest.mark.anyio
-async def test_list_exclusions_forbidden():
-    group_repo = AsyncMock()
-    exclusion_repo = AsyncMock()
-
-    group_id = str(uuid4())
-    admin_id = str(uuid4())
-    user_id = str(uuid4())
-    group = Group(
-        id=group_id,
-        admin_user_id=admin_id,  # Different admin
-        name="Test Group",
-        historical_exclusions_enabled=True,
-        historical_exclusions_lookback=1,
-        created_at=None,
-        updated_at=None,
-    )
-    group_repo.get_by_id.return_value = group
-
-    use_case = ListExclusionsUseCase(
-        group_repository=group_repo,
-        exclusion_repository=exclusion_repo,
-    )
-    query = ListExclusionsQuery(
-        group_id=group_id,
-        requesting_user_id=user_id,  # Not admin
-        exclusion_type=None,
-        giver_member_id=None,
-        receiver_member_id=None,
-        page=1,
-        page_size=10,
-        sort="created_at",
-    )
-
-    with pytest.raises(ForbiddenError):
         await use_case.execute(query)

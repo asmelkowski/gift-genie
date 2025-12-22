@@ -12,6 +12,7 @@ type DrawResponse = components['schemas']['DrawResponse'];
 
 describe('useDrawQuery', () => {
   let queryClient: QueryClient;
+  const groupId = 'group-123';
 
   beforeEach(() => {
     queryClient = createTestQueryClient();
@@ -31,7 +32,7 @@ describe('useDrawQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    renderHook(() => useDrawQuery('draw-1'), {
+    renderHook(() => useDrawQuery(groupId, 'draw-1'), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -53,7 +54,7 @@ describe('useDrawQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useDrawQuery('draw-1'), {
+    const { result } = renderHook(() => useDrawQuery(groupId, 'draw-1'), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -67,7 +68,7 @@ describe('useDrawQuery', () => {
   it('returns error state when API fails', async () => {
     vi.mocked(api.get).mockRejectedValue(new Error('Not found'));
 
-    const { result } = renderHook(() => useDrawQuery('invalid-id'), {
+    const { result } = renderHook(() => useDrawQuery(groupId, 'invalid-id'), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -91,12 +92,12 @@ describe('useDrawQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    renderHook(() => useDrawQuery('draw-123'), {
+    renderHook(() => useDrawQuery(groupId, 'draw-123'), {
       wrapper: createTestWrapper(queryClient),
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/draws/draw-123');
+      expect(api.get).toHaveBeenCalledWith(`/groups/${groupId}/draws/draw-123`);
     });
   });
 
@@ -113,7 +114,7 @@ describe('useDrawQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useDrawQuery(''), {
+    const { result } = renderHook(() => useDrawQuery(groupId, ''), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -134,7 +135,7 @@ describe('useDrawQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useDrawQuery('draw-1'), {
+    const { result } = renderHook(() => useDrawQuery(groupId, 'draw-1'), {
       wrapper: createTestWrapper(queryClient),
     });
 

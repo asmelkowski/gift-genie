@@ -21,14 +21,14 @@ export class GroupsPage {
     const headerButton = this.page
       .getByTestId('groups-page-header')
       .getByRole('button', { name: 'Create Group' });
-    
+
     // Try empty state button (shown when no groups exist)
     const emptyButton = this.page.getByTestId('empty-state-create-group');
-    
+
     // Check which button is visible and click it
     const headerVisible = await headerButton.isVisible().catch(() => false);
     const emptyVisible = await emptyButton.isVisible().catch(() => false);
-    
+
     if (headerVisible) {
       await headerButton.click();
     } else if (emptyVisible) {
@@ -36,9 +36,11 @@ export class GroupsPage {
     } else {
       throw new Error('No Create Group button found (neither header nor empty state)');
     }
-    
+
     // Wait for the dialog to open and form to be ready
-    await this.page.getByPlaceholder('Enter group name').waitFor({ state: 'visible', timeout: 5000 });
+    await this.page
+      .getByPlaceholder('Enter group name')
+      .waitFor({ state: 'visible', timeout: 5000 });
   }
 
   async fillGroupName(name: string) {
@@ -62,7 +64,8 @@ export class GroupsPage {
   }
 
   async expectGroupVisible(groupName: string) {
-    await expect(this.page.getByText(groupName)).toBeVisible();
+    // Use .first() to handle multiple elements with same text (link + button)
+    await expect(this.page.getByText(groupName).first()).toBeVisible();
   }
 
   async expectCreateButtonVisible() {

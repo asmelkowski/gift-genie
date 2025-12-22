@@ -1,5 +1,5 @@
 from collections.abc import AsyncGenerator
-from typing import Annotated
+from typing import Annotated, Callable
 
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -95,7 +95,7 @@ async def get_authorization_service(
     yield AuthorizationServiceImpl(user_repo, user_permission_repo)
 
 
-def require_permission(permission_code: str):
+def require_permission(permission_code: str, resource_id_from_path: bool = False) -> Callable:
     """FastAPI dependency that checks if the current user has a specific permission.
 
     Usage in endpoints:
@@ -107,6 +107,7 @@ def require_permission(permission_code: str):
 
     Args:
         permission_code: The permission code to check (e.g., "draws:notify")
+        resource_id_from_path: If True, extracts 'group_id' or 'draw_id' from path as resource_id
 
     Returns:
         A dependency function that returns the user_id if permission is granted
@@ -116,22 +117,33 @@ def require_permission(permission_code: str):
     """
 
     async def _check_permission(
+        request: Request,
         current_user_id: Annotated[str, Depends(get_current_user)],
         user_repo: Annotated[UserRepository, Depends(get_user_repository)],
         user_permission_repo: Annotated[
             UserPermissionRepository, Depends(get_user_permission_repository)
         ],
     ) -> str:
+        resource_id = None
+        if resource_id_from_path:
+            # Try to find common ID parameters in path
+            resource_id = (
+                request.path_params.get("group_id")
+                or request.path_params.get("draw_id")
+                or request.path_params.get("exclusion_id")
+                or request.path_params.get("member_id")
+            )
+
         auth_service: AuthorizationService = AuthorizationServiceImpl(
             user_repo, user_permission_repo
         )
         try:
-            await auth_service.require_permission(current_user_id, permission_code)
+            await auth_service.require_permission(current_user_id, permission_code, resource_id)
             return current_user_id
-        except ForbiddenError:
+        except ForbiddenError as e:
             raise HTTPException(
                 status_code=403,
-                detail={"code": "forbidden", "message": f"Permission '{permission_code}' required"},
+                detail={"code": "forbidden", "message": str(e)},
             )
 
     return _check_permission

@@ -3,6 +3,7 @@ import api from '@/lib/api';
 import type { components } from '@/types/schema';
 import type { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
+import { isStructuredErrorDetail, type DrawExecutionError } from '@/types/errors';
 
 type ExecuteDrawResponse = components['schemas']['ExecuteDrawResponse'];
 
@@ -11,7 +12,10 @@ export const useExecuteDrawMutation = (groupId: string) => {
 
   return useMutation({
     mutationFn: async (drawId: string) => {
-      const response = await api.post<ExecuteDrawResponse>(`/draws/${drawId}/execute`, {});
+      const response = await api.post<ExecuteDrawResponse>(
+        `/groups/${groupId}/draws/${drawId}/execute`,
+        {}
+      );
       return response.data;
     },
     onSuccess: data => {
@@ -19,12 +23,23 @@ export const useExecuteDrawMutation = (groupId: string) => {
       queryClient.setQueryData(['draw', data.draw.id], data.draw);
       toast.success(`Draw executed! ${data.assignments.length} assignments generated.`);
     },
-    onError: (error: AxiosError<{ detail: string }>) => {
-      const detail = error.response?.data?.detail;
-      if (error.response?.status === 422) {
-        throw error;
+    onError: (error: AxiosError<{ detail: string | object }>) => {
+      // Check for 400 status with structured error detail (no_valid_draw_configuration)
+      if (error.response?.status === 400) {
+        const detail = error.response?.data?.detail;
+        if (isStructuredErrorDetail(detail)) {
+          const drawError: DrawExecutionError = {
+            code: detail.code,
+            message: detail.message,
+          };
+          throw drawError;
+        }
       }
-      toast.error(detail || 'Failed to execute draw');
+
+      // For other errors, show a toast message
+      const detail = error.response?.data?.detail;
+      const errorMessage = typeof detail === 'string' ? detail : 'Failed to execute draw';
+      toast.error(errorMessage);
     },
   });
 };

@@ -4,7 +4,7 @@ from uuid import uuid4
 from datetime import datetime
 
 from gift_genie.application.dto.list_assignments_query import ListAssignmentsQuery
-from gift_genie.application.errors import DrawNotFoundError, ForbiddenError
+from gift_genie.application.errors import DrawNotFoundError
 from gift_genie.application.use_cases.list_assignments import (
     ListAssignmentsUseCase,
     AssignmentWithNames,
@@ -212,61 +212,6 @@ async def test_draw_not_found_raises_error():
 
     # Assert
     with pytest.raises(DrawNotFoundError):
-        await use_case.execute(query)
-
-
-@pytest.mark.anyio
-async def test_forbidden_when_not_owner():
-    # Mock repositories
-    draw_repo = AsyncMock()
-    group_repo = AsyncMock()
-    assignment_repo = AsyncMock()
-    member_repo = AsyncMock()
-
-    # Setup test data
-    draw_id = str(uuid4())
-    group_id = str(uuid4())
-    admin_user_id = str(uuid4())
-    requesting_user_id = str(uuid4())
-
-    draw = Draw(
-        id=draw_id,
-        group_id=group_id,
-        status=DrawStatus.FINALIZED,
-        created_at=datetime.now(),
-        finalized_at=datetime.now(),
-        notification_sent_at=None,
-    )
-    draw_repo.get_by_id.return_value = draw
-
-    group = Group(
-        id=group_id,
-        admin_user_id=admin_user_id,  # Different from requesting user
-        name="Test Group",
-        historical_exclusions_enabled=True,
-        historical_exclusions_lookback=1,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
-    )
-    group_repo.get_by_id.return_value = group
-
-    # Create use case
-    use_case = ListAssignmentsUseCase(
-        draw_repository=draw_repo,
-        group_repository=group_repo,
-        assignment_repository=assignment_repo,
-        member_repository=member_repo,
-    )
-
-    # Execute
-    query = ListAssignmentsQuery(
-        draw_id=draw_id,
-        requesting_user_id=requesting_user_id,
-        include_names=False,
-    )
-
-    # Assert
-    with pytest.raises(ForbiddenError):
         await use_case.execute(query)
 
 

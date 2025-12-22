@@ -213,3 +213,73 @@ async def test_check_resource_ownership_nonexistent_user():
 
     # Assert
     assert result is False
+
+
+@pytest.mark.anyio
+async def test_has_permission_granular_granted():
+    """Regular users should have permission if granularly granted."""
+    # Arrange
+    regular_user = _make_user("user-123", UserRole.USER)
+    mock_user_repo = AsyncMock()
+    mock_user_repo.get_by_id.return_value = regular_user
+    mock_perm_repo = AsyncMock()
+
+    # Mock has_permission to return False for global but True for granular
+    def has_permission_mock(user_id, permission_code):
+        if permission_code == "groups:update:group-456":
+            return True
+        return False
+
+    mock_perm_repo.has_permission.side_effect = has_permission_mock
+
+    service = AuthorizationServiceImpl(mock_user_repo, mock_perm_repo)
+
+    # Act
+    result = await service.has_permission("user-123", "groups:update", resource_id="group-456")
+
+    # Assert
+    assert result is True
+    # Should check global first, then granular
+    assert mock_perm_repo.has_permission.call_count == 2
+    mock_perm_repo.has_permission.assert_any_call("user-123", "groups:update")
+    mock_perm_repo.has_permission.assert_any_call("user-123", "groups:update:group-456")
+
+
+@pytest.mark.anyio
+async def test_has_permission_granular_denied():
+    """Regular users should not have permission if neither global nor granular is granted."""
+    # Arrange
+    regular_user = _make_user("user-123", UserRole.USER)
+    mock_user_repo = AsyncMock()
+    mock_user_repo.get_by_id.return_value = regular_user
+    mock_perm_repo = AsyncMock()
+    mock_perm_repo.has_permission.return_value = False
+
+    service = AuthorizationServiceImpl(mock_user_repo, mock_perm_repo)
+
+    # Act
+    result = await service.has_permission("user-123", "groups:update", resource_id="group-456")
+
+    # Assert
+    assert result is False
+    assert mock_perm_repo.has_permission.call_count == 2
+
+
+@pytest.mark.anyio
+async def test_require_permission_granular_error_message():
+    """require_permission should include resource_id in ForbiddenError message if provided."""
+    # Arrange
+    regular_user = _make_user("user-123", UserRole.USER)
+    mock_user_repo = AsyncMock()
+    mock_user_repo.get_by_id.return_value = regular_user
+    mock_perm_repo = AsyncMock()
+    mock_perm_repo.has_permission.return_value = False
+
+    service = AuthorizationServiceImpl(mock_user_repo, mock_perm_repo)
+
+    # Act & Assert
+    with pytest.raises(ForbiddenError) as exc_info:
+        await service.require_permission("user-123", "groups:update", resource_id="group-456")
+
+    assert "groups:update" in str(exc_info.value)
+    assert "group-456" in str(exc_info.value)

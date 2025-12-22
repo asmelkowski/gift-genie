@@ -121,9 +121,7 @@ export function ExclusionsPage() {
         <LoadingState />
       ) : exclusionsError ? (
         isForbiddenError(exclusionsError) ? (
-          <AccessDeniedState
-            message="You don't have permission to view exclusions for this group."
-          />
+          <AccessDeniedState message="You don't have permission to view exclusions for this group." />
         ) : (
           <ErrorState message="Failed to load exclusions" />
         )

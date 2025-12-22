@@ -14,5 +14,11 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     allowedHosts: ['frontend', 'localhost'],
+    proxy: {
+      '/api': {
+        target: 'http://backend:8000',
+        changeOrigin: true,
+      },
+    },
   },
 });

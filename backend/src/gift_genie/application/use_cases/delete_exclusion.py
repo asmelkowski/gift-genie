@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gift_genie.application.dto.delete_exclusion_command import DeleteExclusionCommand
-from gift_genie.application.errors import ExclusionNotFoundError, ForbiddenError
+from gift_genie.application.errors import ExclusionNotFoundError
 from gift_genie.domain.interfaces.repositories import ExclusionRepository, GroupRepository
 
 
@@ -20,10 +20,7 @@ class DeleteExclusionUseCase:
         if not exclusion:
             raise ExclusionNotFoundError()
 
-        # Check user is owner of the group
-        group = await self.group_repository.get_by_id(command.group_id)
-        if not group or group.admin_user_id != command.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # Delete exclusion
         await self.exclusion_repository.delete(command.exclusion_id)

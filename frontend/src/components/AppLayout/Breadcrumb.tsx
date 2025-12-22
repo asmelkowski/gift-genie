@@ -16,13 +16,13 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
         {items.map((item, index) => (
           <li key={item.path} className="flex items-center gap-1">
             {index === items.length - 1 ? (
-              <span className="text-gray-600 font-medium">{item.label}</span>
+              <span className="text-muted-foreground font-medium">{item.label}</span>
             ) : (
               <>
-                <Link to={item.path} className="text-blue-600 hover:underline">
+                <Link to={item.path} className="text-primary hover:underline">
                   {item.label}
                 </Link>
-                <span className="text-gray-400">/</span>
+                <span className="text-muted-foreground/60">/</span>
               </>
             )}
           </li>

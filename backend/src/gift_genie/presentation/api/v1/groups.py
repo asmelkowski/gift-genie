@@ -25,10 +25,18 @@ from gift_genie.application.errors import ForbiddenError, GroupNotFoundError
 from gift_genie.application.use_cases.delete_group import DeleteGroupUseCase
 from gift_genie.application.use_cases.get_group_details import GetGroupDetailsUseCase
 from gift_genie.application.use_cases.update_group import UpdateGroupUseCase
-from gift_genie.domain.interfaces.repositories import GroupRepository
+from gift_genie.domain.interfaces.repositories import (
+    GroupRepository,
+    UserPermissionRepository,
+)
 from gift_genie.infrastructure.database.repositories.groups import GroupRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
-from gift_genie.presentation.api.dependencies import require_permission
+from gift_genie.presentation.api.dependencies import (
+    CurrentUser,
+    get_current_user,
+    get_user_permission_repository,
+    require_permission,
+)
 
 router: APIRouter = APIRouter(prefix="/groups", tags=["groups"])
 
@@ -125,7 +133,7 @@ async def list_groups(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("-created_at", pattern=r"^-?(created_at|name)$"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("groups:read"))],
+    current_user_id: Annotated[str, Depends(get_current_user)],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> PaginatedGroupsResponse:
     try:
@@ -173,8 +181,11 @@ async def create_group(
     payload: CreateGroupRequest,
     response: Response,
     *,
-    current_user_id: Annotated[str, Depends(require_permission("groups:create"))],
+    current_user_id: CurrentUser,
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
+    user_permission_repo: Annotated[
+        UserPermissionRepository, Depends(get_user_permission_repository)
+    ],
 ) -> GroupDetailResponse:
     try:
         # Apply defaults
@@ -197,6 +208,7 @@ async def create_group(
         )
         use_case = CreateGroupUseCase(
             group_repository=group_repo,
+            user_permission_repository=user_permission_repo,
         )
         group = await use_case.execute(command)
 
@@ -260,7 +272,9 @@ async def create_group(
 async def get_group_details(
     group_id: UUID = Path(..., description="Group UUID"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("groups:read"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("groups:read", resource_id_from_path=True))
+    ],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> GroupDetailWithStatsResponse:
     try:
@@ -311,7 +325,9 @@ async def update_group(
     *,
     group_id: UUID = Path(..., description="Group UUID"),
     payload: UpdateGroupRequest,
-    current_user_id: Annotated[str, Depends(require_permission("groups:update"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("groups:update", resource_id_from_path=True))
+    ],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> GroupUpdateResponse:
     try:
@@ -402,7 +418,9 @@ async def update_group(
 async def delete_group(
     group_id: UUID = Path(..., description="Group UUID"),
     *,
-    current_user_id: Annotated[str, Depends(require_permission("groups:delete"))],
+    current_user_id: Annotated[
+        str, Depends(require_permission("groups:delete", resource_id_from_path=True))
+    ],
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> Response:
     try:

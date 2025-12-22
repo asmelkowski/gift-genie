@@ -33,8 +33,30 @@ class InMemoryGroupRepo(GroupRepository):
         end = start + page_size
         return groups[start:end], total
 
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[Group], int]:
+        groups = list(self._groups.values())
+        if search:
+            groups = [g for g in groups if search.lower() in g.name.lower()]
+        groups.sort(key=lambda g: g.created_at, reverse=True)
+        total = len(groups)
+        start = (page - 1) * page_size
+        end = start + page_size
+        return groups[start:end], total
+
     async def get_by_id(self, group_id: str) -> Optional[Group]:
         return self._groups.get(group_id)
+
+    async def get_member_stats(self, group_id: str) -> tuple[int, int]:
+        return (0, 0)
+
+    async def update(self, group: Group) -> Group:
+        self._groups[group.id] = group
+        return group
+
+    async def delete(self, group_id: str) -> None:
+        self._groups.pop(group_id, None)
 
 
 @pytest.mark.anyio

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gift_genie.application.dto.get_member_query import GetMemberQuery
-from gift_genie.application.errors import ForbiddenError, GroupNotFoundError, MemberNotFoundError
+from gift_genie.application.errors import GroupNotFoundError, MemberNotFoundError
 from gift_genie.domain.entities.member import Member
 from gift_genie.domain.interfaces.repositories import GroupRepository, MemberRepository
 
@@ -19,9 +19,7 @@ class GetMemberUseCase:
         if not group:
             raise GroupNotFoundError()
 
-        # Verify user is admin of the group
-        if group.admin_user_id != query.requesting_user_id:
-            raise ForbiddenError()
+        # Authorization is now handled at presentation layer via require_permission (on group_id)
 
         # Retrieve member
         member = await self.member_repository.get_by_group_and_id(query.group_id, query.member_id)

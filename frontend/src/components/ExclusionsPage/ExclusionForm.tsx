@@ -48,7 +48,7 @@ export function ExclusionForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded text-sm text-destructive">
           {error}
         </div>
       )}
@@ -60,11 +60,13 @@ export function ExclusionForm({
           value={giverMemberId}
           onChange={e => setGiverMemberId(e.target.value)}
           disabled={isLoading}
-          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full mt-1 px-3 py-2 border border-input bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground dark:bg-input/30"
         >
-          <option value="">Select giver member</option>
+          <option value="" className="dark:bg-gray-900">
+            Select giver member
+          </option>
           {members.map(member => (
-            <option key={member.id} value={member.id}>
+            <option key={member.id} value={member.id} className="dark:bg-gray-900">
               {member.name}
             </option>
           ))}
@@ -78,11 +80,13 @@ export function ExclusionForm({
           value={receiverMemberId}
           onChange={e => setReceiverMemberId(e.target.value)}
           disabled={isLoading}
-          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full mt-1 px-3 py-2 border border-input bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground dark:bg-input/30"
         >
-          <option value="">Select receiver member</option>
+          <option value="" className="dark:bg-gray-900">
+            Select receiver member
+          </option>
           {members.map(member => (
-            <option key={member.id} value={member.id}>
+            <option key={member.id} value={member.id} className="dark:bg-gray-900">
               {member.name}
             </option>
           ))}
@@ -96,9 +100,9 @@ export function ExclusionForm({
           checked={isMutual}
           onChange={e => setIsMutual(e.target.checked)}
           disabled={isLoading}
-          className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+          className="w-4 h-4 border-input rounded focus:ring-2 focus:ring-ring"
         />
-        <Label htmlFor="mutual" className="mb-0">
+        <Label htmlFor="mutual" className="mb-0 cursor-pointer">
           Mutual exclusion (both directions)
         </Label>
       </div>

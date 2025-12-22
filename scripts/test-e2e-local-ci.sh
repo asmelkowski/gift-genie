@@ -308,6 +308,7 @@ print_status "Running database migrations..."
 if docker run --rm \
     --network gift-genie-test \
     -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie_test \
+    -e DATABASE_URL_SYNC=postgresql://postgres:postgres@postgres:5432/gift_genie_test \
     gift-genie-backend:prod \
     alembic upgrade head; then
     print_success "Database migrations completed"
@@ -325,6 +326,7 @@ docker run -d \
     --network gift-genie-test \
     -p 8000:8000 \
     -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/gift_genie_test \
+    -e DATABASE_URL_SYNC=postgresql://postgres:postgres@postgres:5432/gift_genie_test \
     -e REDIS_URL=redis://redis:6379 \
     -e SECRET_KEY=test-secret-key-for-ci \
     -e ALGORITHM=HS256 \

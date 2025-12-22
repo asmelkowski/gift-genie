@@ -13,6 +13,7 @@ type ListAssignmentsResponse = components['schemas']['ListAssignmentsResponse'];
 
 describe('useAssignmentsQuery', () => {
   let queryClient: QueryClient;
+  const groupId = 'group-123';
 
   beforeEach(() => {
     queryClient = createTestQueryClient();
@@ -27,7 +28,7 @@ describe('useAssignmentsQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    renderHook(() => useAssignmentsQuery('draw-1'), {
+    renderHook(() => useAssignmentsQuery(groupId, 'draw-1'), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -60,7 +61,7 @@ describe('useAssignmentsQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useAssignmentsQuery('draw-1'), {
+    const { result } = renderHook(() => useAssignmentsQuery(groupId, 'draw-1'), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -74,7 +75,7 @@ describe('useAssignmentsQuery', () => {
   it('returns error state when API fails', async () => {
     vi.mocked(api.get).mockRejectedValue(new Error('Not found'));
 
-    const { result } = renderHook(() => useAssignmentsQuery('invalid-draw'), {
+    const { result } = renderHook(() => useAssignmentsQuery(groupId, 'invalid-draw'), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -93,12 +94,12 @@ describe('useAssignmentsQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    renderHook(() => useAssignmentsQuery('draw-456'), {
+    renderHook(() => useAssignmentsQuery(groupId, 'draw-456'), {
       wrapper: createTestWrapper(queryClient),
     });
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/draws/draw-456/assignments', {
+      expect(api.get).toHaveBeenCalledWith(`/groups/${groupId}/draws/draw-456/assignments`, {
         params: { include: 'names' },
       });
     });
@@ -112,7 +113,7 @@ describe('useAssignmentsQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useAssignmentsQuery(''), {
+    const { result } = renderHook(() => useAssignmentsQuery(groupId, ''), {
       wrapper: createTestWrapper(queryClient),
     });
 
@@ -128,13 +129,13 @@ describe('useAssignmentsQuery', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: mockData });
 
-    renderHook(() => useAssignmentsQuery('draw-1'), {
+    renderHook(() => useAssignmentsQuery(groupId, 'draw-1'), {
       wrapper: createTestWrapper(queryClient),
     });
 
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith(
-        '/draws/draw-1/assignments',
+        `/groups/${groupId}/draws/draw-1/assignments`,
         expect.objectContaining({
           params: { include: 'names' },
         })

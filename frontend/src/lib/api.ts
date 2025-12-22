@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { queryClient } from './queryClient';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { getErrorMessage } from './errors';
+import { getPermissionErrorBehavior } from './permissionErrorStrategy';
 
 const api = axios.create({
   baseURL: (() => {
@@ -76,6 +77,29 @@ api.interceptors.response.use(
       });
     }
 
+    // Handle resource-level permissions (403 Forbidden)
+    if (error.response?.status === 403) {
+      const url = error.config?.url || '';
+      const method = error.config?.method?.toUpperCase() || 'GET';
+      const behavior = getPermissionErrorBehavior(url, method);
+
+      if (behavior === 'show-404') {
+        // Transform to 404
+        error.response.status = 404;
+        error.response.data = { code: 'not_found' };
+        // Mark that this 403 was transformed so we skip toast notifications
+        error.config._wasTransformed403 = true;
+      } else if (behavior === 'show-empty') {
+        // Transform to empty successful response
+        return {
+          ...error.response,
+          status: 200,
+          data: { data: [], meta: { total: 0, page: 1, page_size: 10, total_pages: 0 } },
+        };
+      }
+      // else 'show-forbidden' - fall through to existing handling
+    }
+
     // Handle authentication errors
     if (error.response?.status === 401) {
       // Don't redirect if this is the initial auth check or login attempt
@@ -134,8 +158,12 @@ api.interceptors.response.use(
     }
     // Handle client errors (4xx except 401 which is handled above)
     else if (error.response?.status >= 400 && error.response?.status !== 401) {
-      // Don't show toast for 403 (handled by components) or 422 (handled by forms)
-      if (error.response.status !== 403 && error.response.status !== 422) {
+      // Don't show toast for 403 (handled by components), 422 (handled by forms), or transformed 403s
+      if (
+        error.response.status !== 403 &&
+        error.response.status !== 422 &&
+        !error.config?._wasTransformed403
+      ) {
         const errorMessage = getErrorMessage(error);
         toast.error(errorMessage);
       }

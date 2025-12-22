@@ -36,10 +36,21 @@ class InMemoryGroupRepo(GroupRepository):
 
     async def list_by_admin_user(
         self, user_id: str, search: str | None, page: int, page_size: int, sort: str
-    ):
+    ) -> tuple[list[Group], int]:
         groups = [g for g in self._groups.values() if g.admin_user_id == user_id]
         total = len(groups)
         return groups, total
+
+    async def list_all(
+        self, search: str | None, page: int, page_size: int, sort: str
+    ) -> tuple[list[Group], int]:
+        groups = list(self._groups.values())
+        if search:
+            groups = [g for g in groups if search.lower() in g.name.lower()]
+        total = len(groups)
+        start = (page - 1) * page_size
+        end = start + page_size
+        return groups[start:end], total
 
     async def get_by_id(self, group_id: str) -> Optional[Group]:
         return self._groups.get(group_id)
@@ -65,7 +76,7 @@ class InMemoryDrawRepo(DrawRepository):
 
     async def list_by_group(
         self, group_id: str, status: DrawStatus | None, page: int, page_size: int, sort: str
-    ):
+    ) -> tuple[list[Draw], int]:
         draws = [d for d in self._draws.values() if d.group_id == group_id]
         if status:
             draws = [d for d in draws if d.status == status]
@@ -110,7 +121,7 @@ class InMemoryMemberRepo(MemberRepository):
         page: int,
         page_size: int,
         sort: str,
-    ):
+    ) -> tuple[list[Member], int]:
         members = [m for m in self._members.values() if m.group_id == group_id]
         if is_active is not None:
             members = [m for m in members if m.is_active == is_active]
@@ -119,6 +130,13 @@ class InMemoryMemberRepo(MemberRepository):
 
     async def get_by_id(self, member_id: str) -> Optional[Member]:
         return self._members.get(member_id)
+
+    async def get_many_by_ids(self, member_ids: list[str]) -> dict[str, Member]:
+        return {
+            member_id: member
+            for member_id in member_ids
+            if (member := self._members.get(member_id))
+        }
 
     async def get_by_group_and_id(self, group_id: str, member_id: str) -> Optional[Member]:
         m = self._members.get(member_id)
@@ -210,7 +228,7 @@ class InMemoryAssignmentRepo(AssignmentRepository):
 
 class StubNotificationService(NotificationService):
     def __init__(self):
-        self.calls: list[tuple[str, str, str, str, str]] = []
+        self.calls: list[tuple[str, str, str, str]] = []
 
     async def send_assignment_notification(
         self, member_email: str, member_name: str, receiver_name: str, group_name: str
@@ -241,13 +259,14 @@ async def test_list_draws_empty(client: AsyncClient):
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: group_repo
     app.dependency_overrides[draws_router.get_draw_repository] = lambda: draw_repo
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    # Use admin to bypass permission check as we're manually populating the repo
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     # Create a group for the user
     now = datetime.now(UTC)
     group = Group(
         id=str(uuid4()),
-        admin_user_id="user-123",
+        admin_user_id="admin-123",
         name="Test Group",
         historical_exclusions_enabled=True,
         historical_exclusions_lookback=1,
@@ -272,12 +291,12 @@ async def test_create_and_get_draw(client: AsyncClient):
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: group_repo
     app.dependency_overrides[draws_router.get_draw_repository] = lambda: draw_repo
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     now = datetime.now(UTC)
     group = Group(
         id=str(uuid4()),
-        admin_user_id="user-123",
+        admin_user_id="admin-123",
         name="Test Group",
         historical_exclusions_enabled=True,
         historical_exclusions_lookback=1,
@@ -295,7 +314,7 @@ async def test_create_and_get_draw(client: AsyncClient):
     draw_id = body["id"]
 
     # Get draw
-    resp2 = await client.get(f"/api/v1/draws/{draw_id}")
+    resp2 = await client.get(f"/api/v1/groups/{group.id}/draws/{draw_id}")
     assert resp2.status_code == 200
     body2 = resp2.json()
     assert body2["id"] == draw_id
@@ -311,12 +330,12 @@ async def test_delete_draw(client: AsyncClient):
 
     app.dependency_overrides[groups_router.get_group_repository] = lambda: group_repo
     app.dependency_overrides[draws_router.get_draw_repository] = lambda: draw_repo
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     now = datetime.now(UTC)
     group = Group(
         id=str(uuid4()),
-        admin_user_id="user-123",
+        admin_user_id="admin-123",
         name="Test Group",
         historical_exclusions_enabled=True,
         historical_exclusions_lookback=1,
@@ -330,7 +349,7 @@ async def test_delete_draw(client: AsyncClient):
     draw_id = create_resp.json()["id"]
 
     # Delete draw
-    resp = await client.delete(f"/api/v1/draws/{draw_id}")
+    resp = await client.delete(f"/api/v1/groups/{group.id}/draws/{draw_id}")
     assert resp.status_code == 204
 
     app.dependency_overrides.clear()
@@ -353,12 +372,12 @@ async def test_delete_finalized_draw(client: AsyncClient):
     app.dependency_overrides[draws_router.get_assignment_repository] = lambda: assignment_repo
     app.dependency_overrides[draws_router.get_notification_service] = lambda: notif
     app.dependency_overrides[draws_router.get_draw_algorithm] = lambda: algorithm
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     now = datetime.now(UTC)
     group = Group(
         id=str(uuid4()),
-        admin_user_id="user-123",
+        admin_user_id="admin-123",
         name="Test Group",
         historical_exclusions_enabled=True,
         historical_exclusions_lookback=1,
@@ -401,15 +420,17 @@ async def test_delete_finalized_draw(client: AsyncClient):
     draw_id = create_resp.json()["id"]
 
     # Execute draw
-    exec_resp = await client.post(f"/api/v1/draws/{draw_id}/execute", json={"seed": 42})
+    exec_resp = await client.post(
+        f"/api/v1/groups/{group.id}/draws/{draw_id}/execute", json={"seed": 42}
+    )
     assert exec_resp.status_code == 200
 
     # Finalize draw
-    fin_resp = await client.post(f"/api/v1/draws/{draw_id}/finalize", json={})
+    fin_resp = await client.post(f"/api/v1/groups/{group.id}/draws/{draw_id}/finalize", json={})
     assert fin_resp.status_code == 200
 
     # Try to delete finalized draw - should fail
-    resp = await client.delete(f"/api/v1/draws/{draw_id}")
+    resp = await client.delete(f"/api/v1/groups/{group.id}/draws/{draw_id}")
     assert resp.status_code == 409
     assert resp.json()["detail"]["code"] == "cannotdeletefinalizeddrawerror"
 
@@ -433,12 +454,12 @@ async def test_execute_finalized_draw(client: AsyncClient):
     app.dependency_overrides[draws_router.get_assignment_repository] = lambda: assignment_repo
     app.dependency_overrides[draws_router.get_notification_service] = lambda: notif
     app.dependency_overrides[draws_router.get_draw_algorithm] = lambda: algorithm
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     now = datetime.now(UTC)
     group = Group(
         id=str(uuid4()),
-        admin_user_id="user-123",
+        admin_user_id="admin-123",
         name="Test Group",
         historical_exclusions_enabled=True,
         historical_exclusions_lookback=1,
@@ -481,15 +502,19 @@ async def test_execute_finalized_draw(client: AsyncClient):
     draw_id = create_resp.json()["id"]
 
     # Execute draw
-    exec_resp = await client.post(f"/api/v1/draws/{draw_id}/execute", json={"seed": 42})
+    exec_resp = await client.post(
+        f"/api/v1/groups/{group.id}/draws/{draw_id}/execute", json={"seed": 42}
+    )
     assert exec_resp.status_code == 200
 
     # Finalize draw
-    fin_resp = await client.post(f"/api/v1/draws/{draw_id}/finalize", json={})
+    fin_resp = await client.post(f"/api/v1/groups/{group.id}/draws/{draw_id}/finalize", json={})
     assert fin_resp.status_code == 200
 
     # Try to execute finalized draw - should fail
-    resp = await client.post(f"/api/v1/draws/{draw_id}/execute", json={"seed": 42})
+    resp = await client.post(
+        f"/api/v1/groups/{group.id}/draws/{draw_id}/execute", json={"seed": 42}
+    )
     assert resp.status_code == 409
     assert resp.json()["detail"]["code"] == "drawalreadyfinalizederror"
 
@@ -513,13 +538,13 @@ async def test_execute_finalize_notify_draw_flow(client: AsyncClient):
     app.dependency_overrides[draws_router.get_assignment_repository] = lambda: assignment_repo
     app.dependency_overrides[draws_router.get_notification_service] = lambda: notif
     app.dependency_overrides[draws_router.get_draw_algorithm] = lambda: algorithm
-    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "user-123"
+    app.dependency_overrides[api_dependencies.get_current_user] = lambda: "admin-123"
 
     # Create group and three members
     now = datetime.now(UTC)
     group = Group(
         id=str(uuid4()),
-        admin_user_id="user-123",
+        admin_user_id="admin-123",
         name="Test Group",
         historical_exclusions_enabled=False,
         historical_exclusions_lookback=0,
@@ -564,19 +589,21 @@ async def test_execute_finalize_notify_draw_flow(client: AsyncClient):
     draw_id = create_resp.json()["id"]
 
     # Execute draw
-    exec_resp = await client.post(f"/api/v1/draws/{draw_id}/execute", json={})
+    exec_resp = await client.post(f"/api/v1/groups/{group.id}/draws/{draw_id}/execute", json={})
     assert exec_resp.status_code == 200
     exec_body = exec_resp.json()
     assert exec_body["draw"]["status"] == "pending"
     assert len(exec_body["assignments"]) == 3
 
     # Finalize draw
-    fin_resp = await client.post(f"/api/v1/draws/{draw_id}/finalize", json={})
+    fin_resp = await client.post(f"/api/v1/groups/{group.id}/draws/{draw_id}/finalize", json={})
     assert fin_resp.status_code == 200
     assert fin_resp.json()["status"] == "finalized"
 
     # Notify draw
-    notify_resp = await client.post(f"/api/v1/draws/{draw_id}/notify", json={"resend": False})
+    notify_resp = await client.post(
+        f"/api/v1/groups/{group.id}/draws/{draw_id}/notify", json={"resend": False}
+    )
     assert notify_resp.status_code == 202
     nb = notify_resp.json()
     assert nb["sent"] + nb["skipped"] == 3

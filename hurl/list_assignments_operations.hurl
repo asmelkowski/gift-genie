@@ -90,7 +90,7 @@ HTTP 201
 drawId: jsonpath "$['id']"
 
 # Execute the draw to create assignments
-POST http://localhost:8000/api/v1/draws/{{drawId}}/execute
+POST http://localhost:8000/api/v1/groups/{{groupId}}/draws/{{drawId}}/execute
 [Cookies]
 access_token: {{access_token}}
 X-CSRF-Token: {{csrf_token}}
@@ -100,7 +100,7 @@ X-CSRF-Token: {{csrf_token}}
 HTTP 200
 
 # Finalize the draw
-POST http://localhost:8000/api/v1/draws/{{drawId}}/finalize
+POST http://localhost:8000/api/v1/groups/{{groupId}}/draws/{{drawId}}/finalize
 [Cookies]
 access_token: {{access_token}}
 X-CSRF-Token: {{csrf_token}}
@@ -108,7 +108,7 @@ X-CSRF-Token: {{csrf_token}}
 HTTP 200
 
 # Test: List assignments without names
-GET http://localhost:8000/api/v1/draws/{{drawId}}/assignments
+GET http://localhost:8000/api/v1/groups/{{groupId}}/draws/{{drawId}}/assignments
 [Cookies]
 access_token: {{access_token}}
 HTTP 200
@@ -122,7 +122,7 @@ jsonpath "$.data[0].receiver_name" == null
 jsonpath "$.meta.total" == 3
 
 # Test: List assignments with names
-GET http://localhost:8000/api/v1/draws/{{drawId}}/assignments?include=names
+GET http://localhost:8000/api/v1/groups/{{groupId}}/draws/{{drawId}}/assignments?include=names
 [Cookies]
 access_token: {{access_token}}
 HTTP 200
@@ -136,19 +136,19 @@ jsonpath "$.data[2].receiver_name" exists
 jsonpath "$.meta.total" == 3
 
 # Test: Unauthorized access (no auth token)
-GET http://localhost:8000/api/v1/draws/{{drawId}}/assignments
+GET http://localhost:8000/api/v1/groups/{{groupId}}/draws/{{drawId}}/assignments
 [Cookies]
 access_token: 'unauth'
 HTTP 401
 
 # Test: Invalid draw ID
-GET http://localhost:8000/api/v1/draws/invalid-uuid/assignments
+GET http://localhost:8000/api/v1/groups/{{groupId}}/draws/invalid-uuid/assignments
 [Cookies]
 access_token: {{access_token}}
 HTTP 422
 
 # Test: Non-existent draw ID
-GET http://localhost:8000/api/v1/draws/550e8400-e29b-41d4-a716-446655440000/assignments
+GET http://localhost:8000/api/v1/groups/{{groupId}}/draws/550e8400-e29b-41d4-a716-446655440000/assignments
 [Cookies]
 access_token: {{access_token}}
 HTTP 404

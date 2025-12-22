@@ -22,27 +22,49 @@ class UserPermissionRepositorySqlAlchemy(UserPermissionRepository):
     async def grant_permission(
         self, user_id: str, permission_code: str, granted_by: str | None
     ) -> UserPermission:
-        """Grant a permission to a user."""
-        model = UserPermissionModel(
-            user_id=UUID(user_id),
-            permission_code=permission_code,
-            granted_by=UUID(granted_by) if granted_by else None,
-        )
-        self._session.add(model)
+        """Grant a single permission to a user.
+
+        This method is idempotent: if the permission is already granted, it
+        returns the existing grant without error.
+        """
+        # Check if permission already granted - if so, return existing grant
+        existing = await self.list_by_user(user_id)
+        for perm in existing:
+            if perm.permission_code == permission_code:
+                return perm
+
+        # Permission not yet granted, so grant it
+        results = await self.grant_permissions_bulk(user_id, [permission_code], granted_by)
+        return results[0]
+
+    async def grant_permissions_bulk(
+        self, user_id: str, permission_codes: list[str], granted_by: str | None
+    ) -> list[UserPermission]:
+        """Grant multiple permissions to a user in a single operation."""
+        models = [
+            UserPermissionModel(
+                user_id=UUID(user_id),
+                permission_code=code,
+                granted_by=UUID(granted_by) if granted_by else None,
+            )
+            for code in permission_codes
+        ]
+        self._session.add_all(models)
         try:
             await self._session.flush()
             await self._session.commit()
         except IntegrityError as e:
             await self._session.rollback()
-            raise ValueError(
-                f"Failed to grant permission {permission_code} to user {user_id}"
-            ) from e
+            raise ValueError(f"Failed to grant permissions to user {user_id}") from e
 
-        # Refresh to ensure DB defaults
-        await self._session.refresh(model)
-        domain = self._to_domain(model)
-        assert domain is not None
-        return domain
+        # Refresh and convert
+        results = []
+        for model in models:
+            await self._session.refresh(model)
+            domain = self._to_domain(model)
+            if domain:
+                results.append(domain)
+        return results
 
     async def revoke_permission(self, user_id: str, permission_code: str) -> bool:
         """Revoke a permission from a user."""
