@@ -105,18 +105,63 @@ class UserPermissionRepositorySqlAlchemy(UserPermissionRepository):
     async def list_permissions_for_user(self, user_id: str) -> list[Permission]:
         """List all Permission entities granted to a user.
 
-        This joins with the permissions table to return full Permission objects
-        rather than just UserPermission associations.
+        Handles both base permissions and resource-scoped permissions (e.g., groups:read:UUID).
+        For base permissions, returns the Permission from the database.
+        For resource-scoped permissions, synthesizes a Permission entity from the base permission.
         """
-        stmt = (
-            select(PermissionModel)
-            .select_from(UserPermissionModel)
-            .join(PermissionModel, PermissionModel.code == UserPermissionModel.permission_code)
-            .where(UserPermissionModel.user_id == UUID(user_id))
+        # 1. Get all user permission grants
+        user_perm_stmt = select(UserPermissionModel).where(
+            UserPermissionModel.user_id == UUID(user_id)
         )
-        res = await self._session.execute(stmt)
-        models = res.scalars().all()
-        return [p for model in models if (p := self._permission_to_domain(model)) is not None]
+        user_perm_res = await self._session.execute(user_perm_stmt)
+        user_perm_models = user_perm_res.scalars().all()
+
+        # 2. For each permission, resolve base permission and synthesize if needed
+        permissions = []
+        for user_perm in user_perm_models:
+            perm_code = user_perm.permission_code
+
+            # Try direct lookup first (for non-scoped permissions)
+            perm_stmt = select(PermissionModel).where(PermissionModel.code == perm_code)
+            perm_res = await self._session.execute(perm_stmt)
+            perm_model = perm_res.scalar_one_or_none()
+
+            if perm_model:
+                # Found direct match - use it as-is
+                permission = self._permission_to_domain(perm_model)
+                if permission:
+                    permissions.append(permission)
+            else:
+                # Resource-scoped permission - synthesize from base
+                base_code = self._extract_base_permission(perm_code)
+                base_perm_stmt = select(PermissionModel).where(PermissionModel.code == base_code)
+                base_perm_res = await self._session.execute(base_perm_stmt)
+                base_perm_model = base_perm_res.scalar_one_or_none()
+
+                if base_perm_model:
+                    # Create synthetic permission with full code
+                    synthetic = Permission(
+                        code=perm_code,  # Full code with resource ID
+                        name=base_perm_model.name,
+                        description=base_perm_model.description,
+                        category=base_perm_model.category,
+                        created_at=base_perm_model.created_at,
+                    )
+                    permissions.append(synthetic)
+
+        return permissions
+
+    @staticmethod
+    def _extract_base_permission(permission_code: str) -> str:
+        """Extract base permission from resource-scoped code.
+
+        For resource-scoped permissions like 'groups:read:UUID', returns 'groups:read'.
+        For base permissions, returns the code unchanged.
+        """
+        parts = permission_code.split(":")
+        if len(parts) >= 3:
+            return f"{parts[0]}:{parts[1]}"
+        return permission_code
 
     @staticmethod
     def _to_domain(model: UserPermissionModel | None) -> UserPermission | None:

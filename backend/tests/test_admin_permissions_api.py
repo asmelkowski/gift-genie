@@ -12,11 +12,20 @@ from gift_genie.domain.entities.user import User
 from gift_genie.domain.entities.permission import Permission
 from gift_genie.domain.entities.user_permission import UserPermission
 from gift_genie.domain.entities.enums import UserRole
+from gift_genie.domain.entities.group import Group
+from gift_genie.domain.entities.member import Member
+from gift_genie.domain.entities.draw import Draw
+from gift_genie.domain.entities.exclusion import Exclusion
 from gift_genie.domain.interfaces.repositories import (
     UserRepository,
     PermissionRepository,
     UserPermissionRepository,
+    GroupRepository,
+    MemberRepository,
+    DrawRepository,
+    ExclusionRepository,
 )
+from gift_genie.domain.services.permission_validator import PermissionValidator
 
 
 # =====================
@@ -131,6 +140,185 @@ class InMemoryUserPermissionRepo(UserPermissionRepository):
         return []
 
 
+class InMemoryGroupRepo(GroupRepository):
+    """In-memory group repository for testing."""
+
+    def __init__(self, existing_groups: Optional[list[Group]] = None):
+        self.groups = {g.id: g for g in (existing_groups or [])}
+
+    async def create(self, group: Group) -> Group:
+        self.groups[group.id] = group
+        return group
+
+    async def list_by_admin_user(
+        self, user_id: str, search: Optional[str], page: int, page_size: int, sort: str
+    ) -> tuple[list[Group], int]:
+        return list(self.groups.values()), len(self.groups)
+
+    async def list_all(
+        self, search: Optional[str], page: int, page_size: int, sort: str
+    ) -> tuple[list[Group], int]:
+        return list(self.groups.values()), len(self.groups)
+
+    async def get_by_id(self, group_id: str) -> Optional[Group]:
+        return self.groups.get(group_id)
+
+    async def get_member_stats(self, group_id: str) -> tuple[int, int]:
+        return 0, 0
+
+    async def update(self, group: Group) -> Group:
+        self.groups[group.id] = group
+        return group
+
+    async def delete(self, group_id: str) -> None:
+        if group_id in self.groups:
+            del self.groups[group_id]
+
+
+class InMemoryMemberRepo(MemberRepository):
+    """In-memory member repository for testing."""
+
+    def __init__(self, existing_members: Optional[list[Member]] = None):
+        self.members = {m.id: m for m in (existing_members or [])}
+
+    async def create(self, member: Member) -> Member:
+        self.members[member.id] = member
+        return member
+
+    async def list_by_group(
+        self,
+        group_id: str,
+        is_active: Optional[bool],
+        search: Optional[str],
+        page: int,
+        page_size: int,
+        sort: str,
+    ) -> tuple[list[Member], int]:
+        members = [m for m in self.members.values() if m.group_id == group_id]
+        return members, len(members)
+
+    async def get_by_id(self, member_id: str) -> Optional[Member]:
+        return self.members.get(member_id)
+
+    async def get_many_by_ids(self, member_ids: list[str]) -> dict[str, Member]:
+        return {mid: m for mid, m in self.members.items() if mid in member_ids}
+
+    async def get_by_group_and_id(self, group_id: str, member_id: str) -> Optional[Member]:
+        member = self.members.get(member_id)
+        if member and member.group_id == group_id:
+            return member
+        return None
+
+    async def name_exists_in_group(
+        self, group_id: str, name: str, exclude_member_id: Optional[str] = None
+    ) -> bool:
+        for member in self.members.values():
+            if member.group_id == group_id and member.name == name:
+                if exclude_member_id and member.id == exclude_member_id:
+                    continue
+                return True
+        return False
+
+    async def email_exists_in_group(
+        self, group_id: str, email: str, exclude_member_id: Optional[str] = None
+    ) -> bool:
+        for member in self.members.values():
+            if member.group_id == group_id and member.email == email:
+                if exclude_member_id and member.id == exclude_member_id:
+                    continue
+                return True
+        return False
+
+    async def has_pending_draw(self, member_id: str) -> bool:
+        return False
+
+    async def update(self, member: Member) -> Member:
+        self.members[member.id] = member
+        return member
+
+    async def delete(self, member_id: str) -> None:
+        if member_id in self.members:
+            del self.members[member_id]
+
+
+class InMemoryDrawRepo(DrawRepository):
+    """In-memory draw repository for testing."""
+
+    def __init__(self, existing_draws: Optional[list[Draw]] = None):
+        self.draws = {d.id: d for d in (existing_draws or [])}
+
+    async def create(self, draw: Draw) -> Draw:
+        self.draws[draw.id] = draw
+        return draw
+
+    async def list_by_group(
+        self, group_id: str, status: Optional[str], page: int, page_size: int, sort: str
+    ) -> tuple[list[Draw], int]:
+        draws = [d for d in self.draws.values() if d.group_id == group_id]
+        return draws, len(draws)
+
+    async def get_by_id(self, draw_id: str) -> Optional[Draw]:
+        return self.draws.get(draw_id)
+
+    async def update(self, draw: Draw) -> Draw:
+        self.draws[draw.id] = draw
+        return draw
+
+    async def delete(self, draw_id: str) -> None:
+        if draw_id in self.draws:
+            del self.draws[draw_id]
+
+
+class InMemoryExclusionRepo(ExclusionRepository):
+    """In-memory exclusion repository for testing."""
+
+    def __init__(self, existing_exclusions: Optional[list[Exclusion]] = None):
+        self.exclusions = {e.id: e for e in (existing_exclusions or [])}
+
+    async def list_by_group(
+        self,
+        group_id: str,
+        exclusion_type: Optional[str],
+        giver_member_id: Optional[str],
+        receiver_member_id: Optional[str],
+        page: int,
+        page_size: int,
+        sort: str,
+    ) -> tuple[list[Exclusion], int]:
+        exclusions = [e for e in self.exclusions.values() if e.group_id == group_id]
+        return exclusions, len(exclusions)
+
+    async def create(self, exclusion: Exclusion) -> Exclusion:
+        self.exclusions[exclusion.id] = exclusion
+        return exclusion
+
+    async def create_many(self, exclusions: list[Exclusion]) -> list[Exclusion]:
+        for exclusion in exclusions:
+            self.exclusions[exclusion.id] = exclusion
+        return exclusions
+
+    async def get_by_id(self, exclusion_id: str) -> Optional[Exclusion]:
+        return self.exclusions.get(exclusion_id)
+
+    async def get_by_group_and_id(self, group_id: str, exclusion_id: str) -> Optional[Exclusion]:
+        exclusion = self.exclusions.get(exclusion_id)
+        if exclusion and exclusion.group_id == group_id:
+            return exclusion
+        return None
+
+    async def exists_for_pair(
+        self, group_id: str, giver_member_id: str, receiver_member_id: str
+    ) -> bool:
+        return False
+
+    async def check_conflicts_bulk(self, group_id: str, pairs: list[tuple[str, str]]) -> list[dict]:
+        return []
+
+    async def delete(self, exclusion_id: str) -> None:
+        if exclusion_id in self.exclusions:
+            del self.exclusions[exclusion_id]
+
+
 # =====================
 # Test Fixtures
 # =====================
@@ -205,10 +393,22 @@ async def test_grant_permission_success(
     user_repo = InMemoryUserRepo([admin_user, regular_user])
     permission_repo = InMemoryPermissionRepo(sample_permissions)
     user_permission_repo = InMemoryUserPermissionRepo()
+    group_repo = InMemoryGroupRepo()
+    member_repo = InMemoryMemberRepo()
+    draw_repo = InMemoryDrawRepo()
+    exclusion_repo = InMemoryExclusionRepo()
+
+    permission_validator = PermissionValidator(
+        permission_repository=permission_repo,
+        group_repository=group_repo,
+        member_repository=member_repo,
+        draw_repository=draw_repo,
+        exclusion_repository=exclusion_repo,
+    )
 
     app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
-    app.dependency_overrides[admin_router.get_permission_repository] = lambda: permission_repo
+    app.dependency_overrides[admin_router.get_permission_validator] = lambda: permission_validator
     app.dependency_overrides[admin_router.get_user_permission_repository] = (
         lambda: user_permission_repo
     )
@@ -236,10 +436,22 @@ async def test_grant_permission_idempotent(
     user_repo = InMemoryUserRepo([admin_user, regular_user])
     permission_repo = InMemoryPermissionRepo(sample_permissions)
     user_permission_repo = InMemoryUserPermissionRepo()
+    group_repo = InMemoryGroupRepo()
+    member_repo = InMemoryMemberRepo()
+    draw_repo = InMemoryDrawRepo()
+    exclusion_repo = InMemoryExclusionRepo()
+
+    permission_validator = PermissionValidator(
+        permission_repository=permission_repo,
+        group_repository=group_repo,
+        member_repository=member_repo,
+        draw_repository=draw_repo,
+        exclusion_repository=exclusion_repo,
+    )
 
     app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
-    app.dependency_overrides[admin_router.get_permission_repository] = lambda: permission_repo
+    app.dependency_overrides[admin_router.get_permission_validator] = lambda: permission_validator
     app.dependency_overrides[admin_router.get_user_permission_repository] = (
         lambda: user_permission_repo
     )
@@ -285,10 +497,22 @@ async def test_grant_permission_with_notes(
     user_repo = InMemoryUserRepo([admin_user, regular_user])
     permission_repo = InMemoryPermissionRepo(sample_permissions)
     user_permission_repo = InMemoryUserPermissionRepo()
+    group_repo = InMemoryGroupRepo()
+    member_repo = InMemoryMemberRepo()
+    draw_repo = InMemoryDrawRepo()
+    exclusion_repo = InMemoryExclusionRepo()
+
+    permission_validator = PermissionValidator(
+        permission_repository=permission_repo,
+        group_repository=group_repo,
+        member_repository=member_repo,
+        draw_repository=draw_repo,
+        exclusion_repository=exclusion_repo,
+    )
 
     app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
-    app.dependency_overrides[admin_router.get_permission_repository] = lambda: permission_repo
+    app.dependency_overrides[admin_router.get_permission_validator] = lambda: permission_validator
     app.dependency_overrides[admin_router.get_user_permission_repository] = (
         lambda: user_permission_repo
     )
@@ -314,10 +538,22 @@ async def test_grant_permission_nonexistent_user(
     user_repo = InMemoryUserRepo([admin_user])
     permission_repo = InMemoryPermissionRepo(sample_permissions)
     user_permission_repo = InMemoryUserPermissionRepo()
+    group_repo = InMemoryGroupRepo()
+    member_repo = InMemoryMemberRepo()
+    draw_repo = InMemoryDrawRepo()
+    exclusion_repo = InMemoryExclusionRepo()
+
+    permission_validator = PermissionValidator(
+        permission_repository=permission_repo,
+        group_repository=group_repo,
+        member_repository=member_repo,
+        draw_repository=draw_repo,
+        exclusion_repository=exclusion_repo,
+    )
 
     app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
-    app.dependency_overrides[admin_router.get_permission_repository] = lambda: permission_repo
+    app.dependency_overrides[admin_router.get_permission_validator] = lambda: permission_validator
     app.dependency_overrides[admin_router.get_user_permission_repository] = (
         lambda: user_permission_repo
     )
@@ -342,10 +578,22 @@ async def test_grant_permission_nonexistent_permission(
     user_repo = InMemoryUserRepo([admin_user, regular_user])
     permission_repo = InMemoryPermissionRepo([])
     user_permission_repo = InMemoryUserPermissionRepo()
+    group_repo = InMemoryGroupRepo()
+    member_repo = InMemoryMemberRepo()
+    draw_repo = InMemoryDrawRepo()
+    exclusion_repo = InMemoryExclusionRepo()
+
+    permission_validator = PermissionValidator(
+        permission_repository=permission_repo,
+        group_repository=group_repo,
+        member_repository=member_repo,
+        draw_repository=draw_repo,
+        exclusion_repository=exclusion_repo,
+    )
 
     app.dependency_overrides[admin_router.get_current_admin_user] = lambda: admin_user.id
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
-    app.dependency_overrides[admin_router.get_permission_repository] = lambda: permission_repo
+    app.dependency_overrides[admin_router.get_permission_validator] = lambda: permission_validator
     app.dependency_overrides[admin_router.get_user_permission_repository] = (
         lambda: user_permission_repo
     )
@@ -636,6 +884,18 @@ async def test_grant_permission_forbidden_non_admin(
     user_repo = InMemoryUserRepo([regular_user])
     permission_repo = InMemoryPermissionRepo(sample_permissions)
     user_permission_repo = InMemoryUserPermissionRepo()
+    group_repo = InMemoryGroupRepo()
+    member_repo = InMemoryMemberRepo()
+    draw_repo = InMemoryDrawRepo()
+    exclusion_repo = InMemoryExclusionRepo()
+
+    permission_validator = PermissionValidator(
+        permission_repository=permission_repo,
+        group_repository=group_repo,
+        member_repository=member_repo,
+        draw_repository=draw_repo,
+        exclusion_repository=exclusion_repo,
+    )
 
     # Override get_current_admin_user to raise 403 Forbidden (simulating non-admin user)
     def raise_forbidden():
@@ -645,7 +905,7 @@ async def test_grant_permission_forbidden_non_admin(
 
     app.dependency_overrides[admin_router.get_current_admin_user] = raise_forbidden
     app.dependency_overrides[admin_router.get_user_repository] = lambda: user_repo
-    app.dependency_overrides[admin_router.get_permission_repository] = lambda: permission_repo
+    app.dependency_overrides[admin_router.get_permission_validator] = lambda: permission_validator
     app.dependency_overrides[admin_router.get_user_permission_repository] = (
         lambda: user_permission_repo
     )

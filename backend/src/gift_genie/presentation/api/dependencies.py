@@ -11,12 +11,25 @@ from gift_genie.application.use_cases.get_current_user import GetCurrentUserUseC
 from gift_genie.domain.entities.enums import UserRole
 from gift_genie.domain.interfaces.authorization_service import AuthorizationService
 from gift_genie.domain.interfaces.repositories import (
+    DrawRepository,
+    ExclusionRepository,
     GroupRepository,
+    MemberRepository,
+    PermissionRepository,
     UserPermissionRepository,
     UserRepository,
 )
+from gift_genie.domain.services.permission_validator import PermissionValidator
 from gift_genie.infrastructure.config.settings import get_settings
+from gift_genie.infrastructure.database.repositories.draws import DrawRepositorySqlAlchemy
+from gift_genie.infrastructure.database.repositories.exclusions import (
+    ExclusionRepositorySqlAlchemy,
+)
 from gift_genie.infrastructure.database.repositories.groups import GroupRepositorySqlAlchemy
+from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
+from gift_genie.infrastructure.database.repositories.permissions import (
+    PermissionRepositorySqlAlchemy,
+)
 from gift_genie.infrastructure.database.repositories.user_permissions import (
     UserPermissionRepositorySqlAlchemy,
 )
@@ -83,6 +96,51 @@ async def get_user_permission_repository(
 ) -> AsyncGenerator[UserPermissionRepository, None]:
     """Dependency to provide UserPermissionRepository for permission checks."""
     yield UserPermissionRepositorySqlAlchemy(session)
+
+
+async def get_permission_repository(
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> AsyncGenerator[PermissionRepository, None]:
+    """Dependency to provide PermissionRepository."""
+    yield PermissionRepositorySqlAlchemy(session)
+
+
+async def get_member_repository(
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> AsyncGenerator[MemberRepository, None]:
+    """Dependency to provide MemberRepository."""
+    yield MemberRepositorySqlAlchemy(session)
+
+
+async def get_draw_repository(
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> AsyncGenerator[DrawRepository, None]:
+    """Dependency to provide DrawRepository."""
+    yield DrawRepositorySqlAlchemy(session)
+
+
+async def get_exclusion_repository(
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> AsyncGenerator[ExclusionRepository, None]:
+    """Dependency to provide ExclusionRepository."""
+    yield ExclusionRepositorySqlAlchemy(session)
+
+
+async def get_permission_validator(
+    permission_repo: Annotated[PermissionRepository, Depends(get_permission_repository)],
+    group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
+    member_repo: Annotated[MemberRepository, Depends(get_member_repository)],
+    draw_repo: Annotated[DrawRepository, Depends(get_draw_repository)],
+    exclusion_repo: Annotated[ExclusionRepository, Depends(get_exclusion_repository)],
+) -> AsyncGenerator[PermissionValidator, None]:
+    """Dependency to provide PermissionValidator service."""
+    yield PermissionValidator(
+        permission_repository=permission_repo,
+        group_repository=group_repo,
+        member_repository=member_repo,
+        draw_repository=draw_repo,
+        exclusion_repository=exclusion_repo,
+    )
 
 
 async def get_authorization_service(
