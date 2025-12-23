@@ -1,0 +1,43 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "confirm": "Confirm",
+    "retry": "Retry"
+  },
+  "labels": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "description": "Description",
+    "createdAt": "Created",
+    "updatedAt": "Updated"
+  },
+  "validation": {
+    "required": "This field is required",
+    "emailInvalid": "Invalid email address",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "nameTooLong": "Name is too long (max {{max}} characters)"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "success": "Success!",
+    "error": "An error occurred"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{current}} of {{total}}",
+    "showing": "Showing {{from}}-{{to}} of {{total}} results"
+  }
+}

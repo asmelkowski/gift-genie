@@ -1,0 +1,43 @@
+{
+  "actions": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "create": "Utwórz",
+    "search": "Szukaj",
+    "filter": "Filtruj",
+    "sort": "Sortuj",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "close": "Zamknij",
+    "confirm": "Potwierdź",
+    "retry": "Spróbuj ponownie"
+  },
+  "labels": {
+    "email": "Email",
+    "password": "Hasło",
+    "name": "Imię",
+    "description": "Opis",
+    "createdAt": "Utworzono",
+    "updatedAt": "Zaktualizowano"
+  },
+  "validation": {
+    "required": "To pole jest wymagane",
+    "emailInvalid": "Nieprawidłowy adres email",
+    "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków",
+    "nameTooLong": "Nazwa jest zbyt długa (max {{max}} znaków)"
+  },
+  "status": {
+    "loading": "Ładowanie...",
+    "saving": "Zapisywanie...",
+    "success": "Sukces!",
+    "error": "Wystąpił błąd"
+  },
+  "pagination": {
+    "previous": "Poprzednia",
+    "next": "Następna",
+    "page": "Strona {{current}} z {{total}}",
+    "showing": "Pokazuje {{from}}-{{to}} z {{total}} wyników"
+  }
+}

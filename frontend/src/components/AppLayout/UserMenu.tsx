@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface UserViewModel {
   id: string;
@@ -96,6 +97,9 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
               >
                 Settings
               </button>
+            </li>
+            <li className="border-t border-border px-4 py-2">
+              <LanguageSwitcher />
             </li>
             <li className="border-t border-border">
               <button
