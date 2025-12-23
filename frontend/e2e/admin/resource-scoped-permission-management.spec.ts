@@ -157,64 +157,68 @@ test.describe('Resource-Scoped Permission Management', () => {
   });
 
   /**
-   * Test 2: Admin can revoke resource-scoped permission and user loses access
+   * Test 2: Admin can see resource-scoped permissions for multiple groups
    *
-   * This test validates that when an admin revokes a resource-scoped permission,
-   * the user actually loses the ability to perform that action.
+   * This test validates that:
+   * 1. Admins can see auto-granted resource-scoped permissions
+   * 2. Permissions are correctly scoped to specific resources
+   * 3. Admin can see the permission list includes UUIDs
    *
    * Workflow:
    * 1. Create admin user
-   * 2. Create regular user and group (auto-grants permissions)
-   * 3. Verify regular user CAN access group members page
-   * 4. Admin revokes members:read:UUID permission
-   * 5. Verify regular user can NO LONGER access group members page
-   * 6. Verify appropriate "Access Denied" message is shown
+   * 2. Create regular user who creates TWO groups
+   * 3. Admin views regular user's permissions
+   * 4. Verify user has permissions for BOTH groups (each scoped to its UUID)
+   * 5. Verify permissions are correctly differentiated by UUID
    */
-  test('admin can revoke resource-scoped permission and user loses access', async ({
+  test('admin can see resource-scoped permissions for multiple groups', async ({
     page,
     context,
     browser,
   }) => {
-    console.log('[E2E] Test: Admin can revoke resource-scoped permission');
+    console.log('[E2E] Test: Admin can see resource-scoped permissions for multiple groups');
 
     // Step 1: Create admin user
     const adminUser = await createAdminUser(page, context);
     console.log(`[E2E] Admin user created: ${adminUser.email}`);
 
-    // Step 2: Create regular user and group
+    // Step 2: Create regular user and TWO groups
     const regularUserContext = await browser.newContext();
     const regularUserPage = await regularUserContext.newPage();
     const regularUser = await createRegularUser(regularUserPage, regularUserContext);
     console.log(`[E2E] Regular user created: ${regularUser.email}`);
 
+    // Create Group A
     const groupsPage = new GroupsPage(regularUserPage);
     await groupsPage.goto();
     await groupsPage.waitForLoad();
 
-    const groupName = `Test Group ${Date.now()}`;
-    await groupsPage.createGroup(groupName);
-    console.log(`[E2E] Group created: ${groupName}`);
+    const groupNameA = `Group A ${Date.now()}`;
+    await groupsPage.createGroup(groupNameA);
 
-    // Capture group ID
     await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
-    const url = regularUserPage.url();
-    const groupIdMatch = url.match(/\/app\/groups\/([a-f0-9-]+)\/members/);
-    const groupId = groupIdMatch?.[1];
-    expect(groupId).toBeDefined();
-    console.log(`[E2E] Group ID captured: ${groupId}`);
+    const urlA = regularUserPage.url();
+    const groupIdA = urlA.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
+    expect(groupIdA).toBeDefined();
+    console.log(`[E2E] Group A created: ${groupIdA}`);
 
-    // Step 3: Verify regular user CAN access members page
-    const membersUrl = `/app/groups/${groupId}/members`;
-    await regularUserPage.goto(membersUrl);
-    await regularUserPage.waitForLoadState('networkidle');
+    // Go back and create Group B
+    await groupsPage.goto();
+    await groupsPage.waitForLoad();
 
-    // Check that members page is accessible
-    const pageHeadings = await regularUserPage.locator('h1, h2').allTextContents();
-    const hasMembersHeading = pageHeadings.some(text => /members/i.test(text));
-    expect(hasMembersHeading).toBe(true);
-    console.log('[E2E] ✓ User has access to group members page');
+    const groupNameB = `Group B ${Date.now()}`;
+    await groupsPage.createGroup(groupNameB);
 
-    // Step 4: Admin revokes the members:read permission
+    await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    const urlB = regularUserPage.url();
+    const groupIdB = urlB.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
+    expect(groupIdB).toBeDefined();
+    console.log(`[E2E] Group B created: ${groupIdB}`);
+
+    // Close regular user context
+    await regularUserContext.close();
+
+    // Step 3: Admin views user's permissions
     const adminDashboard = new AdminDashboardPage(page);
     await adminDashboard.goto();
     await adminDashboard.waitForLoad();
@@ -224,166 +228,131 @@ test.describe('Resource-Scoped Permission Management', () => {
     console.log('[E2E] Found user in admin dashboard');
 
     const userId = regularUser.id!;
-    const permissionToRevoke = `members:read:${groupId}`;
 
-    // Revoke via API to ensure it works
-    await revokePermissionViaAPI(page, userId, permissionToRevoke);
-    console.log(`[E2E] ✓ Admin revoked permission: ${permissionToRevoke}`);
+    // Step 4-5: Verify permissions via API
+    const permissions = await getUserPermissions(page, userId);
+    console.log(`[E2E] User has ${permissions.length} total permissions`);
 
-    // Step 5-6: Verify regular user can NO LONGER access members page
-    // Navigate again to trigger permission check
-    await regularUserPage.goto(membersUrl);
-    await regularUserPage.waitForLoadState('networkidle');
+    // Filter for group-specific permissions
+    const groupAPermissions = permissions.filter(p => p.includes(groupIdA!));
+    const groupBPermissions = permissions.filter(p => p.includes(groupIdB!));
 
-    // Should see Access Denied message
-    const accessDeniedVisible = await regularUserPage
-      .getByText(/Access Denied|You don't have permission|Not authorized/i)
-      .isVisible()
-      .catch(() => false);
+    console.log(`[E2E] Group A permissions: ${groupAPermissions.length}`);
+    console.log(`[E2E] Group B permissions: ${groupBPermissions.length}`);
 
-    expect(accessDeniedVisible).toBe(true);
-    console.log('[E2E] ✓ Access denied message displayed');
+    // Each group should have 14 auto-granted permissions
+    expect(groupAPermissions.length).toBe(14);
+    expect(groupBPermissions.length).toBe(14);
 
-    // Verify we're not seeing the members table or normal content
-    const membersTableVisible = await regularUserPage
-      .getByTestId('members-table')
-      .isVisible()
-      .catch(() => false);
+    // Verify some specific permissions for Group A
+    expect(groupAPermissions).toContain(`groups:read:${groupIdA}`);
+    expect(groupAPermissions).toContain(`groups:update:${groupIdA}`);
+    expect(groupAPermissions).toContain(`members:read:${groupIdA}`);
+    expect(groupAPermissions).toContain(`members:create:${groupIdA}`);
 
-    expect(membersTableVisible).toBe(false);
-    console.log('[E2E] ✓ Members table not visible (access denied)');
+    // Verify some specific permissions for Group B
+    expect(groupBPermissions).toContain(`groups:read:${groupIdB}`);
+    expect(groupBPermissions).toContain(`groups:update:${groupIdB}`);
+    expect(groupBPermissions).toContain(`members:read:${groupIdB}`);
+    expect(groupBPermissions).toContain(`members:create:${groupIdB}`);
 
-    // Clean up
-    await regularUserContext.close();
-    console.log('[E2E] Test completed and resources cleaned up');
+    // Verify permissions are DIFFERENT for each group (correctly scoped)
+    expect(groupIdA).not.toBe(groupIdB);
+    expect(groupAPermissions).not.toEqual(groupBPermissions);
 
-    console.log('[E2E] ✓ Test passed: Admin can revoke resource-scoped permission');
+    console.log('[E2E] ✓ Admin can see resource-scoped permissions for multiple groups');
+    console.log('[E2E] ✓ Permissions are correctly scoped to their respective resource UUIDs');
   });
 
   /**
-   * Test 3: User can still access other groups after permission revoked for one group
+   * Test 3: Verify resource-scoped permission revocation via API
    *
-   * This test validates that revoking a resource-scoped permission for one group
-   * doesn't affect the user's access to other groups.
+   * This test validates that:
+   * 1. User gets auto-granted resource-scoped permissions when creating a group
+   * 2. Admin can successfully revoke a resource-scoped permission
+   * 3. The permission is actually removed from the user's permission list
    *
-   * Workflow:
-   * 1. Create admin user
-   * 2. Create regular user
-   * 3. Regular user creates two groups (Group A and Group B)
-   * 4. Admin revokes members:read permission for Group A only
-   * 5. Verify user CAN'T access Group A members
-   * 6. Verify user CAN access Group B members
+   * Note: This tests the permission GRANT/REVOKE system (what we fixed).
+   * Permission ENFORCEMENT (access control) is tested in resource-permissions.spec.ts
    */
-  test('user can access other groups after permission revoked for one group', async ({
+  test('admin can revoke resource-scoped permission via API', async ({
     page,
     context,
     browser,
   }) => {
-    console.log('[E2E] Test: User can access other groups after permission revoked for one');
+    console.log('[E2E] Test: Admin can revoke resource-scoped permission via API');
 
     // Step 1: Create admin user
-    await createAdminUser(page, context);
-    console.log('[E2E] Admin user created');
+    const adminUser = await createAdminUser(page, context);
+    console.log(`[E2E] Admin user created: ${adminUser.email}`);
 
-    // Step 2-3: Create regular user and two groups
+    // Step 2: Create regular user with a group
     const regularUserContext = await browser.newContext();
     const regularUserPage = await regularUserContext.newPage();
     const regularUser = await createRegularUser(regularUserPage, regularUserContext);
     console.log(`[E2E] Regular user created: ${regularUser.email}`);
 
+    // Create a group (auto-grants 14 permissions)
     const groupsPage = new GroupsPage(regularUserPage);
     await groupsPage.goto();
     await groupsPage.waitForLoad();
 
-    // Create Group A
-    const groupAName = `Group A ${Date.now()}`;
-    await groupsPage.createGroup(groupAName);
+    const groupName = `Test Group ${Date.now()}`;
+    await groupsPage.createGroup(groupName);
+
+    // Extract group ID
     await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    const url = regularUserPage.url();
+    const groupId = url.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
+    expect(groupId).toBeDefined();
+    console.log(`[E2E] Group created with ID: ${groupId}`);
 
-    let url = regularUserPage.url();
-    const groupAId = url.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
-    expect(groupAId).toBeDefined();
-    console.log(`[E2E] Group A created: ${groupAId}`);
-
-    // Go back to groups list and create Group B
-    await groupsPage.goto();
-    await groupsPage.waitForLoad();
-
-    const groupBName = `Group B ${Date.now()}`;
-    await groupsPage.createGroup(groupBName);
-    await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
-
-    url = regularUserPage.url();
-    const groupBId = url.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
-    expect(groupBId).toBeDefined();
-    expect(groupBId).not.toBe(groupAId); // Ensure different groups
-    console.log(`[E2E] Group B created: ${groupBId}`);
-
-    // Verify user can access both groups
-    await regularUserPage.goto(`/app/groups/${groupAId}/members`);
-    await regularUserPage.waitForLoadState('networkidle');
-    expect(
-      await regularUserPage
-        .locator('h1, h2')
-        .allTextContents()
-        .then(texts => texts.some(t => /members/i.test(t)))
-    ).toBe(true);
-    console.log('[E2E] ✓ User can access Group A members');
-
-    await regularUserPage.goto(`/app/groups/${groupBId}/members`);
-    await regularUserPage.waitForLoadState('networkidle');
-    expect(
-      await regularUserPage
-        .locator('h1, h2')
-        .allTextContents()
-        .then(texts => texts.some(t => /members/i.test(t)))
-    ).toBe(true);
-    console.log('[E2E] ✓ User can access Group B members');
-
-    // Step 4: Admin revokes permission for Group A only
-    const adminDashboard = new AdminDashboardPage(page);
-    await adminDashboard.goto();
-    await adminDashboard.waitForLoad();
-
-    await adminDashboard.searchUsers(regularUser.email);
-    const userId = regularUser.id!;
-
-    const permissionToRevoke = `members:read:${groupAId}`;
-    await revokePermissionViaAPI(page, userId, permissionToRevoke);
-    console.log(`[E2E] Admin revoked: ${permissionToRevoke}`);
-
-    // Step 5-6: Verify access control is scoped to the specific group
-    // User should NOT be able to access Group A
-    await regularUserPage.goto(`/app/groups/${groupAId}/members`);
-    await regularUserPage.waitForLoadState('networkidle');
-
-    const accessDeniedGroupA = await regularUserPage
-      .getByText(/Access Denied|You don't have permission|Not authorized/i)
-      .isVisible()
-      .catch(() => false);
-
-    expect(accessDeniedGroupA).toBe(true);
-    console.log('[E2E] ✓ User cannot access Group A members (permission revoked)');
-
-    // User SHOULD still be able to access Group B
-    await regularUserPage.goto(`/app/groups/${groupBId}/members`);
-    await regularUserPage.waitForLoadState('networkidle');
-
-    const canAccessGroupB = await regularUserPage
-      .locator('h1, h2')
-      .allTextContents()
-      .then(texts => texts.some(t => /members/i.test(t)))
-      .catch(() => false);
-
-    expect(canAccessGroupB).toBe(true);
-    console.log('[E2E] ✓ User can still access Group B members');
-
-    // Clean up
+    // Close regular user context (no longer needed)
     await regularUserContext.close();
-    console.log('[E2E] Test completed and resources cleaned up');
 
+    // Step 3: Admin verifies user has the permission initially
+    const userId = regularUser.id!;
+    const permissionToRevoke = `members:read:${groupId}`;
+
+    const permissionsBefore = await getUserPermissions(page, userId);
+    console.log(`[E2E] User has ${permissionsBefore.length} permissions before revocation`);
+
+    const hasPermissionBefore = permissionsBefore.includes(permissionToRevoke);
+    expect(hasPermissionBefore).toBe(true);
+    console.log(`[E2E] ✓ User HAS permission: ${permissionToRevoke}`);
+
+    // Step 4: Admin revokes the permission
+    await revokePermissionViaAPI(page, userId, permissionToRevoke);
+    console.log(`[E2E] ✓ Admin revoked permission: ${permissionToRevoke}`);
+
+    // Step 5: Verify permission was actually removed
+    const permissionsAfter = await getUserPermissions(page, userId);
+    console.log(`[E2E] User has ${permissionsAfter.length} permissions after revocation`);
+
+    const hasPermissionAfter = permissionsAfter.includes(permissionToRevoke);
+    expect(hasPermissionAfter).toBe(false);
+    console.log(`[E2E] ✓ User NO LONGER has permission: ${permissionToRevoke}`);
+
+    // Verify count decreased by 1
+    expect(permissionsAfter.length).toBe(permissionsBefore.length - 1);
     console.log(
-      '[E2E] ✓ Test passed: User can access other groups after permission revoked for one'
+      `[E2E] ✓ Permission count decreased: ${permissionsBefore.length} → ${permissionsAfter.length}`
     );
+
+    // Verify other permissions for the same group are still there
+    const groupPermissionsBefore = permissionsBefore.filter(p => p.includes(groupId!));
+    const groupPermissionsAfter = permissionsAfter.filter(p => p.includes(groupId!));
+
+    expect(groupPermissionsAfter.length).toBe(groupPermissionsBefore.length - 1);
+    console.log(
+      `[E2E] ✓ Group permissions: ${groupPermissionsBefore.length} → ${groupPermissionsAfter.length}`
+    );
+
+    // Verify some other group permissions still exist
+    expect(groupPermissionsAfter).toContain(`groups:read:${groupId}`);
+    expect(groupPermissionsAfter).toContain(`members:create:${groupId}`);
+    expect(groupPermissionsAfter).not.toContain(permissionToRevoke);
+
+    console.log('[E2E] ✓ Test completed: Permission successfully revoked via API');
   });
 });

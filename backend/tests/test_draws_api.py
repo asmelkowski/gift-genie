@@ -34,8 +34,13 @@ class InMemoryGroupRepo(GroupRepository):
         self._groups[group.id] = group
         return group
 
-    async def list_by_admin_user(
-        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
+    async def list_by_user_permissions(
+        self,
+        user_id: str,
+        search: str | None,
+        page: int,
+        page_size: int,
+        sort: str,
     ) -> tuple[list[Group], int]:
         groups = [g for g in self._groups.values() if g.admin_user_id == user_id]
         total = len(groups)

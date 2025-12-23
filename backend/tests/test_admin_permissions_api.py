@@ -150,8 +150,13 @@ class InMemoryGroupRepo(GroupRepository):
         self.groups[group.id] = group
         return group
 
-    async def list_by_admin_user(
-        self, user_id: str, search: Optional[str], page: int, page_size: int, sort: str
+    async def list_by_user_permissions(
+        self,
+        user_id: str,
+        search: Optional[str],
+        page: int,
+        page_size: int,
+        sort: str,
     ) -> tuple[list[Group], int]:
         return list(self.groups.values()), len(self.groups)
 
