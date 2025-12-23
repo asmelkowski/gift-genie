@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 interface EmptyStateProps {
@@ -5,6 +6,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ onCreateClick }: EmptyStateProps) {
+  const { t } = useTranslation('groups');
+
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="mb-4">
@@ -22,12 +25,10 @@ export function EmptyState({ onCreateClick }: EmptyStateProps) {
           />
         </svg>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No groups yet</h3>
-      <p className="text-sm text-gray-500 mb-6">
-        Create your first gift exchange group to get started.
-      </p>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('empty.title')}</h3>
+      <p className="text-sm text-gray-500 mb-6">{t('empty.description')}</p>
       <Button onClick={onCreateClick} data-testid="empty-state-create-group">
-        Create Group
+        {t('empty.createButton')}
       </Button>
     </div>
   );

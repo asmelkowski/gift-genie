@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -9,15 +10,21 @@ interface GroupsToolbarProps {
   onSortChange: (value: string) => void;
 }
 
-const SORT_OPTIONS = [
-  { value: '-created_at', label: 'Newest first' },
-  { value: 'created_at', label: 'Oldest first' },
-  { value: 'name', label: 'Name (A-Z)' },
-  { value: '-name', label: 'Name (Z-A)' },
-];
+interface SortOption {
+  value: string;
+  label: string;
+}
 
 export function GroupsToolbar({ search, sort, onSearchChange, onSortChange }: GroupsToolbarProps) {
+  const { t } = useTranslation('groups');
   const [inputValue, setInputValue] = useState(search);
+
+  const SORT_OPTIONS: SortOption[] = [
+    { value: '-created_at', label: t('toolbar.sort.newestFirst') },
+    { value: 'created_at', label: t('toolbar.sort.oldestFirst') },
+    { value: 'name', label: t('toolbar.sort.nameAZ') },
+    { value: '-name', label: t('toolbar.sort.nameZA') },
+  ];
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,18 +45,21 @@ export function GroupsToolbar({ search, sort, onSearchChange, onSortChange }: Gr
     [onSortChange]
   );
 
-  const isValidSort = useMemo(() => SORT_OPTIONS.some(opt => opt.value === sort), [sort]);
+  const isValidSort = useMemo(
+    () => SORT_OPTIONS.some(opt => opt.value === sort),
+    [sort, SORT_OPTIONS]
+  );
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="flex-1">
         <Label htmlFor="search" className="sr-only">
-          Search groups
+          {t('toolbar.searchPlaceholder')}
         </Label>
         <Input
           id="search"
           type="text"
-          placeholder="Search groups..."
+          placeholder={t('toolbar.searchPlaceholder')}
           value={inputValue}
           onChange={handleSearchChange}
           maxLength={100}
@@ -57,7 +67,7 @@ export function GroupsToolbar({ search, sort, onSearchChange, onSortChange }: Gr
       </div>
       <div className="sm:w-48">
         <Label htmlFor="sort" className="sr-only">
-          Sort by
+          {t('toolbar.sortLabel')}
         </Label>
         <select
           id="sort"

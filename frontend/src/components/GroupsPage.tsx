@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from './GroupsPage/PageHeader';
 import { GroupsToolbar } from './GroupsPage/GroupsToolbar';
 import { GroupsGrid } from './GroupsPage/GroupsGrid';
@@ -14,6 +15,7 @@ import { isForbiddenError } from '@/lib/errors';
 import { AccessDeniedState } from '@/components/ui/AccessDeniedState';
 
 export function GroupsPage() {
+  const { t } = useTranslation('groups');
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { params, updateParams } = useGroupsParams();
@@ -80,10 +82,7 @@ export function GroupsPage() {
       return (
         <div className="space-y-6">
           <PageHeader onCreateClick={handleCreateClick} />
-          <AccessDeniedState
-            message="You don't have permission to view this group list."
-            onRetry={() => refetch()}
-          />
+          <AccessDeniedState message={t('accessDenied.message')} onRetry={() => refetch()} />
           <CreateGroupDialog isOpen={isDialogOpen} onClose={handleDialogClose} />
         </div>
       );
@@ -122,15 +121,15 @@ export function GroupsPage() {
 
       {groups.length === 0 && params.search ? (
         <div className="text-center py-12">
-          <h3 className="text-lg font-semibold text-foreground mb-2">No groups found</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{t('searchEmpty.title')}</h3>
           <p className="text-muted-foreground mb-4">
-            No groups match "{params.search}". Try a different search term.
+            {t('searchEmpty.description', { search: params.search })}
           </p>
           <button
             onClick={() => updateParams({ search: '' })}
             className="text-primary hover:underline font-medium"
           >
-            Clear search
+            {t('searchEmpty.clearButton')}
           </button>
         </div>
       ) : (
