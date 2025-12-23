@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLoginMutation } from '@/hooks/useLoginMutation';
 
 export function LoginForm() {
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -56,11 +58,11 @@ export function LoginForm() {
         onError: (error: AxiosError) => {
           const status = error.response?.status;
           if (status === 401) {
-            setError('Invalid credentials');
+            setError(t('login.errors.invalidCredentials'));
           } else if (status === 429) {
-            setError('Too many login attempts. Please try again in a moment.');
+            setError(t('login.errors.tooManyAttempts'));
           } else {
-            setError('An unexpected error occurred. Please try again later.');
+            setError(t('login.errors.unexpected'));
           }
         },
       }
@@ -70,7 +72,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t('login.emailLabel')}</Label>
         <Input
           id="email"
           type="email"
@@ -82,7 +84,7 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t('login.passwordLabel')}</Label>
         <Input
           id="password"
           type="password"
@@ -105,7 +107,7 @@ export function LoginForm() {
         disabled={loginMutation.isPending || !isFormValid}
         data-testid="login-submit"
       >
-        {loginMutation.isPending ? 'Logging in...' : 'Login'}
+        {loginMutation.isPending ? t('login.submitting') : t('login.submitButton')}
       </Button>
     </form>
   );

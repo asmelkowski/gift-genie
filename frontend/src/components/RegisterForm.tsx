@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ interface RegisterFormState {
 }
 
 export function RegisterForm() {
+  const { t } = useTranslation('auth');
   const [formState, setFormState] = useState<RegisterFormState>({
     email: '',
     password: '',
@@ -129,7 +131,7 @@ export function RegisterForm() {
           onError: (error: AxiosError) => {
             const status = error.response?.status;
             if (status === 409) {
-              updateFormState({ errors: { email: 'Email already in use' } });
+              updateFormState({ errors: { email: t('register.errors.emailConflict') } });
             } else if (status === 400) {
               // Parse field-specific errors from response
               const responseData = error.response?.data as {
@@ -149,7 +151,7 @@ export function RegisterForm() {
               }
             } else {
               updateFormState({
-                errors: { general: 'An unexpected error occurred. Please try again later.' },
+                errors: { general: t('register.errors.unexpected') },
               });
             }
           },
@@ -162,7 +164,7 @@ export function RegisterForm() {
     <form data-testid="register-form" onSubmit={handleSubmit} className="space-y-4">
       {formState.errors.general && <ErrorMessage message={formState.errors.general} />}
       <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">{t('register.nameLabel')}</Label>
         <Input
           id="name"
           type="text"
@@ -175,7 +177,7 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t('register.emailLabel')}</Label>
         <Input
           id="email"
           type="email"
@@ -188,7 +190,7 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t('register.passwordLabel')}</Label>
         <PasswordInput
           data-testid="register-password"
           value={formState.password}
@@ -205,7 +207,7 @@ export function RegisterForm() {
         data-testid="register-submit"
         disabled={registerMutation.isPending || !isFormValid}
       >
-        {registerMutation.isPending ? 'Registering...' : 'Register'}
+        {registerMutation.isPending ? t('register.submitting') : t('register.submitButton')}
       </Button>
     </form>
   );
