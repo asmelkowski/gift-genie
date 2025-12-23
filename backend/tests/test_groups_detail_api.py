@@ -23,8 +23,13 @@ class InMemoryGroupRepo(GroupRepository):
         self._member_stats[group.id] = (0, 0)  # Default no members
         return group
 
-    async def list_by_admin_user(
-        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
+    async def list_by_user_permissions(
+        self,
+        user_id: str,
+        search: str | None,
+        page: int,
+        page_size: int,
+        sort: str,
     ) -> tuple[list[Group], int]:
         groups = [g for g in self._groups.values() if g.admin_user_id == user_id]
         if search:

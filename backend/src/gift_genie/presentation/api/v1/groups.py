@@ -33,7 +33,7 @@ from gift_genie.infrastructure.database.repositories.groups import GroupReposito
 from gift_genie.infrastructure.database.session import get_async_session
 from gift_genie.presentation.api.dependencies import (
     CurrentUser,
-    get_current_user,
+    CurrentUserObject,
     get_user_permission_repository,
     require_permission,
 )
@@ -133,12 +133,12 @@ async def list_groups(
     page_size: int = Query(10, ge=1, le=100),
     sort: str = Query("-created_at", pattern=r"^-?(created_at|name)$"),
     *,
-    current_user_id: Annotated[str, Depends(get_current_user)],
+    current_user: CurrentUserObject,
     group_repo: Annotated[GroupRepository, Depends(get_group_repository)],
 ) -> PaginatedGroupsResponse:
     try:
         query = ListGroupsQuery(
-            user_id=current_user_id,
+            user_id=current_user.id,
             search=search,
             page=page,
             page_size=page_size,
@@ -147,7 +147,7 @@ async def list_groups(
         use_case = ListUserGroupsUseCase(
             group_repository=group_repo,
         )
-        groups, total = await use_case.execute(query)
+        groups, total = await use_case.execute(query, current_user)
 
         data = [
             GroupSummary(
@@ -164,14 +164,14 @@ async def list_groups(
         return PaginatedGroupsResponse(data=data, meta=meta)
     except ValueError as e:
         logger.warning(
-            "Invalid query parameters in list groups", user_id=current_user_id, error=str(e)
+            "Invalid query parameters in list groups", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(
             status_code=400, detail={"code": "invalid_query_params", "errors": [str(e)]}
         )
     except Exception as e:
         logger.exception(
-            "Unexpected error during list groups", user_id=current_user_id, error=str(e)
+            "Unexpected error during list groups", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(status_code=500, detail={"code": "server_error"})
 

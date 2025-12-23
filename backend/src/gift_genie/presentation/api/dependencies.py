@@ -9,6 +9,7 @@ from gift_genie.application.errors import ForbiddenError
 from gift_genie.application.services.authorization_service import AuthorizationServiceImpl
 from gift_genie.application.use_cases.get_current_user import GetCurrentUserUseCase
 from gift_genie.domain.entities.enums import UserRole
+from gift_genie.domain.entities.user import User
 from gift_genie.domain.interfaces.authorization_service import AuthorizationService
 from gift_genie.domain.interfaces.repositories import (
     DrawRepository,
@@ -225,6 +226,28 @@ async def get_current_admin_user(
         raise HTTPException(status_code=401, detail={"code": "unauthorized"})
 
 
+async def get_current_user_object(
+    current_user_id: Annotated[str, Depends(get_current_user)],
+    user_repo: Annotated[UserRepository, Depends(get_user_repository)],
+) -> User:
+    """Get full User object for the current authenticated user.
+
+    Similar to get_current_user but returns the full User entity instead of just the ID.
+    Useful when endpoints need access to user role or other user properties.
+
+    Raises:
+        HTTPException: 401 if user not found
+    """
+    query = GetCurrentUserQuery(user_id=current_user_id)
+    use_case = GetCurrentUserUseCase(user_repository=user_repo)
+    try:
+        user = await use_case.execute(query)
+        return user
+    except Exception:
+        raise HTTPException(status_code=401, detail={"code": "unauthorized"})
+
+
 # Type alias for dependency injection
 CurrentUser = Annotated[str, Depends(get_current_user)]
 CurrentAdminUser = Annotated[str, Depends(get_current_admin_user)]
+CurrentUserObject = Annotated[User, Depends(get_current_user_object)]

@@ -3,15 +3,17 @@ from __future__ import annotations
 from typing import Any, Optional
 from uuid import UUID
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, String, and_, cast, func, select
 from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.functions import concat
 
 from gift_genie.domain.entities.group import Group
 from gift_genie.domain.interfaces.repositories import GroupRepository
 from gift_genie.infrastructure.database.models.group import GroupModel
 from gift_genie.infrastructure.database.models.member import MemberModel
+from gift_genie.infrastructure.database.models.user_permission import UserPermissionModel
 
 
 class GroupRepositorySqlAlchemy(GroupRepository):
@@ -41,25 +43,44 @@ class GroupRepositorySqlAlchemy(GroupRepository):
         await self._session.refresh(model)
         return self._to_domain(model)
 
-    async def list_by_admin_user(
-        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
+    async def list_by_user_permissions(
+        self,
+        user_id: str,
+        search: str | None,
+        page: int,
+        page_size: int,
+        sort: str,
     ) -> tuple[list[Group], int]:
-        # Build base where clause
-        base_where = GroupModel.admin_user_id == UUID(user_id)
-        if search:
-            base_where &= func.lower(GroupModel.name).contains(func.lower(search))
+        """List groups where user has groups:read permission.
 
-        # Get total count
-        count_stmt = select(func.count()).select_from(GroupModel).where(base_where)
+        Uses permission pattern: 'groups:read:{group_id}'
+        """
+        # Build base query with JOIN to user_permissions
+        # Permission format: 'groups:read:{group_id}'
+        # Use concat with cast to construct permission pattern
+        expected_permission = concat("groups:read:", cast(GroupModel.id, String))
+        base_query = select(GroupModel).join(
+            UserPermissionModel,
+            and_(
+                UserPermissionModel.user_id == UUID(user_id),
+                UserPermissionModel.permission_code == expected_permission,
+            ),
+        )
+
+        # Apply search filter
+        if search:
+            base_query = base_query.where(func.lower(GroupModel.name).contains(func.lower(search)))
+
+        # Count total (use subquery for accuracy)
+        count_stmt = select(func.count()).select_from(base_query.subquery())
         count_res = await self._session.execute(count_stmt)
         total = count_res.scalar_one() or 0
 
-        # Build query with sorting and pagination
-        query = select(GroupModel).where(base_where)
-        query = self._apply_sort(query, sort)
+        # Apply sort and pagination
+        query = self._apply_sort(base_query, sort)
         query = query.limit(page_size).offset((page - 1) * page_size)
 
-        # Execute and map
+        # Execute
         res = await self._session.execute(query)
         models = res.scalars().all()
         groups = [self._to_domain(model) for model in models]

@@ -31,8 +31,13 @@ class UserRepository(Protocol):
 class GroupRepository(Protocol):
     async def create(self, group: Group) -> Group: ...
 
-    async def list_by_admin_user(
-        self, user_id: str, search: str | None, page: int, page_size: int, sort: str
+    async def list_by_user_permissions(
+        self,
+        user_id: str,
+        search: str | None,
+        page: int,
+        page_size: int,
+        sort: str,
     ) -> tuple[list[Group], int]: ...
 
     async def list_all(
