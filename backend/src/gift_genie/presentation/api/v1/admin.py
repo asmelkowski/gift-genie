@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Annotated
-from collections.abc import AsyncGenerator
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from gift_genie.application.dto.grant_permission_command import GrantPermissionCommand
 from gift_genie.application.dto.revoke_permission_command import RevokePermissionCommand
@@ -27,15 +25,14 @@ from gift_genie.domain.interfaces.repositories import (
     PermissionRepository,
     UserPermissionRepository,
 )
-from gift_genie.infrastructure.database.session import get_async_session
-from gift_genie.infrastructure.database.repositories.permissions import (
-    PermissionRepositorySqlAlchemy,
-)
+from gift_genie.domain.services.permission_validator import PermissionValidator
 from gift_genie.presentation.api.dependencies import (
     get_current_admin_user,
     get_user_repository,
     get_group_repository,
     get_user_permission_repository,
+    get_permission_repository,
+    get_permission_validator,
 )
 from gift_genie.presentation.api.v1.shared import PaginationMeta
 
@@ -105,18 +102,6 @@ class UserPermissionResponse(BaseModel):
 
 
 # =====================
-# Dependency: PermissionRepository
-# =====================
-
-
-async def get_permission_repository(
-    session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> AsyncGenerator[PermissionRepository, None]:
-    """Dependency to provide PermissionRepository."""
-    yield PermissionRepositorySqlAlchemy(session)
-
-
-# =====================
 # Permission Endpoints
 # =====================
 
@@ -132,7 +117,7 @@ async def grant_permission(
     *,
     admin_id: Annotated[str, Depends(get_current_admin_user)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
-    permission_repo: Annotated[PermissionRepository, Depends(get_permission_repository)],
+    permission_validator: Annotated[PermissionValidator, Depends(get_permission_validator)],
     user_permission_repo: Annotated[
         UserPermissionRepository, Depends(get_user_permission_repository)
     ],
@@ -172,8 +157,8 @@ async def grant_permission(
 
         use_case = GrantPermissionUseCase(
             user_repository=user_repo,
-            permission_repository=permission_repo,
             user_permission_repository=user_permission_repo,
+            permission_validator=permission_validator,
         )
 
         user_permission = await use_case.execute(command)

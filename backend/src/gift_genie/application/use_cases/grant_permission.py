@@ -9,10 +9,10 @@ from gift_genie.application.errors import ForbiddenError, NotFoundError
 from gift_genie.domain.entities.enums import UserRole
 from gift_genie.domain.entities.user_permission import UserPermission
 from gift_genie.domain.interfaces.repositories import (
-    PermissionRepository,
     UserPermissionRepository,
     UserRepository,
 )
+from gift_genie.domain.services.permission_validator import PermissionValidator
 
 
 @dataclass(slots=True)
@@ -27,8 +27,8 @@ class GrantPermissionUseCase:
     """
 
     user_repository: UserRepository
-    permission_repository: PermissionRepository
     user_permission_repository: UserPermissionRepository
+    permission_validator: PermissionValidator
 
     async def execute(self, command: GrantPermissionCommand) -> UserPermission:
         """Grant a permission to a user.
@@ -54,10 +54,14 @@ class GrantPermissionUseCase:
         if not target_user:
             raise NotFoundError(f"User '{command.target_user_id}' not found")
 
-        # 3. Verify permission exists
-        permission = await self.permission_repository.get_by_code(command.permission_code)
-        if not permission:
-            raise NotFoundError(f"Permission '{command.permission_code}' not found")
+        # 3. Validate permission code
+        validation_result = await self.permission_validator.validate_permission_code(
+            command.permission_code
+        )
+        if not validation_result.is_valid:
+            raise NotFoundError(
+                f"Permission '{command.permission_code}' not found: {validation_result.error_message}"
+            )
 
         # 4. Grant permission (idempotent via repository logic)
         user_permission = await self.user_permission_repository.grant_permission(
