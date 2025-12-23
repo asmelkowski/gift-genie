@@ -1,1 +1,88 @@
-{}
+{
+  "header": {
+    "breadcrumb": {
+      "groups": "Grupy",
+      "members": "Członkowie"
+    },
+    "title": "Członkowie",
+    "subtitle": "Zarządzaj członkami w tej grupie",
+    "addButton": "Dodaj członka"
+  },
+  "toolbar": {
+    "filterLabel": "Filtruj członków według statusu aktywności",
+    "filterAll": "Wszyscy",
+    "filterActive": "Aktywni",
+    "filterInactive": "Nieaktywni",
+    "searchPlaceholder": "Szukaj po nazwie lub e-mailu...",
+    "searchAriaLabel": "Szukaj członków",
+    "clearSearchAriaLabel": "Wyczyść wyszukiwanie",
+    "sortLabel": "Sortuj członków",
+    "sort": {
+      "nameAZ": "Nazwa (A-Z)",
+      "nameZA": "Nazwa (Z-A)",
+      "newestFirst": "Najnowsze pierwsze",
+      "oldestFirst": "Najstarsze pierwsze"
+    }
+  },
+  "empty": {
+    "title": "Nie masz jeszcze żadnych członków",
+    "description": "Dodaj członków do swojej grupy, aby rozpocząć organizowanie wymiany prezentów",
+    "addButton": "Dodaj członka"
+  },
+  "searchEmpty": {
+    "title": "Nie znaleziono członków",
+    "descriptionSearch": "Żaden członek nie pasuje do \"{{search}}\".",
+    "descriptionFilters": "Żaden członek nie pasuje do wybranych filtrów.",
+    "clearButton": "Wyczyść filtry"
+  },
+  "error": {
+    "title": "Błąd wczytywania członków",
+    "message": "Nie udało się wczytać członków. Spróbuj ponownie.",
+    "retryButton": "Spróbuj ponownie"
+  },
+  "accessDenied": {
+    "message": "Nie masz uprawnień do wyświetlenia listy członków tej grupy."
+  },
+  "dialog": {
+    "addTitle": "Dodaj członka",
+    "editTitle": "Edytuj członka",
+    "pendingDrawTitle": "Nie można dezaktywować członka",
+    "pendingDrawMessage": "Nie można dezaktywować tego członka, ponieważ bierze udział w oczekującym losowaniu. Najpierw sfinalizuj lub usuń losowanie.",
+    "pendingDrawOkButton": "OK"
+  },
+  "form": {
+    "nameLabel": "Nazwa",
+    "nameLabelRequired": "Nazwa *",
+    "namePlaceholder": "Wpisz nazwę członka",
+    "emailLabel": "E-mail (opcjonalnie)",
+    "emailPlaceholder": "Wpisz e-mail członka",
+    "activeCheckboxLabel": "Aktywny członek",
+    "activeCheckboxHelpText": "Nieaktywni członkowie są wykluczeni z losowań",
+    "cancelButton": "Anuluj",
+    "saveButton": "Zapisz zmiany",
+    "addButton": "Dodaj członka",
+    "savingButton": "Zapisywanie...",
+    "errors": {
+      "nameRequired": "Nazwa jest wymagana",
+      "nameTooLong": "Nazwa musi mieć maksymalnie 100 znaków",
+      "emailInvalid": "Wpisz prawidłowy adres e-mail",
+      "nameConflict": "Ta nazwa jest już używana przez innego członka",
+      "emailConflict": "Ten e-mail jest już używany przez innego członka",
+      "cannotDeactivate": "Nie można dezaktywować tego członka, ponieważ bierze udział w oczekującym losowaniu. Najpierw sfinalizuj lub usuń losowanie."
+    }
+  },
+  "card": {
+    "statusActive": "Aktywny",
+    "statusInactive": "Nieaktywny",
+    "emailLabel": "E-mail",
+    "noEmailProvided": "Nie podano e-maila",
+    "createdLabel": "Utworzono",
+    "editAriaLabel": "Edytuj członka {{name}}",
+    "deleteAriaLabel": "Usuń członka {{name}}",
+    "deleteConfirmTitle": "Na pewno chcesz usunąć {{name}}? Spowoduje to również usunięcie wszystkich reguł wykluczenia dotyczących tego członka. Tej czynności nie można cofnąć.",
+    "deleteConfirmCancel": "Anuluj",
+    "deleteConfirmDelete": "Usuń",
+    "cancelDeleteAriaLabel": "Anuluj usunięcie {{name}}",
+    "confirmDeleteAriaLabel": "Potwierdź usunięcie {{name}}"
+  }
+}

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 interface PageHeaderProps {
@@ -9,6 +10,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ groupName, groupId, onAddClick }: PageHeaderProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation('members');
 
   return (
     <div data-testid="members-page-header">
@@ -17,7 +19,7 @@ export function PageHeader({ groupName, groupId, onAddClick }: PageHeaderProps) 
           onClick={() => navigate('/app/groups')}
           className="text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
         >
-          Groups
+          {t('header.breadcrumb.groups')}
         </button>
         <span className="text-gray-400" aria-hidden="true">
           /
@@ -32,16 +34,16 @@ export function PageHeader({ groupName, groupId, onAddClick }: PageHeaderProps) 
           /
         </span>
         <span className="text-gray-600" aria-current="page">
-          Members
+          {t('header.breadcrumb.members')}
         </span>
       </nav>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Members</h1>
-          <p className="text-gray-600 mt-1">Manage members in this group</p>
+          <h1 className="text-3xl font-bold text-foreground">{t('header.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('header.subtitle')}</p>
         </div>
-        <Button onClick={onAddClick} className="mt-4 sm:mt-0" aria-label="Add a new member">
-          Add Member
+        <Button onClick={onAddClick} className="mt-4 sm:mt-0" aria-label={t('header.addButton')}>
+          {t('header.addButton')}
         </Button>
       </div>
     </div>

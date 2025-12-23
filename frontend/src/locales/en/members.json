@@ -1,1 +1,88 @@
-{}
+{
+  "header": {
+    "breadcrumb": {
+      "groups": "Groups",
+      "members": "Members"
+    },
+    "title": "Members",
+    "subtitle": "Manage members in this group",
+    "addButton": "Add Member"
+  },
+  "toolbar": {
+    "filterLabel": "Filter members by active status",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterInactive": "Inactive",
+    "searchPlaceholder": "Search by name or email...",
+    "searchAriaLabel": "Search members",
+    "clearSearchAriaLabel": "Clear search",
+    "sortLabel": "Sort members",
+    "sort": {
+      "nameAZ": "Name (A-Z)",
+      "nameZA": "Name (Z-A)",
+      "newestFirst": "Newest First",
+      "oldestFirst": "Oldest First"
+    }
+  },
+  "empty": {
+    "title": "No members yet",
+    "description": "Add members to your group to start organizing gift exchanges",
+    "addButton": "Add Member"
+  },
+  "searchEmpty": {
+    "title": "No members found",
+    "descriptionSearch": "No members match \"{{search}}\".",
+    "descriptionFilters": "No members match the selected filters.",
+    "clearButton": "Clear filters"
+  },
+  "error": {
+    "title": "Error loading members",
+    "message": "Failed to load members. Please try again.",
+    "retryButton": "Retry"
+  },
+  "accessDenied": {
+    "message": "You don't have permission to view members of this group."
+  },
+  "dialog": {
+    "addTitle": "Add Member",
+    "editTitle": "Edit Member",
+    "pendingDrawTitle": "Cannot Deactivate Member",
+    "pendingDrawMessage": "Cannot deactivate this member because they are part of a pending draw. Please finalize or delete the draw first.",
+    "pendingDrawOkButton": "OK"
+  },
+  "form": {
+    "nameLabel": "Name",
+    "nameLabelRequired": "Name *",
+    "namePlaceholder": "Enter member name",
+    "emailLabel": "Email (optional)",
+    "emailPlaceholder": "Enter member email",
+    "activeCheckboxLabel": "Active member",
+    "activeCheckboxHelpText": "Inactive members are excluded from draws",
+    "cancelButton": "Cancel",
+    "saveButton": "Save Changes",
+    "addButton": "Add Member",
+    "savingButton": "Saving...",
+    "errors": {
+      "nameRequired": "Name is required",
+      "nameTooLong": "Name must be 100 characters or less",
+      "emailInvalid": "Please enter a valid email address",
+      "nameConflict": "This name is already used by another member",
+      "emailConflict": "This email is already used by another member",
+      "cannotDeactivate": "Cannot deactivate this member because they are part of a pending draw. Please finalize or delete the draw first."
+    }
+  },
+  "card": {
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "emailLabel": "Email",
+    "noEmailProvided": "No email provided",
+    "createdLabel": "Created",
+    "editAriaLabel": "Edit member {{name}}",
+    "deleteAriaLabel": "Delete member {{name}}",
+    "deleteConfirmTitle": "Are you sure you want to delete {{name}}? This will also remove any exclusion rules involving this member. This action cannot be undone.",
+    "deleteConfirmCancel": "Cancel",
+    "deleteConfirmDelete": "Delete",
+    "cancelDeleteAriaLabel": "Cancel delete for {{name}}",
+    "confirmDeleteAriaLabel": "Confirm delete for {{name}}"
+  }
+}

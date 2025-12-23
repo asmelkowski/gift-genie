@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { components } from '@/types/schema';
@@ -12,6 +13,7 @@ interface MemberCardProps {
 }
 
 export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
+  const { t } = useTranslation('members');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleDeleteConfirm = () => {
@@ -37,7 +39,7 @@ export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
                   member.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                 }`}
               >
-                {member.is_active ? 'Active' : 'Inactive'}
+                {member.is_active ? t('card.statusActive') : t('card.statusInactive')}
               </span>
             </div>
           </div>
@@ -46,14 +48,14 @@ export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
         <div className="space-y-3 mb-4">
           {member.email ? (
             <div className="text-sm text-gray-600">
-              <span className="font-medium">Email: </span>
+              <span className="font-medium">{t('card.emailLabel')}: </span>
               {member.email}
             </div>
           ) : (
-            <div className="text-sm text-gray-500">No email provided</div>
+            <div className="text-sm text-gray-500">{t('card.noEmailProvided')}</div>
           )}
           <div className="text-sm text-gray-600">
-            <span className="font-medium">Created: </span>
+            <span className="font-medium">{t('card.createdLabel')}: </span>
             {createdDate}
           </div>
         </div>
@@ -65,25 +67,24 @@ export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
             aria-labelledby="delete-confirm-title"
           >
             <p className="text-sm text-foreground mb-3" id="delete-confirm-title">
-              Are you sure you want to delete {member.name}? This will also remove any exclusion
-              rules involving this member. This action cannot be undone.
+              {t('card.deleteConfirmTitle', { name: member.name })}
             </p>
             <div className="flex gap-2">
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 variant="outline"
                 size="sm"
-                aria-label={`Cancel delete for ${member.name}`}
+                aria-label={t('card.cancelDeleteAriaLabel', { name: member.name })}
               >
-                Cancel
+                {t('card.deleteConfirmCancel')}
               </Button>
               <Button
                 onClick={handleDeleteConfirm}
                 variant="destructive"
                 size="sm"
-                aria-label={`Confirm delete for ${member.name}`}
+                aria-label={t('card.confirmDeleteAriaLabel', { name: member.name })}
               >
-                Delete
+                {t('card.deleteConfirmDelete')}
               </Button>
             </div>
           </div>
@@ -94,7 +95,7 @@ export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
               variant="outline"
               size="sm"
               className="flex-1"
-              aria-label={`Edit member ${member.name}`}
+              aria-label={t('card.editAriaLabel', { name: member.name })}
             >
               Edit
             </Button>
@@ -103,7 +104,7 @@ export function MemberCard({ member, onEdit, onDelete }: MemberCardProps) {
               variant="outline"
               size="sm"
               className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-              aria-label={`Delete member ${member.name}`}
+              aria-label={t('card.deleteAriaLabel', { name: member.name })}
             >
               Delete
             </Button>
