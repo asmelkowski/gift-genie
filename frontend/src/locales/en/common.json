@@ -39,5 +39,28 @@
     "next": "Next",
     "page": "Page {{current}} of {{total}}",
     "showing": "Showing {{from}}-{{to}} of {{total}} results"
+  },
+  "navigation": {
+    "groups": "Groups",
+    "members": "Members",
+    "draws": "Draws",
+    "exclusions": "Exclusions",
+    "admin": "Admin",
+    "logout": "Logout"
+  },
+  "appLayout": {
+    "title": "Gift Genie",
+    "toggleTheme": "Switch to {{theme}} theme",
+    "toggleMenu": "Toggle navigation menu",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "groups": "Groups",
+    "members": "Members",
+    "draws": "Draws",
+    "exclusions": "Exclusions",
+    "admin": "Admin"
   }
 }

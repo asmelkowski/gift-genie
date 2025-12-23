@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog } from '@/components/ui/dialog';
 import { ExclusionForm } from './ExclusionForm';
 import type { components } from '@/types/schema';
@@ -25,6 +26,7 @@ export function ExclusionDialog({
   onSubmit,
   isLoading = false,
 }: ExclusionDialogProps) {
+  const { t } = useTranslation('exclusions');
   const [localLoading, setLocalLoading] = useState(false);
 
   const handleSubmit = async (
@@ -42,7 +44,7 @@ export function ExclusionDialog({
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Create Exclusion" testId="exclusion-dialog">
+    <Dialog isOpen={isOpen} onClose={onClose} title={t('dialog.title')} testId="exclusion-dialog">
       <ExclusionForm
         members={members}
         onSubmit={handleSubmit}

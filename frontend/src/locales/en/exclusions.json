@@ -1,1 +1,71 @@
-{}
+{
+  "header": {
+    "title": "Exclusions",
+    "subtitle": "Manage exclusions to prevent specific member pairings in gift draws."
+  },
+  "toolbar": {
+    "filterLabel": "Filter by type",
+    "sortLabel": "Sort by",
+    "filter": {
+      "all": "All",
+      "manual": "Manual",
+      "historical": "Historical"
+    },
+    "sort": {
+      "typeAndName": "Type & Name",
+      "newestFirst": "Newest First",
+      "oldestFirst": "Oldest First",
+      "nameAZ": "Giver Name (A-Z)",
+      "nameZA": "Giver Name (Z-A)"
+    },
+    "addButton": "Add Exclusion",
+    "addDisabledTitle": "Cannot create historical exclusions"
+  },
+  "card": {
+    "typeLabel": "Type",
+    "typeManual": "Manual",
+    "typeHistorical": "Historical",
+    "mutualLabel": "Mutual",
+    "inactiveLabel": "Inactive",
+    "fromLabel": "From:",
+    "toLabel": "To:",
+    "createdLabel": "Created",
+    "deleteButton": "Delete",
+    "systemGeneratedNote": "System-generated from previous draws",
+    "actions": {
+      "delete": "Delete"
+    }
+  },
+  "empty": {
+    "title": "No exclusions found",
+    "description": "Create one to prevent specific member pairings.",
+    "historicalDescription": "No historical exclusions found. Historical exclusions are created automatically from past draws."
+  },
+  "error": {
+    "title": "Failed to load exclusions",
+    "message": "Failed to load exclusions. Please try again.",
+    "retryButton": "Retry"
+  },
+  "accessDenied": {
+    "message": "You don't have permission to view exclusions for this group."
+  },
+  "dialog": {
+    "title": "Create Exclusion"
+  },
+  "form": {
+    "giverLabel": "Giver Member",
+    "giverPlaceholder": "Select giver member",
+    "receiverLabel": "Receiver Member",
+    "receiverPlaceholder": "Select receiver member",
+    "mutualCheckbox": "Mutual exclusion (both directions)",
+    "createButton": "Create Exclusion",
+    "creatingButton": "Creating...",
+    "cancelButton": "Cancel",
+    "errors": {
+      "giverRequired": "Please select a giver member",
+      "receiverRequired": "Please select a receiver member",
+      "sameMember": "Giver and receiver cannot be the same member",
+      "duplicate": "This exclusion already exists"
+    }
+  }
+}

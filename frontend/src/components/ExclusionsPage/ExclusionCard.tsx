@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import type { components } from '@/types/schema';
 
@@ -24,21 +25,22 @@ export function ExclusionCard({
   onDelete,
   isLoading = false,
 }: ExclusionCardProps) {
+  const { t } = useTranslation('exclusions');
   const [expanded, setExpanded] = useState(false);
   const isHistorical = exclusion.exclusion_type === 'historical';
 
-  const exclusionTypeLabel = isHistorical ? 'Historical' : 'Manual';
+  const exclusionTypeLabel = isHistorical ? t('card.typeHistorical') : t('card.typeManual');
   const mutualLabel = exclusion.is_mutual ? '↔' : '→';
 
   const giverStatusBadge = giverMember && !giverMember.is_active && (
     <span className="inline-block ml-1 px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded">
-      Inactive
+      {t('card.inactiveLabel')}
     </span>
   );
 
   const receiverStatusBadge = receiverMember && !receiverMember.is_active && (
     <span className="inline-block ml-1 px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded">
-      Inactive
+      {t('card.inactiveLabel')}
     </span>
   );
 
@@ -54,7 +56,7 @@ export function ExclusionCard({
             </span>
             {exclusion.is_mutual && (
               <span className="text-xs font-semibold px-2 py-1 rounded-full bg-secondary/10 text-secondary">
-                Mutual
+                {t('card.mutualLabel')}
               </span>
             )}
           </div>
@@ -106,7 +108,7 @@ export function ExclusionCard({
           {expanded && !isHistorical && (
             <div className="mt-3 pt-3 border-t border-border space-y-2">
               <div className="text-sm">
-                <div className="text-muted-foreground font-medium mb-1">From:</div>
+                <div className="text-muted-foreground font-medium mb-1">{t('card.fromLabel')}</div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">{giverName}</span>
                   {giverStatusBadge}
@@ -117,7 +119,7 @@ export function ExclusionCard({
               </div>
 
               <div className="text-sm">
-                <div className="text-muted-foreground font-medium mb-1">To:</div>
+                <div className="text-muted-foreground font-medium mb-1">{t('card.toLabel')}</div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">{receiverName}</span>
                   {receiverStatusBadge}
@@ -128,13 +130,13 @@ export function ExclusionCard({
               </div>
 
               <div className="text-xs text-muted-foreground">
-                Created: {new Date(exclusion.created_at).toLocaleDateString()}
+                {t('card.createdLabel')}: {new Date(exclusion.created_at).toLocaleDateString()}
               </div>
             </div>
           )}
 
           <div className="text-xs text-muted-foreground px-2">
-            Created: {new Date(exclusion.created_at).toLocaleDateString()}
+            {t('card.createdLabel')}: {new Date(exclusion.created_at).toLocaleDateString()}
           </div>
         </div>
       </div>
@@ -147,12 +149,12 @@ export function ExclusionCard({
           disabled={isLoading}
           className="w-full"
         >
-          Delete
+          {t('card.deleteButton')}
         </Button>
       )}
       {exclusion.exclusion_type === 'historical' && (
         <div className="text-xs text-muted-foreground italic text-center py-2">
-          System-generated from previous draws
+          {t('card.systemGeneratedNote')}
         </div>
       )}
     </div>

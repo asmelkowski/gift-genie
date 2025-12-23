@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
@@ -23,6 +24,7 @@ function getInitials(name: string): string {
 }
 
 export function UserMenu({ user, onLogout }: UserMenuProps) {
+  const { t } = useTranslation('common');
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -95,7 +97,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
                 role="menuitem"
                 className="block w-full text-left px-4 py-2 text-foreground hover:bg-muted transition-colors"
               >
-                Settings
+                {t('appLayout.settings')}
               </button>
             </li>
             <li className="border-t border-border px-4 py-2">
@@ -107,7 +109,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
                 role="menuitem"
                 className="block w-full text-left px-4 py-2 text-destructive hover:bg-muted transition-colors"
               >
-                Logout
+                {t('appLayout.logout')}
               </button>
             </li>
           </ul>

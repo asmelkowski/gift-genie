@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
@@ -16,23 +17,27 @@ export default function NotificationResultDialog({
   onClose,
   result,
 }: NotificationResultDialogProps) {
+  const { t } = useTranslation('draws');
+
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Notifications Sent">
+    <Dialog isOpen={isOpen} onClose={onClose} title={t('notifyResult.title')}>
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <CheckCircle className="w-6 h-6 text-green-600" />
-          <span className="font-semibold text-foreground">✓ Sent: {result.sent} notifications</span>
+          <span className="font-semibold text-foreground">
+            {t('notifyResult.sentMessage', { count: result.sent })}
+          </span>
         </div>
         {result.skipped > 0 && (
           <div>
             <p className="font-semibold text-foreground">
-              ⊘ Skipped: {result.skipped} members (no email)
+              {t('notifyResult.skippedMessage', { count: result.skipped })}
             </p>
           </div>
         )}
         <div className="flex gap-3 justify-end pt-4">
           <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700">
-            Close
+            {t('notifyResult.closeButton')}
           </Button>
         </div>
       </div>

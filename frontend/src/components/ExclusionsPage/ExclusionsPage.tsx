@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useExclusionsQuery } from '@/hooks/useExclusionsQuery';
 import { useMembersQuery } from '@/hooks/useMembersQuery';
@@ -18,6 +19,7 @@ import type { components } from '@/types/schema';
 type ExclusionType = components['schemas']['ExclusionType'];
 
 export function ExclusionsPage() {
+  const { t } = useTranslation('exclusions');
   const { groupId } = useParams<{ groupId: string }>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'manual' | 'historical'>('all');
@@ -94,10 +96,8 @@ export function ExclusionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Exclusions</h1>
-        <p className="text-gray-600 mt-2">
-          Manage exclusions to prevent specific member pairings in gift draws.
-        </p>
+        <h1 className="text-3xl font-bold text-foreground">{t('header.title')}</h1>
+        <p className="text-gray-600 mt-2">{t('header.subtitle')}</p>
       </div>
 
       <ExclusionsToolbar
@@ -128,9 +128,7 @@ export function ExclusionsPage() {
       ) : exclusionsWithMembers.length === 0 ? (
         <EmptyState
           message={
-            filterType === 'historical'
-              ? 'No historical exclusions found. Historical exclusions are created automatically from past draws.'
-              : 'No exclusions found. Create one to prevent specific member pairings.'
+            filterType === 'historical' ? t('empty.historicalDescription') : t('empty.description')
           }
         />
       ) : (

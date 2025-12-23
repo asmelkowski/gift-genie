@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Copy, Download } from 'lucide-react';
 import { exportToCSV, copyToClipboard } from '@/lib/drawUtils';
@@ -11,6 +12,8 @@ interface ExportActionsProps {
 }
 
 export default function ExportActions({ assignments, drawId, groupName }: ExportActionsProps) {
+  const { t } = useTranslation('draws');
+
   const handleCopyToClipboard = useCallback(async () => {
     try {
       await copyToClipboard(assignments, groupName);
@@ -32,11 +35,11 @@ export default function ExportActions({ assignments, drawId, groupName }: Export
     <div className="flex gap-2 mt-4 sm:mt-0">
       <Button variant="outline" onClick={handleCopyToClipboard} disabled={assignments.length === 0}>
         <Copy className="w-4 h-4 mr-2" />
-        Copy
+        {t('results.export.copyButton')}
       </Button>
       <Button variant="outline" onClick={handleExportCSV} disabled={assignments.length === 0}>
         <Download className="w-4 h-4 mr-2" />
-        CSV
+        {t('results.export.csvButton')}
       </Button>
     </div>
   );

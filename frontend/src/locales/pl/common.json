@@ -39,5 +39,28 @@
     "next": "Następna",
     "page": "Strona {{current}} z {{total}}",
     "showing": "Pokazuje {{from}}-{{to}} z {{total}} wyników"
+  },
+  "navigation": {
+    "groups": "Grupy",
+    "members": "Członkowie",
+    "draws": "Losowania",
+    "exclusions": "Wyłączenia",
+    "admin": "Administrator",
+    "logout": "Wyloguj się"
+  },
+  "appLayout": {
+    "title": "Gift Genie",
+    "toggleTheme": "Przełącz na tryb {{theme}}",
+    "toggleMenu": "Przełącz menu nawigacji",
+    "settings": "Ustawienia",
+    "logout": "Wyloguj się"
+  },
+  "breadcrumbs": {
+    "home": "Strona główna",
+    "groups": "Grupy",
+    "members": "Członkowie",
+    "draws": "Losowania",
+    "exclusions": "Wyłączenia",
+    "admin": "Administrator"
   }
 }

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Zap, Mail } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function DrawCard({
   onDelete,
   isLoading,
 }: DrawCardProps) {
+  const { t } = useTranslation('draws');
   const navigate = useNavigate();
 
   const handleExecute = useCallback(async () => {
@@ -55,13 +57,17 @@ export default function DrawCard({
         {draw.formattedFinalizedAt && (
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4" />
-            <span>Finalized: {draw.formattedFinalizedAt}</span>
+            <span>
+              {t('card.finalizedLabel')}: {draw.formattedFinalizedAt}
+            </span>
           </div>
         )}
         {draw.formattedNotificationSentAt && (
           <div className="flex items-center gap-2">
             <Mail className="w-4 h-4" />
-            <span>Notified: {draw.formattedNotificationSentAt}</span>
+            <span>
+              {t('card.notifiedLabel')}: {draw.formattedNotificationSentAt}
+            </span>
           </div>
         )}
       </div>
@@ -72,24 +78,24 @@ export default function DrawCard({
         {draw.canExecute && (
           <Button size="sm" variant="outline" onClick={handleExecute} disabled={isLoading}>
             <Zap className="w-4 h-4 mr-2" />
-            Execute
+            {t('card.actions.execute')}
           </Button>
         )}
         {draw.canFinalize && (
           <Button size="sm" variant="outline" onClick={() => onFinalize(draw)}>
             <CheckCircle className="w-4 h-4 mr-2" />
-            Finalize
+            {t('card.actions.finalize')}
           </Button>
         )}
         {draw.canNotify && (
           <Button size="sm" variant="outline" onClick={() => onNotify(draw)}>
             <Mail className="w-4 h-4 mr-2" />
-            Notify
+            {t('card.actions.notify')}
           </Button>
         )}
         {draw.canViewResults && (
           <Button size="sm" variant="outline" onClick={handleViewResults}>
-            View Results
+            {t('card.actions.viewResults')}
           </Button>
         )}
         {draw.canDelete && (
@@ -99,7 +105,7 @@ export default function DrawCard({
             onClick={() => onDelete(draw.id)}
             className="text-red-600 hover:text-red-700"
           >
-            Delete
+            {t('card.actions.delete')}
           </Button>
         )}
       </div>
@@ -108,18 +114,20 @@ export default function DrawCard({
 }
 
 function DrawLifecycleStepper({ draw }: { draw: DrawViewModel }) {
+  const { t } = useTranslation('draws');
+
   const steps = [
-    { label: 'Created', completed: true },
+    { label: t('card.lifecycle.created'), completed: true },
     {
-      label: 'Executed',
+      label: t('card.lifecycle.executed'),
       completed: draw.lifecycleStep !== 'created',
     },
     {
-      label: 'Finalized',
+      label: t('card.lifecycle.finalized'),
       completed: draw.lifecycleStep === 'finalized' || draw.lifecycleStep === 'notified',
     },
     {
-      label: 'Notified',
+      label: t('card.lifecycle.notified'),
       completed: draw.lifecycleStep === 'notified',
     },
   ];

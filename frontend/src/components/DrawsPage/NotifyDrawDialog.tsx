@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -19,6 +20,7 @@ export default function NotifyDrawDialog({
   draw,
   isLoading,
 }: NotifyDrawDialogProps) {
+  const { t } = useTranslation('draws');
   const [resend, setResend] = useState(false);
 
   useEffect(() => {
@@ -26,9 +28,9 @@ export default function NotifyDrawDialog({
   }, [isOpen]);
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Send Notifications">
+    <Dialog isOpen={isOpen} onClose={onClose} title={t('notify.title')}>
       <div className="space-y-4">
-        <p>Members will receive email notifications with their assignments.</p>
+        <p>{t('notify.confirmMessage')}</p>
 
         {draw.isNotified && (
           <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
@@ -42,7 +44,7 @@ export default function NotifyDrawDialog({
                 className="mt-1"
               />
               <Label htmlFor="resend" className="text-sm text-gray-700 cursor-pointer">
-                Resend to all members (notifications were previously sent)
+                {t('notify.resendCheckbox')}
               </Label>
             </div>
           </div>
@@ -50,14 +52,14 @@ export default function NotifyDrawDialog({
 
         <div className="flex gap-3 justify-end pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
+            {t('notify.cancelButton')}
           </Button>
           <Button
             onClick={() => onConfirm(resend)}
             disabled={isLoading}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            {isLoading ? 'Sending...' : 'Send'}
+            {isLoading ? t('notify.sendingButton') : t('notify.sendButton')}
           </Button>
         </div>
       </div>

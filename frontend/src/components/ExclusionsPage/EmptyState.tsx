@@ -1,10 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 interface EmptyStateProps {
   message?: string;
 }
 
-export function EmptyState({
-  message = 'No exclusions found. Create one to prevent specific member pairings.',
-}: EmptyStateProps) {
+export function EmptyState({ message }: EmptyStateProps) {
+  const { t } = useTranslation('exclusions');
+  const displayMessage = message || t('empty.description');
+
   return (
     <div className="text-center py-12">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
@@ -22,7 +25,7 @@ export function EmptyState({
           />
         </svg>
       </div>
-      <p className="text-gray-600">{message}</p>
+      <p className="text-gray-600">{displayMessage}</p>
     </div>
   );
 }

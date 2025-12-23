@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ interface ErrorGuidanceAlertProps {
  * Shows context-specific guidance based on error code
  */
 export default function ErrorGuidanceAlert({ error, errorCode, groupId }: ErrorGuidanceAlertProps) {
+  const { t } = useTranslation('draws');
   const [dismissed, setDismissed] = useState(false);
   const navigate = useNavigate();
 
@@ -29,15 +31,15 @@ export default function ErrorGuidanceAlert({ error, errorCode, groupId }: ErrorG
         // Message mentions a minimum number requirement
         const match = error.match(/at least (\d+)/);
         if (match) {
-          return `You need at least ${match[1]} active members to execute this draw. Try adding more members to your group.`;
+          return t('executeError.noValidConfigWithMinimum', { minimum: match[1] });
         }
       }
 
-      return 'The current group configuration makes it impossible to assign everyone. This usually happens when: constraints eliminate too many valid pairs, you have too many exclusions, or not enough active members.';
+      return t('executeError.noValidConfig');
     }
 
     // Default guidance for unknown errors
-    return 'This usually means there are too many exclusions or not enough members. Try:';
+    return t('executeError.unknownError');
   };
 
   const guidance = getGuidance();
@@ -49,7 +51,7 @@ export default function ErrorGuidanceAlert({ error, errorCode, groupId }: ErrorG
       <div className="flex gap-4">
         <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
         <div className="flex-1">
-          <h3 className="font-semibold text-accent-foreground mb-1">Unable to Execute Draw</h3>
+          <h3 className="font-semibold text-accent-foreground mb-1">{t('executeError.title')}</h3>
           <p className="text-sm text-muted-foreground mb-3">{guidance}</p>
           {showActionButtons && (
             <div className="flex flex-wrap gap-2">
@@ -59,7 +61,7 @@ export default function ErrorGuidanceAlert({ error, errorCode, groupId }: ErrorG
                 onClick={() => navigate(`/app/groups/${groupId}/exclusions`)}
                 className="bg-background hover:bg-muted"
               >
-                Review Exclusions
+                {t('executeError.reviewExclusionsButton')}
               </Button>
               <Button
                 size="sm"
@@ -67,7 +69,7 @@ export default function ErrorGuidanceAlert({ error, errorCode, groupId }: ErrorG
                 onClick={() => navigate(`/app/groups/${groupId}/members`)}
                 className="bg-background hover:bg-muted"
               >
-                Add Members
+                {t('executeError.addMembersButton')}
               </Button>
             </div>
           )}

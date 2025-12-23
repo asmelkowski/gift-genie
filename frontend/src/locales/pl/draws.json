@@ -1,1 +1,134 @@
-{}
+{
+  "header": {
+    "title": "Losowania",
+    "subtitle": "Twórz i zarządzaj losowaniami wymiany prezentów"
+  },
+  "toolbar": {
+    "filterLabel": "Filtruj po statusie",
+    "sortLabel": "Sortuj",
+    "status": {
+      "all": "Wszystkie losowania",
+      "pending": "Oczekujące",
+      "finalized": "Sfinalizowane"
+    },
+    "sort": {
+      "createdNewest": "Utworzono (Najnowsze)",
+      "createdOldest": "Utworzono (Najstarsze)",
+      "finalizedNewest": "Sfinalizowano (Najnowsze)",
+      "finalizedOldest": "Sfinalizowano (Najstarsze)"
+    }
+  },
+  "card": {
+    "statusPending": "Oczekujące",
+    "statusFinalized": "Sfinalizowane",
+    "createdLabel": "Utworzono",
+    "finalizedLabel": "Sfinalizowano",
+    "notifiedLabel": "Powiadomiono",
+    "actions": {
+      "execute": "Wykonaj",
+      "finalize": "Sfinalizuj",
+      "notify": "Powiadom",
+      "viewResults": "Wyświetl wyniki",
+      "delete": "Usuń"
+    },
+    "lifecycle": {
+      "created": "Utworzono",
+      "executed": "Wykonane",
+      "finalized": "Sfinalizowane",
+      "notified": "Powiadomiono"
+    }
+  },
+  "empty": {
+    "title": "Brak losowań",
+    "description": "Utwórz pierwsze losowanie, aby rozpocząć przydzielanie prezentów"
+  },
+  "searchEmpty": {
+    "title": "Nie znaleziono losowań",
+    "description": "Żadne losowania nie pasują do Twojego wyszukiwania. Spróbuj dostosować filtry.",
+    "clearButton": "Wyczyść wyszukiwanie"
+  },
+  "error": {
+    "title": "Błąd podczas ładowania losowań",
+    "retryButton": "Spróbuj ponownie"
+  },
+  "accessDenied": {
+    "message": "Nie masz uprawnień do wyświetlania losowań dla tej grupy."
+  },
+  "execute": {
+    "title": "Wykonaj losowanie",
+    "loadingMessage": "Wykonywanie algorytmu losowania...",
+    "confirmButton": "Wykonaj",
+    "cancelButton": "Anuluj"
+  },
+  "executeError": {
+    "title": "Nie można wykonać losowania",
+    "reviewExclusionsButton": "Przejrzyj wyłączenia",
+    "addMembersButton": "Dodaj członków",
+    "noValidConfig": "Obecna konfiguracja grupy uniemożliwia przydzielenie wszystkich. Zwykle dzieje się tak, gdy: ograniczenia eliminują zbyt wiele ważnych par, masz zbyt wiele wyłączeń lub za mało aktywnych członków.",
+    "noValidConfigWithMinimum": "Potrzebujesz co najmniej {{minimum}} aktywnych członków, aby wykonać to losowanie. Spróbuj dodać więcej członków do grupy.",
+    "unknownError": "Zwykle oznacza to, że masz zbyt wiele wyłączeń lub za mało członków. Spróbuj:"
+  },
+  "finalize": {
+    "title": "Sfinalizować losowanie?",
+    "confirmMessage": "Po sfinalizowaniu to losowanie staje się niezmienne i nie można go modyfikować.",
+    "warningMessage": "Ta akcja nie może być cofnięta.",
+    "confirmButton": "Potwierdź",
+    "finalizingButton": "Finalizowanie...",
+    "cancelButton": "Anuluj"
+  },
+  "notify": {
+    "title": "Wyślij powiadomienia",
+    "confirmMessage": "Członkowie otrzymają powiadomienia e-mail z ich przydzieleniami.",
+    "resendCheckbox": "Wyślij ponownie do wszystkich członków (powiadomienia zostały wcześniej wysłane)",
+    "sendButton": "Wyślij",
+    "sendingButton": "Wysyłanie...",
+    "cancelButton": "Anuluj"
+  },
+  "notifyResult": {
+    "title": "Powiadomienia wysłane",
+    "sentLabel": "Wysłane",
+    "sentMessage": "✓ Wysłane: {{count}} powiadomień",
+    "skippedLabel": "Pominięte",
+    "skippedMessage": "⊘ Pominięte: {{count}} członków (brak e-maila)",
+    "closeButton": "Zamknij"
+  },
+  "results": {
+    "pageTitle": "Wyniki losowania",
+    "subtitle": "{{groupName}} - Losowanie #{{drawId}}",
+    "viewDetailsButton": "Wyświetl wyniki losowania",
+    "spoilerWarning": "⚠️ Może zepsuć zabawę!",
+    "previewMode": "Tryb podglądu: Te wyniki nie są jeszcze sfinalizowane. Możesz je przejrzeć przed sfinalizowaniem losowania.",
+    "information": {
+      "title": "Informacje o losowaniu",
+      "statusLabel": "Status:",
+      "statusPending": "Oczekujące na sfinalizowanie",
+      "statusFinalized": "Sfinalizowane",
+      "createdLabel": "Utworzono:",
+      "finalizedLabel": "Sfinalizowano:"
+    },
+    "notification": {
+      "title": "Status powiadomienia",
+      "sentLabel": "Wysłane",
+      "notSentLabel": "Jeszcze nie wysłane"
+    },
+    "assignments": {
+      "title": "Przydzielenia:",
+      "giverHeader": "Dający",
+      "receiverHeader": "Odbierający",
+      "searchPlaceholder": "Szukaj po imieniu dającego lub odbierającego...",
+      "sortLabel": "Sortuj",
+      "sort": {
+        "giverAsc": "Dający (A-Z)",
+        "giverDesc": "Dający (Z-A)",
+        "receiverAsc": "Odbierający (A-Z)",
+        "receiverDesc": "Odbierający (Z-A)"
+      },
+      "noResults": "Żadne przydzielenia nie pasują do Twojego wyszukiwania",
+      "noAssignments": "Nie znaleziono przydzielań"
+    },
+    "export": {
+      "copyButton": "Kopiuj",
+      "csvButton": "CSV"
+    }
+  }
+}

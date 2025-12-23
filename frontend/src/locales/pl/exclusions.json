@@ -1,1 +1,71 @@
-{}
+{
+  "header": {
+    "title": "Wyłączenia",
+    "subtitle": "Zarządzaj wyłączeniami, aby zapobiec określonym parowaniom członków w losowaniach prezentów."
+  },
+  "toolbar": {
+    "filterLabel": "Filtruj po typie",
+    "sortLabel": "Sortuj",
+    "filter": {
+      "all": "Wszystkie",
+      "manual": "Ręczne",
+      "historical": "Historyczne"
+    },
+    "sort": {
+      "typeAndName": "Typ i nazwa",
+      "newestFirst": "Najnowsze najpierw",
+      "oldestFirst": "Najstarsze najpierw",
+      "nameAZ": "Imię dającego (A-Z)",
+      "nameZA": "Imię dającego (Z-A)"
+    },
+    "addButton": "Dodaj wyłączenie",
+    "addDisabledTitle": "Nie można tworzyć historycznych wyłączeń"
+  },
+  "card": {
+    "typeLabel": "Typ",
+    "typeManual": "Ręczne",
+    "typeHistorical": "Historyczne",
+    "mutualLabel": "Wzajemne",
+    "inactiveLabel": "Nieaktywny",
+    "fromLabel": "Od:",
+    "toLabel": "Do:",
+    "createdLabel": "Utworzono",
+    "deleteButton": "Usuń",
+    "systemGeneratedNote": "Wygenerowane przez system na podstawie poprzednich losowań",
+    "actions": {
+      "delete": "Usuń"
+    }
+  },
+  "empty": {
+    "title": "Nie znaleziono wyłączeń",
+    "description": "Utwórz jedno, aby zapobiec określonym parowaniom członków.",
+    "historicalDescription": "Nie znaleziono historycznych wyłączeń. Historyczne wyłączenia są tworzone automatycznie na podstawie poprzednich losowań."
+  },
+  "error": {
+    "title": "Błąd podczas ładowania wyłączeń",
+    "message": "Nie udało się załadować wyłączeń. Spróbuj ponownie.",
+    "retryButton": "Spróbuj ponownie"
+  },
+  "accessDenied": {
+    "message": "Nie masz uprawnień do wyświetlania wyłączeń dla tej grupy."
+  },
+  "dialog": {
+    "title": "Utwórz wyłączenie"
+  },
+  "form": {
+    "giverLabel": "Członek dający",
+    "giverPlaceholder": "Wybierz członka dającego",
+    "receiverLabel": "Członek odbierający",
+    "receiverPlaceholder": "Wybierz członka odbierającego",
+    "mutualCheckbox": "Wyłączenie wzajemne (oba kierunki)",
+    "createButton": "Utwórz wyłączenie",
+    "creatingButton": "Tworzenie...",
+    "cancelButton": "Anuluj",
+    "errors": {
+      "giverRequired": "Proszę wybrać członka dającego",
+      "receiverRequired": "Proszę wybrać członka odbierającego",
+      "sameMember": "Dający i odbierający nie mogą być tym samym członkiem",
+      "duplicate": "To wyłączenie już istnieje"
+    }
+  }
+}
