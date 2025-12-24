@@ -19,7 +19,7 @@ export function LoginForm() {
 
   useEffect(() => {
     if (loginMutation.isSuccess) {
-      navigate('/app/groups');
+      navigate('/groups');
     }
   }, [loginMutation.isSuccess, navigate]);
 

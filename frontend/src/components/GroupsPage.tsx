@@ -35,7 +35,7 @@ export function GroupsPage() {
 
   const handleGroupClick = useCallback(
     (groupId: string) => {
-      navigate(`/app/groups/${groupId}`);
+      navigate(`/groups/${groupId}`);
     },
     [navigate]
   );

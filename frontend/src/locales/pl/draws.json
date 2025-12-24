@@ -1,7 +1,8 @@
 {
   "header": {
     "title": "Losowania",
-    "subtitle": "Twórz i zarządzaj losowaniami wymiany prezentów"
+    "subtitle": "Twórz i zarządzaj losowaniami wymiany prezentów",
+    "createButton": "Utwórz losowanie"
   },
   "toolbar": {
     "filterLabel": "Filtruj po statusie",
@@ -21,6 +22,7 @@
   "card": {
     "statusPending": "Oczekujące",
     "statusFinalized": "Sfinalizowane",
+    "title": "Losowanie #{{id}}",
     "createdLabel": "Utworzono",
     "finalizedLabel": "Sfinalizowano",
     "notifiedLabel": "Powiadomiono",
@@ -49,10 +51,14 @@
   },
   "error": {
     "title": "Błąd podczas ładowania losowań",
-    "retryButton": "Spróbuj ponownie"
+    "retryButton": "Spróbuj ponownie",
+    "groupNotFound": "Nie znaleziono grupy"
   },
   "accessDenied": {
     "message": "Nie masz uprawnień do wyświetlania losowań dla tej grupy."
+  },
+  "delete": {
+    "confirmMessage": "Czy na pewno chcesz usunąć to losowanie? Tej operacji nie można cofnąć."
   },
   "execute": {
     "title": "Wykonaj losowanie",
@@ -124,11 +130,12 @@
         "receiverDesc": "Odbierający (Z-A)"
       },
       "noResults": "Żadne przydzielenia nie pasują do Twojego wyszukiwania",
-      "noAssignments": "Nie znaleziono przydzielań"
+      "noAssignments": "Nie znaleziono żadnych przypisań"
     },
     "export": {
       "copyButton": "Kopiuj",
       "csvButton": "CSV"
-    }
+    },
+    "finalizedTitle": "Losowanie sfinalizowane!"
   }
 }

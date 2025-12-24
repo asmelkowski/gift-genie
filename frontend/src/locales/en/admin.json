@@ -1,1 +1,73 @@
-{}
+{
+  "header": {
+    "title": "Admin Dashboard",
+    "subtitle": "Manage users and groups across the platform"
+  },
+  "tabs": {
+    "users": "Users",
+    "groups": "Groups"
+  },
+  "users": {
+    "title": "Users",
+    "searchPlaceholder": "Search users...",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "permissions": "Permissions",
+      "joined": "Joined",
+      "noUsers": "No users found"
+    },
+    "role": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "permissions": {
+      "admin": "All (Admin)"
+    },
+    "actions": {
+      "manage": "Manage"
+    }
+  },
+  "groups": {
+    "title": "Groups",
+    "searchPlaceholder": "Search groups...",
+    "table": {
+      "name": "Name",
+      "adminId": "Admin User ID",
+      "historyEnabled": "History Enabled",
+      "created": "Created",
+      "noGroups": "No groups found",
+      "yes": "Yes",
+      "no": "No"
+    }
+  },
+  "permissionManager": {
+    "title": "Manage Permissions for {{name}}",
+    "grantedCount": "{{count}} permissions granted",
+    "searchPlaceholder": "Search permissions by name, code, or group...",
+    "allGranted": "All permissions granted",
+    "noneGranted": "No permissions granted",
+    "availableSystem": "Available System Permissions",
+    "availableGroup": "{{name}} (Available)",
+    "grantedSystem": "Granted System Permissions"
+  },
+  "grantAccess": {
+    "title": "Grant Group-Specific Access",
+    "selectGroup": "Select Group",
+    "chooseGroup": "Choose a group...",
+    "toGrant": "Permissions to Grant",
+    "alreadyGranted": "Already granted",
+    "grantButton": "Grant",
+    "selected": "Selected",
+    "permission": "Permission",
+    "permissions": "Permissions",
+    "noGroups": "No groups available"
+  },
+  "actions": {
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {{current}} of {{total}}"
+  }
+}

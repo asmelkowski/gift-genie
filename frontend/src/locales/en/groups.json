@@ -32,6 +32,12 @@
   "accessDenied": {
     "message": "You don't have permission to view this group list."
   },
+  "card": {
+    "created": "Created {{date}}",
+    "noHistoricalExclusions": "No historical exclusions",
+    "historicalExclusions": "Historical exclusions: {{count}} draw",
+    "historicalExclusions_plural": "Historical exclusions: {{count}} draws"
+  },
   "create": {
     "title": "Create Group",
     "nameLabel": "Group Name *",
@@ -46,5 +52,18 @@
       "nameTooLong": "Group name must be between 1 and 100 characters",
       "lookbackInvalid": "Lookback must be a positive integer"
     }
+  },
+  "details": {
+    "title": "Group Details",
+    "membersTitle": "Members",
+    "membersDescription": "Manage members in this group",
+    "viewMembersButton": "View Members",
+    "backToGroupsButton": "Back to Groups",
+    "exclusionsTitle": "Exclusions",
+    "exclusionsDescription": "Manage exclusions to prevent specific pairings",
+    "viewExclusionsButton": "View Exclusions",
+    "drawsTitle": "Draws",
+    "drawsDescription": "Create and manage gift exchange draws",
+    "viewDrawsButton": "View Draws"
   }
 }

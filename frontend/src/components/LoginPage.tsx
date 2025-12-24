@@ -9,7 +9,7 @@ export function LoginPage() {
   const { isAuthenticated } = useAuthStore();
 
   if (isAuthenticated()) {
-    return <Navigate to="/app/groups" replace />;
+    return <Navigate to="/groups" replace />;
   }
 
   return (

@@ -5,9 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import { queryClient } from '@/lib/queryClient';
 import { LoginPage } from '@/components/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
-import { HomePage } from '@/pages/HomePage';
 import { GroupsPage } from '@/components/GroupsPage';
-import { GroupDetails } from '@/components/GroupsPage/GroupDetails';
+import GroupDetails from '@/components/GroupsPage/GroupDetails';
 import { MembersPage } from '@/pages/MembersPage';
 import { ExclusionsPage } from '@/pages/ExclusionsPage';
 import DrawsPage from '@/components/DrawsPage/DrawsPage';
@@ -23,7 +22,7 @@ import './App.css';
 
 function Home() {
   const { isAuthenticated } = useAuthStore();
-  return <Navigate to={isAuthenticated() ? '/app/groups' : '/login'} replace />;
+  return <Navigate to={isAuthenticated() ? '/groups' : '/login'} replace />;
 }
 
 const router = createBrowserRouter([
@@ -39,16 +38,9 @@ const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage />,
   },
+
   {
-    path: '/home',
-    element: (
-      <ProtectedRoute>
-        <HomePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/app',
+    path: '/',
     element: (
       <ProtectedRoute>
         <AppLayout />
@@ -87,10 +79,6 @@ const router = createBrowserRouter([
             <AdminDashboard />
           </AdminRoute>
         ),
-      },
-      {
-        path: 'settings',
-        element: <div>Settings Page (To be implemented)</div>,
       },
     ],
   },

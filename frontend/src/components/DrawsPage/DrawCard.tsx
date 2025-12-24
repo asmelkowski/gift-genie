@@ -32,14 +32,16 @@ export default function DrawCard({
   }, [draw, onExecute]);
 
   const handleViewResults = useCallback(() => {
-    navigate(`/app/groups/${groupId}/draws/${draw.id}/results`);
+    navigate(`/groups/${groupId}/draws/${draw.id}/results`);
   }, [groupId, draw.id, navigate]);
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-semibold text-foreground">Draw #{draw.id.slice(0, 8)}</h3>
+          <h3 className="font-semibold text-foreground">
+            {t('card.title', { id: draw.id.slice(0, 8) })}
+          </h3>
           <p className="text-sm text-gray-500">{draw.formattedCreatedAt}</p>
         </div>
         <div

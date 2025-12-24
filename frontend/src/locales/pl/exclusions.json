@@ -49,6 +49,9 @@
   "accessDenied": {
     "message": "Nie masz uprawnień do wyświetlania wyłączeń dla tej grupy."
   },
+  "delete": {
+    "confirmMessage": "Czy na pewno chcesz usunąć to wyłączenie?"
+  },
   "dialog": {
     "title": "Utwórz wyłączenie"
   },

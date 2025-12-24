@@ -50,3 +50,30 @@ const localStorageMock = {
   key: vi.fn(),
 } as Storage;
 global.localStorage = localStorageMock;
+
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      // Mock translations for common keys to match expected values in tests
+      if (key === 'toolbar.sort.nameAZ') return 'Name (A-Z)';
+      if (key === 'toolbar.sort.nameZA') return 'Name (Z-A)';
+      if (key === 'toolbar.sort.newestFirst') return 'Newest First';
+      if (key === 'toolbar.sort.oldestFirst') return 'Oldest First';
+      if (key === 'toolbar.filterAll') return 'All';
+      if (key === 'toolbar.filterActive') return 'Active';
+      if (key === 'toolbar.filterInactive') return 'Inactive';
+      if (key === 'toolbar.searchPlaceholder') return 'Search by name or email...';
+      if (key === 'toolbar.clearSearchAriaLabel') return 'Clear search';
+      return key;
+    },
+    i18n: {
+      changeLanguage: () => Promise.resolve(),
+      language: 'en',
+    },
+  }),
+  initReactI18next: {
+    type: '3rdParty',
+    init: () => {},
+  },
+}));

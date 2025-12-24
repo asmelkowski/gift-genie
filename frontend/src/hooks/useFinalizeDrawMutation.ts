@@ -26,7 +26,7 @@ export const useFinalizeDrawMutation = (groupId: string) => {
       sessionStorage.setItem(`draw-${data.id}-just-finalized`, 'true');
 
       toast.success('Draw finalized successfully!');
-      navigate(`/app/groups/${groupId}/draws/${data.id}/results`);
+      navigate(`/groups/${groupId}/draws/${data.id}/results`);
     },
     onError: (error: AxiosError<{ detail: string }>) => {
       const message = error.response?.data?.detail || 'Failed to finalize draw';

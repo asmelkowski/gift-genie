@@ -301,7 +301,7 @@ test.describe('Permission-Based Group Listing', () => {
     await groupLink.click();
 
     // Wait for navigation to group detail page
-    await userBPage.waitForURL(/\/app\/groups\/[a-f0-9-]+\/?$/, {
+    await userBPage.waitForURL(/\/groups\/[a-f0-9-]+\/?$/, {
       timeout: 5000,
     });
 
@@ -320,7 +320,7 @@ test.describe('Permission-Based Group Listing', () => {
     await viewMembersButton.click();
 
     // Wait for navigation to members page
-    await userBPage.waitForURL(/\/app\/groups\/[a-f0-9-]+\/members/, {
+    await userBPage.waitForURL(/\/groups\/[a-f0-9-]+\/members/, {
       timeout: 5000,
     });
 

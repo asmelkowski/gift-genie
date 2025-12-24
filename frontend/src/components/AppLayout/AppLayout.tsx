@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { useAppLayout } from '@/hooks/useAppLayout';
@@ -8,12 +9,10 @@ import { Sidebar } from './Sidebar';
 import type { NavigationItem } from './Sidebar';
 import { MobileDrawer } from './MobileDrawer';
 
-const NAVIGATION_ITEMS: NavigationItem[] = [
-  { label: 'Groups', path: '/app/groups' },
-  { label: 'Settings', path: '/app/settings' },
-];
-
 export function AppLayout() {
+  const { t } = useTranslation('common');
+
+  const NAVIGATION_ITEMS: NavigationItem[] = [{ label: t('navigation.groups'), path: '/groups' }];
   const location = useLocation();
   const user = useAuthStore(state => state.user);
   const { theme, sidebarOpen, toggleTheme, toggleSidebar, closeSidebar } = useAppLayout();

@@ -4,8 +4,8 @@ export class GroupsPageDebug {
   constructor(public readonly page: Page) {}
 
   async goto() {
-    console.log('[GroupsPage] Navigating to /app/groups');
-    await this.page.goto('/app/groups');
+    console.log('[GroupsPage] Navigating to /groups');
+    await this.page.goto('/groups');
   }
 
   async waitForLoad() {

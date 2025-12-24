@@ -18,7 +18,7 @@ export default function PageHeader({ onCreateClick, isLoading }: PageHeaderProps
         <p className="text-gray-600 mt-1">{t('header.subtitle')}</p>
       </div>
       <Button onClick={onCreateClick} className="mt-4 sm:mt-0" disabled={isLoading}>
-        Create Draw
+        {t('header.createButton')}
       </Button>
     </div>
   );

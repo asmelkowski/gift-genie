@@ -1,1 +1,73 @@
-{}
+{
+  "header": {
+    "title": "Panel Administratora",
+    "subtitle": "Zarządzaj użytkownikami i grupami na platformie"
+  },
+  "tabs": {
+    "users": "Użytkownicy",
+    "groups": "Grupy"
+  },
+  "users": {
+    "title": "Użytkownicy",
+    "searchPlaceholder": "Szukaj użytkowników...",
+    "table": {
+      "name": "Imię i nazwisko",
+      "email": "Email",
+      "role": "Rola",
+      "permissions": "Uprawnienia",
+      "joined": "Dołączył(a)",
+      "noUsers": "Nie znaleziono użytkowników"
+    },
+    "role": {
+      "admin": "Admin",
+      "user": "Użytkownik"
+    },
+    "permissions": {
+      "admin": "Wszystkie (Admin)"
+    },
+    "actions": {
+      "manage": "Zarządzaj"
+    }
+  },
+  "groups": {
+    "title": "Grupy",
+    "searchPlaceholder": "Szukaj grup...",
+    "table": {
+      "name": "Nazwa",
+      "adminId": "ID Administratora",
+      "historyEnabled": "Historia włączona",
+      "created": "Utworzono",
+      "noGroups": "Nie znaleziono grup",
+      "yes": "Tak",
+      "no": "Nie"
+    }
+  },
+  "permissionManager": {
+    "title": "Zarządzaj uprawnieniami dla {{name}}",
+    "grantedCount": "Przyznano uprawnień: {{count}}",
+    "searchPlaceholder": "Szukaj uprawnień po nazwie, kodzie lub grupie...",
+    "allGranted": "Wszystkie uprawnienia przyznane",
+    "noneGranted": "Brak przyznanych uprawnień",
+    "availableSystem": "Dostępne uprawnienia systemowe",
+    "availableGroup": "{{name}} (Dostępne)",
+    "grantedSystem": "Przyznane uprawnienia systemowe"
+  },
+  "grantAccess": {
+    "title": "Przyznaj dostęp do konkretnej grupy",
+    "selectGroup": "Wybierz grupę",
+    "chooseGroup": "Wybierz grupę...",
+    "toGrant": "Uprawnienia do przyznania",
+    "alreadyGranted": "Już przyznano",
+    "grantButton": "Przyznaj",
+    "selected": "Wybrano",
+    "permission": "uprawnienie",
+    "permissions": "uprawnienia",
+    "noGroups": "Brak dostępnych grup"
+  },
+  "actions": {
+    "close": "Zamknij",
+    "previous": "Poprzednia",
+    "next": "Następna",
+    "pageInfo": "Strona {{current}} z {{total}}"
+  }
+}

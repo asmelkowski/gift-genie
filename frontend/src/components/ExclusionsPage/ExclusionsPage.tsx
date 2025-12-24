@@ -82,7 +82,7 @@ export function ExclusionsPage() {
 
   const handleDeleteExclusion = useCallback(
     (exclusionId: string) => {
-      if (window.confirm('Are you sure you want to delete this exclusion?')) {
+      if (window.confirm(t('delete.confirmMessage'))) {
         deleteExclusionMutation.mutate(exclusionId);
       }
     },

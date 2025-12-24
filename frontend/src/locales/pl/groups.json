@@ -32,6 +32,12 @@
   "accessDenied": {
     "message": "Nie masz uprawnień do wyświetlenia tej listy grup."
   },
+  "card": {
+    "created": "Utworzono {{date}}",
+    "noHistoricalExclusions": "Brak wykluczeń historycznych",
+    "historicalExclusions": "Wykluczenia historyczne: {{count}} losowanie",
+    "historicalExclusions_plural": "Wykluczenia historyczne: {{count}} losowań"
+  },
   "create": {
     "title": "Utwórz grupę",
     "nameLabel": "Nazwa grupy *",
@@ -46,5 +52,18 @@
       "nameTooLong": "Nazwa grupy musi mieć od 1 do 100 znaków",
       "lookbackInvalid": "Wstecz musi być liczbą całkowitą dodatnią"
     }
+  },
+  "details": {
+    "title": "Szczegóły grupy",
+    "membersTitle": "Członkowie",
+    "membersDescription": "Zarządzaj członkami w tej grupie",
+    "viewMembersButton": "Wyświetl członków",
+    "backToGroupsButton": "Powrót do grup",
+    "exclusionsTitle": "Wyłączenia",
+    "exclusionsDescription": "Zarządzaj wyłączeniami, aby zapobiec określonym parowaniom",
+    "viewExclusionsButton": "Wyświetl wyłączenia",
+    "drawsTitle": "Losowania",
+    "drawsDescription": "Twórz i zarządzaj losowaniami wymiany prezentów",
+    "viewDrawsButton": "Wyświetl losowania"
   }
 }

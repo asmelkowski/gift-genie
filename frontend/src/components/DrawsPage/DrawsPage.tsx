@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useDrawsQuery } from '@/hooks/useDrawsQuery';
 import { useDrawsParams } from '@/hooks/useDrawsParams';
@@ -28,6 +29,7 @@ import type { components } from '@/types/schema';
 type NotifyDrawResponse = components['schemas']['NotifyDrawResponse'];
 
 export default function DrawsPage() {
+  const { t } = useTranslation('draws');
   const { groupId } = useParams<{ groupId: string }>();
   const { params, updateParams } = useDrawsParams();
 
@@ -60,7 +62,7 @@ export default function DrawsPage() {
   const deleteDrawMutation = useDeleteDrawMutation(groupId!);
 
   if (!groupId) {
-    return <ErrorState error="Group not found" />;
+    return <ErrorState error={t('error.groupNotFound')} />;
   }
 
   const handleCreateDraw = async () => {
@@ -123,7 +125,7 @@ export default function DrawsPage() {
   };
 
   const handleDeleteClick = (drawId: string) => {
-    if (confirm('Are you sure you want to delete this draw? This action cannot be undone.')) {
+    if (confirm(t('delete.confirmMessage'))) {
       deleteDrawMutation.mutate(drawId);
     }
   };
@@ -167,11 +169,11 @@ export default function DrawsPage() {
         ) : drawsQuery.isError ? (
           isForbiddenError(drawsQuery.error) ? (
             <AccessDeniedState
-              message="You don't have permission to view draws for this group."
+              message={t('accessDenied.message')}
               onRetry={() => drawsQuery.refetch()}
             />
           ) : (
-            <ErrorState error="Failed to load draws" />
+            <ErrorState error={t('error.title')} />
           )
         ) : (
           <>

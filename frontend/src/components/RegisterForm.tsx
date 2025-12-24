@@ -50,28 +50,28 @@ export function RegisterForm() {
 
   const validateName = (name: string): string => {
     if (!name.trim()) {
-      return 'Name is required';
+      return t('register.validation.nameRequired');
     }
     return '';
   };
 
   const validateEmail = (email: string): string => {
     if (!email.trim()) {
-      return 'Email is required';
+      return t('register.validation.emailRequired');
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return 'Please enter a valid email address';
+      return t('register.validation.emailInvalid');
     }
     return '';
   };
 
   const validatePassword = (password: string, email: string, name: string): string => {
     if (!password) {
-      return 'Password is required';
+      return t('register.validation.passwordRequired');
     }
     if (password.length < 8) {
-      return 'Password must be at least 8 characters long';
+      return t('register.validation.passwordTooShort');
     }
 
     // Check for at least 3 of 4 character classes
@@ -84,17 +84,17 @@ export function RegisterForm() {
       Boolean
     ).length;
     if (characterClasses < 3) {
-      return 'Password must contain at least 3 of the following: lowercase letter, uppercase letter, digit, symbol';
+      return t('register.validation.passwordComplexity');
     }
 
     // Must not contain email local part or name
     const emailLocalPart = email.split('@')[0]?.toLowerCase();
     const nameLower = name.toLowerCase();
     if (emailLocalPart && password.toLowerCase().includes(emailLocalPart)) {
-      return 'Password must not contain your email username';
+      return t('register.validation.passwordEmailContent');
     }
     if (nameLower && password.toLowerCase().includes(nameLower)) {
-      return 'Password must not contain your name';
+      return t('register.validation.passwordNameContent');
     }
 
     return '';
@@ -147,7 +147,7 @@ export function RegisterForm() {
                 });
                 updateFormState({ errors: fieldErrors });
               } else {
-                updateFormState({ errors: { general: 'Invalid registration data' } });
+                updateFormState({ errors: { general: t('register.errors.invalidData') } });
               }
             } else {
               updateFormState({

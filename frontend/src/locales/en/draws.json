@@ -1,7 +1,8 @@
 {
   "header": {
     "title": "Draws",
-    "subtitle": "Create and manage gift exchange draws"
+    "subtitle": "Create and manage gift exchange draws",
+    "createButton": "Create Draw"
   },
   "toolbar": {
     "filterLabel": "Filter by status",
@@ -21,6 +22,7 @@
   "card": {
     "statusPending": "Pending",
     "statusFinalized": "Finalized",
+    "title": "Draw #{{id}}",
     "createdLabel": "Created",
     "finalizedLabel": "Finalized",
     "notifiedLabel": "Notified",
@@ -49,10 +51,14 @@
   },
   "error": {
     "title": "Failed to load draws",
-    "retryButton": "Retry"
+    "retryButton": "Retry",
+    "groupNotFound": "Group not found"
   },
   "accessDenied": {
     "message": "You don't have permission to view draws for this group."
+  },
+  "delete": {
+    "confirmMessage": "Are you sure you want to delete this draw? This action cannot be undone."
   },
   "execute": {
     "title": "Execute Draw",
@@ -129,6 +135,7 @@
     "export": {
       "copyButton": "Copy",
       "csvButton": "CSV"
-    }
+    },
+    "finalizedTitle": "Draw Finalized!"
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
 
 interface ConfettiOverlayProps {
@@ -7,6 +8,7 @@ interface ConfettiOverlayProps {
 }
 
 export default function ConfettiOverlay({ show, onDismiss }: ConfettiOverlayProps) {
+  const { t } = useTranslation('draws');
   const [isVisible, setIsVisible] = useState(show);
 
   useEffect(() => {
@@ -40,7 +42,9 @@ export default function ConfettiOverlay({ show, onDismiss }: ConfettiOverlayProp
         <div className={`text-6xl ${!prefersReducedMotion ? 'animate-bounce' : ''}`}>
           <Sparkles className="w-16 h-16 text-yellow-400 drop-shadow-lg" />
         </div>
-        <h2 className="text-3xl font-bold text-white drop-shadow-lg">Draw Finalized!</h2>
+        <h2 className="text-3xl font-bold text-white drop-shadow-lg">
+          {t('results.finalizedTitle')}
+        </h2>
       </div>
 
       {!prefersReducedMotion && (

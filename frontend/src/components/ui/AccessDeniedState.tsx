@@ -68,7 +68,7 @@ export function AccessDeniedState({
               Go Back
             </Button>
           )}
-          <Button size="lg" onClick={() => navigate('/app/groups')} className="min-w-[120px]">
+          <Button size="lg" onClick={() => navigate('/groups')} className="min-w-[120px]">
             Return to Groups
           </Button>
           {onRetry && (

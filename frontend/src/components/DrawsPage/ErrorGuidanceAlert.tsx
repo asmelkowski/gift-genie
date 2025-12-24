@@ -58,7 +58,7 @@ export default function ErrorGuidanceAlert({ error, errorCode, groupId }: ErrorG
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate(`/app/groups/${groupId}/exclusions`)}
+                onClick={() => navigate(`/groups/${groupId}/exclusions`)}
                 className="bg-background hover:bg-muted"
               >
                 {t('executeError.reviewExclusionsButton')}
@@ -66,7 +66,7 @@ export default function ErrorGuidanceAlert({ error, errorCode, groupId }: ErrorG
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate(`/app/groups/${groupId}/members`)}
+                onClick={() => navigate(`/groups/${groupId}/members`)}
                 className="bg-background hover:bg-muted"
               >
                 {t('executeError.addMembersButton')}

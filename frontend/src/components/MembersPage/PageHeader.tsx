@@ -16,7 +16,7 @@ export function PageHeader({ groupName, groupId, onAddClick }: PageHeaderProps) 
     <div data-testid="members-page-header">
       <nav className="flex items-center gap-2 text-sm mb-4" aria-label="Breadcrumb">
         <button
-          onClick={() => navigate('/app/groups')}
+          onClick={() => navigate('/groups')}
           className="text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
         >
           {t('header.breadcrumb.groups')}
@@ -25,7 +25,7 @@ export function PageHeader({ groupName, groupId, onAddClick }: PageHeaderProps) 
           /
         </span>
         <button
-          onClick={() => navigate(`/app/groups/${groupId}`)}
+          onClick={() => navigate(`/groups/${groupId}`)}
           className="text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
         >
           {groupName}

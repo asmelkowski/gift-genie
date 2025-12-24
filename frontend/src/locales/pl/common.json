@@ -37,7 +37,7 @@
   "pagination": {
     "previous": "Poprzednia",
     "next": "Następna",
-    "page": "Strona {{current}} z {{total}}",
+    "page": "Strona {{current}} z {{total_pages}} (łącznie {{total}})",
     "showing": "Pokazuje {{from}}-{{to}} z {{total}} wyników"
   },
   "navigation": {
@@ -46,7 +46,9 @@
     "draws": "Losowania",
     "exclusions": "Wyłączenia",
     "admin": "Administrator",
-    "logout": "Wyloguj się"
+    "logout": "Wyloguj się",
+    "home": "Strona główna",
+    "settings": "Ustawienia"
   },
   "appLayout": {
     "title": "Gift Genie",
@@ -62,5 +64,9 @@
     "draws": "Losowania",
     "exclusions": "Wyłączenia",
     "admin": "Administrator"
+  },
+  "home": {
+    "welcome": "Witaj w domu!",
+    "description": "To jest przykładowa strona główna po zalogowaniu."
   }
 }

@@ -20,7 +20,7 @@ export const useCreateGroupMutation = () => {
     onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });
       toast.success('Group created successfully');
-      navigate(`/app/groups/${data.id}/members`);
+      navigate(`/groups/${data.id}/members`);
     },
     onError: (error: AxiosError<{ detail: string }>) => {
       const message = error.response?.data?.detail || 'Failed to create group';

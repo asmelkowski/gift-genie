@@ -442,7 +442,7 @@ test.describe('Permission Enforcement', () => {
 
     // Verify admin can bypass permission checks
     // Create a group and try to access features that require explicit permissions
-    await page.goto('/app/groups');
+    await page.goto('/groups');
     await page.waitForLoadState('networkidle');
 
     const groupsPage = new GroupsPage(page);
@@ -554,7 +554,7 @@ test.describe('Permission Enforcement', () => {
     await adminDashboard.closePermissionDialog();
 
     // Back to groups page - verify delete action is now available
-    await page.goto('/app/groups');
+    await page.goto('/groups');
     await page.waitForLoadState('networkidle');
 
     // The group should still be there or recreate it if needed
