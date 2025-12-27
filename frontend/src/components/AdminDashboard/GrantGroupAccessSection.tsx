@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Loader2, Lock } from 'lucide-react';
 import type { Permission } from '@/hooks/useUserPermissions';
@@ -21,6 +22,7 @@ export function GrantGroupAccessSection({
   userPermissions,
   onGrantComplete,
 }: GrantGroupAccessSectionProps) {
+  const { t } = useTranslation('admin');
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [selectedOps, setSelectedOps] = useState<Set<string>>(new Set());
   const [isGranting, setIsGranting] = useState(false);
@@ -96,11 +98,7 @@ export function GrantGroupAccessSection({
 
   return (
     <div className="space-y-4">
-      <PermissionSection
-        title="Grant Group-Specific Access"
-        count={availableGroups.length}
-        icon="🔐"
-      >
+      <PermissionSection title={t('grantAccess.title')} count={availableGroups.length} icon="🔐">
         <div className="space-y-4 p-3">
           {/* Group Dropdown */}
           <div className="space-y-2">
@@ -108,7 +106,7 @@ export function GrantGroupAccessSection({
               htmlFor="group-select"
               className="text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Select Group
+              {t('grantAccess.selectGroup')}
             </label>
             <select
               id="group-select"
@@ -121,7 +119,7 @@ export function GrantGroupAccessSection({
               disabled={isLoading}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
             >
-              <option value="">Choose a group...</option>
+              <option value="">{t('grantAccess.chooseGroup')}</option>
               {availableGroups.map((group: AdminGroupResponse) => (
                 <option key={group.id} value={group.id}>
                   {group.name}
@@ -135,7 +133,7 @@ export function GrantGroupAccessSection({
             <>
               <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Permissions to Grant
+                  {t('grantAccess.toGrant')}
                 </p>
 
                 {/* Group operations by category */}
@@ -182,7 +180,7 @@ export function GrantGroupAccessSection({
                                 </p>
                                 {alreadyHas && (
                                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-0.5 italic">
-                                    Already granted
+                                    {t('grantAccess.alreadyGranted')}
                                   </p>
                                 )}
                               </div>
@@ -204,8 +202,11 @@ export function GrantGroupAccessSection({
                   className="w-full"
                 >
                   {isGranting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  Grant {selectedCount > 0 ? `${selectedCount} Selected` : 'Selected'} Permission
-                  {selectedCount !== 1 ? 's' : ''}
+                  {t('grantAccess.grantButton')}{' '}
+                  {selectedCount > 0
+                    ? `${selectedCount} ${t('grantAccess.selected')} `
+                    : `${t('grantAccess.selected')} `}
+                  {selectedCount === 1 ? t('grantAccess.permission') : t('grantAccess.permissions')}
                 </Button>
               </div>
             </>
@@ -213,7 +214,9 @@ export function GrantGroupAccessSection({
 
           {!isLoading && availableGroups.length === 0 && (
             <div className="text-center py-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">No groups available</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('grantAccess.noGroups')}
+              </p>
             </div>
           )}
 

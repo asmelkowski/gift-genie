@@ -79,9 +79,9 @@ test.describe('Resource-Scoped Permission Management', () => {
     console.log(`[E2E] Group creation initiated: ${groupName}`);
 
     // Wait for redirect to members page and capture group ID
-    await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    await regularUserPage.waitForURL(/\/groups\/([a-f0-9-]+)\/members/);
     const url = regularUserPage.url();
-    const groupIdMatch = url.match(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    const groupIdMatch = url.match(/\/groups\/([a-f0-9-]+)\/members/);
     const groupId = groupIdMatch?.[1];
     expect(groupId).toBeDefined();
     console.log(`[E2E] Group created successfully with ID: ${groupId}`);
@@ -196,9 +196,9 @@ test.describe('Resource-Scoped Permission Management', () => {
     const groupNameA = `Group A ${Date.now()}`;
     await groupsPage.createGroup(groupNameA);
 
-    await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    await regularUserPage.waitForURL(/\/groups\/([a-f0-9-]+)\/members/);
     const urlA = regularUserPage.url();
-    const groupIdA = urlA.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
+    const groupIdA = urlA.match(/\/groups\/([a-f0-9-]+)\/members/)?.[1];
     expect(groupIdA).toBeDefined();
     console.log(`[E2E] Group A created: ${groupIdA}`);
 
@@ -209,9 +209,9 @@ test.describe('Resource-Scoped Permission Management', () => {
     const groupNameB = `Group B ${Date.now()}`;
     await groupsPage.createGroup(groupNameB);
 
-    await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    await regularUserPage.waitForURL(/\/groups\/([a-f0-9-]+)\/members/);
     const urlB = regularUserPage.url();
-    const groupIdB = urlB.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
+    const groupIdB = urlB.match(/\/groups\/([a-f0-9-]+)\/members/)?.[1];
     expect(groupIdB).toBeDefined();
     console.log(`[E2E] Group B created: ${groupIdB}`);
 
@@ -301,9 +301,9 @@ test.describe('Resource-Scoped Permission Management', () => {
     await groupsPage.createGroup(groupName);
 
     // Extract group ID
-    await regularUserPage.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    await regularUserPage.waitForURL(/\/groups\/([a-f0-9-]+)\/members/);
     const url = regularUserPage.url();
-    const groupId = url.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
+    const groupId = url.match(/\/groups\/([a-f0-9-]+)\/members/)?.[1];
     expect(groupId).toBeDefined();
     console.log(`[E2E] Group created with ID: ${groupId}`);
 

@@ -71,7 +71,7 @@ test.describe('Admin Dashboard Access Control', () => {
   /**
    * Test 3: Regular (non-admin) user cannot access the admin dashboard
    *
-   * Verifies that when a regular user attempts to navigate to /app/admin,
+   * Verifies that when a regular user attempts to navigate to /admin,
    * they cannot access it (either redirected or get access denied).
    */
   test('regular user cannot access dashboard', async ({ page, context }) => {
@@ -81,11 +81,11 @@ test.describe('Admin Dashboard Access Control', () => {
     const _regularUser = await createRegularUser(page, context);
 
     // Attempt to navigate to admin dashboard
-    console.log('[E2E] Attempting to navigate to /app/admin as regular user...');
-    await page.goto('/app/admin');
+    console.log('[E2E] Attempting to navigate to /admin as regular user...');
+    await page.goto('/admin');
 
     // Verify we cannot access the dashboard
-    // Either we get a 403 error, access denied message, or redirect to /app/groups
+    // Either we get a 403 error, access denied message, or redirect to /groups
     const url = page.url();
     const isDashboardAccessible = await page
       .getByTestId('admin-dashboard')
@@ -110,7 +110,7 @@ test.describe('Admin Dashboard Access Control', () => {
   /**
    * Test 4: Regular user cannot access admin dashboard directly
    *
-   * Verifies that a regular user attempting to visit /app/admin directly
+   * Verifies that a regular user attempting to visit /admin directly
    * cannot access the dashboard (gets redirected, 404, or access denied).
    */
   test('regular user cannot access admin dashboard directly', async ({ page, context }) => {
@@ -120,8 +120,8 @@ test.describe('Admin Dashboard Access Control', () => {
     const _regularUser = await createRegularUser(page, context);
 
     // Attempt to navigate directly to admin dashboard
-    console.log('[E2E] Attempting to navigate to /app/admin as regular user...');
-    await page.goto('/app/admin');
+    console.log('[E2E] Attempting to navigate to /admin as regular user...');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Verify we cannot access the dashboard
@@ -135,7 +135,7 @@ test.describe('Admin Dashboard Access Control', () => {
       throw new Error('Regular user was able to access admin dashboard!');
     }
 
-    console.log('[E2E] ✓ Regular user access to /app/admin denied - dashboard is not accessible');
+    console.log('[E2E] ✓ Regular user access to /admin denied - dashboard is not accessible');
   });
 
   /**
@@ -149,8 +149,8 @@ test.describe('Admin Dashboard Access Control', () => {
     console.log('[E2E] Test: Unauthenticated user redirected to login');
 
     // Attempt to navigate to admin dashboard without authentication
-    console.log('[E2E] Navigating to /app/admin without authentication...');
-    await page.goto('/app/admin');
+    console.log('[E2E] Navigating to /admin without authentication...');
+    await page.goto('/admin');
 
     // Wait a bit for potential redirect
     await page.waitForLoadState('networkidle');
@@ -175,7 +175,7 @@ test.describe('Admin Dashboard Access Control', () => {
   /**
    * Test 6: Admin user can access admin dashboard directly
    *
-   * Verifies that an admin user can navigate directly to /app/admin
+   * Verifies that an admin user can navigate directly to /admin
    * and see the admin dashboard without needing navigation links.
    */
   test('admin user can access admin dashboard directly', async ({ page, context }) => {
@@ -187,13 +187,13 @@ test.describe('Admin Dashboard Access Control', () => {
     const adminDashboard = new AdminDashboardPage(page);
 
     // Navigate directly to admin dashboard
-    console.log('[E2E] Navigating directly to /app/admin as admin user...');
-    await page.goto('/app/admin');
+    console.log('[E2E] Navigating directly to /admin as admin user...');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Verify we're on the admin dashboard
     const currentUrl = page.url();
-    expect(currentUrl).toContain('/app/admin');
+    expect(currentUrl).toContain('/admin');
 
     // Verify dashboard is visible and accessible
     const isDashboardVisible = await page
@@ -202,16 +202,14 @@ test.describe('Admin Dashboard Access Control', () => {
       .catch(() => false);
 
     if (!isDashboardVisible) {
-      throw new Error(
-        'Admin user should be able to access /app/admin but dashboard is not visible'
-      );
+      throw new Error('Admin user should be able to access /admin but dashboard is not visible');
     }
 
     // Verify key dashboard elements are present
     await adminDashboard.expectPageVisible();
     await adminDashboard.expectSearchInputVisible();
 
-    console.log('[E2E] ✓ Admin user can access /app/admin directly and see dashboard');
+    console.log('[E2E] ✓ Admin user can access /admin directly and see dashboard');
   });
 
   /**

@@ -1,8 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 interface ErrorStateProps {
   message?: string;
 }
 
-export function ErrorState({ message = 'Failed to load exclusions' }: ErrorStateProps) {
+export function ErrorState({ message }: ErrorStateProps) {
+  const { t } = useTranslation('exclusions');
+  const displayMessage = message || t('error.message');
+
   return (
     <div className="text-center py-12">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4">
@@ -15,7 +20,7 @@ export function ErrorState({ message = 'Failed to load exclusions' }: ErrorState
           />
         </svg>
       </div>
-      <p className="text-gray-600">{message}</p>
+      <p className="text-gray-600">{displayMessage}</p>
     </div>
   );
 }

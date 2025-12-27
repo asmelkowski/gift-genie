@@ -1,0 +1,69 @@
+{
+  "header": {
+    "title": "Groups",
+    "subtitle": "Manage your gift exchange groups",
+    "createButton": "Create Group"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Search groups...",
+    "sortLabel": "Sort by",
+    "sort": {
+      "newestFirst": "Newest first",
+      "oldestFirst": "Oldest first",
+      "nameAZ": "Name (A-Z)",
+      "nameZA": "Name (Z-A)"
+    }
+  },
+  "empty": {
+    "title": "No groups yet",
+    "description": "Create your first gift exchange group to get started.",
+    "createButton": "Create Group"
+  },
+  "searchEmpty": {
+    "title": "No groups found",
+    "description": "No groups match \"{{search}}\". Try a different search term.",
+    "clearButton": "Clear search"
+  },
+  "error": {
+    "title": "Error loading groups",
+    "message": "Failed to load your groups. Please try again.",
+    "retryButton": "Retry"
+  },
+  "accessDenied": {
+    "message": "You don't have permission to view this group list."
+  },
+  "card": {
+    "created": "Created {{date}}",
+    "noHistoricalExclusions": "No historical exclusions",
+    "historicalExclusions": "Historical exclusions: {{count}} draw",
+    "historicalExclusions_plural": "Historical exclusions: {{count}} draws"
+  },
+  "create": {
+    "title": "Create Group",
+    "nameLabel": "Group Name *",
+    "namePlaceholder": "Enter group name",
+    "historicalExclusionsLabel": "Enable historical exclusions",
+    "lookbackLabel": "Lookback (draws)",
+    "cancelButton": "Cancel",
+    "createButton": "Create",
+    "creatingButton": "Creating...",
+    "errors": {
+      "nameRequired": "Group name is required",
+      "nameTooLong": "Group name must be between 1 and 100 characters",
+      "lookbackInvalid": "Lookback must be a positive integer"
+    }
+  },
+  "details": {
+    "title": "Group Details",
+    "membersTitle": "Members",
+    "membersDescription": "Manage members in this group",
+    "viewMembersButton": "View Members",
+    "backToGroupsButton": "Back to Groups",
+    "exclusionsTitle": "Exclusions",
+    "exclusionsDescription": "Manage exclusions to prevent specific pairings",
+    "viewExclusionsButton": "View Exclusions",
+    "drawsTitle": "Draws",
+    "drawsDescription": "Create and manage gift exchange draws",
+    "viewDrawsButton": "View Draws"
+  }
+}

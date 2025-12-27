@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 
 interface DrawsToolbarProps {
@@ -7,30 +8,32 @@ interface DrawsToolbarProps {
   onSortChange: (sort: string) => void;
 }
 
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All Draws' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'finalized', label: 'Finalized' },
-];
-
-const SORT_OPTIONS = [
-  { value: '-created_at', label: 'Created (Newest)' },
-  { value: 'created_at', label: 'Created (Oldest)' },
-  { value: '-finalized_at', label: 'Finalized (Newest)' },
-  { value: 'finalized_at', label: 'Finalized (Oldest)' },
-];
-
 export default function DrawsToolbar({
   status,
   onStatusChange,
   sort,
   onSortChange,
 }: DrawsToolbarProps) {
+  const { t } = useTranslation('draws');
+
+  const STATUS_OPTIONS = [
+    { value: 'all', label: t('toolbar.status.all') },
+    { value: 'pending', label: t('toolbar.status.pending') },
+    { value: 'finalized', label: t('toolbar.status.finalized') },
+  ];
+
+  const SORT_OPTIONS = [
+    { value: '-created_at', label: t('toolbar.sort.createdNewest') },
+    { value: 'created_at', label: t('toolbar.sort.createdOldest') },
+    { value: '-finalized_at', label: t('toolbar.sort.finalizedNewest') },
+    { value: 'finalized_at', label: t('toolbar.sort.finalizedOldest') },
+  ];
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="sm:w-48">
         <Label htmlFor="status" className="sr-only">
-          Filter by status
+          {t('toolbar.filterLabel')}
         </Label>
         <select
           id="status"
@@ -47,7 +50,7 @@ export default function DrawsToolbar({
       </div>
       <div className="sm:w-48">
         <Label htmlFor="sort" className="sr-only">
-          Sort by
+          {t('toolbar.sortLabel')}
         </Label>
         <select
           id="sort"

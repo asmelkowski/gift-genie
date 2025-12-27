@@ -11,8 +11,8 @@ export class AdminDashboardPage {
    * Navigate to the admin dashboard page
    */
   async goto() {
-    console.log('[E2E] Navigating to /app/admin...');
-    await this.page.goto('/app/admin');
+    console.log('[E2E] Navigating to /admin...');
+    await this.page.goto('/admin');
   }
 
   /**

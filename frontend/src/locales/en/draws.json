@@ -1,0 +1,141 @@
+{
+  "header": {
+    "title": "Draws",
+    "subtitle": "Create and manage gift exchange draws",
+    "createButton": "Create Draw"
+  },
+  "toolbar": {
+    "filterLabel": "Filter by status",
+    "sortLabel": "Sort by",
+    "status": {
+      "all": "All Draws",
+      "pending": "Pending",
+      "finalized": "Finalized"
+    },
+    "sort": {
+      "createdNewest": "Created (Newest)",
+      "createdOldest": "Created (Oldest)",
+      "finalizedNewest": "Finalized (Newest)",
+      "finalizedOldest": "Finalized (Oldest)"
+    }
+  },
+  "card": {
+    "statusPending": "Pending",
+    "statusFinalized": "Finalized",
+    "title": "Draw #{{id}}",
+    "createdLabel": "Created",
+    "finalizedLabel": "Finalized",
+    "notifiedLabel": "Notified",
+    "actions": {
+      "execute": "Execute",
+      "finalize": "Finalize",
+      "notify": "Notify",
+      "viewResults": "View Results",
+      "delete": "Delete"
+    },
+    "lifecycle": {
+      "created": "Created",
+      "executed": "Executed",
+      "finalized": "Finalized",
+      "notified": "Notified"
+    }
+  },
+  "empty": {
+    "title": "No draws yet",
+    "description": "Create your first draw to get started with gift assignments"
+  },
+  "searchEmpty": {
+    "title": "No draws found",
+    "description": "No draws match your search. Try adjusting your filters.",
+    "clearButton": "Clear search"
+  },
+  "error": {
+    "title": "Failed to load draws",
+    "retryButton": "Retry",
+    "groupNotFound": "Group not found"
+  },
+  "accessDenied": {
+    "message": "You don't have permission to view draws for this group."
+  },
+  "delete": {
+    "confirmMessage": "Are you sure you want to delete this draw? This action cannot be undone."
+  },
+  "execute": {
+    "title": "Execute Draw",
+    "loadingMessage": "Executing draw algorithm...",
+    "confirmButton": "Execute",
+    "cancelButton": "Cancel"
+  },
+  "executeError": {
+    "title": "Unable to Execute Draw",
+    "reviewExclusionsButton": "Review Exclusions",
+    "addMembersButton": "Add Members",
+    "noValidConfig": "The current group configuration makes it impossible to assign everyone. This usually happens when: constraints eliminate too many valid pairs, you have too many exclusions, or not enough active members.",
+    "noValidConfigWithMinimum": "You need at least {{minimum}} active members to execute this draw. Try adding more members to your group.",
+    "unknownError": "This usually means there are too many exclusions or not enough members. Try:"
+  },
+  "finalize": {
+    "title": "Finalize Draw?",
+    "confirmMessage": "Once finalized, this draw becomes immutable and cannot be modified.",
+    "warningMessage": "This action cannot be undone.",
+    "confirmButton": "Confirm",
+    "finalizingButton": "Finalizing...",
+    "cancelButton": "Cancel"
+  },
+  "notify": {
+    "title": "Send Notifications",
+    "confirmMessage": "Members will receive email notifications with their assignments.",
+    "resendCheckbox": "Resend to all members (notifications were previously sent)",
+    "sendButton": "Send",
+    "sendingButton": "Sending...",
+    "cancelButton": "Cancel"
+  },
+  "notifyResult": {
+    "title": "Notifications Sent",
+    "sentLabel": "Sent",
+    "sentMessage": "✓ Sent: {{count}} notifications",
+    "skippedLabel": "Skipped",
+    "skippedMessage": "⊘ Skipped: {{count}} members (no email)",
+    "closeButton": "Close"
+  },
+  "results": {
+    "pageTitle": "Draw Results",
+    "subtitle": "{{groupName}} - Draw #{{drawId}}",
+    "viewDetailsButton": "View Draw Results",
+    "spoilerWarning": "⚠️ May spoil the fun!",
+    "previewMode": "Preview Mode: These results are not yet finalized. You can review them before committing to finalize the draw.",
+    "information": {
+      "title": "Draw Information",
+      "statusLabel": "Status:",
+      "statusPending": "Pending Finalization",
+      "statusFinalized": "Finalized",
+      "createdLabel": "Created:",
+      "finalizedLabel": "Finalized:"
+    },
+    "notification": {
+      "title": "Notification Status",
+      "sentLabel": "Sent",
+      "notSentLabel": "Not yet sent"
+    },
+    "assignments": {
+      "title": "Assignments:",
+      "giverHeader": "Giver",
+      "receiverHeader": "Receiver",
+      "searchPlaceholder": "Search by giver or receiver name...",
+      "sortLabel": "Sort by",
+      "sort": {
+        "giverAsc": "Giver (A-Z)",
+        "giverDesc": "Giver (Z-A)",
+        "receiverAsc": "Receiver (A-Z)",
+        "receiverDesc": "Receiver (Z-A)"
+      },
+      "noResults": "No assignments match your search",
+      "noAssignments": "No assignments found"
+    },
+    "export": {
+      "copyButton": "Copy",
+      "csvButton": "CSV"
+    },
+    "finalizedTitle": "Draw Finalized!"
+  }
+}

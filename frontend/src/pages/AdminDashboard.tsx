@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAdminUsers, useAdminGroups } from '@/hooks/useAdmin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,27 +10,28 @@ import { PermissionManagerDialog } from '@/components/AdminDashboard/PermissionM
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 export function AdminDashboard() {
+  const { t } = useTranslation('admin');
   const [activeTab, setActiveTab] = useState<'users' | 'groups'>('users');
 
   return (
     <div className="container mx-auto py-8 px-4" data-testid="admin-dashboard">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Manage users and groups across the platform</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('header.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('header.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           <Button
             variant={activeTab === 'users' ? 'default' : 'outline'}
             onClick={() => setActiveTab('users')}
           >
-            Users
+            {t('tabs.users')}
           </Button>
           <Button
             variant={activeTab === 'groups' ? 'default' : 'outline'}
             onClick={() => setActiveTab('groups')}
           >
-            Groups
+            {t('tabs.groups')}
           </Button>
         </div>
       </div>
@@ -40,6 +42,7 @@ export function AdminDashboard() {
 }
 
 function UsersTable() {
+  const { t } = useTranslation(['admin', 'common']);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -66,12 +69,12 @@ function UsersTable() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Users</CardTitle>
+            <CardTitle>{t('admin:users.title')}</CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 data-testid="user-search-input"
-                placeholder="Search users..."
+                placeholder={t('admin:users.searchPlaceholder')}
                 value={search}
                 onChange={e => {
                   setSearch(e.target.value);
@@ -94,19 +97,19 @@ function UsersTable() {
                   <thead>
                     <tr className="border-b bg-muted/50 transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                       <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Name
+                        {t('admin:users.table.name')}
                       </th>
                       <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Email
+                        {t('admin:users.table.email')}
                       </th>
                       <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Role
+                        {t('admin:users.table.role')}
                       </th>
                       <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Permissions
+                        {t('admin:users.table.permissions')}
                       </th>
                       <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Joined
+                        {t('admin:users.table.joined')}
                       </th>
                     </tr>
                   </thead>
@@ -114,7 +117,7 @@ function UsersTable() {
                     {data?.data.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="p-4 text-center text-muted-foreground">
-                          No users found
+                          {t('admin:users.table.noUsers')}
                         </td>
                       </tr>
                     ) : (
@@ -141,10 +144,13 @@ function UsersTable() {
                   disabled={page === 1}
                   data-testid="pagination-prev"
                 >
-                  Previous
+                  {t('common:actions.back')}
                 </Button>
                 <div className="text-sm text-muted-foreground">
-                  Page {page} of {data?.meta.total_pages || 1}
+                  {t('admin:actions.pageInfo', {
+                    current: page,
+                    total: data?.meta.total_pages || 1,
+                  })}
                 </div>
                 <Button
                   variant="outline"
@@ -153,7 +159,7 @@ function UsersTable() {
                   disabled={page >= (data?.meta.total_pages || 1)}
                   data-testid="pagination-next"
                 >
-                  Next
+                  {t('common:actions.next')}
                 </Button>
               </div>
             </div>
@@ -188,9 +194,11 @@ interface UserTableRowProps {
 }
 
 function UserTableRow({ user, onManagePermissions }: UserTableRowProps) {
+  const { t } = useTranslation('admin');
   const { data: permissions = [] } = useUserPermissions(user.id);
 
-  const permissionCountDisplay = user.role === 'admin' ? 'All (Admin)' : `${permissions.length}`;
+  const permissionCountDisplay =
+    user.role === 'admin' ? t('users.permissions.admin') : `${permissions.length}`;
 
   return (
     <tr
@@ -207,7 +215,7 @@ function UserTableRow({ user, onManagePermissions }: UserTableRowProps) {
               : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
           }`}
         >
-          {user.role}
+          {user.role === 'admin' ? t('users.role.admin') : t('users.role.user')}
         </span>
       </td>
       <td className="p-4 align-middle">
@@ -227,7 +235,7 @@ function UserTableRow({ user, onManagePermissions }: UserTableRowProps) {
               data-testid={`manage-permissions-${user.id}`}
             >
               <Shield className="h-4 w-4" />
-              Manage
+              {t('users.actions.manage')}
             </Button>
           )}
         </div>
@@ -238,6 +246,7 @@ function UserTableRow({ user, onManagePermissions }: UserTableRowProps) {
 }
 
 function GroupsTable() {
+  const { t } = useTranslation(['admin', 'common']);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const pageSize = 10;
@@ -248,11 +257,11 @@ function GroupsTable() {
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>Groups</CardTitle>
+          <CardTitle>{t('admin:groups.title')}</CardTitle>
           <div className="relative w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search groups..."
+              placeholder={t('admin:groups.searchPlaceholder')}
               value={search}
               onChange={e => {
                 setSearch(e.target.value);
@@ -275,16 +284,16 @@ function GroupsTable() {
                 <thead>
                   <tr className="border-b bg-muted/50 transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                      Name
+                      {t('admin:groups.table.name')}
                     </th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                      Admin User ID
+                      {t('admin:groups.table.adminId')}
                     </th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                      History Enabled
+                      {t('admin:groups.table.historyEnabled')}
                     </th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                      Created
+                      {t('admin:groups.table.created')}
                     </th>
                   </tr>
                 </thead>
@@ -292,7 +301,7 @@ function GroupsTable() {
                   {data?.data.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="p-4 text-center text-muted-foreground">
-                        No groups found
+                        {t('admin:groups.table.noGroups')}
                       </td>
                     </tr>
                   ) : (
@@ -313,7 +322,9 @@ function GroupsTable() {
                                 : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
                             }`}
                           >
-                            {group.historical_exclusions_enabled ? 'Yes' : 'No'}
+                            {group.historical_exclusions_enabled
+                              ? t('admin:groups.table.yes')
+                              : t('admin:groups.table.no')}
                           </span>
                         </td>
                         <td className="p-4 align-middle">
@@ -334,10 +345,10 @@ function GroupsTable() {
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                Previous
+                {t('common:actions.back')}
               </Button>
               <div className="text-sm text-muted-foreground">
-                Page {page} of {data?.meta.total_pages || 1}
+                {t('admin:actions.pageInfo', { current: page, total: data?.meta.total_pages || 1 })}
               </div>
               <Button
                 variant="outline"
@@ -345,7 +356,7 @@ function GroupsTable() {
                 onClick={() => setPage(p => Math.min(data?.meta.total_pages || 1, p + 1))}
                 disabled={page >= (data?.meta.total_pages || 1)}
               >
-                Next
+                {t('common:actions.next')}
               </Button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -39,6 +40,7 @@ export function MemberForm({
   onCancel,
   onPendingDrawAlert,
 }: MemberFormProps) {
+  const { t } = useTranslation('members');
   const [formData, setFormData] = useState<MemberFormData>({
     name: member?.name || '',
     email: member?.email || '',
@@ -49,61 +51,68 @@ export function MemberForm({
 
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const handleCreateError = useCallback((detail: string) => {
-    if (detail === 'name_conflict_in_group') {
-      setErrors(prev => ({
-        ...prev,
-        name: 'This name is already used by another member',
-      }));
-    } else if (detail === 'email_conflict_in_group') {
-      setErrors(prev => ({
-        ...prev,
-        email: 'This email is already used by another member',
-      }));
-    } else {
-      setApiError(detail || 'Failed to add member');
-    }
-  }, []);
+  const handleCreateError = useCallback(
+    (detail: string) => {
+      if (detail === 'name_conflict_in_group') {
+        setErrors(prev => ({
+          ...prev,
+          name: t('form.errors.nameConflict'),
+        }));
+      } else if (detail === 'email_conflict_in_group') {
+        setErrors(prev => ({
+          ...prev,
+          email: t('form.errors.emailConflict'),
+        }));
+      } else {
+        setApiError(detail || 'Failed to add member');
+      }
+    },
+    [t]
+  );
 
   const handleUpdateError = useCallback(
     (detail: string) => {
       if (detail === 'name_conflict_in_group') {
         setErrors(prev => ({
           ...prev,
-          name: 'This name is already used by another member',
+          name: t('form.errors.nameConflict'),
         }));
       } else if (detail === 'email_conflict_in_group') {
         setErrors(prev => ({
           ...prev,
-          email: 'This email is already used by another member',
+          email: t('form.errors.emailConflict'),
         }));
       } else if (detail === 'cannot_deactivate_due_to_pending_draw') {
-        onPendingDrawAlert?.(
-          'Cannot deactivate this member because they are part of a pending draw. Please finalize or delete the draw first.'
-        );
+        onPendingDrawAlert?.(t('form.errors.cannotDeactivate'));
       } else {
         setApiError(detail || 'Failed to update member');
       }
     },
-    [onPendingDrawAlert]
+    [onPendingDrawAlert, t]
   );
 
   const createMutation = useCreateMemberMutation(groupId, handleCreateError);
   const updateMutation = useUpdateMemberMutation(groupId, handleUpdateError);
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
-  const validateName = useCallback((name: string): string | undefined => {
-    const trimmed = name.trim();
-    if (!trimmed) return 'Name is required';
-    if (trimmed.length > 100) return 'Name must be 100 characters or less';
-    return undefined;
-  }, []);
+  const validateName = useCallback(
+    (name: string): string | undefined => {
+      const trimmed = name.trim();
+      if (!trimmed) return t('form.errors.nameRequired');
+      if (trimmed.length > 100) return t('form.errors.nameTooLong');
+      return undefined;
+    },
+    [t]
+  );
 
-  const validateEmail = useCallback((email: string): string | undefined => {
-    if (!email) return undefined;
-    if (!EMAIL_REGEX.test(email)) return 'Please enter a valid email address';
-    return undefined;
-  }, []);
+  const validateEmail = useCallback(
+    (email: string): string | undefined => {
+      if (!email) return undefined;
+      if (!EMAIL_REGEX.test(email)) return t('form.errors.emailInvalid');
+      return undefined;
+    },
+    [t]
+  );
 
   const handleNameChange = useCallback(
     (value: string) => {
@@ -178,16 +187,14 @@ export function MemberForm({
       )}
 
       <div>
-        <Label htmlFor="name">
-          Name <span className="text-red-600">*</span>
-        </Label>
+        <Label htmlFor="name">{t('form.nameLabelRequired')}</Label>
         <Input
           id="name"
           value={formData.name}
           onChange={e => handleNameChange(e.target.value)}
           onBlur={handleNameBlur}
           maxLength={100}
-          placeholder="Enter member name"
+          placeholder={t('form.namePlaceholder')}
           className={errors.name ? 'border-red-500' : ''}
           disabled={isLoading}
         />
@@ -195,14 +202,14 @@ export function MemberForm({
       </div>
 
       <div>
-        <Label htmlFor="email">Email (optional)</Label>
+        <Label htmlFor="email">{t('form.emailLabel')}</Label>
         <Input
           id="email"
           type="email"
           value={formData.email}
           onChange={e => handleEmailChange(e.target.value)}
           onBlur={handleEmailBlur}
-          placeholder="Enter member email"
+          placeholder={t('form.emailPlaceholder')}
           className={errors.email ? 'border-red-500' : ''}
           disabled={isLoading}
         />
@@ -217,20 +224,20 @@ export function MemberForm({
           onChange={e => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
           disabled={isLoading}
           className="h-4 w-4"
-          aria-label="Mark member as active"
+          aria-label={t('form.activeCheckboxLabel')}
         />
         <Label htmlFor="is_active" className="cursor-pointer mb-0">
-          Active member
+          {t('form.activeCheckboxLabel')}
         </Label>
       </div>
-      <p className="text-sm text-muted-foreground">Inactive members are excluded from draws</p>
+      <p className="text-sm text-muted-foreground">{t('form.activeCheckboxHelpText')}</p>
 
       <div className="flex gap-2 pt-4">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
-          Cancel
+          {t('form.cancelButton')}
         </Button>
         <Button type="submit" disabled={hasErrors || isLoading}>
-          {isLoading ? 'Saving...' : member ? 'Save Changes' : 'Add Member'}
+          {isLoading ? t('form.savingButton') : member ? t('form.saveButton') : t('form.addButton')}
         </Button>
       </div>
     </form>

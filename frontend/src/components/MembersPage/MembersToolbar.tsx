@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -19,6 +20,7 @@ export function MembersToolbar({
   onSearchChange,
   onSortChange,
 }: MembersToolbarProps) {
+  const { t } = useTranslation('members');
   const [searchInput, setSearchInput] = useState(search);
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
@@ -46,44 +48,44 @@ export function MembersToolbar({
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex gap-2" role="group" aria-label="Filter members by active status">
+        <div className="flex gap-2" role="group" aria-label={t('toolbar.filterLabel')}>
           <Button
             variant={isActive === null ? 'default' : 'outline'}
             onClick={() => onActiveFilterChange(null)}
             aria-pressed={isActive === null}
           >
-            All
+            {t('toolbar.filterAll')}
           </Button>
           <Button
             variant={isActive === true ? 'default' : 'outline'}
             onClick={() => onActiveFilterChange(true)}
             aria-pressed={isActive === true}
           >
-            Active
+            {t('toolbar.filterActive')}
           </Button>
           <Button
             variant={isActive === false ? 'default' : 'outline'}
             onClick={() => onActiveFilterChange(false)}
             aria-pressed={isActive === false}
           >
-            Inactive
+            {t('toolbar.filterInactive')}
           </Button>
         </div>
 
         <div className="flex-1">
           <div className="relative">
             <Input
-              placeholder="Search by name or email..."
+              placeholder={t('toolbar.searchPlaceholder')}
               value={searchInput}
               onChange={e => handleSearchChange(e.target.value)}
               className="pr-10"
-              aria-label="Search members"
+              aria-label={t('toolbar.searchAriaLabel')}
             />
             {searchInput && (
               <button
                 onClick={handleClearSearch}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                aria-label="Clear search"
+                aria-label={t('toolbar.clearSearchAriaLabel')}
                 type="button"
               >
                 ✕
@@ -96,12 +98,12 @@ export function MembersToolbar({
           value={sort}
           onChange={e => onSortChange(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label="Sort members"
+          aria-label={t('toolbar.sortLabel')}
         >
-          <option value="name">Name (A-Z)</option>
-          <option value="-name">Name (Z-A)</option>
-          <option value="-created_at">Newest First</option>
-          <option value="created_at">Oldest First</option>
+          <option value="name">{t('toolbar.sort.nameAZ')}</option>
+          <option value="-name">{t('toolbar.sort.nameZA')}</option>
+          <option value="-created_at">{t('toolbar.sort.newestFirst')}</option>
+          <option value="created_at">{t('toolbar.sort.oldestFirst')}</option>
         </select>
       </div>
     </div>

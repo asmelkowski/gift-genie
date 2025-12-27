@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,7 @@ export function PermissionManagerDialog({
   userName,
   userEmail,
 }: PermissionManagerDialogProps) {
+  const { t } = useTranslation(['admin', 'common']);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Queries
@@ -164,7 +166,7 @@ export function PermissionManagerDialog({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={`Manage Permissions for ${userName}`}
+      title={t('admin:permissionManager.title', { name: userName })}
       testId="permission-dialog"
     >
       <div
@@ -181,13 +183,13 @@ export function PermissionManagerDialog({
           </div>
           <div className="text-xs text-gray-600 dark:text-gray-400">{userEmail}</div>
           <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-            {totalPermissions} permissions granted
+            {t('admin:permissionManager.grantedCount', { count: totalPermissions })}
           </div>
         </div>
 
         {/* Search */}
         <Input
-          placeholder="Search permissions by name, code, or group..."
+          placeholder={t('admin:permissionManager.searchPlaceholder')}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           className="text-sm"
@@ -211,7 +213,7 @@ export function PermissionManagerDialog({
                 {/* System Available Permissions Section */}
                 {filteredAvailableUngrouped.length > 0 && (
                   <PermissionSection
-                    title="Available System Permissions"
+                    title={t('admin:permissionManager.availableSystem')}
                     count={filteredAvailableUngrouped.length}
                     icon="➕"
                   >
@@ -235,7 +237,7 @@ export function PermissionManagerDialog({
                   return (
                     <PermissionSection
                       key={groupId}
-                      title={`${groupName} (Available)`}
+                      title={t('admin:permissionManager.availableGroup', { name: groupName })}
                       count={perms.length}
                       icon="📦"
                     >
@@ -257,21 +259,25 @@ export function PermissionManagerDialog({
               </div>
             ) : (
               <div className="text-center py-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">All permissions granted</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {t('admin:permissionManager.allGranted')}
+                </p>
               </div>
             )}
 
             {/* Granted Permissions Section */}
             {totalPermissions === 0 ? (
               <div className="text-center py-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">No permissions granted</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {t('admin:permissionManager.noneGranted')}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {/* System Permissions Section */}
                 {filteredUngrouped.length > 0 && (
                   <PermissionSection
-                    title="Granted System Permissions"
+                    title={t('admin:permissionManager.grantedSystemTitle')}
                     count={filteredUngrouped.length}
                     icon="📋"
                   >
@@ -320,7 +326,7 @@ export function PermissionManagerDialog({
         {/* Footer */}
         <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
           <Button variant="outline" onClick={onClose} data-testid="close-permission-dialog">
-            Close
+            {t('admin:actions.close')}
           </Button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -8,29 +9,31 @@ interface AssignmentsToolbarProps {
   onSortChange: (sort: string) => void;
 }
 
-const SORT_OPTIONS = [
-  { value: 'giver_asc', label: 'Giver (A-Z)' },
-  { value: 'giver_desc', label: 'Giver (Z-A)' },
-  { value: 'receiver_asc', label: 'Receiver (A-Z)' },
-  { value: 'receiver_desc', label: 'Receiver (Z-A)' },
-];
-
 export default function AssignmentsToolbar({
   search,
   onSearchChange,
   sort,
   onSortChange,
 }: AssignmentsToolbarProps) {
+  const { t } = useTranslation('draws');
+
+  const SORT_OPTIONS = [
+    { value: 'giver_asc', label: t('results.assignments.sort.giverAsc') },
+    { value: 'giver_desc', label: t('results.assignments.sort.giverDesc') },
+    { value: 'receiver_asc', label: t('results.assignments.sort.receiverAsc') },
+    { value: 'receiver_desc', label: t('results.assignments.sort.receiverDesc') },
+  ];
+
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="flex-1">
         <Label htmlFor="search" className="sr-only">
-          Search assignments
+          {t('results.assignments.searchPlaceholder')}
         </Label>
         <Input
           id="search"
           type="text"
-          placeholder="Search by giver or receiver name..."
+          placeholder={t('results.assignments.searchPlaceholder')}
           value={search}
           onChange={e => onSearchChange(e.target.value)}
           maxLength={100}
@@ -38,7 +41,7 @@ export default function AssignmentsToolbar({
       </div>
       <div className="sm:w-48">
         <Label htmlFor="sort" className="sr-only">
-          Sort by
+          {t('results.assignments.sortLabel')}
         </Label>
         <select
           id="sort"

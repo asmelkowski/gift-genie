@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
@@ -15,8 +16,9 @@ interface MemberDialogProps {
 }
 
 export function MemberDialog({ isOpen, onClose, member, groupId }: MemberDialogProps) {
+  const { t } = useTranslation('members');
   const [pendingDrawAlert, setPendingDrawAlert] = useState<string | null>(null);
-  const title = member ? 'Edit Member' : 'Add Member';
+  const title = member ? t('dialog.editTitle') : t('dialog.addTitle');
 
   const handlePendingDrawAlert = (message: string) => {
     setPendingDrawAlert(message);
@@ -36,12 +38,12 @@ export function MemberDialog({ isOpen, onClose, member, groupId }: MemberDialogP
               className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900/50"
             >
               <div className="text-sm text-red-700 dark:text-red-400 font-medium mb-2">
-                Cannot Deactivate Member
+                {t('dialog.pendingDrawTitle')}
               </div>
               <div className="text-sm text-red-700 dark:text-red-400">{pendingDrawAlert}</div>
             </Alert>
             <Button onClick={closePendingDrawAlert} variant="outline" className="w-full">
-              OK
+              {t('dialog.pendingDrawOkButton')}
             </Button>
           </div>
         )}

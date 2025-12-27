@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "confirm": "Confirm",
+    "retry": "Retry"
+  },
+  "labels": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "description": "Description",
+    "createdAt": "Created",
+    "updatedAt": "Updated"
+  },
+  "validation": {
+    "required": "This field is required",
+    "emailInvalid": "Invalid email address",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "nameTooLong": "Name is too long (max {{max}} characters)"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "success": "Success!",
+    "error": "An error occurred"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{current}} of {{total_pages}} ({{total}} total)",
+    "showing": "Showing {{from}}-{{to}} of {{total}} results"
+  },
+  "navigation": {
+    "groups": "Groups",
+    "members": "Members",
+    "draws": "Draws",
+    "exclusions": "Exclusions",
+    "admin": "Admin",
+    "logout": "Logout",
+    "home": "Home",
+    "settings": "Settings"
+  },
+  "appLayout": {
+    "title": "Gift Genie",
+    "toggleTheme": "Switch to {{theme}} theme",
+    "toggleMenu": "Toggle navigation menu",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "groups": "Groups",
+    "members": "Members",
+    "draws": "Draws",
+    "exclusions": "Exclusions",
+    "admin": "Admin"
+  },
+  "home": {
+    "welcome": "Welcome Home!",
+    "description": "This is a dummy home page after login."
+  }
+}

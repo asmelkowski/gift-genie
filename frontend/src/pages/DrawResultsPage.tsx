@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrawQuery } from '@/hooks/useDrawQuery';
 import { useAssignmentsQuery } from '@/hooks/useAssignmentsQuery';
@@ -15,6 +16,7 @@ import ErrorState from '@/components/DrawsPage/ErrorState';
 import LoadingState from '@/components/DrawsPage/LoadingState';
 
 export default function DrawResultsPage() {
+  const { t } = useTranslation('draws');
   const { groupId, drawId } = useParams<{ groupId: string; drawId: string }>();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -129,9 +131,9 @@ export default function DrawResultsPage() {
 
         <details className="border border-gray-200 rounded-lg bg-card">
           <summary className="cursor-pointer px-6 py-4 font-semibold text-foreground hover:bg-muted/50 transition-colors flex items-center gap-3">
-            <span className="text-lg">🎁 View Draw Results</span>
+            <span className="text-lg">🎁 {t('results.viewDetailsButton')}</span>
             <span className="text-sm font-normal text-gray-600 bg-yellow-100 px-2 py-1 rounded">
-              ⚠️ May spoil the fun!
+              {t('results.spoilerWarning')}
             </span>
           </summary>
           <div className="p-6 pt-0">
@@ -147,7 +149,9 @@ export default function DrawResultsPage() {
             {filteredAndSortedAssignments.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-600">
-                  {search ? 'No assignments match your search' : 'No assignments found'}
+                  {search
+                    ? t('results.assignments.noResults')
+                    : t('results.assignments.noAssignments')}
                 </p>
               </div>
             ) : (

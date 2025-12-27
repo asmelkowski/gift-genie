@@ -24,14 +24,14 @@ test.describe('Resource-Level Permissions', () => {
     await groupsPage.createGroup(groupName);
 
     // 3. Verify auto-grant: User should be redirected to members page and have access
-    // The app redirects to /app/groups/[uuid]/members after creation
-    await page.waitForURL(/\/app\/groups\/[a-f0-9-]+\/members/);
+    // The app redirects to /groups/[uuid]/members after creation
+    await page.waitForURL(/\/groups\/[a-f0-9-]+\/members/);
 
     // Check that we are on the members page
     await expect(page.locator('h1, h2')).toContainText(/Members/i);
 
     // Verify we can see the "Add Member" button (indicates management permission)
-    const addMemberButton = page.getByRole('button', { name: /Add Member/i });
+    const addMemberButton = page.getByRole('button', { name: /Add Member/i }).first();
     await expect(addMemberButton).toBeVisible();
 
     // 4. Try to add a member to confirm permission is functional
@@ -57,9 +57,9 @@ test.describe('Resource-Level Permissions', () => {
     await groupsPage.createGroup(groupName);
 
     // Wait for redirect and capture the group ID
-    await page.waitForURL(/\/app\/groups\/([a-f0-9-]+)\/members/);
+    await page.waitForURL(/\/groups\/([a-f0-9-]+)\/members/);
     const url = page.url();
-    const groupId = url.match(/\/app\/groups\/([a-f0-9-]+)\/members/)?.[1];
+    const groupId = url.match(/\/groups\/([a-f0-9-]+)\/members/)?.[1];
     expect(groupId).toBeDefined();
 
     // 2. User 2 tries to access User 1's group members
@@ -69,7 +69,7 @@ test.describe('Resource-Level Permissions', () => {
     await createRegularUser(user2Page, user2Context);
 
     // Navigate directly to User 1's group members page
-    await user2Page.goto(`/app/groups/${groupId}/members`);
+    await user2Page.goto(`/groups/${groupId}/members`);
 
     // Wait for the page to finish loading and for network to be idle
     // This gives React Query time to make the API calls and get 403 responses

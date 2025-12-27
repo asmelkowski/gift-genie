@@ -37,7 +37,7 @@ test.describe('Login', () => {
     await loginUser(page, context, userData);
 
     // Verify we're on the groups page
-    await expect(page).toHaveURL('/app/groups');
+    await expect(page).toHaveURL('/groups');
 
     // Wait for page to load and verify it's visible
     await groupsPage.waitForLoad();

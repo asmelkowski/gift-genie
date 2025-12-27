@@ -58,13 +58,13 @@ const registerUser = async function (page: Page, data: UserData) {
  * @param page Playwright page object
  * @param accessToken JWT access token for authorization
  * @param user User data object with id, email, name
- * @param navigationPath Optional path to navigate to (defaults to /app/groups)
+ * @param navigationPath Optional path to navigate to (defaults to /groups)
  */
 const setupAuthState = async function (
   page: Page,
   accessToken: string,
   user: { id: string; email: string; name: string; role?: string },
-  navigationPath: string = '/app/groups'
+  navigationPath: string = '/groups'
 ) {
   const frontendBaseUrl = process.env.CI ? 'http://frontend:5173' : 'http://localhost:5173';
 
@@ -174,7 +174,7 @@ const loginUser = async function (page: Page, context: BrowserContext, data: Use
   await loginPage.login(data.email, data.password);
 
   // Wait for navigation to groups page
-  await page.waitForURL('/app/groups', { timeout: 15000 });
+  await page.waitForURL('/groups', { timeout: 15000 });
 
   // Wait for authentication state to be established in localStorage
   await page.waitForFunction(
@@ -239,7 +239,7 @@ const createRegularUser = async function (
   console.log(`[E2E] User ID: ${createdUser.id}`);
 
   // Set up auth state and navigate to app
-  await setupAuthState(page, accessToken, createdUser, '/app/groups');
+  await setupAuthState(page, accessToken, createdUser, '/groups');
 
   // Return user data with the server-generated ID
   return {
@@ -307,7 +307,7 @@ const createAdminUser = async function (
   console.log(`[E2E] User ID: ${createdUser.id}`);
 
   // Set up auth state and navigate to app
-  await setupAuthState(page, accessToken, createdUser, '/app/admin');
+  await setupAuthState(page, accessToken, createdUser, '/admin');
 
   // Return user data with the server-generated ID
   return {

@@ -50,3 +50,76 @@ const localStorageMock = {
   key: vi.fn(),
 } as Storage;
 global.localStorage = localStorageMock;
+
+// Import translation resources for the mock
+import commonEn from '../locales/en/common.json';
+import authEn from '../locales/en/auth.json';
+import groupsEn from '../locales/en/groups.json';
+import membersEn from '../locales/en/members.json';
+import drawsEn from '../locales/en/draws.json';
+import exclusionsEn from '../locales/en/exclusions.json';
+import adminEn from '../locales/en/admin.json';
+import errorsEn from '../locales/en/errors.json';
+
+const resources = {
+  common: commonEn,
+  auth: authEn,
+  groups: groupsEn,
+  members: membersEn,
+  draws: drawsEn,
+  exclusions: exclusionsEn,
+  admin: adminEn,
+  errors: errorsEn,
+} as const;
+
+// Mock react-i18next
+vi.mock('react-i18next', () => {
+  return {
+    useTranslation: (ns?: string | string[]) => {
+      const defaultNs = Array.isArray(ns) ? ns[0] : ns || 'common';
+
+      return {
+        t: (key: string, options?: Record<string, unknown>) => {
+          let namespace = defaultNs;
+          let actualKey = key;
+
+          if (key.includes(':')) {
+            [namespace, actualKey] = key.split(':');
+          }
+
+          const nsResource = resources[namespace as keyof typeof resources];
+          if (!nsResource) return key;
+
+          // Simple nested key lookup (e.g., 'login.emailLabel')
+          const parts = actualKey.split('.');
+          let value: unknown = nsResource;
+          for (const part of parts) {
+            value = (value as Record<string, unknown>)?.[part];
+          }
+
+          if (typeof value === 'string') {
+            let result = value;
+            // Very basic interpolation for {{name}} etc.
+            if (options) {
+              Object.entries(options).forEach(([k, v]) => {
+                result = result.replace(`{{${k}}}`, String(v));
+              });
+            }
+            return result;
+          }
+
+          return key;
+        },
+        i18n: {
+          changeLanguage: () => Promise.resolve(),
+          language: 'en',
+        },
+      };
+    },
+    initReactI18next: {
+      type: '3rdParty',
+      init: () => {},
+    },
+    Trans: ({ children }: { children: React.ReactNode }) => children,
+  };
+});

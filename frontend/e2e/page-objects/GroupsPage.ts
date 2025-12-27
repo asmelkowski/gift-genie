@@ -5,7 +5,7 @@ export class GroupsPage {
 
   // Navigation
   async goto() {
-    await this.page.goto('/app/groups');
+    await this.page.goto('/groups');
   }
 
   // Waits

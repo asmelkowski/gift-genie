@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ interface FormErrors {
 }
 
 export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
+  const { t } = useTranslation('groups');
   const [formData, setFormData] = useState<FormData>({
     name: '',
     historical_exclusions_enabled: true,
@@ -39,10 +41,10 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
         const str = value as string;
         const trimmed = str.trim();
         if (!trimmed) {
-          return 'Group name is required';
+          return t('create.errors.nameRequired');
         }
         if (trimmed.length < 1 || trimmed.length > 100) {
-          return 'Group name must be between 1 and 100 characters';
+          return t('create.errors.nameTooLong');
         }
       }
 
@@ -50,14 +52,14 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
         const num = value as number;
         if (formData.historical_exclusions_enabled) {
           if (num < 1 || !Number.isInteger(num)) {
-            return 'Lookback must be a positive integer';
+            return t('create.errors.lookbackInvalid');
           }
         }
       }
 
       return undefined;
     },
-    [formData.historical_exclusions_enabled]
+    [formData.historical_exclusions_enabled, t]
   );
 
   const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,17 +154,17 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
   }, [onClose]);
 
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose} title="Create Group">
+    <Dialog isOpen={isOpen} onClose={handleClose} title={t('create.title')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="group-name">Group Name *</Label>
+          <Label htmlFor="group-name">{t('create.nameLabel')}</Label>
           <Input
             id="group-name"
             type="text"
             value={formData.name}
             onChange={handleNameChange}
             onBlur={handleNameBlur}
-            placeholder="Enter group name"
+            placeholder={t('create.namePlaceholder')}
             maxLength={100}
             className={errors.name ? 'border-red-500' : ''}
           />
@@ -178,13 +180,13 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <Label htmlFor="exclusions-enabled" className="mb-0">
-            Enable historical exclusions
+            {t('create.historicalExclusionsLabel')}
           </Label>
         </div>
 
         {formData.historical_exclusions_enabled && (
           <div>
-            <Label htmlFor="lookback">Lookback (draws)</Label>
+            <Label htmlFor="lookback">{t('create.lookbackLabel')}</Label>
             <Input
               id="lookback"
               type="number"
@@ -207,10 +209,10 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
             onClick={handleClose}
             disabled={mutation.isPending}
           >
-            Cancel
+            {t('create.cancelButton')}
           </Button>
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Creating...' : 'Create'}
+            {mutation.isPending ? t('create.creatingButton') : t('create.createButton')}
           </Button>
         </div>
       </form>

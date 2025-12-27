@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/MembersPage/PageHeader';
 import { MembersToolbar } from '@/components/MembersPage/MembersToolbar';
 import { MembersGrid } from '@/components/MembersPage/MembersGrid';
@@ -20,6 +21,7 @@ type MemberResponse = components['schemas']['MemberResponse'];
 
 export function MembersPage() {
   const { groupId } = useParams<{ groupId: string }>();
+  const { t } = useTranslation('members');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<MemberResponse | null>(null);
   const { params, updateParams } = useMembersParams();
@@ -107,7 +109,10 @@ export function MembersPage() {
         <div className="space-y-6">
           <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
           <AccessDeniedState
-            message="You don't have permission to view members of this group."
+            message={
+              t('accessDenied.message') ||
+              "You don't have permission to view members of this group."
+            }
             onRetry={() => refetch()}
           />
         </div>
@@ -156,17 +161,17 @@ export function MembersPage() {
 
       {members.length === 0 && (params.search || params.is_active !== null) ? (
         <div className="text-center py-12">
-          <h3 className="text-lg font-semibold text-foreground mb-2">No members found</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{t('searchEmpty.title')}</h3>
           <p className="text-gray-600 mb-4">
             {params.search
-              ? `No members match "${params.search}".`
-              : 'No members match the selected filters.'}
+              ? t('searchEmpty.descriptionSearch', { search: params.search })
+              : t('searchEmpty.descriptionFilters')}
           </p>
           <button
             onClick={() => updateParams({ search: '', is_active: null })}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Clear filters
+            {t('searchEmpty.clearButton')}
           </button>
         </div>
       ) : (

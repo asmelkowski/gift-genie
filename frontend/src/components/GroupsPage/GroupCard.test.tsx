@@ -52,7 +52,7 @@ describe('GroupCard', () => {
 
     render(<GroupCard group={group} onClick={mockOnClick} />);
 
-    expect(screen.getByText(/Historical exclusions: 3 draws/)).toBeInTheDocument();
+    expect(screen.getByText(/Historical exclusions: 3 draw/)).toBeInTheDocument();
   });
 
   it('displays no historical exclusions label when disabled', () => {

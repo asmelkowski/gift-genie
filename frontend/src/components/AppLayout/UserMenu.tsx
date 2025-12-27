@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface UserViewModel {
   id: string;
@@ -22,18 +23,13 @@ function getInitials(name: string): string {
 }
 
 export function UserMenu({ user, onLogout }: UserMenuProps) {
+  const { t } = useTranslation('common');
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   const handleToggle = useCallback(() => {
     setIsOpen(prev => !prev);
   }, []);
-
-  const handleSettings = useCallback(() => {
-    navigate('/app/settings');
-    setIsOpen(false);
-  }, [navigate]);
 
   const handleLogout = useCallback(() => {
     onLogout();
@@ -88,14 +84,8 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
             <div className="text-sm text-muted-foreground">{user.email}</div>
           </div>
           <ul className="list-none m-0 p-0">
-            <li>
-              <button
-                onClick={handleSettings}
-                role="menuitem"
-                className="block w-full text-left px-4 py-2 text-foreground hover:bg-muted transition-colors"
-              >
-                Settings
-              </button>
+            <li className="border-t border-border px-4 py-2">
+              <LanguageSwitcher />
             </li>
             <li className="border-t border-border">
               <button
@@ -103,7 +93,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
                 role="menuitem"
                 className="block w-full text-left px-4 py-2 text-destructive hover:bg-muted transition-colors"
               >
-                Logout
+                {t('appLayout.logout')}
               </button>
             </li>
           </ul>

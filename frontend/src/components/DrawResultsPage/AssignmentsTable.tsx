@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import AssignmentRow from './AssignmentRow';
 import type { AssignmentWithNames } from '@/lib/drawUtils';
 
@@ -6,6 +7,8 @@ interface AssignmentsTableProps {
 }
 
 export default function AssignmentsTable({ assignments }: AssignmentsTableProps) {
+  const { t } = useTranslation('draws');
+
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden bg-card">
       {/* Table layout for larger screens */}
@@ -14,11 +17,11 @@ export default function AssignmentsTable({ assignments }: AssignmentsTableProps)
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-5/12">
-                Giver
+                {t('results.assignments.giverHeader')}
               </th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 w-2/12"></th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-5/12">
-                Receiver
+                {t('results.assignments.receiverHeader')}
               </th>
             </tr>
           </thead>

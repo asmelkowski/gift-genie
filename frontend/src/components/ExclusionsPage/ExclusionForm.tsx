@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import type { components } from '@/types/schema';
@@ -18,6 +19,7 @@ export function ExclusionForm({
   onCancel,
   isLoading = false,
 }: ExclusionFormProps) {
+  const { t } = useTranslation('exclusions');
   const [giverMemberId, setGiverMemberId] = useState('');
   const [receiverMemberId, setReceiverMemberId] = useState('');
   const [isMutual, setIsMutual] = useState(false);
@@ -28,17 +30,17 @@ export function ExclusionForm({
     setError(null);
 
     if (!giverMemberId) {
-      setError('Please select a giver member');
+      setError(t('form.errors.giverRequired'));
       return;
     }
 
     if (!receiverMemberId) {
-      setError('Please select a receiver member');
+      setError(t('form.errors.receiverRequired'));
       return;
     }
 
     if (giverMemberId === receiverMemberId) {
-      setError('Giver and receiver cannot be the same member');
+      setError(t('form.errors.sameMember'));
       return;
     }
 
@@ -54,7 +56,7 @@ export function ExclusionForm({
       )}
 
       <div>
-        <Label htmlFor="giver">Giver Member</Label>
+        <Label htmlFor="giver">{t('form.giverLabel')}</Label>
         <select
           id="giver"
           value={giverMemberId}
@@ -63,7 +65,7 @@ export function ExclusionForm({
           className="w-full mt-1 px-3 py-2 border border-input bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground dark:bg-input/30"
         >
           <option value="" className="dark:bg-gray-900">
-            Select giver member
+            {t('form.giverPlaceholder')}
           </option>
           {members.map(member => (
             <option key={member.id} value={member.id} className="dark:bg-gray-900">
@@ -74,7 +76,7 @@ export function ExclusionForm({
       </div>
 
       <div>
-        <Label htmlFor="receiver">Receiver Member</Label>
+        <Label htmlFor="receiver">{t('form.receiverLabel')}</Label>
         <select
           id="receiver"
           value={receiverMemberId}
@@ -83,7 +85,7 @@ export function ExclusionForm({
           className="w-full mt-1 px-3 py-2 border border-input bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground dark:bg-input/30"
         >
           <option value="" className="dark:bg-gray-900">
-            Select receiver member
+            {t('form.receiverPlaceholder')}
           </option>
           {members.map(member => (
             <option key={member.id} value={member.id} className="dark:bg-gray-900">
@@ -103,13 +105,13 @@ export function ExclusionForm({
           className="w-4 h-4 border-input rounded focus:ring-2 focus:ring-ring"
         />
         <Label htmlFor="mutual" className="mb-0 cursor-pointer">
-          Mutual exclusion (both directions)
+          {t('form.mutualCheckbox')}
         </Label>
       </div>
 
       <div className="flex gap-2 pt-4">
         <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading ? 'Creating...' : 'Create Exclusion'}
+          {isLoading ? t('form.creatingButton') : t('form.createButton')}
         </Button>
         <Button
           type="button"
@@ -118,7 +120,7 @@ export function ExclusionForm({
           disabled={isLoading}
           className="flex-1"
         >
-          Cancel
+          {t('form.cancelButton')}
         </Button>
       </div>
     </form>

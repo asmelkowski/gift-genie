@@ -308,7 +308,7 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     const _adminUser = await createAdminUser(page, context);
 
     // Navigate to admin dashboard without waiting
-    await page.goto('/app/admin');
+    await page.goto('/admin');
 
     // Try to catch loading state (may be brief)
     // First check if loader appears or wait for it to disappear
