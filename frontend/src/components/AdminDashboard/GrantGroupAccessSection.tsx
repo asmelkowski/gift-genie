@@ -204,7 +204,7 @@ export function GrantGroupAccessSection({
                   {isGranting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   {t('grantAccess.grantButton')}{' '}
                   {selectedCount > 0
-                    ? `${t('grantAccess.selected')} ${selectedCount} `
+                    ? `${selectedCount} ${t('grantAccess.selected')} `
                     : `${t('grantAccess.selected')} `}
                   {selectedCount === 1 ? t('grantAccess.permission') : t('grantAccess.permissions')}
                 </Button>

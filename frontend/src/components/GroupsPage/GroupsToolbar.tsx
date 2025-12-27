@@ -19,12 +19,15 @@ export function GroupsToolbar({ search, sort, onSearchChange, onSortChange }: Gr
   const { t } = useTranslation('groups');
   const [inputValue, setInputValue] = useState(search);
 
-  const SORT_OPTIONS: SortOption[] = [
-    { value: '-created_at', label: t('toolbar.sort.newestFirst') },
-    { value: 'created_at', label: t('toolbar.sort.oldestFirst') },
-    { value: 'name', label: t('toolbar.sort.nameAZ') },
-    { value: '-name', label: t('toolbar.sort.nameZA') },
-  ];
+  const SORT_OPTIONS: SortOption[] = useMemo(
+    () => [
+      { value: '-created_at', label: t('toolbar.sort.newestFirst') },
+      { value: 'created_at', label: t('toolbar.sort.oldestFirst') },
+      { value: 'name', label: t('toolbar.sort.nameAZ') },
+      { value: '-name', label: t('toolbar.sort.nameZA') },
+    ],
+    [t]
+  );
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

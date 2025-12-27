@@ -50,7 +50,7 @@
     "noneGranted": "No permissions granted",
     "availableSystem": "Available System Permissions",
     "availableGroup": "{{name}} (Available)",
-    "grantedSystem": "Granted System Permissions"
+    "grantedSystemTitle": "Granted System Permissions"
   },
   "grantAccess": {
     "title": "Grant Group-Specific Access",

@@ -50,7 +50,7 @@
     "noneGranted": "Brak przyznanych uprawnień",
     "availableSystem": "Dostępne uprawnienia systemowe",
     "availableGroup": "{{name}} (Dostępne)",
-    "grantedSystem": "Przyznane uprawnienia systemowe"
+    "grantedSystemTitle": "Przyznane uprawnienia systemowe"
   },
   "grantAccess": {
     "title": "Przyznaj dostęp do konkretnej grupy",

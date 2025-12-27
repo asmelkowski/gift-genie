@@ -86,7 +86,7 @@ export function ExclusionsPage() {
         deleteExclusionMutation.mutate(exclusionId);
       }
     },
-    [deleteExclusionMutation]
+    [deleteExclusionMutation, t]
   );
 
   if (!groupId) {
