@@ -109,8 +109,8 @@ export function ExclusionForm({
         </Label>
       </div>
 
-      <div className="flex gap-2 pt-4">
-        <Button type="submit" disabled={isLoading} className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-2 pt-4">
+        <Button type="submit" disabled={isLoading} className="w-full sm:flex-1">
           {isLoading ? t('form.creatingButton') : t('form.createButton')}
         </Button>
         <Button
@@ -118,7 +118,7 @@ export function ExclusionForm({
           variant="outline"
           onClick={onCancel}
           disabled={isLoading}
-          className="flex-1"
+          className="w-full sm:flex-1"
         >
           {t('form.cancelButton')}
         </Button>

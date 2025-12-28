@@ -50,14 +50,19 @@ export default function NotifyDrawDialog({
           </div>
         )}
 
-        <div className="flex gap-3 justify-end pt-4">
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+        <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end pt-4">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
             {t('notify.cancelButton')}
           </Button>
           <Button
             onClick={() => onConfirm(resend)}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
           >
             {isLoading ? t('notify.sendingButton') : t('notify.sendButton')}
           </Button>

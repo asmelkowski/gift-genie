@@ -202,16 +202,17 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
           </div>
         )}
 
-        <div className="flex gap-2 justify-end pt-4">
+        <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-4">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
             disabled={mutation.isPending}
+            className="w-full sm:w-auto"
           >
             {t('create.cancelButton')}
           </Button>
-          <Button type="submit" disabled={mutation.isPending}>
+          <Button type="submit" disabled={mutation.isPending} className="w-full sm:w-auto">
             {mutation.isPending ? t('create.creatingButton') : t('create.createButton')}
           </Button>
         </div>

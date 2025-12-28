@@ -34,8 +34,8 @@ export function ExclusionsToolbar({
 
   return (
     <div className="space-y-4 mb-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-2">
           {FILTER_OPTIONS.map(option => (
             <button
               key={option.value}
@@ -55,29 +55,28 @@ export function ExclusionsToolbar({
           onClick={onCreateClick}
           disabled={filterType === 'historical'}
           title={filterType === 'historical' ? t('toolbar.addDisabledTitle') : ''}
+          className="w-full sm:w-auto"
         >
           {t('toolbar.addButton')}
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <div className="flex items-center gap-2">
-          <label htmlFor="sort" className="text-sm font-medium text-gray-700">
-            {t('toolbar.sortLabel')}:
-          </label>
-          <select
-            id="sort"
-            value={sortBy}
-            onChange={e => onSortChange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {SORT_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+        <label htmlFor="sort" className="text-sm font-medium text-gray-700">
+          {t('toolbar.sortLabel')}:
+        </label>
+        <select
+          id="sort"
+          value={sortBy}
+          onChange={e => onSortChange(e.target.value)}
+          className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {SORT_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

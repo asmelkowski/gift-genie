@@ -47,8 +47,8 @@ export function MembersToolbar({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex gap-2" role="group" aria-label={t('toolbar.filterLabel')}>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t('toolbar.filterLabel')}>
           <Button
             variant={isActive === null ? 'default' : 'outline'}
             onClick={() => onActiveFilterChange(null)}
@@ -97,7 +97,7 @@ export function MembersToolbar({
         <select
           value={sort}
           onChange={e => onSortChange(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label={t('toolbar.sortLabel')}
         >
           <option value="name">{t('toolbar.sort.nameAZ')}</option>

@@ -19,37 +19,43 @@ export default function GroupDetails() {
         </Button>
       </div>
 
-      <div className="bg-card rounded-lg border border-border p-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1">
             <h2 className="text-lg font-semibold mb-1">{t('details.membersTitle')}</h2>
             <p className="text-muted-foreground text-sm">{t('details.membersDescription')}</p>
           </div>
-          <Button onClick={() => navigate(`/groups/${groupId}/members`)}>
+          <Button
+            onClick={() => navigate(`/groups/${groupId}/members`)}
+            className="w-full sm:w-auto"
+          >
             {t('details.viewMembersButton')}
           </Button>
         </div>
       </div>
 
-      <div className="bg-card rounded-lg border border-border p-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1">
             <h2 className="text-lg font-semibold mb-1">{t('details.exclusionsTitle')}</h2>
             <p className="text-muted-foreground text-sm">{t('details.exclusionsDescription')}</p>
           </div>
-          <Button onClick={() => navigate(`/groups/${groupId}/exclusions`)}>
+          <Button
+            onClick={() => navigate(`/groups/${groupId}/exclusions`)}
+            className="w-full sm:w-auto"
+          >
             {t('details.viewExclusionsButton')}
           </Button>
         </div>
       </div>
 
-      <div className="bg-card rounded-lg border border-border p-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1">
             <h2 className="text-lg font-semibold mb-1">{t('details.drawsTitle')}</h2>
             <p className="text-muted-foreground text-sm">{t('details.drawsDescription')}</p>
           </div>
-          <Button onClick={() => navigate(`/groups/${groupId}/draws`)}>
+          <Button onClick={() => navigate(`/groups/${groupId}/draws`)} className="w-full sm:w-auto">
             {t('details.viewDrawsButton')}
           </Button>
         </div>
