@@ -382,6 +382,8 @@ export interface components {
             email?: string | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Language */
+            language?: string | null;
         };
         /** DrawResponse */
         DrawResponse: {
@@ -592,6 +594,8 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Language */
+            language?: string | null;
         };
         /** NotifyDrawRequest */
         NotifyDrawRequest: {
@@ -672,6 +676,8 @@ export interface components {
             email?: string | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Language */
+            language?: string | null;
         };
         /** UserCreatedResponse */
         UserCreatedResponse: {

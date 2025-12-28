@@ -26,6 +26,7 @@ class MemberRepositorySqlAlchemy(MemberRepository):
             group_id=UUID(member.group_id),
             name=member.name,
             email=member.email,
+            language=member.language,
             is_active=member.is_active,
             created_at=member.created_at,
         )
@@ -162,6 +163,7 @@ class MemberRepositorySqlAlchemy(MemberRepository):
         # Update fields
         model.name = member.name
         model.email = member.email
+        model.language = member.language
         model.is_active = member.is_active
 
         try:
@@ -212,4 +214,5 @@ class MemberRepositorySqlAlchemy(MemberRepository):
             email=model.email,
             is_active=model.is_active,
             created_at=model.created_at,
+            language=model.language,
         )

@@ -84,6 +84,4 @@ def test_get_subject_languages(smtp_service):
     assert (
         smtp_service._get_subject("Group", "pl") == "Wynik losowania Tajemniczego Gwiazdora - Group"
     )
-    assert (
-        smtp_service._get_subject("Group", "fr") == "Wynik losowania Tajemniczego Gwiazdora - Group"
-    )
+    assert smtp_service._get_subject("Group", "fr") == "Secret Santa Draw Result - Group"

@@ -8,7 +8,7 @@ class NotificationService(Protocol):
         member_name: str,
         receiver_name: str,
         group_name: str,
-        language: str = "pl",
+        language: str = "en",
     ) -> bool:
         """
         Send Secret Santa assignment notification email.

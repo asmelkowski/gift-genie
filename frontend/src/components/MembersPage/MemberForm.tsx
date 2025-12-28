@@ -16,6 +16,7 @@ interface MemberFormData {
   name: string;
   email: string;
   is_active: boolean;
+  language: string;
 }
 
 interface MemberFormErrors {
@@ -45,6 +46,7 @@ export function MemberForm({
     name: member?.name || '',
     email: member?.email || '',
     is_active: member?.is_active ?? true,
+    language: member?.language || 'en',
   });
   const [errors, setErrors] = useState<MemberFormErrors>({});
   const [touched, setTouched] = useState({ name: false, email: false });
@@ -164,6 +166,7 @@ export function MemberForm({
           name: formData.name.trim(),
           email: formData.email || undefined,
           is_active: formData.is_active,
+          language: formData.language,
         };
         updateMutation.mutate({ memberId: member.id, payload }, { onSuccess });
       } else {
@@ -171,6 +174,7 @@ export function MemberForm({
           name: formData.name.trim(),
           email: formData.email || undefined,
           is_active: formData.is_active,
+          language: formData.language,
         };
         createMutation.mutate(payload, { onSuccess });
       }
@@ -214,6 +218,20 @@ export function MemberForm({
           disabled={isLoading}
         />
         {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+      </div>
+
+      <div>
+        <Label htmlFor="language">{t('form.languageLabel')}</Label>
+        <select
+          id="language"
+          value={formData.language}
+          onChange={e => setFormData(prev => ({ ...prev, language: e.target.value }))}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={isLoading}
+        >
+          <option value="en">{t('form.languageOptions.en')}</option>
+          <option value="pl">{t('form.languageOptions.pl')}</option>
+        </select>
       </div>
 
       <div className="flex items-center gap-2">

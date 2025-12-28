@@ -78,6 +78,7 @@ class NotifyDrawUseCase:
                     member_name=giver.name,
                     receiver_name=receiver.name,
                     group_name=group.name,
+                    language=giver.language or "en",
                 )
                 if success:
                     sent_count += 1

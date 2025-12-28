@@ -51,6 +51,7 @@ class CreateMemberUseCase:
             email=command.email,
             is_active=command.is_active,
             created_at=now,
+            language=command.language,
         )
 
         # Persist

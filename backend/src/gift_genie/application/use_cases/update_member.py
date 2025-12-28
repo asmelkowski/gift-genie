@@ -63,6 +63,10 @@ class UpdateMemberUseCase:
             member.is_active = command.is_active
             updated = True
 
+        if command.language is not None:
+            member.language = command.language
+            updated = True
+
         # Persist and return updated member
         if updated:
             return await self.member_repository.update(member)

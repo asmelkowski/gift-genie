@@ -62,6 +62,11 @@
     "saveButton": "Zapisz zmiany",
     "addButton": "Dodaj członka",
     "savingButton": "Zapisywanie...",
+    "languageLabel": "Język wiadomości e-mail",
+    "languageOptions": {
+      "pl": "Polski",
+      "en": "Angielski"
+    },
     "errors": {
       "nameRequired": "Nazwa jest wymagana",
       "nameTooLong": "Nazwa musi mieć maksymalnie 100 znaków",
