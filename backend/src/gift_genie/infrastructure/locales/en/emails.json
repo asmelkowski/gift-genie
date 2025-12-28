@@ -1,0 +1,15 @@
+{
+    "email": {
+        "assignment": {
+            "title": "Secret Santa Draw Result",
+            "heading": "Secret Santa Draw Result - %(group_name)s",
+            "greeting": "Hi %(name)s!",
+            "intro": "The holiday season is just around the corner, and with it comes the time for our exciting gift exchange in the Secret Santa game! We are delighted to announce the result of your draw:",
+            "result": "The person you will be buying a gift for is: %(receiver)s",
+            "reminder": "Remember to keep this a secret and have fun choosing a thoughtful gift.",
+            "wishes": "As this joyful season approaches, we wish you and your loved ones a wonderful holiday period, full of warmth, laughter, and unforgettable moments. May the magic of Christmas bring you peace, joy, and happiness.",
+            "closing": "Happy shopping and Happy Holidays!",
+            "signature": "Best wishes,<br>The Gift-Genie Team"
+        }
+    }
+}

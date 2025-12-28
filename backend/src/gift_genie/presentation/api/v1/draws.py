@@ -45,7 +45,7 @@ from gift_genie.infrastructure.database.repositories.exclusions import Exclusion
 
 from gift_genie.infrastructure.database.repositories.members import MemberRepositorySqlAlchemy
 from gift_genie.infrastructure.database.session import get_async_session
-from gift_genie.infrastructure.services.email_notification_service import EmailNotificationService
+from gift_genie.infrastructure.services.smtp_notification_service import SmtpNotificationService
 from gift_genie.presentation.api.v1.shared import PaginationMeta
 from gift_genie.presentation.api.dependencies import (
     require_permission,
@@ -148,7 +148,7 @@ async def get_exclusion_repository(
 
 
 async def get_notification_service() -> AsyncGenerator[NotificationService, None]:
-    yield EmailNotificationService()
+    yield SmtpNotificationService()
 
 
 async def get_draw_algorithm() -> AsyncGenerator[DrawAlgorithm, None]:

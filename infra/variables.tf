@@ -98,3 +98,21 @@ variable "db_iam_principal_id" {
   description = "IAM Principal ID (User or Application UUID) for database authentication"
   type        = string
 }
+
+variable "smtp_user" {
+  description = "Scaleway TEM SMTP username (project ID)"
+  type        = string
+  sensitive   = true
+}
+
+variable "smtp_password" {
+  description = "Scaleway TEM SMTP password (secret key)"
+  type        = string
+  sensitive   = true
+}
+
+variable "smtp_from" {
+  description = "Email sender address (must be verified in Scaleway TEM)"
+  type        = string
+  default     = "noreply@gift-genie.eu"
+}

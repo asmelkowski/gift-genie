@@ -626,6 +626,8 @@ jobs:
           TF_VAR_ovh_application_secret: ${{ secrets.OVH_APPLICATION_SECRET }}
           TF_VAR_ovh_consumer_key: ${{ secrets.OVH_CONSUMER_KEY }}
           TF_VAR_db_iam_principal_id: ${{ secrets.DB_IAM_PRINCIPAL_ID }}
+          TF_VAR_smtp_user: ${{ secrets.SMTP_USER }}
+          TF_VAR_smtp_password: ${{ secrets.SMTP_PASSWORD }}
         run: tofu plan -input=false
 
 
