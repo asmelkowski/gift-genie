@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ language }}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Santa Draw Result 2025</title>
+    <title>{{ _('email.assignment.title') }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,16 +15,19 @@
             padding: 20px;
             background-color: #f0f0f0;
         }
+
         .container {
             background-color: #ffffff;
             border-radius: 5px;
             padding: 30px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             color: #d42426;
             text-align: center;
         }
+
         .result {
             font-size: 18px;
             font-weight: bold;
@@ -33,6 +37,7 @@
             background-color: #e8f5e9;
             border-radius: 5px;
         }
+
         .signature {
             text-align: right;
             margin-top: 30px;
@@ -40,28 +45,29 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>🎅 Secret Santa Draw Result 🎄</h1>
+        <h1>🎅 {% trans group_name=group_name %}email.assignment.heading{% endtrans %} 🎄</h1>
 
-        <p>Hi {{ member_name }}!</p>
+        <p>{% trans name=member_name %}email.assignment.greeting{% endtrans %}</p>
 
-        <p>The holiday season is just around the corner, and with it comes the time for our exciting gift exchange in the Secret Santa game! We are delighted to announce the result of your draw:</p>
+        <p>{{ _('email.assignment.intro') }}</p>
 
         <div class="result">
-            The person you will be buying a gift for is: {{ receiver_name }}
+            {% trans receiver=receiver_name %}email.assignment.result{% endtrans %}
         </div>
 
-        <p>Remember to keep this a secret and have fun choosing a thoughtful gift.</p>
+        <p>{{ _('email.assignment.reminder') }}</p>
 
-        <p>As this joyful season approaches, we wish you and your loved ones a wonderful holiday period, full of warmth, laughter, and unforgettable moments. May the magic of Christmas bring you peace, joy, and happiness.</p>
+        <p>{{ _('email.assignment.wishes') }}</p>
 
-        <p>Happy shopping and Happy Holidays!</p>
+        <p>{{ _('email.assignment.closing') }}</p>
 
         <div class="signature">
-            Best wishes,<br>
-            The Gift-Genie Team
+            {{ _('email.assignment.signature') | safe }}
         </div>
     </div>
 </body>
+
 </html>

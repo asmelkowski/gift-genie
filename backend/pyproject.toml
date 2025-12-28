@@ -19,6 +19,7 @@ dependencies = [
     "loguru>=0.7.3",
     "slowapi>=0.1.9",
     "jinja2>=3.0.0",
+    "aiosmtplib>=3.0.1",
 ]
 
 [dependency-groups]

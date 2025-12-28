@@ -44,6 +44,9 @@ resource "scaleway_container" "backend" {
     ]) : "*"
     "COOKIE_SECURE"         = "true"
     "DATABASE_SSL_REQUIRED" = "true"
+    "SMTP_HOST"             = "smtp.tem.scaleway.com"
+    "SMTP_PORT"             = "587"
+    "SMTP_FROM"             = var.smtp_from
   }
 
   secret_environment_variables = {
@@ -68,6 +71,10 @@ resource "scaleway_container" "backend" {
 
     # SECRET_KEY for JWT signing
     "SECRET_KEY" = var.secret_key
+
+    # SMTP credentials
+    "SMTP_USER"     = var.smtp_user
+    "SMTP_PASSWORD" = var.smtp_password
   }
 }
 

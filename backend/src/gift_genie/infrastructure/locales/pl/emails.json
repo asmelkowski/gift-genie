@@ -1,0 +1,15 @@
+{
+    "email": {
+        "assignment": {
+            "title": "Wynik Losowania Tajemniczego Gwiazdora",
+            "heading": "Wynik Losowania Tajemniczego Gwiazdora - %(group_name)s",
+            "greeting": "Cześć %(name)s!",
+            "intro": "Okres świąteczny jest tuż za rogiem, a wraz z nim nadszedł czas na naszą ekscytującą wymianę prezentów w ramach zabawy w Tajemniczego Gwiazdora! Z radością ogłaszamy wynik Twojego losowania:",
+            "result": "Osoba, dla której przygotowujesz prezent to: %(receiver)s",
+            "reminder": "Pamiętaj, aby zachować to w tajemnicy i dobrze się bawić, wybierając przemyślany prezent.",
+            "wishes": "W miarę zbliżania się tego radosnego czasu, życzymy Tobie i Twoim bliskim wspaniałego okresu świątecznego, pełnego ciepła, śmiechu i niezapomnianych chwil. Niech magia Świąt Bożego Narodzenia przyniesie Ci spokój, radość i szczęście.",
+            "closing": "Udanych zakupów i Wesołych Świąt!",
+            "signature": "Najlepsze życzenia,<br>Zespół Gift-Genie"
+        }
+    }
+}
