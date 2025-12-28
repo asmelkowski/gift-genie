@@ -169,8 +169,8 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     await adminDashboard.searchUsers(nonExistentSearch);
     console.log(`[E2E] Searched for non-existent: "${nonExistentSearch}"`);
 
-    // Verify empty state message
-    const noResultsText = page.locator('text=No users found');
+    // Verify empty state message (scoped to table to avoid mobile duplicate)
+    const noResultsText = page.getByTestId('users-table').locator('text=No users found');
     await expect(noResultsText).toBeVisible();
     console.log('[E2E] Empty state message visible');
 
@@ -611,7 +611,7 @@ test.describe('Admin Dashboard UX and Error Handling', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify empty state message is visible
-    const emptyStateText = page.locator('text=No users found');
+    const emptyStateText = page.getByTestId('users-table').locator('text=No users found');
     await expect(emptyStateText).toBeVisible();
     console.log('[E2E] Empty state message visible');
 

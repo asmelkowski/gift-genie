@@ -56,18 +56,18 @@ export class AdminDashboardPage {
    */
   async clickManagePermissions(userId: string) {
     console.log(`[E2E] Clicking manage permissions for user ${userId}...`);
-    const manageButton = this.page.getByTestId(`manage-permissions-${userId}`);
+    const manageButton = this.page
+      .getByTestId('users-table')
+      .getByTestId(`manage-permissions-${userId}`);
     await manageButton.click();
-    // Wait for permission dialog to open
     await this.page.getByTestId('permission-dialog').waitFor({ state: 'visible' });
     console.log(`[E2E] Permission dialog opened for user ${userId}`);
   }
 
-  /**
-   * Get the permission count displayed in the user table for a specific user
-   */
   async getPermissionCount(userId: string): Promise<string> {
-    const countElement = this.page.getByTestId(`permission-count-${userId}`);
+    const countElement = this.page
+      .getByTestId('users-table')
+      .getByTestId(`permission-count-${userId}`);
     const text = await countElement.textContent();
     return text?.trim() || '';
   }
@@ -253,18 +253,20 @@ export class AdminDashboardPage {
 
   /**
    * Verify a user appears in the users table by email
+   * Scoped to the desktop table to avoid duplicate matches with mobile cards
    */
   async expectUserInTable(email: string) {
     console.log(`[E2E] Expecting user in table: ${email}`);
-    await expect(this.page.locator(`text=${email}`)).toBeVisible();
+    await expect(this.page.getByTestId('users-table').locator(`text=${email}`)).toBeVisible();
   }
 
   /**
    * Verify a user does NOT appear in the users table by email
+   * Scoped to the desktop table to avoid duplicate matches with mobile cards
    */
   async expectUserNotInTable(email: string) {
     console.log(`[E2E] Expecting user NOT in table: ${email}`);
-    await expect(this.page.locator(`text=${email}`)).not.toBeVisible();
+    await expect(this.page.getByTestId('users-table').locator(`text=${email}`)).not.toBeVisible();
   }
 
   /**
@@ -273,7 +275,9 @@ export class AdminDashboardPage {
    */
   async expectPermissionCount(userId: string, count: number | string) {
     console.log(`[E2E] Verifying permission count for user ${userId}: ${count}`);
-    const countElement = this.page.getByTestId(`permission-count-${userId}`);
+    const countElement = this.page
+      .getByTestId('users-table')
+      .getByTestId(`permission-count-${userId}`);
     const countText = count === 'All' ? 'All (Admin)' : count.toString();
     await expect(countElement).toContainText(countText);
   }
