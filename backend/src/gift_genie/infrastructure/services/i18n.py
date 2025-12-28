@@ -6,11 +6,11 @@ from pathlib import Path
 class JsonTranslations(NullTranslations):
     """Translations backed by JSON files (compatible with Jinja2 i18n extension)."""
 
-    def __init__(self, translations: dict):
+    def __init__(self, translations: dict[str, str | dict]):
         super().__init__()
-        self._catalog = self._flatten(translations)
+        self._catalog: dict[str, str] = self._flatten(translations)
 
-    def _flatten(self, d: dict, parent_key: str = "") -> dict:
+    def _flatten(self, d: dict[str, str | dict], parent_key: str = "") -> dict[str, str]:
         """Flatten nested dict: {"a": {"b": "c"}} -> {"a.b": "c"}"""
         items = {}
         for k, v in d.items():
@@ -22,7 +22,7 @@ class JsonTranslations(NullTranslations):
         return items
 
     def gettext(self, message: str) -> str:
-        return self._catalog.get(message, message)
+        return str(self._catalog.get(message, message))
 
     def ngettext(self, singular: str, plural: str, n: int) -> str:
         return self.gettext(plural if n != 1 else singular)

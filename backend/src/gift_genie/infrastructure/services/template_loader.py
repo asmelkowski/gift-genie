@@ -38,7 +38,7 @@ class TemplateLoader:
             language = "pl"
 
         # Install transitions into the environment
-        self.env.install_gettext_translations(translations, newstyle=True)
+        self.env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]
 
         # With newstyle=True, the variables in trans blocks are passed as keyword arguments
         # and the translation strings should use %(var)s syntax.
