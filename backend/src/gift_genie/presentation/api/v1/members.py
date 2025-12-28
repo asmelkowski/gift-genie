@@ -44,6 +44,7 @@ class CreateMemberRequest(BaseModel):
     name: Annotated[str, StringConstraints(min_length=1, max_length=100, strip_whitespace=True)]
     email: EmailStr | None = None
     is_active: bool | None = None
+    language: str | None = None
 
 
 class UpdateMemberRequest(BaseModel):
@@ -54,10 +55,11 @@ class UpdateMemberRequest(BaseModel):
     ) = None
     email: EmailStr | None = None
     is_active: bool | None = None
+    language: str | None = None
 
     @model_validator(mode="after")
     def check_at_least_one_field(self) -> "UpdateMemberRequest":
-        if all(v is None for v in [self.name, self.email, self.is_active]):
+        if all(v is None for v in [self.name, self.email, self.is_active, self.language]):
             raise ValueError("At least one field must be provided")
         return self
 
@@ -69,6 +71,7 @@ class MemberResponse(BaseModel):
     email: str | None
     is_active: bool
     created_at: datetime
+    language: str | None = None
 
 
 class PaginatedMembersResponse(BaseModel):
@@ -140,6 +143,7 @@ async def get_member(
         email=member.email,
         is_active=member.is_active,
         created_at=member.created_at,
+        language=member.language,
     )
 
 
@@ -163,6 +167,7 @@ async def update_member(
         name=request.name,
         email=request.email,
         is_active=request.is_active,
+        language=request.language,
     )
 
     try:
@@ -242,6 +247,7 @@ async def update_member(
         email=member.email,
         is_active=member.is_active,
         created_at=member.created_at,
+        language=member.language,
     )
 
 
@@ -379,6 +385,7 @@ async def list_members(
             email=member.email,
             is_active=member.is_active,
             created_at=member.created_at,
+            language=member.language,
         )
         for member in members
     ]
@@ -413,6 +420,7 @@ async def create_member(
         name=request.name,
         email=request.email,
         is_active=request.is_active if request.is_active is not None else True,
+        language=request.language,
     )
 
     try:
@@ -470,6 +478,7 @@ async def create_member(
         email=member.email,
         is_active=member.is_active,
         created_at=member.created_at,
+        language=member.language,
     )
 
     # Set Location header

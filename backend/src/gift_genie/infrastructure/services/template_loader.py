@@ -16,7 +16,7 @@ class TemplateLoader:
             autoescape=True,
         )
 
-    def get_template(self, template_name: str, language: str = "pl") -> Template:
+    def get_template(self, template_name: str, language: str = "en") -> Template:
         """Get template for specified language using translations.
 
         Args:
@@ -32,10 +32,10 @@ class TemplateLoader:
         # Load translations for the requested language
         translations = load_translations(language, self.locales_dir)
 
-        # If language is not Polish and no translations found, try fallback to Polish
-        if not translations._catalog and language != "pl":
-            translations = load_translations("pl", self.locales_dir)
-            language = "pl"
+        # If language is not English and no translations found, try fallback to English
+        if not translations._catalog and language != "en":
+            translations = load_translations("en", self.locales_dir)
+            language = "en"
 
         # Install transitions into the environment
         self.env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]

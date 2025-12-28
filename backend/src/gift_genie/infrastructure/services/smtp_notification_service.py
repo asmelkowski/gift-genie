@@ -37,7 +37,7 @@ class SmtpNotificationService(NotificationService):
         member_name: str,
         receiver_name: str,
         group_name: str,
-        language: str = "pl",
+        language: str = "en",
     ) -> bool:
         """Send Secret Santa assignment notification via SMTP.
 
@@ -114,7 +114,7 @@ class SmtpNotificationService(NotificationService):
         Returns:
             Localized email subject
         """
-        if language == "en":
-            return f"Secret Santa Draw Result - {group_name}"
-        # Default to Polish for other language codes
-        return f"Wynik losowania Tajemniczego Gwiazdora - {group_name}"
+        if language == "pl":
+            return f"Wynik losowania Tajemniczego Gwiazdora - {group_name}"
+        # Default to English for other language codes
+        return f"Secret Santa Draw Result - {group_name}"

@@ -9,3 +9,4 @@ class UpdateMemberCommand:
     name: str | None = None
     email: str | None = None
     is_active: bool | None = None
+    language: str | None = None

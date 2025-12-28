@@ -25,6 +25,7 @@ describe('MemberForm', () => {
     email: 'john@example.com',
     is_active: true,
     created_at: '2024-01-15T10:00:00Z',
+    language: 'en',
     ...overrides,
   });
 
@@ -82,7 +83,8 @@ describe('MemberForm', () => {
       renderForm();
 
       expect(screen.getByLabelText(/Name/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Email \(optional\)/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Email Language/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/Active member/)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Add Member/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
@@ -165,7 +167,7 @@ describe('MemberForm', () => {
       const user = userEvent.setup();
       renderForm();
 
-      const emailInput = screen.getByLabelText(/Email/);
+      const emailInput = screen.getByLabelText(/Email \(optional\)/i);
       await user.type(emailInput, 'invalid-email');
 
       const nameInput = screen.getByLabelText(/Name/);
@@ -224,7 +226,7 @@ describe('MemberForm', () => {
       renderForm();
 
       await user.type(screen.getByLabelText(/Name/), 'Alice');
-      await user.type(screen.getByLabelText(/Email/), 'alice@example.com');
+      await user.type(screen.getByLabelText(/Email \(optional\)/i), 'alice@example.com');
 
       const submitButton = screen.getByRole('button', { name: /Add Member/i });
       await user.click(submitButton);
@@ -234,6 +236,7 @@ describe('MemberForm', () => {
           name: 'Alice',
           email: 'alice@example.com',
           is_active: true,
+          language: 'en',
         }),
         expect.any(Object)
       );
@@ -257,7 +260,7 @@ describe('MemberForm', () => {
       renderForm();
 
       await user.type(screen.getByLabelText(/Name/), '  Alice  ');
-      await user.type(screen.getByLabelText(/Email/), 'alice@example.com');
+      await user.type(screen.getByLabelText(/Email \(optional\)/i), 'alice@example.com');
 
       const submitButton = screen.getByRole('button', { name: /Add Member/i });
       await user.click(submitButton);
@@ -338,6 +341,7 @@ describe('MemberForm', () => {
         expect.objectContaining({
           payload: expect.objectContaining({
             is_active: false,
+            language: 'en',
           }),
         }),
         expect.any(Object)
@@ -376,7 +380,7 @@ describe('MemberForm', () => {
       renderForm();
 
       await user.type(screen.getByLabelText(/Name/), 'Alice');
-      await user.type(screen.getByLabelText(/Email/), 'alice@example.com');
+      await user.type(screen.getByLabelText(/Email \(optional\)/i), 'alice@example.com');
 
       const submitButton = screen.getByRole('button', { name: /Add Member/i });
       await user.click(submitButton);
@@ -414,7 +418,7 @@ describe('MemberForm', () => {
       renderForm();
 
       await user.type(screen.getByLabelText(/Name/), 'Alice');
-      await user.type(screen.getByLabelText(/Email/), 'alice@example.com');
+      await user.type(screen.getByLabelText(/Email \(optional\)/i), 'alice@example.com');
 
       const submitButton = screen.getByRole('button', { name: /Add Member/i });
       await user.click(submitButton);

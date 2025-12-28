@@ -33,11 +33,11 @@ def test_english_template_renders_correctly(template_loader):
     assert "The Gift-Genie Team" in html
 
 
-def test_missing_language_falls_back_to_polish(template_loader):
-    # 'de' is not supported, should fallback to 'pl'
+def test_missing_language_falls_back_to_english(template_loader):
+    # 'de' is not supported, should fallback to 'en'
     template = template_loader.get_template("assignment_notification.html", language="de")
     html = template.render(member_name="Hans", receiver_name="Anna", group_name="Familie")
 
-    # Should fall back to Polish content
-    assert "Cześć Hans!" in html
-    assert "Tajemniczego Gwiazdora" in html
+    # Should fall back to English content
+    assert "Hi Hans!" in html
+    assert "Secret Santa" in html

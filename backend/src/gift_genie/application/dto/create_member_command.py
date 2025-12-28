@@ -8,3 +8,4 @@ class CreateMemberCommand:
     name: str
     email: str | None = None
     is_active: bool = True
+    language: str | None = None

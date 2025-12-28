@@ -10,6 +10,7 @@ class Member:
     email: str | None
     is_active: bool
     created_at: datetime
+    language: str | None = None
 
     def validate_name(self) -> bool:
         return len(self.name.strip()) > 0
