@@ -23,20 +23,18 @@ RUN bun install --frozen-lockfile
 # ============================================================================
 # Development stage - Run Vite dev server with HMR (uses Node for Vite 7 compatibility)
 # ============================================================================
-FROM node:22-slim AS development
+FROM deps AS development
 
 WORKDIR /app
 
+# Install curl for healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
-
-COPY package.json package-lock.json ./
-RUN npm ci
 
 COPY . .
 
 EXPOSE 5173
 
-CMD ["npx", "vite", "--host", "0.0.0.0"]
+CMD ["bun", "run", "dev", "--host", "0.0.0.0"]
 
 # ============================================================================
 # Test stage - Run tests with coverage
