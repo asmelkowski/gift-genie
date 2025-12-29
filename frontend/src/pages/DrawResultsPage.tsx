@@ -81,7 +81,7 @@ export default function DrawResultsPage() {
 
   if (drawQuery.isLoading || assignmentsQuery.isLoading) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="p-4 md:p-8 max-w-6xl mx-auto">
         <LoadingState />
       </div>
     );
@@ -99,7 +99,7 @@ export default function DrawResultsPage() {
 
   if (assignmentsQuery.isError) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="p-4 md:p-8 max-w-6xl mx-auto">
         {isForbiddenError(assignmentsQuery.error) ? (
           <AccessDeniedState
             message="You don't have permission to view these draw results."
@@ -115,8 +115,8 @@ export default function DrawResultsPage() {
   const assignments = (assignmentsQuery.data?.data || []) as AssignmentWithNames[];
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="flex flex-col gap-8">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto">
+      <div className="flex flex-col gap-6 md:gap-8">
         <PageHeader
           draw={drawQuery.data}
           assignments={filteredAndSortedAssignments}

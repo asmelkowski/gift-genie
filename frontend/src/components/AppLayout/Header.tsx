@@ -24,22 +24,22 @@ export function Header({ onToggleSidebar, onLogout, theme, onToggleTheme }: Head
   const themeLabel = theme === 'light' ? 'dark' : 'light';
 
   return (
-    <header className="flex items-center justify-between gap-4 px-4 py-4 bg-background border-b border-border shadow-sm">
-      <div className="flex items-center gap-4 flex-1">
-        <div className="text-2xl font-serif font-bold text-primary whitespace-nowrap flex items-center gap-2">
+    <header className="flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 bg-background border-b border-border shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+        <div className="text-xl sm:text-2xl font-serif font-bold text-primary whitespace-nowrap flex items-center gap-2 shrink-0">
           <span>🌲</span>
-          {t('appLayout.title')}
+          <span className="hidden sm:inline">{t('appLayout.title')}</span>
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 hidden md:block">
           <Breadcrumb items={breadcrumbs} />
         </div>
       </div>
-      <div className="flex items-center gap-3 whitespace-nowrap">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button
           onClick={onToggleTheme}
           aria-label={t('appLayout.toggleTheme', { theme: themeLabel })}
           title={t('appLayout.toggleTheme', { theme: themeLabel })}
-          className="flex items-center justify-center w-10 h-10 border border-border rounded hover:bg-muted focus:outline-2 focus:outline-ring focus:outline-offset-2 transition-colors text-foreground"
+          className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 border border-border rounded hover:bg-muted focus:outline-2 focus:outline-ring focus:outline-offset-2 transition-colors text-foreground"
         >
           {theme === 'light' ? '🌙' : '☀️'}
         </button>
@@ -47,7 +47,7 @@ export function Header({ onToggleSidebar, onLogout, theme, onToggleTheme }: Head
           onClick={onToggleSidebar}
           aria-label={t('appLayout.toggleMenu')}
           title={t('appLayout.toggleMenu')}
-          className="lg:hidden flex items-center justify-center text-xl border border-border rounded px-2 py-2 hover:bg-muted focus:outline-2 focus:outline-ring focus:outline-offset-2 transition-colors text-foreground"
+          className="lg:hidden flex items-center justify-center text-xl w-9 h-9 sm:w-10 sm:h-10 border border-border rounded hover:bg-muted focus:outline-2 focus:outline-ring focus:outline-offset-2 transition-colors text-foreground"
         >
           ☰
         </button>

@@ -250,11 +250,17 @@ export function MemberForm({
       </div>
       <p className="text-sm text-muted-foreground">{t('form.activeCheckboxHelpText')}</p>
 
-      <div className="flex gap-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+      <div className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isLoading}
+          className="w-full sm:w-auto"
+        >
           {t('form.cancelButton')}
         </Button>
-        <Button type="submit" disabled={hasErrors || isLoading}>
+        <Button type="submit" disabled={hasErrors || isLoading} className="w-full sm:w-auto">
           {isLoading ? t('form.savingButton') : member ? t('form.saveButton') : t('form.addButton')}
         </Button>
       </div>

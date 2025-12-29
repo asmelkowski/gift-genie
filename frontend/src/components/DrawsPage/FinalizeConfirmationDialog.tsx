@@ -24,14 +24,19 @@ export default function FinalizeConfirmationDialog({
           <p>{t('finalize.confirmMessage')}</p>
           <p className="font-semibold text-foreground">{t('finalize.warningMessage')}</p>
         </div>
-        <div className="flex gap-3 justify-end pt-4">
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+        <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end pt-4">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
             {t('finalize.cancelButton')}
           </Button>
           <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
           >
             {isLoading ? t('finalize.finalizingButton') : t('finalize.confirmButton')}
           </Button>

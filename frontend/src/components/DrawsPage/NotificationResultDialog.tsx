@@ -35,8 +35,11 @@ export default function NotificationResultDialog({
             </p>
           </div>
         )}
-        <div className="flex gap-3 justify-end pt-4">
-          <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700">
+        <div className="flex pt-4">
+          <Button
+            onClick={onClose}
+            className="w-full sm:w-auto sm:ml-auto bg-blue-600 hover:bg-blue-700"
+          >
             {t('notifyResult.closeButton')}
           </Button>
         </div>

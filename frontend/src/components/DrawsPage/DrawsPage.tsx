@@ -155,7 +155,7 @@ export default function DrawsPage() {
   if (params.status === 'finalized') statusDisplay = 'finalized';
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto">
       <div className="flex flex-col gap-8">
         <PageHeader
           groupId={groupId}

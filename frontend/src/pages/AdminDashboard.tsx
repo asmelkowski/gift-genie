@@ -68,9 +68,9 @@ function UsersTable() {
     <>
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <CardTitle>{t('admin:users.title')}</CardTitle>
-            <div className="relative w-64">
+            <div className="relative w-full sm:w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 data-testid="user-search-input"
@@ -92,7 +92,8 @@ function UsersTable() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="rounded-md border">
+              {/* Table layout for larger screens */}
+              <div className="hidden md:block rounded-md border">
                 <table className="w-full text-sm" data-testid="users-table">
                   <thead>
                     <tr className="border-b bg-muted/50 transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
@@ -135,8 +136,27 @@ function UsersTable() {
                 </table>
               </div>
 
+              {/* Card layout for mobile screens */}
+              <div className="md:hidden flex flex-col gap-3">
+                {data?.data.length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground">
+                    {t('admin:users.table.noUsers')}
+                  </div>
+                ) : (
+                  data?.data.map(user => (
+                    <UserMobileCard
+                      key={user.id}
+                      user={user}
+                      onManagePermissions={() =>
+                        handleOpenPermissions(user.id, user.name, user.email)
+                      }
+                    />
+                  ))
+                )}
+              </div>
+
               {/* Pagination */}
-              <div className="flex items-center justify-end space-x-2 py-4">
+              <div className="flex items-center justify-center sm:justify-end space-x-2 py-4">
                 <Button
                   variant="outline"
                   size="sm"
@@ -209,11 +229,10 @@ function UserTableRow({ user, onManagePermissions }: UserTableRowProps) {
       <td className="p-4 align-middle">{user.email}</td>
       <td className="p-4 align-middle capitalize">
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-            user.role === 'admin'
-              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-              : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-          }`}
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${user.role === 'admin'
+            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            }`}
         >
           {user.role === 'admin' ? t('users.role.admin') : t('users.role.user')}
         </span>
@@ -245,6 +264,55 @@ function UserTableRow({ user, onManagePermissions }: UserTableRowProps) {
   );
 }
 
+function UserMobileCard({ user, onManagePermissions }: UserTableRowProps) {
+  const { t } = useTranslation('admin');
+  const { data: permissions = [] } = useUserPermissions(user.id);
+
+  const permissionCountDisplay =
+    user.role === 'admin' ? t('users.permissions.admin') : `${permissions.length}`;
+
+  return (
+    <div className="p-4 rounded-lg border bg-card" data-testid={`user-card-${user.id}`}>
+      <div className="flex justify-between items-start gap-2 mb-2">
+        <div className="min-w-0 flex-1">
+          <p className="font-medium truncate">{user.name}</p>
+          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+        </div>
+        <span
+          className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${user.role === 'admin'
+            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            }`}
+        >
+          {user.role === 'admin' ? t('users.role.admin') : t('users.role.user')}
+        </span>
+      </div>
+      <div className="flex justify-between items-center text-sm">
+        <span className="text-muted-foreground" data-testid={`permission-count-${user.id}`}>
+          {t('admin:users.table.permissions')}: {permissionCountDisplay}
+        </span>
+        <span className="text-muted-foreground">
+          {new Date(user.created_at).toLocaleDateString()}
+        </span>
+      </div>
+      {
+        user.role !== 'admin' && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onManagePermissions}
+            className="w-full mt-3 gap-2"
+            data-testid={`manage-permissions-mobile-${user.id}`}
+          >
+            <Shield className="h-4 w-4" />
+            {t('users.actions.manage')}
+          </Button>
+        )
+      }
+    </div >
+  );
+}
+
 function GroupsTable() {
   const { t } = useTranslation(['admin', 'common']);
   const [page, setPage] = useState(1);
@@ -256,9 +324,9 @@ function GroupsTable() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <CardTitle>{t('admin:groups.title')}</CardTitle>
-          <div className="relative w-64">
+          <div className="relative w-full sm:w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('admin:groups.searchPlaceholder')}
@@ -279,7 +347,8 @@ function GroupsTable() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-md border">
+            {/* Table layout for larger screens */}
+            <div className="hidden md:block rounded-md border">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/50 transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
@@ -316,11 +385,10 @@ function GroupsTable() {
                         </td>
                         <td className="p-4 align-middle">
                           <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                              group.historical_exclusions_enabled
-                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                            }`}
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${group.historical_exclusions_enabled
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                              }`}
                           >
                             {group.historical_exclusions_enabled
                               ? t('admin:groups.table.yes')
@@ -337,8 +405,41 @@ function GroupsTable() {
               </table>
             </div>
 
+            {/* Card layout for mobile screens */}
+            <div className="md:hidden flex flex-col gap-3">
+              {data?.data.length === 0 ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  {t('admin:groups.table.noGroups')}
+                </div>
+              ) : (
+                data?.data.map(group => (
+                  <div key={group.id} className="p-4 rounded-lg border bg-card">
+                    <div className="flex justify-between items-start gap-2 mb-2">
+                      <p className="font-medium">{group.name}</p>
+                      <span
+                        className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${group.historical_exclusions_enabled
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                          }`}
+                      >
+                        {group.historical_exclusions_enabled
+                          ? t('admin:groups.table.yes')
+                          : t('admin:groups.table.no')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-mono truncate mb-1">
+                      {group.admin_user_id}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(group.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+
             {/* Pagination */}
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex items-center justify-center sm:justify-end space-x-2 py-4">
               <Button
                 variant="outline"
                 size="sm"
