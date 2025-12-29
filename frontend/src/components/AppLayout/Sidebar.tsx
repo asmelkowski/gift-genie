@@ -26,15 +26,20 @@ export function Sidebar({ items, activeRoute }: SidebarProps) {
             <li key={item.path}>
               <Link
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive
-                    ? 'bg-sidebar-accent text-sidebar-primary border-l-4 border-sidebar-primary font-semibold'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                    ? 'bg-sidebar-accent text-sidebar-primary shadow-sm font-medium'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
                 }`}
               >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                    isActive ? 'bg-primary scale-125' : 'bg-transparent'
+                  }`}
+                />
                 <span>{item.label}</span>
                 {item.badge !== undefined && (
-                  <span className="ml-auto inline-flex items-center justify-center w-6 h-6 text-xs font-semibold bg-red-500 text-white rounded-full">
+                  <span className="ml-auto inline-flex items-center justify-center px-1.5 py-0.5 min-w-[1.25rem] h-5 text-[10px] font-bold bg-accent text-accent-foreground rounded-full shadow-sm">
                     {item.badge}
                   </span>
                 )}

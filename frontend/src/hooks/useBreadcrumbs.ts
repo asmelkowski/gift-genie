@@ -4,7 +4,7 @@ import { useGroupDetailsQuery } from './useGroupDetailsQuery';
 
 export interface BreadcrumbItem {
   label: string;
-  path: string;
+  path?: string;
 }
 
 export function useBreadcrumbs(): BreadcrumbItem[] {
@@ -23,7 +23,7 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
   };
 
   const breadcrumbs = parts.map((part, index) => {
-    const path = '/' + parts.slice(0, index + 1).join('/');
+    let path: string | undefined = '/' + parts.slice(0, index + 1).join('/');
 
     // Handle dynamic routes and specific mappings
     let label = breadcrumbMap[path];
@@ -34,6 +34,12 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
       } else {
         label = part.charAt(0).toUpperCase() + part.slice(1);
       }
+    }
+
+    // Identify Draw UUID segment (e.g., /groups/:id/draws/:drawUuid)
+    // index is 3 because parts are: 0: groups, 1: groupId, 2: draws, 3: drawId
+    if (isGroupContext && parts[index - 1] === 'draws' && part !== 'draws') {
+      path = undefined;
     }
 
     return {

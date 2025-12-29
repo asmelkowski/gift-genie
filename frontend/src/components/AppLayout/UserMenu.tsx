@@ -77,7 +77,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
       {isOpen && (
         <div
           role="menu"
-          className="absolute top-full right-0 mt-2 w-52 bg-card border border-border rounded-md shadow-lg z-1000 opacity-100 transform translate-y-0 transition-all"
+          className="absolute top-full right-0 mt-2 w-52 bg-card border border-border rounded-md shadow-lg z-50 opacity-100 transform translate-y-0 transition-all"
         >
           <div className="p-4 border-b border-border">
             <div className="font-semibold text-foreground">{user.name}</div>

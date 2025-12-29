@@ -26,7 +26,7 @@ export function MembersPage() {
   const [editingMember, setEditingMember] = useState<MemberResponse | null>(null);
   const { params, updateParams } = useMembersParams();
   const { data, isLoading, error, refetch } = useMembersQuery(groupId!, params);
-  const { data: groupData, error: groupError } = useGroupDetailsQuery(groupId!);
+  const { error: groupError } = useGroupDetailsQuery(groupId!);
   const deleteMutation = useDeleteMemberMutation(groupId!);
 
   useEffect(() => {
@@ -83,12 +83,10 @@ export function MembersPage() {
     [updateParams]
   );
 
-  const groupName = groupData?.name || 'Members';
-
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
+        <PageHeader onAddClick={handleAddClick} />
         <MembersToolbar
           isActive={params.is_active ?? null}
           search={params.search || ''}
@@ -107,7 +105,7 @@ export function MembersPage() {
     if (isForbiddenError(error) || isForbiddenError(groupError)) {
       return (
         <div className="space-y-6">
-          <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
+          <PageHeader onAddClick={handleAddClick} />
           <AccessDeniedState
             message={
               t('accessDenied.message') ||
@@ -122,7 +120,7 @@ export function MembersPage() {
     if (error) {
       return (
         <div className="space-y-6">
-          <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
+          <PageHeader onAddClick={handleAddClick} />
           <ErrorState error={error as Error} onRetry={() => refetch()} />
         </div>
       );
@@ -135,7 +133,7 @@ export function MembersPage() {
   if (members.length === 0 && !params.search && params.is_active === null) {
     return (
       <div className="space-y-6">
-        <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
+        <PageHeader onAddClick={handleAddClick} />
         <EmptyState onAddClick={handleAddClick} />
         <MemberDialog
           isOpen={isDialogOpen}
@@ -149,7 +147,7 @@ export function MembersPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader groupName={groupName} groupId={groupId!} onAddClick={handleAddClick} />
+      <PageHeader onAddClick={handleAddClick} />
       <MembersToolbar
         isActive={params.is_active ?? null}
         search={params.search || ''}
