@@ -83,7 +83,7 @@ describe('GroupCard', () => {
     const { container } = render(<GroupCard group={group} onClick={mockOnClick} />);
 
     const card = container.querySelector('div[class*="cursor-pointer"]');
-    expect(card?.className).toMatch(/hover:shadow-lg/);
-    expect(card?.className).toMatch(/transition-shadow/);
+    expect(card?.className).toMatch(/hover:shadow-xl/);
+    expect(card?.className).toMatch(/transition-all/);
   });
 });

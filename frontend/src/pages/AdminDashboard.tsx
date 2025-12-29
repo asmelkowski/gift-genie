@@ -229,10 +229,11 @@ function UserTableRow({ user, onManagePermissions }: UserTableRowProps) {
       <td className="p-4 align-middle">{user.email}</td>
       <td className="p-4 align-middle capitalize">
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${user.role === 'admin'
-            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            }`}
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+            user.role === 'admin'
+              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+              : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+          }`}
         >
           {user.role === 'admin' ? t('users.role.admin') : t('users.role.user')}
         </span>
@@ -279,10 +280,11 @@ function UserMobileCard({ user, onManagePermissions }: UserTableRowProps) {
           <p className="text-sm text-muted-foreground truncate">{user.email}</p>
         </div>
         <span
-          className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${user.role === 'admin'
-            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            }`}
+          className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+            user.role === 'admin'
+              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+              : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+          }`}
         >
           {user.role === 'admin' ? t('users.role.admin') : t('users.role.user')}
         </span>
@@ -295,21 +297,19 @@ function UserMobileCard({ user, onManagePermissions }: UserTableRowProps) {
           {new Date(user.created_at).toLocaleDateString()}
         </span>
       </div>
-      {
-        user.role !== 'admin' && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onManagePermissions}
-            className="w-full mt-3 gap-2"
-            data-testid={`manage-permissions-mobile-${user.id}`}
-          >
-            <Shield className="h-4 w-4" />
-            {t('users.actions.manage')}
-          </Button>
-        )
-      }
-    </div >
+      {user.role !== 'admin' && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onManagePermissions}
+          className="w-full mt-3 gap-2"
+          data-testid={`manage-permissions-mobile-${user.id}`}
+        >
+          <Shield className="h-4 w-4" />
+          {t('users.actions.manage')}
+        </Button>
+      )}
+    </div>
   );
 }
 
@@ -385,10 +385,11 @@ function GroupsTable() {
                         </td>
                         <td className="p-4 align-middle">
                           <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${group.historical_exclusions_enabled
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                              }`}
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                              group.historical_exclusions_enabled
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                            }`}
                           >
                             {group.historical_exclusions_enabled
                               ? t('admin:groups.table.yes')
@@ -417,10 +418,11 @@ function GroupsTable() {
                     <div className="flex justify-between items-start gap-2 mb-2">
                       <p className="font-medium">{group.name}</p>
                       <span
-                        className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${group.historical_exclusions_enabled
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                          }`}
+                        className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          group.historical_exclusions_enabled
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                        }`}
                       >
                         {group.historical_exclusions_enabled
                           ? t('admin:groups.table.yes')

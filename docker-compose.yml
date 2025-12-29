@@ -57,13 +57,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      target: production
-      args:
-        - VITE_API_URL=/api/v1
+      target: development
     container_name: gift-genie-frontend
     environment:
       VITE_API_BASE_URL: /api/v1
-      BACKEND_URL: http://backend:8000
     volumes:
       - ./frontend/src:/app/src:ro
       - ./frontend/public:/app/public:ro
@@ -73,22 +70,18 @@ services:
       - ./frontend/tsconfig.app.json:/app/tsconfig.app.json:ro
       - ./frontend/tsconfig.node.json:/app/tsconfig.node.json:ro
     ports:
-      - 80:80
+      - 5173:5173
     depends_on:
       backend:
         condition: service_healthy
     healthcheck:
       test:
-        - CMD
-        - wget
-        - --no-verbose
-        - --tries=1
-        - --spider
-        - http://localhost/
+        - CMD-SHELL
+        - curl -f http://localhost:5173/ || exit 1
       interval: 30s
       timeout: 3s
       retries: 3
-      start_period: 5s
+      start_period: 10s
     networks:
       - gift-genie-network
     restart: unless-stopped

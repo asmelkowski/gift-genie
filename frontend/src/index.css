@@ -42,45 +42,45 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --background: oklch(0.98 0.01 100);
   /* Warm Off-White #FAF9F6 */
-  --foreground: oklch(0.35 0.06 145);
-  /* Deep Matte Pine Green #2C5530 - using as main text too? Or keep black? Let's use Pine Green for a softer look or standard dark. Let's use dark grey/green for text */
-  --card: oklch(0.98 0.01 100);
-  --card-foreground: oklch(0.35 0.06 145);
-  --popover: oklch(0.98 0.01 100);
-  --popover-foreground: oklch(0.35 0.06 145);
+  --foreground: oklch(0.25 0.04 145);
+  /* Darker Pine for better contrast */
+  --card: oklch(0.99 0.005 100);
+  --card-foreground: oklch(0.25 0.04 145);
+  --popover: oklch(0.99 0.005 100);
+  --popover-foreground: oklch(0.25 0.04 145);
   --primary: oklch(0.35 0.06 145);
   /* Deep Matte Pine Green */
-  --primary-foreground: oklch(0.96 0.02 100);
-  /* Warm Cream */
-  --secondary: oklch(0.65 0.08 210);
-  /* Slate Blue */
-  --secondary-foreground: oklch(0.98 0.01 100);
-  --muted: oklch(0.9 0.03 90);
-  /* Soft Beige */
-  --muted-foreground: oklch(0.4 0.04 145);
-  --accent: oklch(0.55 0.15 30);
-  /* Rust Red */
+  --primary-foreground: oklch(0.98 0.01 100);
+  /* Very Light Cream */
+  --secondary: oklch(0.75 0.12 85);
+  /* Festive Gold/Amber */
+  --secondary-foreground: oklch(0.25 0.04 145);
+  --muted: oklch(0.94 0.02 95);
+  /* Softest Beige */
+  --muted-foreground: oklch(0.45 0.04 145);
+  --accent: oklch(0.55 0.18 25);
+  /* Ruby/Crimson Red */
   --accent-foreground: oklch(0.98 0.01 100);
-  --destructive: oklch(0.55 0.15 30);
-  /* Rust Red */
-  --border: oklch(0.85 0.02 90);
-  --input: oklch(0.85 0.02 90);
+  --destructive: oklch(0.55 0.18 25);
+  /* Ruby Red */
+  --border: oklch(0.88 0.02 90);
+  --input: oklch(0.88 0.02 90);
   --ring: oklch(0.35 0.06 145);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.98 0.01 100);
-  --sidebar-foreground: oklch(0.35 0.06 145);
+  --sidebar: oklch(0.99 0.005 100);
+  --sidebar-foreground: oklch(0.25 0.04 145);
   --sidebar-primary: oklch(0.35 0.06 145);
-  --sidebar-primary-foreground: oklch(0.96 0.02 100);
-  --sidebar-accent: oklch(0.9 0.03 90);
-  --sidebar-accent-foreground: oklch(0.35 0.06 145);
-  --sidebar-border: oklch(0.85 0.02 90);
+  --sidebar-primary-foreground: oklch(0.98 0.01 100);
+  --sidebar-accent: oklch(0.94 0.02 95);
+  --sidebar-accent-foreground: oklch(0.25 0.04 145);
+  --sidebar-border: oklch(0.88 0.02 90);
   --sidebar-ring: oklch(0.35 0.06 145);
 }
 
@@ -129,7 +129,12 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    background-repeat: repeat;
+    background-size: 150px;
+    opacity: 0.99;
   }
 
   h1,
@@ -138,6 +143,6 @@
   h4,
   h5,
   h6 {
-    @apply font-serif;
+    @apply font-serif tracking-tight leading-tight;
   }
 }

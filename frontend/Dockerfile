@@ -21,18 +21,22 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # ============================================================================
-# Development stage - Run Vite dev server with HMR
+# Development stage - Run Vite dev server with HMR (uses Node for Vite 7 compatibility)
 # ============================================================================
-FROM deps AS development
+FROM node:22-slim AS development
 
-# Copy application source
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
 COPY . .
 
-# Expose Vite dev server port
 EXPOSE 5173
 
-# Run development server with hot-reloading
-CMD ["bun", "run", "dev", "--host", "0.0.0.0"]
+CMD ["npx", "vite", "--host", "0.0.0.0"]
 
 # ============================================================================
 # Test stage - Run tests with coverage
