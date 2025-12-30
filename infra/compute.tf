@@ -28,7 +28,7 @@ resource "scaleway_container" "backend" {
   cpu_limit          = 280 # Reduced from 560 - sufficient for most workloads
   memory_limit       = 280 # Reduced from 560 - sufficient for most workloads
   min_scale          = 0   # Scale to zero when idle - MAJOR COST SAVINGS
-  max_scale          = 3   # Reduced from 5 - sufficient for traffic spikes
+  max_scale          = 1   # Reduced from 3 - strictly control costs as requested
   timeout            = 300 # Reduced from 600 - 5 minutes is plenty
   deploy             = true
   private_network_id = scaleway_vpc_private_network.main.id
@@ -86,7 +86,7 @@ resource "scaleway_container" "frontend" {
   cpu_limit      = 280 # Reduced from 560 - serving static files needs less
   memory_limit   = 280 # Reduced from 560 - sufficient for nginx
   min_scale      = 0   # Scale to zero when idle - MAJOR COST SAVINGS
-  max_scale      = 3   # Reduced from 5 - sufficient for traffic spikes
+  max_scale      = 1   # Reduced from 3 - strictly control costs as requested
   deploy         = true
 
   environment_variables = {
