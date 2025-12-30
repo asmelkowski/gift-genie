@@ -1,0 +1,15 @@
+{
+    "email": {
+        "assignment": {
+            "title": "Wichtel-Auslosergebnis",
+            "heading": "Wichtel-Auslosergebnis - %(group_name)s",
+            "greeting": "Hallo %(name)s!",
+            "intro": "Die Weihnachtszeit steht vor der Tür und damit auch die Zeit für unseren spannenden Geschenkaustausch im Wichtelspiel! Wir freuen uns, das Ergebnis deiner Auslosung bekannt zu geben:",
+            "result": "Die Person, für die du ein Geschenk kaufst, ist: %(receiver)s",
+            "reminder": "Denk daran, dies geheim zu halten, und viel Spaß beim Auswählen eines aufmerksamen Geschenks.",
+            "wishes": "Da diese freudige Jahreszeit naht, wünschen wir dir und deinen Lieben eine wundervolle Ferienzeit voller Wärme, Lachen und unvergesslicher Momente. Möge der Zauber von Weihnachten dir Frieden, Freude und Glück bringen.",
+            "closing": "Viel Spaß beim Einkaufen und schöne Feiertage!",
+            "signature": "Beste Grüße,<br>Ihr Gift-Genie Team"
+        }
+    }
+}

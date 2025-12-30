@@ -1,0 +1,69 @@
+{
+  "header": {
+    "title": "Gruppen",
+    "subtitle": "Verwalte deine Geschenkaustausch-Gruppen",
+    "createButton": "Gruppe erstellen"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Gruppen suchen...",
+    "sortLabel": "Sortieren nach",
+    "sort": {
+      "newestFirst": "Neueste zuerst",
+      "oldestFirst": "Älteste zuerst",
+      "nameAZ": "Name (A-Z)",
+      "nameZA": "Name (Z-A)"
+    }
+  },
+  "empty": {
+    "title": "Noch keine Gruppen",
+    "description": "Erstelle deine erste Geschenkaustausch-Gruppe, um loszulegen.",
+    "createButton": "Gruppe erstellen"
+  },
+  "searchEmpty": {
+    "title": "Keine Gruppen gefunden",
+    "description": "Keine Gruppen entsprechen \"{{search}}\". Versuche einen anderen Suchbegriff.",
+    "clearButton": "Suche löschen"
+  },
+  "error": {
+    "title": "Fehler beim Laden der Gruppen",
+    "message": "Deine Gruppen konnten nicht geladen werden. Bitte versuche es erneut.",
+    "retryButton": "Wiederholen"
+  },
+  "accessDenied": {
+    "message": "Du hast keine Berechtigung, diese Gruppenliste zu sehen."
+  },
+  "card": {
+    "created": "Erstellt am {{date}}",
+    "noHistoricalExclusions": "Keine historischen Ausschlüsse",
+    "historicalExclusions": "Historische Ausschlüsse: {{count}} Auslosung",
+    "historicalExclusions_plural": "Historische Ausschlüsse: {{count}} Auslosungen"
+  },
+  "create": {
+    "title": "Gruppe erstellen",
+    "nameLabel": "Gruppenname *",
+    "namePlaceholder": "Gruppennamen eingeben",
+    "historicalExclusionsLabel": "Historische Ausschlüsse aktivieren",
+    "lookbackLabel": "Rückblick (Auslosungen)",
+    "cancelButton": "Abbrechen",
+    "createButton": "Erstellen",
+    "creatingButton": "Wird erstellt...",
+    "errors": {
+      "nameRequired": "Gruppenname ist erforderlich",
+      "nameTooLong": "Der Gruppenname muss zwischen 1 und 100 Zeichen lang sein",
+      "lookbackInvalid": "Rückblick muss eine positive ganze Zahl sein"
+    }
+  },
+  "details": {
+    "title": "Gruppendetails",
+    "membersTitle": "Mitglieder",
+    "membersDescription": "Mitglieder in dieser Gruppe verwalten",
+    "viewMembersButton": "Mitglieder anzeigen",
+    "backToGroupsButton": "Zurück zu Gruppen",
+    "exclusionsTitle": "Ausschlüsse",
+    "exclusionsDescription": "Ausschlüsse verwalten, um bestimmte Paarungen zu verhindern",
+    "viewExclusionsButton": "Ausschlüsse anzeigen",
+    "drawsTitle": "Auslosungen",
+    "drawsDescription": "Geschenkaustausch-Auslosungen erstellen und verwalten",
+    "viewDrawsButton": "Auslosungen anzeigen"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "header": {
+    "title": "Admin-Dashboard",
+    "subtitle": "Benutzer und Gruppen plattformweit verwalten"
+  },
+  "tabs": {
+    "users": "Benutzer",
+    "groups": "Gruppen"
+  },
+  "users": {
+    "title": "Benutzer",
+    "searchPlaceholder": "Benutzer suchen...",
+    "table": {
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "permissions": "Berechtigungen",
+      "joined": "Beigetreten",
+      "noUsers": "Keine Benutzer gefunden"
+    },
+    "role": {
+      "admin": "Admin",
+      "user": "Benutzer"
+    },
+    "permissions": {
+      "admin": "Alle (Admin)"
+    },
+    "actions": {
+      "manage": "Verwalten"
+    }
+  },
+  "groups": {
+    "title": "Gruppen",
+    "searchPlaceholder": "Gruppen suchen...",
+    "table": {
+      "name": "Name",
+      "adminId": "Admin Benutzer-ID",
+      "historyEnabled": "Historie aktiviert",
+      "created": "Erstellt",
+      "noGroups": "Keine Gruppen gefunden",
+      "yes": "Ja",
+      "no": "Nein"
+    }
+  },
+  "permissionManager": {
+    "title": "Berechtigungen für {{name}} verwalten",
+    "grantedCount": "{{count}} Berechtigungen erteilt",
+    "searchPlaceholder": "Nach Namen, Code oder Gruppen suchen...",
+    "allGranted": "Alle Berechtigungen erteilt",
+    "noneGranted": "Keine Berechtigungen erteilt",
+    "availableSystem": "Verfügbare Systemberechtigungen",
+    "availableGroup": "{{name}} (Verfügbar)",
+    "grantedSystemTitle": "Erteilte Systemberechtigungen"
+  },
+  "grantAccess": {
+    "title": "Gruppenspezifischen Zugriff gewähren",
+    "selectGroup": "Gruppe auswählen",
+    "chooseGroup": "Wähle eine Gruppe...",
+    "toGrant": "Zu gewährende Berechtigungen",
+    "alreadyGranted": "Bereits gewährt",
+    "grantButton": "Gewähren",
+    "selected": "Ausgewählt",
+    "permission": "Berechtigung",
+    "permissions": "Berechtigungen",
+    "noGroups": "Keine Gruppen verfügbar"
+  },
+  "actions": {
+    "close": "Schließen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pageInfo": "Seite {{current}} von {{total}}"
+  }
+}

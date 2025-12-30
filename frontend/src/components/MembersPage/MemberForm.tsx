@@ -231,6 +231,7 @@ export function MemberForm({
         >
           <option value="en">{t('form.languageOptions.en')}</option>
           <option value="pl">{t('form.languageOptions.pl')}</option>
+          <option value="de">{t('form.languageOptions.de')}</option>
         </select>
       </div>
 

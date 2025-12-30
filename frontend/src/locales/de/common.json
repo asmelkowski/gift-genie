@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "back": "Zurück",
+    "next": "Weiter",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "retry": "Wiederholen"
+  },
+  "labels": {
+    "email": "E-Mail",
+    "password": "Passwort",
+    "name": "Name",
+    "description": "Beschreibung",
+    "createdAt": "Erstellt",
+    "updatedAt": "Aktualisiert"
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "emailInvalid": "Ungültige E-Mail-Adresse",
+    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "nameTooLong": "Der Name ist zu lang (max. {{max}} Zeichen)"
+  },
+  "status": {
+    "loading": "Laden...",
+    "saving": "Speichern...",
+    "success": "Erfolg!",
+    "error": "Ein Fehler ist aufgetreten"
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite {{current}} von {{total_pages}} (insgesamt {{total}})",
+    "showing": "Zeige {{from}}-{{to}} von {{total}} Ergebnissen"
+  },
+  "navigation": {
+    "groups": "Gruppen",
+    "members": "Mitglieder",
+    "draws": "Auslosungen",
+    "exclusions": "Ausschlüsse",
+    "admin": "Admin",
+    "logout": "Abmelden",
+    "home": "Home",
+    "settings": "Einstellungen"
+  },
+  "appLayout": {
+    "title": "Gift Genie",
+    "toggleTheme": "Zu {{theme}} Theme wechseln",
+    "toggleMenu": "Navigationsmenü umschalten",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "groups": "Gruppen",
+    "members": "Mitglieder",
+    "draws": "Auslosungen",
+    "exclusions": "Ausschlüsse",
+    "admin": "Admin"
+  },
+  "home": {
+    "welcome": "Willkommen zu Hause!",
+    "description": "Dies ist eine Dummy-Homepage nach dem Login."
+  }
+}
