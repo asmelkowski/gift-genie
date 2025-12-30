@@ -21,6 +21,15 @@ import exclusionsPl from '@/locales/pl/exclusions.json';
 import adminPl from '@/locales/pl/admin.json';
 import errorsPl from '@/locales/pl/errors.json';
 
+import commonDe from '@/locales/de/common.json';
+import authDe from '@/locales/de/auth.json';
+import groupsDe from '@/locales/de/groups.json';
+import membersDe from '@/locales/de/members.json';
+import drawsDe from '@/locales/de/draws.json';
+import exclusionsDe from '@/locales/de/exclusions.json';
+import adminDe from '@/locales/de/admin.json';
+import errorsDe from '@/locales/de/errors.json';
+
 const resources = {
   en: {
     common: commonEn,
@@ -41,6 +50,16 @@ const resources = {
     exclusions: exclusionsPl,
     admin: adminPl,
     errors: errorsPl,
+  },
+  de: {
+    common: commonDe,
+    auth: authDe,
+    groups: groupsDe,
+    members: membersDe,
+    draws: drawsDe,
+    exclusions: exclusionsDe,
+    admin: adminDe,
+    errors: errorsDe,
   },
 };
 

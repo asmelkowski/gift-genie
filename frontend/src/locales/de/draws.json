@@ -1,0 +1,141 @@
+{
+  "header": {
+    "title": "Auslosungen",
+    "subtitle": "Geschenkaustausch-Auslosungen erstellen und verwalten",
+    "createButton": "Auslosung erstellen"
+  },
+  "toolbar": {
+    "filterLabel": "Nach Status filtern",
+    "sortLabel": "Sortieren nach",
+    "status": {
+      "all": "Alle Auslosungen",
+      "pending": "Ausstehend",
+      "finalized": "Abgeschlossen"
+    },
+    "sort": {
+      "createdNewest": "Erstellt (Neueste)",
+      "createdOldest": "Erstellt (Älteste)",
+      "finalizedNewest": "Abgeschlossen (Neueste)",
+      "finalizedOldest": "Abgeschlossen (Älteste)"
+    }
+  },
+  "card": {
+    "statusPending": "Ausstehend",
+    "statusFinalized": "Abgeschlossen",
+    "title": "Auslosung #{{id}}",
+    "createdLabel": "Erstellt",
+    "finalizedLabel": "Abgeschlossen",
+    "notifiedLabel": "Benachrichtigt",
+    "actions": {
+      "execute": "Ausführen",
+      "finalize": "Abschließen",
+      "notify": "Benachrichtigen",
+      "viewResults": "Ergebnisse anzeigen",
+      "delete": "Löschen"
+    },
+    "lifecycle": {
+      "created": "Erstellt",
+      "executed": "Ausgeführt",
+      "finalized": "Abgeschlossen",
+      "notified": "Benachrichtigt"
+    }
+  },
+  "empty": {
+    "title": "Noch keine Auslosungen",
+    "description": "Erstelle deine erste Auslosung, um mit den Geschenkzuordnungen zu beginnen"
+  },
+  "searchEmpty": {
+    "title": "Keine Auslosungen gefunden",
+    "description": "Keine Auslosungen entsprechen deiner Suche. Versuche, die Filter anzupassen.",
+    "clearButton": "Suche löschen"
+  },
+  "error": {
+    "title": "Auslosungen konnten nicht geladen werden",
+    "retryButton": "Wiederholen",
+    "groupNotFound": "Gruppe nicht gefunden"
+  },
+  "accessDenied": {
+    "message": "Du hast keine Berechtigung, die Auslosungen für diese Gruppe zu sehen."
+  },
+  "delete": {
+    "confirmMessage": "Bist du sicher, dass du diese Auslosung löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden."
+  },
+  "execute": {
+    "title": "Auslosung ausführen",
+    "loadingMessage": "Auslosungsalgorithmus wird ausgeführt...",
+    "confirmButton": "Ausführen",
+    "cancelButton": "Abbrechen"
+  },
+  "executeError": {
+    "title": "Auslosung kann nicht ausgeführt werden",
+    "reviewExclusionsButton": "Ausschlüsse überprüfen",
+    "addMembersButton": "Mitglieder hinzufügen",
+    "noValidConfig": "Die aktuelle Gruppenkonfiguration macht es unmöglich, jeden zuzuordnen. Dies passiert normalerweise, wenn: Einschränkungen zu viele gültige Paare ausschließen, du zu viele Ausschlüsse hast oder nicht genügend aktive Mitglieder vorhanden sind.",
+    "noValidConfigWithMinimum": "Du benötigst mindestens {{minimum}} aktive Mitglieder, um diese Auslosung auszuführen. Versuche, mehr Mitglieder zu deiner Gruppe hinzuzufügen.",
+    "unknownError": "Dies bedeutet normalerweise, dass es zu viele Ausschlüsse oder nicht genug Mitglieder gibt. Versuche:"
+  },
+  "finalize": {
+    "title": "Auslosung abschließen?",
+    "confirmMessage": "Einmal abgeschlossen, wird diese Auslosung unveränderlich und kann nicht mehr modifiziert werden.",
+    "warningMessage": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirmButton": "Bestätigen",
+    "finalizingButton": "Wird abgeschlossen...",
+    "cancelButton": "Abbrechen"
+  },
+  "notify": {
+    "title": "Benachrichtigungen senden",
+    "confirmMessage": "Mitglieder erhalten E-Mail-Benachrichtigungen mit ihren Zuordnungen.",
+    "resendCheckbox": "An alle Mitglieder erneut senden (Benachrichtigungen wurden bereits gesendet)",
+    "sendButton": "Senden",
+    "sendingButton": "Wird gesendet...",
+    "cancelButton": "Abbrechen"
+  },
+  "notifyResult": {
+    "title": "Benachrichtigungen gesendet",
+    "sentLabel": "Gesendet",
+    "sentMessage": "✓ Gesendet: {{count}} Benachrichtigungen",
+    "skippedLabel": "Übersprungen",
+    "skippedMessage": "⊘ Übersprungen: {{count}} Mitglieder (keine E-Mail)",
+    "closeButton": "Schließen"
+  },
+  "results": {
+    "pageTitle": "Auslosungsergebnisse",
+    "subtitle": "{{groupName}} - Auslosung #{{drawId}}",
+    "viewDetailsButton": "Auslosungsergebnisse anzeigen",
+    "spoilerWarning": "⚠️ Könnte den Spaß verderben!",
+    "previewMode": "Vorschau-Modus: Diese Ergebnisse sind noch nicht abgeschlossen. Du kannst sie überprüfen, bevor du die Auslosung abschließt.",
+    "information": {
+      "title": "Auslosungsinformationen",
+      "statusLabel": "Status:",
+      "statusPending": "Warten auf Abschluss",
+      "statusFinalized": "Abgeschlossen",
+      "createdLabel": "Erstellt:",
+      "finalizedLabel": "Abgeschlossen:"
+    },
+    "notification": {
+      "title": "Benachrichtigungsstatus",
+      "sentLabel": "Gesendet",
+      "notSentLabel": "Noch nicht gesendet"
+    },
+    "assignments": {
+      "title": "Zuordnungen:",
+      "giverHeader": "Geber",
+      "receiverHeader": "Empfänger",
+      "searchPlaceholder": "Nach Geber oder Empfänger suchen...",
+      "sortLabel": "Sortieren nach",
+      "sort": {
+        "giverAsc": "Geber (A-Z)",
+        "giverDesc": "Geber (Z-A)",
+        "receiverAsc": "Empfänger (A-Z)",
+        "receiverDesc": "Empfänger (Z-A)"
+      },
+      "noResults": "Keine Zuordnungen entsprechen deiner Suche",
+      "noAssignments": "Keine Zuordnungen gefunden"
+    },
+    "export": {
+      "copyButton": "Kopieren",
+      "csvButton": "CSV"
+    },
+    "finalizedTitle": "Auslosung abgeschlossen!"
+  }
+}

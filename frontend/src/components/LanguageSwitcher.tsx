@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 const LANGUAGES = {
   en: { flag: '🇬🇧', code: 'EN' },
   pl: { flag: '🇵🇱', code: 'PL' },
+  de: { flag: '🇩🇪', code: 'DE' },
 } as const;
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
   const currentLanguage = (i18n.language || 'pl') as keyof typeof LANGUAGES;
-  const nextLanguage = currentLanguage === 'pl' ? 'en' : 'pl';
+  const nextLanguage = currentLanguage === 'pl' ? 'en' : currentLanguage === 'en' ? 'de' : 'pl';
   const nextLangConfig = LANGUAGES[nextLanguage];
 
   const handleToggleLanguage = useCallback(() => {

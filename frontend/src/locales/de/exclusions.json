@@ -1,0 +1,74 @@
+{
+  "header": {
+    "title": "Ausschlüsse",
+    "subtitle": "Verwalte Ausschlüsse, um bestimmte Mitgliederpaarungen bei Auslosungen zu verhindern."
+  },
+  "toolbar": {
+    "filterLabel": "Nach Typ filtern",
+    "sortLabel": "Sortieren nach",
+    "filter": {
+      "all": "Alle",
+      "manual": "Manuell",
+      "historical": "Historisch"
+    },
+    "sort": {
+      "typeAndName": "Typ & Name",
+      "newestFirst": "Neueste zuerst",
+      "oldestFirst": "Älteste zuerst",
+      "nameAZ": "Geber Name (A-Z)",
+      "nameZA": "Geber Name (Z-A)"
+    },
+    "addButton": "Ausschluss hinzufügen",
+    "addDisabledTitle": "Historische Ausschlüsse können nicht manuell erstellt werden"
+  },
+  "card": {
+    "typeLabel": "Typ",
+    "typeManual": "Manuell",
+    "typeHistorical": "Historisch",
+    "mutualLabel": "Gegenseitig",
+    "inactiveLabel": "Inaktiv",
+    "fromLabel": "Von:",
+    "toLabel": "An:",
+    "createdLabel": "Erstellt",
+    "deleteButton": "Löschen",
+    "systemGeneratedNote": "Systemgeneriert aus vorherigen Auslosungen",
+    "actions": {
+      "delete": "Löschen"
+    }
+  },
+  "empty": {
+    "title": "Keine Ausschlüsse gefunden",
+    "description": "Erstelle einen, um bestimmte Mitgliederpaarungen zu verhindern.",
+    "historicalDescription": "Keine historischen Ausschlüsse gefunden. Historische Ausschlüsse werden automatisch aus vergangenen Auslosungen erstellt."
+  },
+  "error": {
+    "title": "Ausschlüsse konnten nicht geladen werden",
+    "message": "Fehler beim Laden der Ausschlüsse. Bitte versuche es erneut.",
+    "retryButton": "Wiederholen"
+  },
+  "accessDenied": {
+    "message": "Du hast keine Berechtigung, die Ausschlüsse für diese Gruppe zu sehen."
+  },
+  "delete": {
+    "confirmMessage": "Bist du sicher, dass du diesen Ausschluss löschen möchtest?"
+  },
+  "dialog": {
+    "title": "Ausschluss erstellen"
+  },
+  "form": {
+    "giverLabel": "Gehendes Mitglied",
+    "giverPlaceholder": "Gehendes Mitglied auswählen",
+    "receiverLabel": "Empfangendes Mitglied",
+    "receiverPlaceholder": "Empfangendes Mitglied auswählen",
+    "mutualCheckbox": "Gegenseitiger Ausschluss (beide Richtungen)",
+    "createButton": "Ausschluss erstellen",
+    "creatingButton": "Wird erstellt...",
+    "cancelButton": "Abbrechen",
+    "errors": {
+      "giverRequired": "Bitte wähle ein gehendes Mitglied aus",
+      "receiverRequired": "Bitte wähle ein empfangendes Mitglied aus",
+      "sameMember": "Geber und Empfänger können nicht dasselbe Mitglied sein",
+      "duplicate": "Dieser Ausschluss existiert bereits"
+    }
+  }
+}

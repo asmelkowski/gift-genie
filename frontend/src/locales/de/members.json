@@ -1,0 +1,94 @@
+{
+  "header": {
+    "breadcrumb": {
+      "groups": "Gruppen",
+      "members": "Mitglieder"
+    },
+    "title": "Mitglieder",
+    "subtitle": "Mitglieder in dieser Gruppe verwalten",
+    "addButton": "Mitglied hinzufügen"
+  },
+  "toolbar": {
+    "filterLabel": "Mitglieder nach Aktivitätsstatus filtern",
+    "filterAll": "Alle",
+    "filterActive": "Aktiv",
+    "filterInactive": "Inaktiv",
+    "searchPlaceholder": "Nach Name oder E-Mail suchen...",
+    "searchAriaLabel": "Mitglieder suchen",
+    "clearSearchAriaLabel": "Suche löschen",
+    "sortLabel": "Mitglieder sortieren",
+    "sort": {
+      "nameAZ": "Name (A-Z)",
+      "nameZA": "Name (Z-A)",
+      "newestFirst": "Neueste zuerst",
+      "oldestFirst": "Älteste zuerst"
+    }
+  },
+  "empty": {
+    "title": "Noch keine Mitglieder",
+    "description": "Füge deiner Gruppe Mitglieder hinzu, um Geschenkaustausche zu organisieren",
+    "addButton": "Mitglied hinzufügen"
+  },
+  "searchEmpty": {
+    "title": "Keine Mitglieder gefunden",
+    "descriptionSearch": "Keine Mitglieder entsprechen \"{{search}}\".",
+    "descriptionFilters": "Keine Mitglieder entsprechen den ausgewählten Filtern.",
+    "clearButton": "Filter löschen"
+  },
+  "error": {
+    "title": "Fehler beim Laden der Mitglieder",
+    "message": "Mitglieder konnten nicht geladen werden. Bitte versuche es erneut.",
+    "retryButton": "Wiederholen"
+  },
+  "accessDenied": {
+    "message": "Du hast keine Berechtigung, die Mitglieder dieser Gruppe zu sehen."
+  },
+  "dialog": {
+    "addTitle": "Mitglied hinzufügen",
+    "editTitle": "Mitglied bearbeiten",
+    "pendingDrawTitle": "Mitglied kann nicht deaktiviert werden",
+    "pendingDrawMessage": "Dieses Mitglied kann nicht deaktiviert werden, da es Teil einer ausstehenden Auslosung ist. Bitte schließe die Auslosung zuerst ab oder lösche sie.",
+    "pendingDrawOkButton": "OK"
+  },
+  "form": {
+    "nameLabel": "Name",
+    "nameLabelRequired": "Name *",
+    "namePlaceholder": "Mitgliedsnamen eingeben",
+    "emailLabel": "E-Mail (optional)",
+    "emailPlaceholder": "E-Mail-Adresse des Mitglieds eingeben",
+    "activeCheckboxLabel": "Aktives Mitglied",
+    "activeCheckboxHelpText": "Inaktive Mitglieder sind von Auslosungen ausgeschlossen",
+    "cancelButton": "Abbrechen",
+    "saveButton": "Änderungen speichern",
+    "addButton": "Mitglied hinzufügen",
+    "savingButton": "Wird gespeichert...",
+    "languageLabel": "E-Mail-Sprache",
+    "languageOptions": {
+      "pl": "Polnisch",
+      "en": "Englisch",
+      "de": "Deutsch"
+    },
+    "errors": {
+      "nameRequired": "Name ist erforderlich",
+      "nameTooLong": "Der Name darf maximal 100 Zeichen lang sein",
+      "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
+      "nameConflict": "Dieser Name wird bereits von einem anderen Mitglied verwendet",
+      "emailConflict": "Diese E-Mail wird bereits von einem anderen Mitglied verwendet",
+      "cannotDeactivate": "Dieses Mitglied kann nicht deaktiviert werden, da es Teil einer ausstehenden Auslosung ist. Bitte schließe die Auslosung zuerst ab oder lösche sie."
+    }
+  },
+  "card": {
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv",
+    "emailLabel": "E-Mail",
+    "noEmailProvided": "Keine E-Mail angegeben",
+    "createdLabel": "Erstellt",
+    "editAriaLabel": "Mitglied {{name}} bearbeiten",
+    "deleteAriaLabel": "Mitglied {{name}} löschen",
+    "deleteConfirmTitle": "Bist du sicher, dass du {{name}} löschen möchtest? Dies entfernt auch alle Ausschlussregeln, an denen dieses Mitglied beteiligt ist. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteConfirmCancel": "Abbrechen",
+    "deleteConfirmDelete": "Löschen",
+    "cancelDeleteAriaLabel": "Löschen für {{name}} abbrechen",
+    "confirmDeleteAriaLabel": "Löschen für {{name}} bestätigen"
+  }
+}
