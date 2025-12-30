@@ -55,7 +55,8 @@
     "toggleTheme": "Zu {{theme}} Theme wechseln",
     "toggleMenu": "Navigationsmenü umschalten",
     "settings": "Einstellungen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "changeLanguage": "Sprache ändern"
   },
   "breadcrumbs": {
     "home": "Home",

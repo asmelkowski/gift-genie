@@ -55,7 +55,8 @@
     "toggleTheme": "Przełącz na tryb {{theme}}",
     "toggleMenu": "Przełącz menu nawigacji",
     "settings": "Ustawienia",
-    "logout": "Wyloguj się"
+    "logout": "Wyloguj się",
+    "changeLanguage": "Zmień język"
   },
   "breadcrumbs": {
     "home": "Strona główna",

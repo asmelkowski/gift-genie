@@ -55,7 +55,8 @@
     "toggleTheme": "Switch to {{theme}} theme",
     "toggleMenu": "Toggle navigation menu",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "changeLanguage": "Change language"
   },
   "breadcrumbs": {
     "home": "Home",
